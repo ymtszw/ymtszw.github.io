@@ -88,7 +88,7 @@ view :
 view _ _ static =
     { title = "ymtszw's page"
     , body =
-        Html.img [ Html.Attributes.src <| ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250 ] []
+        Html.img [ Html.Attributes.src <| ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             :: static.data.readme
             ++ static.data.bio
             ++ [ Html.h2 [] [ Html.text "GitHub Public Repo" ]
