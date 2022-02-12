@@ -13,6 +13,7 @@ import OptimizedDecoder
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
+import Regex
 import Shared
 import View exposing (View)
 
@@ -52,14 +53,15 @@ data routeParams =
             [ OptimizedDecoder.field "content" OptimizedDecoder.string
                 |> OptimizedDecoder.map (String.replace "\n" "")
                 |> OptimizedDecoder.andThen (Base64.toString >> Result.fromMaybe "Base64 Error!" >> OptimizedDecoder.fromResult)
-            , OptimizedDecoder.succeed "# Missing README.md"
+            , OptimizedDecoder.field "message" OptimizedDecoder.string
             ]
             |> OptimizedDecoder.andThen markdownDecoder
         )
 
 
 markdownDecoder input =
-    Markdown.Parser.parse input
+    preprocessMarkdown input
+        |> Markdown.Parser.parse
         |> Result.mapError (List.map Markdown.Parser.deadEndToString >> String.join "\n")
         |> Result.andThen (Markdown.Renderer.render htmlRenderer)
         |> (\result ->
@@ -76,6 +78,15 @@ markdownDecoder input =
                             , Html.pre [] [ Html.text input ]
                             ]
            )
+
+
+preprocessMarkdown =
+    Regex.replace plainUrlPattern <|
+        \{ match } -> "<" ++ match ++ ">"
+
+
+plainUrlPattern =
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)https?://\\S+(?=\\s|$)")
 
 
 htmlRenderer =
