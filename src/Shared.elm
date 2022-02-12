@@ -173,7 +173,24 @@ view :
     -> (Msg -> msg)
     -> View msg
     -> { body : Html msg, title : String }
-view sharedData _ _ _ pageView =
+view sharedData page _ _ pageView =
     { title = pageView.title
-    , body = Html.main_ [] (Html.node "style" [] [ Html.text sharedData.externalCss ] :: pageView.body)
+    , body =
+        Html.div []
+            [ Html.node "style" [] [ Html.text sharedData.externalCss ]
+            , Html.nav [] <|
+                List.intersperse (Html.text " / ") <|
+                    List.concat
+                        [ [ Route.link Route.Index [] [ Html.text "Index" ] ]
+                        , page.route
+                            |> Maybe.map
+                                (\route ->
+                                    case route of
+                                        Route.Index ->
+                                            []
+                                )
+                            |> Maybe.withDefault []
+                        ]
+            , Html.main_ [] pageView.body
+            ]
     }

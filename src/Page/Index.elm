@@ -4,12 +4,12 @@ import DataSource exposing (DataSource)
 import DataSource.File
 import Head
 import Head.Seo as Seo
-import Html exposing (..)
+import Html
+import Html.Attributes
 import Markdown
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
-import Route
 import Shared
 import View exposing (View)
 
@@ -71,8 +71,8 @@ head _ =
 
 
 type alias Data =
-    { readme : List (Html Never)
-    , bio : List (Html Never)
+    { readme : List (Html.Html Never)
+    , bio : List (Html.Html Never)
     }
 
 
@@ -91,13 +91,13 @@ view _ _ static =
                , static.sharedData.repos
                     |> List.map
                         (\publicOriginalRepo ->
-                            strong []
-                                [ text "["
-                                , Route.link (Route.Github__PublicOriginalRepo_ { publicOriginalRepo = publicOriginalRepo }) [] [ text publicOriginalRepo ]
-                                , text "]"
+                            Html.strong []
+                                [ Html.text "["
+                                , Html.a [ Html.Attributes.href ("https://github.com/ymtszw/" ++ publicOriginalRepo), Html.Attributes.target "_blank" ] [ Html.text publicOriginalRepo ]
+                                , Html.text "]"
                                 ]
                         )
                     |> List.intersperse (Html.text " ")
-                    |> p []
+                    |> Html.p []
                ]
     }

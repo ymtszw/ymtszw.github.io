@@ -63,4 +63,18 @@ htmlRenderer =
                 , Markdown.Html.tag "kbd" <| Html.kbd []
                 , Markdown.Html.tag "b" <| Html.b []
                 ]
+        , link =
+            \link content ->
+                let
+                    titleAttr =
+                        link.title |> Maybe.map (\title -> [ Html.Attributes.title title ]) |> Maybe.withDefault []
+
+                    destAttr =
+                        if String.startsWith "http://" link.destination || String.startsWith "https://" link.destination then
+                            [ Html.Attributes.href link.destination, Html.Attributes.target "_blank" ]
+
+                        else
+                            [ Html.Attributes.href link.destination ]
+                in
+                Html.a (titleAttr ++ destAttr) content
     }
