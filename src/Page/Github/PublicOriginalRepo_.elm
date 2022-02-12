@@ -1,12 +1,9 @@
 module Page.Github.PublicOriginalRepo_ exposing (Data, Model, Msg, page)
 
-import Base64
 import DataSource exposing (DataSource)
 import Head
 import Head.Seo as Seo
 import Html
-import Markdown
-import OptimizedDecoder
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
@@ -44,15 +41,7 @@ routes =
 
 data : RouteParams -> DataSource Data
 data routeParams =
-    Shared.githubGet ("https://api.github.com/repos/ymtszw/" ++ routeParams.publicOriginalRepo ++ "/contents/README.md")
-        (OptimizedDecoder.oneOf
-            [ OptimizedDecoder.field "content" OptimizedDecoder.string
-                |> OptimizedDecoder.map (String.replace "\n" "")
-                |> OptimizedDecoder.andThen (Base64.toString >> Result.fromMaybe "Base64 Error!" >> OptimizedDecoder.fromResult)
-            , OptimizedDecoder.field "message" OptimizedDecoder.string
-            ]
-            |> OptimizedDecoder.andThen Markdown.decoder
-        )
+    Shared.getGitHubRepoReadme routeParams.publicOriginalRepo
 
 
 head :

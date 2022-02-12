@@ -1,9 +1,11 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), githubGet, publicOriginalRepos, template)
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), getGitHubRepoReadme, githubGet, publicOriginalRepos, template)
 
+import Base64
 import Browser.Navigation
 import DataSource
 import DataSource.Http
 import Html exposing (Html)
+import Markdown
 import OptimizedDecoder
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
@@ -145,6 +147,19 @@ publicOriginalRepos =
                             Nothing
                     )
                 )
+        )
+
+
+getGitHubRepoReadme : String -> DataSource.DataSource (List (Html Never))
+getGitHubRepoReadme repo =
+    githubGet ("https://api.github.com/repos/ymtszw/" ++ repo ++ "/contents/README.md")
+        (OptimizedDecoder.oneOf
+            [ OptimizedDecoder.field "content" OptimizedDecoder.string
+                |> OptimizedDecoder.map (String.replace "\n" "")
+                |> OptimizedDecoder.andThen (Base64.toString >> Result.fromMaybe "Base64 Error!" >> OptimizedDecoder.fromResult)
+            , OptimizedDecoder.field "message" OptimizedDecoder.string
+            ]
+            |> OptimizedDecoder.andThen Markdown.decoder
         )
 
 

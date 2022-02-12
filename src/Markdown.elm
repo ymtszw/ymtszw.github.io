@@ -1,4 +1,4 @@
-module Markdown exposing (decoder)
+module Markdown exposing (decoder, render)
 
 import Html exposing (Html)
 import Html.Attributes
@@ -11,6 +11,11 @@ import Regex
 
 decoder : String -> OptimizedDecoder.Decoder (List (Html Never))
 decoder input =
+    OptimizedDecoder.fromResult (render input)
+
+
+render : String -> Result String (List (Html Never))
+render input =
     preprocessMarkdown input
         |> Markdown.Parser.parse
         |> Result.mapError (List.map Markdown.Parser.deadEndToString >> String.join "\n")
@@ -18,10 +23,10 @@ decoder input =
         |> (\result ->
                 case result of
                     Ok ok ->
-                        OptimizedDecoder.succeed ok
+                        Ok ok
 
                     Err err ->
-                        OptimizedDecoder.succeed <|
+                        Ok
                             [ Html.h1 [] [ Html.text "Markdown Error!" ]
                             , Html.pre [] [ Html.text err ]
                             , Html.br [] []
@@ -37,7 +42,7 @@ preprocessMarkdown =
 
 
 plainUrlPattern =
-    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)https?://\\S+(?=\\s|$)")
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)(?<!\\]:\\s+)https?://\\S+(?=\\s|$)")
 
 
 htmlRenderer =
