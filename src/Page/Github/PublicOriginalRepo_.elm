@@ -5,15 +5,11 @@ import DataSource exposing (DataSource)
 import Head
 import Head.Seo as Seo
 import Html
-import Html.Attributes
-import Markdown.Html
-import Markdown.Parser
-import Markdown.Renderer exposing (defaultHtmlRenderer)
+import Markdown
 import OptimizedDecoder
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
-import Regex
 import Shared
 import View exposing (View)
 
@@ -55,59 +51,8 @@ data routeParams =
                 |> OptimizedDecoder.andThen (Base64.toString >> Result.fromMaybe "Base64 Error!" >> OptimizedDecoder.fromResult)
             , OptimizedDecoder.field "message" OptimizedDecoder.string
             ]
-            |> OptimizedDecoder.andThen markdownDecoder
+            |> OptimizedDecoder.andThen Markdown.decoder
         )
-
-
-markdownDecoder input =
-    preprocessMarkdown input
-        |> Markdown.Parser.parse
-        |> Result.mapError (List.map Markdown.Parser.deadEndToString >> String.join "\n")
-        |> Result.andThen (Markdown.Renderer.render htmlRenderer)
-        |> (\result ->
-                case result of
-                    Ok ok ->
-                        OptimizedDecoder.succeed ok
-
-                    Err err ->
-                        OptimizedDecoder.succeed <|
-                            [ Html.h1 [] [ Html.text "Markdown Error!" ]
-                            , Html.pre [] [ Html.text err ]
-                            , Html.br [] []
-                            , Html.h1 [] [ Html.text "Here's the source:" ]
-                            , Html.pre [] [ Html.text input ]
-                            ]
-           )
-
-
-preprocessMarkdown =
-    Regex.replace plainUrlPattern <|
-        \{ match } -> "<" ++ match ++ ">"
-
-
-plainUrlPattern =
-    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)https?://\\S+(?=\\s|$)")
-
-
-htmlRenderer =
-    { defaultHtmlRenderer
-        | html =
-            Markdown.Html.oneOf
-                [ Markdown.Html.tag "img"
-                    (\src children ->
-                        Html.img [ Html.Attributes.src src ] children
-                    )
-                    |> Markdown.Html.withAttribute "src"
-                , -- src-less anchor
-                  Markdown.Html.tag "a"
-                    (\name children ->
-                        Html.a [ Html.Attributes.name name ] children
-                    )
-                    |> Markdown.Html.withAttribute "name"
-                , Markdown.Html.tag "kbd" <| Html.kbd []
-                , Markdown.Html.tag "b" <| Html.b []
-                ]
-    }
 
 
 head :
