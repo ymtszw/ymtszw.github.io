@@ -103,7 +103,7 @@ data =
         classlessCss =
             DataSource.Http.unoptimizedRequest
                 (Pages.Secrets.succeed
-                    { url = "https://unpkg.com/sakura.css@1.3.1/css/sakura.css"
+                    { url = "https://raw.githubusercontent.com/oxalorg/sakura/master/css/sakura.css"
                     , method = "GET"
                     , headers = []
                     , body = DataSource.Http.emptyBody
