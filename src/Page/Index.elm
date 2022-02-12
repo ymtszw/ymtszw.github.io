@@ -44,7 +44,9 @@ data =
 
         bio =
             DataSource.map2 (++)
-                (DataSource.fromResult (Markdown.render "## Bio [(source)](https://github.com/ymtszw/ymtszw)"))
+                (DataSource.fromResult (Markdown.render """## Bio [(source)](https://github.com/ymtszw/ymtszw)
+
+> この節は[public profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/about-your-profile)をサイトビルド時に読み込んでHTML化しています。"""))
                 (Shared.getGitHubRepoReadme "ymtszw")
     in
     DataSource.map2 Data readme bio
@@ -92,7 +94,7 @@ view _ _ static =
             :: static.data.readme
             ++ static.data.bio
             ++ [ Html.h2 [] [ Html.text "GitHub Public Repo" ]
-               , Html.blockquote [] [ Html.text "作成が新しい順です" ]
+               , Html.blockquote [] [ Html.text "このリストはサイトビルド時にGitHub REST APIをHeadless CMSのように見立ててデータを取得し、事前構築しています。作成が新しい順です" ]
                , static.sharedData.repos
                     |> List.map
                         (\publicOriginalRepo ->
