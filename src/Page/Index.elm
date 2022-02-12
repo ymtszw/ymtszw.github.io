@@ -70,12 +70,19 @@ view :
 view _ _ static =
     { title = "ymtszw's page"
     , body =
-        [ static.sharedData.repos
+        [ Html.h1 [] [ Html.text "ymtszw's page" ]
+        , Html.h2 [] [ Html.text "GitHub Public Repo" ]
+        , Html.blockquote [] [ Html.text "作成が新しい順です" ]
+        , static.sharedData.repos
             |> List.map
                 (\publicOriginalRepo ->
-                    Route.Github__PublicOriginalRepo_ { publicOriginalRepo = publicOriginalRepo }
-                        |> (\route -> li [] [ Route.link route [] [ text <| String.join "/" <| Route.routeToPath route ] ])
+                    strong []
+                        [ text "["
+                        , Route.link (Route.Github__PublicOriginalRepo_ { publicOriginalRepo = publicOriginalRepo }) [] [ text publicOriginalRepo ]
+                        , text "]"
+                        ]
                 )
-            |> ul []
+            |> List.intersperse (Html.text " ")
+            |> p []
         ]
     }

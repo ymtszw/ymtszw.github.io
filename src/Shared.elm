@@ -129,7 +129,7 @@ githubGet url =
 
 
 publicOriginalRepos =
-    githubGet "https://api.github.com/users/ymtszw/repos?per_page=100&direction=desc&sort=updated"
+    githubGet "https://api.github.com/users/ymtszw/repos?per_page=100&direction=desc&sort=created"
         (OptimizedDecoder.list
             (OptimizedDecoder.map2 Tuple.pair
                 (OptimizedDecoder.field "fork" (OptimizedDecoder.map not OptimizedDecoder.bool))
@@ -159,6 +159,6 @@ view :
     -> View msg
     -> { body : Html msg, title : String }
 view sharedData _ _ _ pageView =
-    { body = Html.main_ [] (Html.node "style" [] [ Html.text sharedData.externalCss ] :: pageView.body)
-    , title = pageView.title
+    { title = pageView.title
+    , body = Html.main_ [] (Html.node "style" [] [ Html.text sharedData.externalCss ] :: pageView.body)
     }
