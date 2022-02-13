@@ -1,4 +1,4 @@
-module Shared exposing (CmsImage, Data, Model, Msg(..), SharedMsg(..), formatPosix, getGitHubRepoReadme, githubGet, ogpHeaderImageUrl, publicOriginalRepos, seoBase, template, unixOrigin)
+module Shared exposing (CmsImage, Data, Model, Msg(..), SharedMsg(..), cmsImageDecoder, formatPosix, getGitHubRepoReadme, githubGet, ogpHeaderImageUrl, publicOriginalRepos, seoBase, template, unixOrigin)
 
 import Base64
 import Browser.Navigation
@@ -6,6 +6,7 @@ import DataSource
 import DataSource.Http
 import Head.Seo
 import Html exposing (Html)
+import Iso8601
 import Markdown
 import OptimizedDecoder
 import Pages.Flags
@@ -41,7 +42,24 @@ type Msg
 
 type alias Data =
     { repos : List String
+    , cmsArticles : List CmsArticleMetadata
     , externalCss : String
+    }
+
+
+type alias CmsArticleMetadata =
+    { contentId : String
+    , publishedAt : Time.Posix
+    , revisedAt : Time.Posix
+    , title : String
+    , image : Maybe CmsImage
+    }
+
+
+type alias CmsImage =
+    { url : String
+    , height : Int
+    , width : Int
     }
 
 
@@ -114,8 +132,9 @@ data =
                 )
                 (DataSource.Http.expectString Result.Ok)
     in
-    DataSource.map2 Data
+    DataSource.map3 Data
         publicOriginalRepos
+        publicCmsArticles
         (DataSource.map2 (++) normalizeCss classlessCss)
 
 
@@ -164,6 +183,43 @@ getGitHubRepoReadme repo =
             ]
             |> OptimizedDecoder.andThen Markdown.decoder
         )
+
+
+publicCmsArticles =
+    let
+        articleMetadataDecoder =
+            OptimizedDecoder.succeed CmsArticleMetadata
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "contentId" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
+    in
+    DataSource.Http.request
+        (Pages.Secrets.succeed
+            (\microCmsApiKey ->
+                { url = "https://ymtszw.microcms.io/api/v1/articles?limit=10000&orders=-publishedAt&fields=contentId,title,image,publishedAt,revisedAt"
+                , method = "GET"
+                , headers = [ ( "X-MICROCMS-API-KEY", microCmsApiKey ) ]
+                , body = DataSource.Http.emptyBody
+                }
+            )
+            |> Pages.Secrets.with "MICROCMS_API_KEY"
+        )
+        (OptimizedDecoder.field "contents" (OptimizedDecoder.list articleMetadataDecoder))
+
+
+cmsImageDecoder : OptimizedDecoder.Decoder CmsImage
+cmsImageDecoder =
+    OptimizedDecoder.succeed CmsImage
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "url" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "height" OptimizedDecoder.int)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "width" OptimizedDecoder.int)
+
+
+iso8601Decoder : OptimizedDecoder.Decoder Time.Posix
+iso8601Decoder =
+    OptimizedDecoder.andThen (Iso8601.toTime >> Result.mapError Markdown.deadEndsToString >> OptimizedDecoder.fromResult) OptimizedDecoder.string
 
 
 seoBase :
@@ -235,13 +291,6 @@ view sharedData page _ _ pageView =
                 ]
             , Html.main_ [] pageView.body
             ]
-    }
-
-
-type alias CmsImage =
-    { url : String
-    , height : Int
-    , width : Int
     }
 
 

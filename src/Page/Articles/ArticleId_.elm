@@ -8,7 +8,7 @@ import Html.Attributes
 import Page exposing (Page, PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
-import Shared
+import Shared exposing (seoBase)
 import Time
 import View exposing (View)
 
@@ -49,19 +49,7 @@ head :
     StaticPayload Data RouteParams
     -> List Head.Tag
 head static =
-    Seo.summary
-        { canonicalUrlOverride = Nothing
-        , siteName = "elm-pages"
-        , image =
-            { url = Pages.Url.external "TODO"
-            , alt = "elm-pages logo"
-            , dimensions = Nothing
-            , mimeType = Nothing
-            }
-        , description = "TODO"
-        , locale = Nothing
-        , title = "TODO title" -- metadata.title -- TODO
-        }
+    Seo.summary seoBase
         |> Seo.website
 
 
@@ -80,9 +68,7 @@ view maybeUrl sharedModel static =
 
 renderArticle :
     { a
-        | createdAt : Time.Posix
-        , updatedAt : Time.Posix
-        , title : String
+        | title : String
         , image : Maybe Shared.CmsImage
         , body : List (Html.Html msg)
     }
@@ -96,9 +82,5 @@ renderArticle contents =
             Nothing ->
                 []
         )
-            ++ [ Html.h1 [] [ Html.text contents.title ]
-               , Html.sub [] [ Html.text <| "作成：" ++ Shared.formatPosix contents.createdAt ]
-               , Html.br [] []
-               , Html.sub [] [ Html.text <| "更新：" ++ Shared.formatPosix contents.updatedAt ]
-               ]
-            ++ contents.body
+            ++ Html.h1 [] [ Html.text contents.title ]
+            :: contents.body
