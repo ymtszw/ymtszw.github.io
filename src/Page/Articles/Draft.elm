@@ -8,13 +8,16 @@ import Html
 import Html.Parser
 import Html.Parser.Util
 import Http
+import Iso8601
 import Json.Decode
 import Markdown
 import Page exposing (PageWithState, StaticPayload)
+import Page.Articles.ArticleId_ exposing (renderArticle)
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
 import QueryParams
-import Shared exposing (seoBase)
+import Shared exposing (seoBase, unixOrigin)
+import Time
 import View exposing (View)
 
 
@@ -32,8 +35,12 @@ type alias DraftKeys =
 
 
 type alias DraftContents =
-    { type_ : String
+    { createdAt : Time.Posix
+    , updatedAt : Time.Posix
+    , title : String
+    , image : Maybe Shared.CmsImage
     , body : List (Html.Html Msg)
+    , type_ : String
     }
 
 
@@ -71,7 +78,16 @@ init :
 init maybeUrl sharedModel static =
     let
         empty =
-            { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING" }, contents = { type_ = "unknown", body = [] } }
+            { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING" }
+            , contents =
+                { createdAt = unixOrigin
+                , updatedAt = unixOrigin
+                , title = ""
+                , image = Nothing
+                , body = []
+                , type_ = "unknown"
+                }
+            }
 
         withPageUrl fun =
             Maybe.andThen .query maybeUrl
@@ -109,9 +125,18 @@ getDraft keys =
 
 draftDecoder : Json.Decode.Decoder DraftContents
 draftDecoder =
-    Json.Decode.oneOf
-        [ Json.Decode.field "html"
-            (Json.Decode.string
+    let
+        andMap =
+            Json.Decode.map2 (|>)
+
+        imageDecoder =
+            Json.Decode.succeed Shared.CmsImage
+                |> andMap (Json.Decode.field "url" Json.Decode.string)
+                |> andMap (Json.Decode.field "height" Json.Decode.int)
+                |> andMap (Json.Decode.field "width" Json.Decode.int)
+
+        htmlDecoder =
+            Json.Decode.string
                 |> Json.Decode.andThen
                     (\input ->
                         case Html.Parser.run input of
@@ -121,10 +146,9 @@ draftDecoder =
                             Err e ->
                                 Json.Decode.fail (Markdown.deadEndsToString e)
                     )
-                |> Json.Decode.map (DraftContents "html")
-            )
-        , Json.Decode.field "markdown"
-            (Json.Decode.string
+
+        markdownDecoder =
+            Json.Decode.string
                 |> Json.Decode.andThen
                     (\input ->
                         case Markdown.render input of
@@ -134,9 +158,23 @@ draftDecoder =
                             Err e ->
                                 Json.Decode.fail e
                     )
-                |> Json.Decode.map (DraftContents "markdown")
+    in
+    Json.Decode.succeed DraftContents
+        |> andMap (Json.Decode.field "createdAt" Iso8601.decoder)
+        |> andMap (Json.Decode.field "updatedAt" Iso8601.decoder)
+        |> andMap (Json.Decode.field "title" Json.Decode.string)
+        |> andMap (Json.Decode.maybe (Json.Decode.field "image" imageDecoder))
+        |> Json.Decode.andThen
+            (\cont ->
+                Json.Decode.oneOf
+                    [ Json.Decode.succeed cont
+                        |> andMap (Json.Decode.field "html" htmlDecoder)
+                        |> andMap (Json.Decode.succeed "html")
+                    , Json.Decode.succeed cont
+                        |> andMap (Json.Decode.field "markdown" markdownDecoder)
+                        |> andMap (Json.Decode.succeed "markdown")
+                    ]
             )
-        ]
 
 
 update :
@@ -187,19 +225,17 @@ view _ _ m _ =
             [ Html.thead []
                 [ Html.tr []
                     [ Html.th [] [ Html.text "Content ID" ]
-                    , Html.th [] [ Html.text "Draft Key" ]
                     , Html.th [] [ Html.text "Type" ]
                     ]
                 ]
             , Html.tbody []
                 [ Html.tr []
                     [ Html.td [] [ Html.text m.keys.contentId ]
-                    , Html.td [] [ Html.text m.keys.draftKey ]
                     , Html.td [] [ Html.text m.contents.type_ ]
                     ]
                 ]
             ]
         , Html.hr [] []
-        , Html.article [] m.contents.body
+        , renderArticle m.contents
         ]
     }

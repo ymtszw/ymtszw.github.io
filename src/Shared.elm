@@ -1,4 +1,4 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), getGitHubRepoReadme, githubGet, ogpHeaderImageUrl, publicOriginalRepos, seoBase, template)
+module Shared exposing (CmsImage, Data, Model, Msg(..), SharedMsg(..), formatPosix, getGitHubRepoReadme, githubGet, ogpHeaderImageUrl, publicOriginalRepos, seoBase, template, unixOrigin)
 
 import Base64
 import Browser.Navigation
@@ -15,6 +15,7 @@ import Pages.Url
 import Path exposing (Path)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
+import Time exposing (Month(..))
 import View exposing (View)
 
 
@@ -235,3 +236,69 @@ view sharedData page _ _ pageView =
             , Html.main_ [] pageView.body
             ]
     }
+
+
+type alias CmsImage =
+    { url : String
+    , height : Int
+    , width : Int
+    }
+
+
+formatPosix : Time.Posix -> String
+formatPosix posix =
+    String.fromInt (Time.toYear jst posix)
+        ++ "年"
+        ++ (case Time.toMonth jst posix of
+                Jan ->
+                    "1月"
+
+                Feb ->
+                    "2月"
+
+                Mar ->
+                    "3月"
+
+                Apr ->
+                    "4月"
+
+                May ->
+                    "5月"
+
+                Jun ->
+                    "6月"
+
+                Jul ->
+                    "7月"
+
+                Aug ->
+                    "8月"
+
+                Sep ->
+                    "9月"
+
+                Oct ->
+                    "10月"
+
+                Nov ->
+                    "11月"
+
+                Dec ->
+                    "12月"
+           )
+        ++ String.fromInt (Time.toDay jst posix)
+        ++ "日 "
+        ++ String.padLeft 2 '0' (String.fromInt (Time.toHour jst posix))
+        ++ ":"
+        ++ String.padLeft 2 '0' (String.fromInt (Time.toMinute jst posix))
+        ++ ":"
+        ++ String.padLeft 2 '0' (String.fromInt (Time.toSecond jst posix))
+        ++ " JST"
+
+
+jst =
+    Time.customZone (9 * 60) []
+
+
+unixOrigin =
+    Time.millisToPosix 0
