@@ -38,6 +38,7 @@ type alias DraftContents =
     { createdAt : Time.Posix
     , updatedAt : Time.Posix
     , title : String
+    , slug : String
     , image : Maybe Shared.CmsImage
     , body : List (Html.Html Msg)
     , type_ : String
@@ -83,6 +84,7 @@ init maybeUrl _ _ =
                 { createdAt = unixOrigin
                 , updatedAt = unixOrigin
                 , title = ""
+                , slug = ""
                 , image = Nothing
                 , body = []
                 , type_ = "unknown"
@@ -163,6 +165,7 @@ draftDecoder =
         |> andMap (Json.Decode.field "createdAt" Iso8601.decoder)
         |> andMap (Json.Decode.field "updatedAt" Iso8601.decoder)
         |> andMap (Json.Decode.field "title" Json.Decode.string)
+        |> andMap (Json.Decode.field "slug" Json.Decode.string)
         |> andMap (Json.Decode.maybe (Json.Decode.field "image" imageDecoder))
         |> Json.Decode.andThen
             (\cont ->
@@ -226,12 +229,14 @@ view _ _ m _ =
                 [ Html.tr []
                     [ Html.th [] [ Html.text "Content ID" ]
                     , Html.th [] [ Html.text "Type" ]
+                    , Html.th [] [ Html.text "Slug" ]
                     ]
                 ]
             , Html.tbody []
                 [ Html.tr []
                     [ Html.td [] [ Html.text m.keys.contentId ]
                     , Html.td [] [ Html.text m.contents.type_ ]
+                    , Html.td [] [ Html.text m.contents.slug ]
                     ]
                 ]
             ]
