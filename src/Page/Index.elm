@@ -9,6 +9,7 @@ import Html.Attributes
 import Markdown
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
+import Route
 import Shared exposing (seoBase)
 import View exposing (View)
 
@@ -43,9 +44,7 @@ data =
 
         bio =
             DataSource.map2 (++)
-                (DataSource.fromResult (Markdown.render """## Bio [(source)](https://github.com/ymtszw/ymtszw)
-
-> この節は[public profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/about-your-profile)をサイトビルド時に読み込んでHTML化しています。"""))
+                (DataSource.fromResult (Markdown.render "> この節は[public profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/about-your-profile)をサイトビルド時に読み込んでHTML化しています。"))
                 (Shared.getGitHubRepoReadme "ymtszw")
     in
     DataSource.map2 Data readme bio
@@ -75,8 +74,34 @@ view _ _ static =
     , body =
         Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             :: static.data.readme
-            ++ static.data.bio
-            ++ [ Html.h2 [] [ Html.text "GitHub Public Repo" ]
+            ++ [ Html.h2 [] [ Html.text "自己紹介 ", Html.a [ Html.Attributes.href "https://github.com/ymtszw/ymtszw", Html.Attributes.target "_blank" ] [ Html.text "(source)" ] ]
+               , Html.details [] <| Html.summary [] [ Html.text "開く" ] :: static.data.bio
+               , Html.h2 [] [ Html.text "記事" ]
+               , Html.blockquote [] [ Html.text "このリストはサイトビルド時にmicroCMSからデータを取得し、事前構築しています。公開が新しい順です" ]
+               , static.sharedData.cmsArticles
+                    |> List.map
+                        (\metadata ->
+                            Html.li []
+                                [ Route.link (Route.Articles__ArticleId_ { articleId = metadata.contentId }) [] <|
+                                    [ Html.article []
+                                        [ Html.header []
+                                            [ Html.h3 []
+                                                [ Html.text metadata.title
+                                                , Html.small [] [ Html.text " [", Html.text (Shared.posixToYmd metadata.publishedAt), Html.text "]" ]
+                                                ]
+                                            ]
+                                        , case metadata.image of
+                                            Just cmsImage ->
+                                                Html.div [] [ Html.img [ Html.Attributes.src (cmsImage.url ++ "?h=150"), Html.Attributes.alt "Article Header Image", Html.Attributes.height 150 ] [] ]
+
+                                            Nothing ->
+                                                Html.div [] []
+                                        ]
+                                    ]
+                                ]
+                        )
+                    |> Html.ul []
+               , Html.h2 [] [ Html.text "GitHub Public Repo" ]
                , Html.blockquote [] [ Html.text "このリストはサイトビルド時にGitHub REST APIをHeadless CMSのように見立ててデータを取得し、事前構築しています。作成が新しい順です" ]
                , static.sharedData.repos
                     |> List.map

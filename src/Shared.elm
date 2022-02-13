@@ -1,4 +1,4 @@
-module Shared exposing (CmsImage, Data, Model, Msg(..), SharedMsg(..), cmsImageDecoder, formatPosix, getGitHubRepoReadme, githubGet, ogpHeaderImageUrl, publicOriginalRepos, seoBase, template, unixOrigin)
+module Shared exposing (CmsImage, Data, Model, Msg(..), SharedMsg(..), cmsGet, cmsImageDecoder, formatPosix, getGitHubRepoReadme, githubGet, iso8601Decoder, ogpHeaderImageUrl, posixToYmd, publicCmsArticles, publicOriginalRepos, seoBase, template, unixOrigin)
 
 import Base64
 import Browser.Navigation
@@ -185,20 +185,11 @@ getGitHubRepoReadme repo =
         )
 
 
-publicCmsArticles =
-    let
-        articleMetadataDecoder =
-            OptimizedDecoder.succeed CmsArticleMetadata
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "contentId" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" iso8601Decoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" iso8601Decoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
-    in
+cmsGet url =
     DataSource.Http.request
         (Pages.Secrets.succeed
             (\microCmsApiKey ->
-                { url = "https://ymtszw.microcms.io/api/v1/articles?limit=10000&orders=-publishedAt&fields=contentId,title,image,publishedAt,revisedAt"
+                { url = url
                 , method = "GET"
                 , headers = [ ( "X-MICROCMS-API-KEY", microCmsApiKey ) ]
                 , body = DataSource.Http.emptyBody
@@ -206,6 +197,20 @@ publicCmsArticles =
             )
             |> Pages.Secrets.with "MICROCMS_API_KEY"
         )
+
+
+publicCmsArticles : DataSource.DataSource (List CmsArticleMetadata)
+publicCmsArticles =
+    let
+        articleMetadataDecoder =
+            OptimizedDecoder.succeed CmsArticleMetadata
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "id" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
+    in
+    cmsGet "https://ymtszw.microcms.io/api/v1/articles?limit=10000&orders=-publishedAt&fields=id,title,image,publishedAt,revisedAt"
         (OptimizedDecoder.field "contents" (OptimizedDecoder.list articleMetadataDecoder))
 
 
@@ -294,8 +299,8 @@ view sharedData page _ _ pageView =
     }
 
 
-formatPosix : Time.Posix -> String
-formatPosix posix =
+posixToYmd : Time.Posix -> String
+posixToYmd posix =
     String.fromInt (Time.toYear jst posix)
         ++ "年"
         ++ (case Time.toMonth jst posix of
@@ -336,7 +341,13 @@ formatPosix posix =
                     "12月"
            )
         ++ String.fromInt (Time.toDay jst posix)
-        ++ "日 "
+        ++ "日"
+
+
+formatPosix : Time.Posix -> String
+formatPosix posix =
+    posixToYmd posix
+        ++ " "
         ++ String.padLeft 2 '0' (String.fromInt (Time.toHour jst posix))
         ++ ":"
         ++ String.padLeft 2 '0' (String.fromInt (Time.toMinute jst posix))

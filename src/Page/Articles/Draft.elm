@@ -5,15 +5,12 @@ import DataSource exposing (DataSource)
 import Head
 import Head.Seo as Seo
 import Html
-import Html.Parser
-import Html.Parser.Util
 import Http
 import Iso8601
 import Json.Decode
-import Markdown
 import OptimizedDecoder
 import Page exposing (PageWithState, StaticPayload)
-import Page.Articles.ArticleId_ exposing (renderArticle)
+import Page.Articles.ArticleId_ exposing (cmsArticleBodyDecoder, renderArticle)
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
 import QueryParams
@@ -129,47 +126,13 @@ draftDecoder =
     let
         andMap =
             Json.Decode.map2 (|>)
-
-        htmlDecoder =
-            Json.Decode.string
-                |> Json.Decode.andThen
-                    (\input ->
-                        case Html.Parser.run input of
-                            Ok nodes ->
-                                Json.Decode.succeed (Html.Parser.Util.toVirtualDom nodes)
-
-                            Err e ->
-                                Json.Decode.fail (Markdown.deadEndsToString e)
-                    )
-
-        markdownDecoder =
-            Json.Decode.string
-                |> Json.Decode.andThen
-                    (\input ->
-                        case Markdown.render input of
-                            Ok html ->
-                                Json.Decode.succeed html
-
-                            Err e ->
-                                Json.Decode.fail e
-                    )
     in
     Json.Decode.succeed DraftContents
         |> andMap (Json.Decode.field "createdAt" Iso8601.decoder)
         |> andMap (Json.Decode.field "updatedAt" Iso8601.decoder)
         |> andMap (Json.Decode.field "title" Json.Decode.string)
         |> andMap (Json.Decode.maybe (Json.Decode.field "image" (OptimizedDecoder.decoder Shared.cmsImageDecoder)))
-        |> Json.Decode.andThen
-            (\cont ->
-                Json.Decode.oneOf
-                    [ Json.Decode.succeed cont
-                        |> andMap (Json.Decode.field "html" htmlDecoder)
-                        |> andMap (Json.Decode.succeed "html")
-                    , Json.Decode.succeed cont
-                        |> andMap (Json.Decode.field "markdown" markdownDecoder)
-                        |> andMap (Json.Decode.succeed "markdown")
-                    ]
-            )
+        |> Json.Decode.andThen (cmsArticleBodyDecoder >> OptimizedDecoder.decoder)
 
 
 update :
