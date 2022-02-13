@@ -75,7 +75,7 @@ init :
     -> Shared.Model
     -> StaticPayload Data RouteParams
     -> ( Model, Cmd Msg )
-init maybeUrl sharedModel static =
+init maybeUrl _ _ =
     let
         empty =
             { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING" }
@@ -185,17 +185,17 @@ update :
     -> Msg
     -> Model
     -> ( Model, Cmd Msg )
-update pageUrl navKey {} _ msg m =
+update _ _ _ _ msg m =
     case msg of
         Res_getDraft (Ok contents) ->
             ( { m | contents = contents }, Cmd.none )
 
-        Res_getDraft (Err e) ->
+        Res_getDraft (Err _) ->
             ( m, Cmd.none )
 
 
 subscriptions : Maybe PageUrl -> RouteParams -> Path -> Model -> Sub Msg
-subscriptions maybeUrl routeParams path {} =
+subscriptions _ _ _ _ =
     Sub.none
 
 
