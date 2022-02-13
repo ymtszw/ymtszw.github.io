@@ -9,8 +9,7 @@ import Html.Attributes
 import Markdown
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
-import Pages.Url
-import Shared
+import Shared exposing (seoBase)
 import View exposing (View)
 
 
@@ -56,24 +55,8 @@ head :
     StaticPayload Data RouteParams
     -> List Head.Tag
 head _ =
-    Seo.summary
-        { canonicalUrlOverride = Nothing
-        , siteName = "ymtszw's page"
-        , image =
-            { url = Pages.Url.external <| ogpHeaderImageUrl ++ "?w=900&h=300"
-            , alt = "Mt. Asama Header Image"
-            , dimensions = Just { width = 900, height = 300 }
-            , mimeType = Just "image/jpeg"
-            }
-        , description = "ymtszw's personal biography page"
-        , locale = Just "ja_JP"
-        , title = "ymtszw's page"
-        }
+    Seo.summaryLarge seoBase
         |> Seo.website
-
-
-ogpHeaderImageUrl =
-    "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4a220ee277a54bd4a7cf59a2c423b096/header1500x500.jpg"
 
 
 type alias Data =
@@ -88,9 +71,9 @@ view :
     -> StaticPayload Data RouteParams
     -> View Msg
 view _ _ static =
-    { title = "ymtszw's page"
+    { title = "Index"
     , body =
-        Html.img [ Html.Attributes.src <| ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
+        Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             :: static.data.readme
             ++ static.data.bio
             ++ [ Html.h2 [] [ Html.text "GitHub Public Repo" ]

@@ -1,15 +1,17 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), getGitHubRepoReadme, githubGet, publicOriginalRepos, template)
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), getGitHubRepoReadme, githubGet, ogpHeaderImageUrl, publicOriginalRepos, seoBase, template)
 
 import Base64
 import Browser.Navigation
 import DataSource
 import DataSource.Http
+import Head.Seo
 import Html exposing (Html)
 import Markdown
 import OptimizedDecoder
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Secrets
+import Pages.Url
 import Path exposing (Path)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
@@ -163,6 +165,33 @@ getGitHubRepoReadme repo =
         )
 
 
+seoBase :
+    { canonicalUrlOverride : Maybe String
+    , siteName : String
+    , image : Head.Seo.Image
+    , description : String
+    , title : String
+    , locale : Maybe String
+    }
+seoBase =
+    { canonicalUrlOverride = Nothing
+    , siteName = "ymtszw's page"
+    , image =
+        { url = Pages.Url.external <| ogpHeaderImageUrl ++ "?w=900&h=300"
+        , alt = "Mt. Asama Header Image"
+        , dimensions = Just { width = 900, height = 300 }
+        , mimeType = Just "image/jpeg"
+        }
+    , description = "ymtszw's personal biography page"
+    , locale = Just "ja_JP"
+    , title = "ymtszw's page"
+    }
+
+
+ogpHeaderImageUrl =
+    "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4a220ee277a54bd4a7cf59a2c423b096/header1500x500.jpg"
+
+
 view :
     Data
     ->
@@ -178,19 +207,27 @@ view sharedData page _ _ pageView =
     , body =
         Html.div []
             [ Html.node "style" [] [ Html.text sharedData.externalCss ]
-            , Html.nav [] <|
-                List.intersperse (Html.text " / ") <|
-                    List.concat
-                        [ [ Route.link Route.Index [] [ Html.text "Index" ] ]
-                        , page.route
-                            |> Maybe.map
-                                (\route ->
-                                    case route of
-                                        Route.Index ->
-                                            []
-                                )
-                            |> Maybe.withDefault []
-                        ]
+            , Html.header []
+                [ Html.nav [] <|
+                    List.intersperse (Html.text " / ") <|
+                        List.concat
+                            [ [ Route.link Route.Index [] [ Html.text "Index" ] ]
+                            , page.route
+                                |> Maybe.map
+                                    (\route ->
+                                        case route of
+                                            Route.Articles__ArticleId_ _ ->
+                                                [ Html.text "記事" ]
+
+                                            Route.Articles__Draft ->
+                                                [ Html.text "記事（下書き）" ]
+
+                                            Route.Index ->
+                                                []
+                                    )
+                                |> Maybe.withDefault []
+                            ]
+                ]
             , Html.main_ [] pageView.body
             ]
     }
