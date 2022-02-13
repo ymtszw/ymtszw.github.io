@@ -1,4 +1,4 @@
-module Shared exposing (CmsImage, Data, Model, Msg(..), SharedMsg(..), cmsGet, cmsImageDecoder, formatPosix, getGitHubRepoReadme, githubGet, iso8601Decoder, ogpHeaderImageUrl, posixToYmd, publicCmsArticles, publicOriginalRepos, seoBase, template, unixOrigin)
+module Shared exposing (CmsImage, Data, Model, Msg(..), SharedMsg(..), cmsGet, cmsImageDecoder, formatPosix, getGitHubRepoReadme, githubGet, iso8601Decoder, makeSeoImageFromCmsImage, makeTitle, ogpHeaderImageUrl, posixToYmd, publicCmsArticles, publicOriginalRepos, seoBase, template, unixOrigin)
 
 import Base64
 import Browser.Navigation
@@ -254,6 +254,15 @@ ogpHeaderImageUrl =
     "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4a220ee277a54bd4a7cf59a2c423b096/header1500x500.jpg"
 
 
+makeSeoImageFromCmsImage : CmsImage -> Head.Seo.Image
+makeSeoImageFromCmsImage cmsImage =
+    { url = Pages.Url.external cmsImage.url
+    , alt = "Article Header Image"
+    , dimensions = Just { width = cmsImage.width, height = cmsImage.height }
+    , mimeType = Nothing
+    }
+
+
 view :
     Data
     ->
@@ -265,7 +274,7 @@ view :
     -> View msg
     -> { body : Html msg, title : String }
 view sharedData page _ _ pageView =
-    { title = pageView.title
+    { title = makeTitle pageView.title
     , body =
         Html.div []
             [ Html.node "style" [] <|
@@ -297,6 +306,10 @@ view sharedData page _ _ pageView =
             , Html.main_ [] pageView.body
             ]
     }
+
+
+makeTitle pageTitle =
+    pageTitle ++ " | " ++ seoBase.siteName
 
 
 posixToYmd : Time.Posix -> String

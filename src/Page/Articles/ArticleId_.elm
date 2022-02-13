@@ -7,11 +7,11 @@ import Html
 import Html.Attributes
 import Html.Parser
 import Html.Parser.Util
+import Iso8601
 import Markdown
 import OptimizedDecoder
-import Page exposing (Page, PageWithState, StaticPayload)
+import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
-import Pages.Url
 import Shared exposing (seoBase)
 import Time
 import View exposing (View)
@@ -113,8 +113,19 @@ head :
     StaticPayload Data RouteParams
     -> List Head.Tag
 head static =
-    Seo.summary seoBase
-        |> Seo.website
+    Seo.summaryLarge
+        { seoBase
+            | title = Shared.makeTitle static.data.title
+            , description = static.data.title
+            , image = Maybe.withDefault seoBase.image (Maybe.map Shared.makeSeoImageFromCmsImage static.data.image)
+        }
+        |> Seo.article
+            { tags = []
+            , section = Nothing
+            , publishedTime = Just (Iso8601.fromTime static.data.publishedAt)
+            , modifiedTime = Just (Iso8601.fromTime static.data.revisedAt)
+            , expirationTime = Nothing
+            }
 
 
 view :
@@ -122,14 +133,18 @@ view :
     -> Shared.Model
     -> StaticPayload Data RouteParams
     -> View Msg
-view maybeUrl sharedModel static =
+view _ _ static =
     { title = static.data.title
     , body =
         [ Html.table []
-            [ Html.tbody []
-                [ Html.tr [] [ Html.th [] [ Html.text "公開" ], Html.td [] [ Html.text (Shared.formatPosix static.data.publishedAt) ] ]
-                , Html.tr [] [ Html.th [] [ Html.text "更新" ], Html.td [] [ Html.text (Shared.formatPosix static.data.revisedAt) ] ]
-                ]
+            [ Html.tbody [] <|
+                Html.tr [] [ Html.th [] [ Html.text "公開" ], Html.td [] [ Html.text (Shared.formatPosix static.data.publishedAt) ] ]
+                    :: (if static.data.revisedAt /= static.data.publishedAt then
+                            [ Html.tr [] [ Html.th [] [ Html.text "更新" ], Html.td [] [ Html.text (Shared.formatPosix static.data.revisedAt) ] ] ]
+
+                        else
+                            []
+                       )
             ]
         , Html.hr [] []
         , renderArticle static.data
