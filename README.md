@@ -1,5 +1,7 @@
 # ymtszw's page [(source)](https://github.com/ymtszw/ymtszw.github.io)
 
+[![GitHub Pages](https://github.com/ymtszw/ymtszw.github.io/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/ymtszw/ymtszw.github.io/actions/workflows/gh-pages.yml)
+
 ## 概要
 
 * [elm-pages]で作成している個人ページ
