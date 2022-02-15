@@ -5,6 +5,9 @@ on:
     branches:
       - master
   pull_request:
+  repository_dispatch:
+    types:
+      - on-demand-build
 
 jobs:
   build-and-deploy:
