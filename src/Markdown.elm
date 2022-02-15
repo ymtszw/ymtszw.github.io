@@ -1,7 +1,8 @@
-module Markdown exposing (deadEndsToString, decoder, render)
+module Markdown exposing (deadEndsToString, decoder, parse, render, renderWithExcerpt)
 
-import Html exposing (Html)
+import Html
 import Html.Attributes
+import Markdown.Block
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
@@ -10,31 +11,138 @@ import Parser
 import Regex
 
 
-decoder : String -> OptimizedDecoder.Decoder (List (Html msg))
+decoder : String -> OptimizedDecoder.Decoder (List (Html.Html msg))
 decoder input =
     OptimizedDecoder.fromResult (render input)
 
 
-render : String -> Result String (List (Html msg))
-render input =
+parse : String -> Result String (List Markdown.Block.Block)
+parse input =
     preprocessMarkdown input
         |> Markdown.Parser.parse
         |> Result.mapError (deadEndsToString >> (++) "Error while parsing Markdown!\n\n")
-        |> Result.andThen (Markdown.Renderer.render htmlRenderer)
-        |> (\result ->
-                case result of
-                    Ok ok ->
-                        Ok ok
+
+
+render : String -> Result String (List (Html.Html msg))
+render input =
+    parse input
+        |> Result.andThen
+            (\nodes ->
+                case Markdown.Renderer.render htmlRenderer nodes of
+                    Ok renderred ->
+                        Ok renderred
 
                     Err err ->
-                        Ok
-                            [ Html.h1 [] [ Html.text "Markdown Error!" ]
-                            , Html.pre [] [ Html.text <| "Error while rendering Markdown!\n\n" ++ err ]
-                            , Html.br [] []
-                            , Html.h1 [] [ Html.text "Here's the source:" ]
-                            , Html.pre [] [ Html.text input ]
-                            ]
-           )
+                        Ok (renderRenderError input err)
+            )
+
+
+renderWithExcerpt : String -> Result String ( List (Html.Html msg), String )
+renderWithExcerpt input =
+    parse input
+        |> Result.andThen
+            (\nodes ->
+                case Markdown.Renderer.render htmlRenderer nodes of
+                    Ok renderred ->
+                        Ok ( renderred, excerpt nodes )
+
+                    Err err ->
+                        Ok ( renderRenderError input err, excerpt nodes )
+            )
+
+
+renderRenderError : String -> String -> List (Html.Html msg)
+renderRenderError input err =
+    [ Html.h1 [] [ Html.text "Markdown Error!" ]
+    , Html.pre [] [ Html.text <| "Error while rendering Markdown!\n\n" ++ err ]
+    , Html.br [] []
+    , Html.h1 [] [ Html.text "Here's the source:" ]
+    , Html.pre [] [ Html.text input ]
+    ]
+
+
+excerpt : List Markdown.Block.Block -> String
+excerpt blocks =
+    let
+        reducer block ( acc, _ ) =
+            if String.length acc > 100 then
+                ( acc, False )
+
+            else
+                ( acc ++ extractInlineBlockText block, True )
+    in
+    case List.foldl reducer ( "", True ) blocks of
+        ( acc, True ) ->
+            acc
+
+        ( acc, False ) ->
+            String.left 100 acc ++ "..."
+
+
+{-| Copied from Markdown.Block in order to avoid repeated walk over inline nodes.
+-}
+extractInlineBlockText block =
+    case block of
+        Markdown.Block.Paragraph inlines ->
+            Markdown.Block.extractInlineText inlines
+
+        Markdown.Block.HtmlBlock html ->
+            case html of
+                Markdown.Block.HtmlElement _ _ blocks ->
+                    Markdown.Block.foldl
+                        (\nestedBlock soFar ->
+                            soFar ++ extractInlineBlockText nestedBlock
+                        )
+                        ""
+                        blocks
+
+                _ ->
+                    ""
+
+        Markdown.Block.UnorderedList _ items ->
+            items
+                |> List.map
+                    (\(Markdown.Block.ListItem _ blocks) ->
+                        blocks
+                            |> List.map extractInlineBlockText
+                            |> String.join "\n"
+                    )
+                |> String.join "\n"
+
+        Markdown.Block.OrderedList _ _ items ->
+            items
+                |> List.map
+                    (\blocks ->
+                        blocks
+                            |> List.map extractInlineBlockText
+                            |> String.join "\n"
+                    )
+                |> String.join "\n"
+
+        Markdown.Block.BlockQuote blocks ->
+            blocks
+                |> List.map extractInlineBlockText
+                |> String.join "\n"
+
+        Markdown.Block.Heading _ inlines ->
+            Markdown.Block.extractInlineText inlines
+
+        Markdown.Block.Table header rows ->
+            [ header
+                |> List.map .label
+                |> List.map Markdown.Block.extractInlineText
+            , rows
+                |> List.map (List.map Markdown.Block.extractInlineText)
+                |> List.concat
+            ]
+                |> List.concat
+                |> String.join "\n"
+
+        Markdown.Block.CodeBlock { body } ->
+            body
+
+        Markdown.Block.ThematicBreak ->
+            ""
 
 
 deadEndsToString : List { a | row : Int, col : Int, problem : Parser.Problem } -> String

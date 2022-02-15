@@ -1,4 +1,4 @@
-module Page.Articles.ArticleId_ exposing (Data, Model, Msg, cmsArticleBodyDecoder, page, renderArticle)
+module Page.Articles.ArticleId_ exposing (Body, Data, Model, Msg, cmsArticleBodyDecoder, page, renderArticle)
 
 import DataSource exposing (DataSource)
 import Head
@@ -39,8 +39,14 @@ type alias CmsArticle =
     , revisedAt : Time.Posix
     , title : String
     , image : Maybe Shared.CmsImage
-    , body : List (Html.Html Msg)
+    , body : Body Msg
     , type_ : String
+    }
+
+
+type alias Body msg =
+    { html : List (Html.Html msg)
+    , excerpt : String
     }
 
 
@@ -72,7 +78,7 @@ data routeParams =
         )
 
 
-cmsArticleBodyDecoder : (List (Html.Html msg) -> String -> a) -> OptimizedDecoder.Decoder a
+cmsArticleBodyDecoder : (Body msg -> String -> a) -> OptimizedDecoder.Decoder a
 cmsArticleBodyDecoder cont =
     let
         htmlDecoder =
@@ -81,7 +87,7 @@ cmsArticleBodyDecoder cont =
                     (\input ->
                         case Html.Parser.run input of
                             Ok nodes ->
-                                OptimizedDecoder.succeed (Html.Parser.Util.toVirtualDom nodes)
+                                OptimizedDecoder.succeed (Body (Html.Parser.Util.toVirtualDom nodes) (extractInlineTextFromHtml nodes))
 
                             Err e ->
                                 OptimizedDecoder.fail (Markdown.deadEndsToString e)
@@ -91,9 +97,9 @@ cmsArticleBodyDecoder cont =
             OptimizedDecoder.string
                 |> OptimizedDecoder.andThen
                     (\input ->
-                        case Markdown.render input of
-                            Ok html ->
-                                OptimizedDecoder.succeed html
+                        case Markdown.renderWithExcerpt input of
+                            Ok ( html, excerpt ) ->
+                                OptimizedDecoder.succeed (Body html excerpt)
 
                             Err e ->
                                 OptimizedDecoder.fail e
@@ -107,6 +113,45 @@ cmsArticleBodyDecoder cont =
             |> OptimizedDecoder.andMap (OptimizedDecoder.field "markdown" markdownDecoder)
             |> OptimizedDecoder.andMap (OptimizedDecoder.succeed "markdown")
         ]
+
+
+extractInlineTextFromHtml : List Html.Parser.Node -> String
+extractInlineTextFromHtml nodes =
+    case extractInlineTextHelp nodes "" of
+        ( acc, True ) ->
+            acc
+
+        ( acc, False ) ->
+            String.left 100 acc ++ "..."
+
+
+extractInlineTextHelp nodes acc =
+    case ( nodes, String.length acc > 100 ) of
+        ( [], _ ) ->
+            ( acc, True )
+
+        ( _, True ) ->
+            ( acc, False )
+
+        ( h :: t, False ) ->
+            let
+                new =
+                    digHtmlNode h
+            in
+            extractInlineTextHelp t (acc ++ " " ++ new)
+
+
+digHtmlNode : Html.Parser.Node -> String
+digHtmlNode node =
+    case node of
+        Html.Parser.Text text ->
+            text
+
+        Html.Parser.Element _ _ nodes ->
+            Tuple.first (extractInlineTextHelp nodes "")
+
+        Html.Parser.Comment _ ->
+            ""
 
 
 head :
@@ -156,7 +201,7 @@ renderArticle :
     { a
         | title : String
         , image : Maybe Shared.CmsImage
-        , body : List (Html.Html msg)
+        , body : Body msg
     }
     -> Html.Html msg
 renderArticle contents =
@@ -169,4 +214,4 @@ renderArticle contents =
                 []
         )
             ++ Html.h1 [] [ Html.text contents.title ]
-            :: contents.body
+            :: contents.body.html

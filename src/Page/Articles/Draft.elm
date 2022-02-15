@@ -10,7 +10,7 @@ import Iso8601
 import Json.Decode
 import OptimizedDecoder
 import Page exposing (PageWithState, StaticPayload)
-import Page.Articles.ArticleId_ exposing (cmsArticleBodyDecoder, renderArticle)
+import Page.Articles.ArticleId_ exposing (Body, cmsArticleBodyDecoder, renderArticle)
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
 import QueryParams
@@ -37,7 +37,7 @@ type alias DraftContents =
     , updatedAt : Time.Posix
     , title : String
     , image : Maybe Shared.CmsImage
-    , body : List (Html.Html Msg)
+    , body : Body Msg
     , type_ : String
     }
 
@@ -82,7 +82,7 @@ init maybeUrl _ _ =
                 , updatedAt = unixOrigin
                 , title = ""
                 , image = Nothing
-                , body = []
+                , body = { html = [], excerpt = "" }
                 , type_ = "unknown"
                 }
             }
@@ -183,6 +183,8 @@ view _ _ m _ =
             [ Html.tbody []
                 [ Html.tr [] [ Html.th [] [ Html.text "Content ID" ], Html.td [] [ Html.text m.keys.contentId ] ]
                 , Html.tr [] [ Html.th [] [ Html.text "Type" ], Html.td [] [ Html.text m.contents.type_ ] ]
+                , Html.tr [] [ Html.th [] [ Html.text "Title" ], Html.td [] [ Html.text m.contents.title ] ]
+                , Html.tr [] [ Html.th [] [ Html.text "Excerpt" ], Html.td [] [ Html.text m.contents.body.excerpt ] ]
                 , Html.tr [] [ Html.th [] [ Html.text "CreatedAt" ], Html.td [] [ Html.text (Shared.formatPosix m.contents.createdAt) ] ]
                 , Html.tr [] [ Html.th [] [ Html.text "UpdatedAt" ], Html.td [] [ Html.text (Shared.formatPosix m.contents.updatedAt) ] ]
                 ]
