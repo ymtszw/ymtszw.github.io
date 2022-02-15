@@ -161,7 +161,7 @@ head static =
     Seo.summaryLarge
         { seoBase
             | title = Shared.makeTitle static.data.title
-            , description = static.data.title
+            , description = static.data.body.excerpt
             , image = Maybe.withDefault seoBase.image (Maybe.map Shared.makeSeoImageFromCmsImage static.data.image)
         }
         |> Seo.article
