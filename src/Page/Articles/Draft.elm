@@ -3,7 +3,6 @@ module Page.Articles.Draft exposing (Data, Model, Msg, page)
 import Browser.Navigation
 import DataSource exposing (DataSource)
 import Head
-import Head.Seo as Seo
 import Html
 import Http
 import Iso8601
@@ -14,7 +13,7 @@ import Page.Articles.ArticleId_ exposing (Body, cmsArticleBodyDecoder, renderArt
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
 import QueryParams
-import Shared exposing (seoBase, unixOrigin)
+import Shared exposing (unixOrigin)
 import Time
 import View exposing (View)
 
@@ -166,8 +165,7 @@ head :
     StaticPayload Data RouteParams
     -> List Head.Tag
 head _ =
-    Seo.summary seoBase
-        |> Seo.website
+    [ Head.metaName "robots" (Head.raw "noindex,nofollow,noarchive,nocache") ]
 
 
 view :
