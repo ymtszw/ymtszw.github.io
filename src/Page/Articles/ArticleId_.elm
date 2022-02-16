@@ -95,15 +95,8 @@ cmsArticleBodyDecoder cont =
 
         markdownDecoder =
             OptimizedDecoder.string
-                |> OptimizedDecoder.andThen
-                    (\input ->
-                        case Markdown.renderWithExcerpt input of
-                            Ok ( html, excerpt ) ->
-                                OptimizedDecoder.succeed (Body html excerpt)
-
-                            Err e ->
-                                OptimizedDecoder.fail e
-                    )
+                |> OptimizedDecoder.map Markdown.renderWithExcerpt
+                |> OptimizedDecoder.map (\( html, excerpt ) -> Body html excerpt)
     in
     OptimizedDecoder.oneOf
         [ OptimizedDecoder.succeed cont

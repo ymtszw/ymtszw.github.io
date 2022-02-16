@@ -13,7 +13,7 @@ import Regex
 
 decoder : String -> OptimizedDecoder.Decoder (List (Html.Html msg))
 decoder input =
-    OptimizedDecoder.fromResult (render input)
+    OptimizedDecoder.succeed (render input)
 
 
 parse : String -> Result String (List Markdown.Block.Block)
@@ -23,42 +23,44 @@ parse input =
         |> Result.mapError (deadEndsToString >> (++) "Error while parsing Markdown!\n\n")
 
 
-render : String -> Result String (List (Html.Html msg))
+render : String -> List (Html.Html msg)
 render input =
     parse input
-        |> Result.andThen
-            (\nodes ->
-                case Markdown.Renderer.render htmlRenderer nodes of
-                    Ok renderred ->
-                        Ok renderred
-
-                    Err err ->
-                        Ok (renderRenderError input err)
-            )
+        |> Result.andThen render_
+        |> renderWithFallback input
 
 
-renderWithExcerpt : String -> Result String ( List (Html.Html msg), String )
-renderWithExcerpt input =
-    parse input
-        |> Result.andThen
-            (\nodes ->
-                case Markdown.Renderer.render htmlRenderer nodes of
-                    Ok renderred ->
-                        Ok ( renderred, excerpt nodes )
-
-                    Err err ->
-                        Ok ( renderRenderError input err, excerpt nodes )
-            )
+render_ nodes =
+    Markdown.Renderer.render htmlRenderer nodes
+        |> Result.mapError ((++) "Error while rendering Markdown!\n\n")
 
 
-renderRenderError : String -> String -> List (Html.Html msg)
-renderRenderError input err =
+renderWithFallback input result =
+    case result of
+        Ok renderred ->
+            renderred
+
+        Err err ->
+            renderFallback input err
+
+
+renderFallback input err =
     [ Html.h1 [] [ Html.text "Markdown Error!" ]
-    , Html.pre [] [ Html.text <| "Error while rendering Markdown!\n\n" ++ err ]
+    , Html.pre [] [ Html.text err ]
     , Html.br [] []
     , Html.h1 [] [ Html.text "Here's the source:" ]
     , Html.pre [] [ Html.text input ]
     ]
+
+
+renderWithExcerpt : String -> ( List (Html.Html msg), String )
+renderWithExcerpt input =
+    case parse input of
+        Ok nodes ->
+            ( renderWithFallback input (render_ nodes), excerpt nodes )
+
+        Err err ->
+            ( renderFallback input err, String.left 100 input ++ "..." )
 
 
 excerpt : List Markdown.Block.Block -> String

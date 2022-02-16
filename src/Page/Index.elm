@@ -40,11 +40,11 @@ data =
     let
         readme =
             DataSource.File.bodyWithoutFrontmatter "README.md"
-                |> DataSource.andThen (Markdown.render >> DataSource.fromResult)
+                |> DataSource.map Markdown.render
 
         bio =
             DataSource.map2 (++)
-                (DataSource.fromResult (Markdown.render "> この節は[public profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/about-your-profile)をサイトビルド時に読み込んでHTML化しています。"))
+                (DataSource.succeed (Markdown.render "> この節は[public profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/about-your-profile)をサイトビルド時に読み込んでHTML化しています。"))
                 (Shared.getGitHubRepoReadme "ymtszw")
     in
     DataSource.map2 Data readme bio
