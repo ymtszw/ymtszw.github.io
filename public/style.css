@@ -1,0 +1,17 @@
+.inline > p {
+  display: inline;
+  margin-top: unset;
+  margin-bottom: unset;
+}
+
+p img {
+  margin-bottom: unset;
+}
+
+a[target="_blank"]::after {
+  content: "\1F5D7";
+  margin-left: 2px;
+  margin-right: 1px;
+  width: 1em;
+  height: 1em;
+}

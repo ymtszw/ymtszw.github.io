@@ -277,11 +277,7 @@ view sharedData page _ _ pageView =
     { title = makeTitle pageView.title
     , body =
         Html.div []
-            [ Html.node "style" [] <|
-                [ -- See Markdown.htmlRenderer
-                  Html.text ".inline>p{display:inline;margin-top:unset;margin-bottom:unset;}\n"
-                , Html.text sharedData.externalCss
-                ]
+            [ Html.node "style" [] [ Html.text sharedData.externalCss ]
             , Html.header []
                 [ Html.nav [] <|
                     List.intersperse (Html.text " / ") <|
