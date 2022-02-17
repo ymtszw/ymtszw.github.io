@@ -41,13 +41,8 @@ data =
         readme =
             DataSource.File.bodyWithoutFrontmatter "README.md"
                 |> DataSource.map Markdown.render
-
-        bio =
-            DataSource.map2 (++)
-                (DataSource.succeed (Markdown.render "> この節は[public profile repository](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/about-your-profile)をサイトビルド時に読み込んでHTML化しています。"))
-                (Shared.getGitHubRepoReadme "ymtszw")
     in
-    DataSource.map2 Data readme bio
+    DataSource.map2 Data readme (Shared.getGitHubRepoReadme "ymtszw")
 
 
 head :
@@ -75,7 +70,13 @@ view _ _ static =
         Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             :: static.data.readme
             ++ [ Html.h2 [] [ Html.text "自己紹介 ", Html.a [ Html.Attributes.href "https://github.com/ymtszw/ymtszw", Html.Attributes.target "_blank" ] [ Html.text "(source)" ] ]
-               , Html.details [] <| Html.summary [] [ Html.text "開く" ] :: static.data.bio
+               , Html.blockquote []
+                    [ Html.text "この節は"
+                    , externalLink "https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/about-your-profile" "public profile repository"
+                    , Html.text "をサイトビルド時に読み込んでHTML化しています。"
+                    ]
+               , Html.div [] static.data.bio
+                    |> showless "bio"
                , Html.h2 [] [ Html.text "記事" ]
                , Html.blockquote [] [ Html.text "このリストはサイトビルド時にmicroCMSからデータを取得し、事前構築しています。公開が新しい順です" ]
                , static.sharedData.cmsArticles
@@ -121,6 +122,7 @@ view _ _ static =
                                 ]
                         )
                     |> Html.ul []
+                    |> showless "qiita-articles"
                , Html.h2 [] [ Html.text "GitHub Public Repo" ]
                , Html.blockquote [] [ Html.text "このリストはサイトビルド時にGitHub REST APIをHeadless CMSのように見立ててデータを取得し、事前構築しています。作成が新しい順です" ]
                , static.sharedData.repos
@@ -134,8 +136,17 @@ view _ _ static =
                         )
                     |> List.intersperse (Html.text " ")
                     |> Html.p []
+                    |> showless "repos"
                ]
     }
+
+
+showless id inner =
+    Html.div []
+        [ Html.input [ Html.Attributes.id id, Html.Attributes.type_ "checkbox", Html.Attributes.class "showless-toggle" ] []
+        , inner
+        , Html.label [ Html.Attributes.for id, Html.Attributes.class "showless-button" ] []
+        ]
 
 
 externalLink url text_ =

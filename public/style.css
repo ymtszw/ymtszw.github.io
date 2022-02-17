@@ -15,3 +15,41 @@ a[target="_blank"]::after {
   width: 1em;
   height: 1em;
 }
+
+/*
+
+Show All/Less Container
+
+*/
+
+input[type="checkbox"].showless-toggle {
+  display: none;
+}
+
+input[type="checkbox"].showless-toggle + * {
+  max-height: 250px;
+  margin-bottom: 0;
+  overflow: hidden;
+}
+
+input[type="checkbox"].showless-toggle:checked + * {
+  max-height: unset;
+}
+
+label.showless-button {
+  display: block;
+  margin: 0;
+  height: 50px;
+  line-height: 50px;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+}
+
+input[type="checkbox"].showless-toggle ~ label.showless-button::before {
+  content: "🔽 Show All";
+}
+
+input[type="checkbox"].showless-toggle:checked ~ label.showless-button::before {
+  content: "🔼 Show Less";
+}
