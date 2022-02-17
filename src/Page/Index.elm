@@ -101,6 +101,25 @@ view _ _ static =
                                 ]
                         )
                     |> Html.ul []
+               , Html.h2 [] [ Html.text "Qiita記事" ]
+               , Html.blockquote [] [ Html.text "このリストはサイトビルド時にQiitaから（ｒｙ" ]
+               , static.sharedData.qiitaArticles
+                    |> List.map
+                        (\metadata ->
+                            Html.li []
+                                [ Html.strong [] [ externalLink metadata.url metadata.title ]
+                                , Html.br [] []
+                                , Html.small []
+                                    [ Html.strong [] [ Html.text (String.fromInt metadata.likesCount) ]
+                                    , Html.text " ✅"
+                                    , Html.code [] (List.map Html.text (List.intersperse ", " metadata.tags))
+                                    , Html.text " ["
+                                    , Html.text (Shared.posixToYmd metadata.createdAt)
+                                    , Html.text "]"
+                                    ]
+                                ]
+                        )
+                    |> Html.ul []
                , Html.h2 [] [ Html.text "GitHub Public Repo" ]
                , Html.blockquote [] [ Html.text "このリストはサイトビルド時にGitHub REST APIをHeadless CMSのように見立ててデータを取得し、事前構築しています。作成が新しい順です" ]
                , static.sharedData.repos
@@ -108,7 +127,7 @@ view _ _ static =
                         (\publicOriginalRepo ->
                             Html.strong []
                                 [ Html.text "["
-                                , Html.a [ Html.Attributes.href ("https://github.com/ymtszw/" ++ publicOriginalRepo), Html.Attributes.target "_blank" ] [ Html.text publicOriginalRepo ]
+                                , externalLink ("https://github.com/ymtszw/" ++ publicOriginalRepo) publicOriginalRepo
                                 , Html.text "]"
                                 ]
                         )
@@ -116,3 +135,7 @@ view _ _ static =
                     |> Html.p []
                ]
     }
+
+
+externalLink url text_ =
+    Html.a [ Html.Attributes.href url, Html.Attributes.target "_blank" ] [ Html.text text_ ]

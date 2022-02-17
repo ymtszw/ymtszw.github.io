@@ -43,6 +43,7 @@ type Msg
 type alias Data =
     { repos : List String
     , cmsArticles : List CmsArticleMetadata
+    , qiitaArticles : List QiitaArticleMetadata
     , externalCss : String
     }
 
@@ -53,6 +54,16 @@ type alias CmsArticleMetadata =
     , revisedAt : Time.Posix
     , title : String
     , image : Maybe CmsImage
+    }
+
+
+type alias QiitaArticleMetadata =
+    { url : String
+    , createdAt : Time.Posix
+    , updatedAt : Time.Posix
+    , title : String
+    , likesCount : Int
+    , tags : List String
     }
 
 
@@ -132,9 +143,10 @@ data =
                 )
                 (DataSource.Http.expectString Result.Ok)
     in
-    DataSource.map3 Data
+    DataSource.map4 Data
         publicOriginalRepos
         publicCmsArticles
+        publicQiitaArticles
         (DataSource.map2 (++) normalizeCss classlessCss)
 
 
@@ -225,6 +237,22 @@ cmsImageDecoder =
 iso8601Decoder : OptimizedDecoder.Decoder Time.Posix
 iso8601Decoder =
     OptimizedDecoder.andThen (Iso8601.toTime >> Result.mapError Markdown.deadEndsToString >> OptimizedDecoder.fromResult) OptimizedDecoder.string
+
+
+publicQiitaArticles : DataSource.DataSource (List QiitaArticleMetadata)
+publicQiitaArticles =
+    let
+        articleMetadataDecoder =
+            OptimizedDecoder.succeed QiitaArticleMetadata
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "url" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "created_at" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "updated_at" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "likes_count" OptimizedDecoder.int)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "tags" (OptimizedDecoder.list (OptimizedDecoder.field "name" OptimizedDecoder.string)))
+    in
+    cmsGet "https://qiita.com/api/v2/users/ymtszw/items?per_page=100"
+        (OptimizedDecoder.list articleMetadataDecoder)
 
 
 seoBase :
