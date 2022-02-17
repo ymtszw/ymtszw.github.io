@@ -102,8 +102,9 @@ view _ _ static =
                         )
                     |> Html.ul []
                , Html.h2 [] [ Html.text "Qiita記事" ]
-               , Html.blockquote [] [ Html.text "このリストはサイトビルド時にQiitaから（ｒｙ" ]
+               , Html.blockquote [] [ Html.text "このリストはサイトビルド時にQiitaから（ｒｙ\u{3000}Like多い順です" ]
                , static.sharedData.qiitaArticles
+                    |> List.sortBy (.likesCount >> negate)
                     |> List.map
                         (\metadata ->
                             Html.li []
