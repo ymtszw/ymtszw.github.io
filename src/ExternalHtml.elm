@@ -1,17 +1,16 @@
 module ExternalHtml exposing (decoder, extractInlineTextFromHtml)
 
-import Html
 import Html.Parser
 import Html.Parser.Util
 import Markdown
 import OptimizedDecoder
 
 
-decoder : String -> OptimizedDecoder.Decoder ( List (Html.Html msg), String )
+decoder : String -> OptimizedDecoder.Decoder (Markdown.DecodedBody msg)
 decoder input =
     case Html.Parser.run input of
         Ok nodes ->
-            OptimizedDecoder.succeed ( Html.Parser.Util.toVirtualDom nodes, extractInlineTextFromHtml nodes )
+            OptimizedDecoder.succeed { html = Html.Parser.Util.toVirtualDom nodes, excerpt = extractInlineTextFromHtml nodes }
 
         Err e ->
             OptimizedDecoder.fail (Markdown.deadEndsToString e)

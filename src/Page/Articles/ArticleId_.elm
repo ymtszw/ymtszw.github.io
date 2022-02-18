@@ -1,4 +1,4 @@
-module Page.Articles.ArticleId_ exposing (Body, Data, Model, Msg, cmsArticleBodyDecoder, page, renderArticle)
+module Page.Articles.ArticleId_ exposing (Data, Model, Msg, cmsArticleBodyDecoder, page, renderArticle)
 
 import DataSource exposing (DataSource)
 import ExternalHtml
@@ -38,14 +38,8 @@ type alias CmsArticle =
     , revisedAt : Time.Posix
     , title : String
     , image : Maybe Shared.CmsImage
-    , body : Body Msg
+    , body : Markdown.DecodedBody Msg
     , type_ : String
-    }
-
-
-type alias Body msg =
-    { html : List (Html.Html msg)
-    , excerpt : String
     }
 
 
@@ -77,18 +71,16 @@ data routeParams =
         )
 
 
-cmsArticleBodyDecoder : (Body msg -> String -> a) -> OptimizedDecoder.Decoder a
+cmsArticleBodyDecoder : (Markdown.DecodedBody msg -> String -> a) -> OptimizedDecoder.Decoder a
 cmsArticleBodyDecoder cont =
     let
         htmlDecoder =
             OptimizedDecoder.string
                 |> OptimizedDecoder.andThen ExternalHtml.decoder
-                |> OptimizedDecoder.map (\( html, excerpt ) -> Body html excerpt)
 
         markdownDecoder =
             OptimizedDecoder.string
                 |> OptimizedDecoder.map Markdown.renderWithExcerpt
-                |> OptimizedDecoder.map (\( html, excerpt ) -> Body html excerpt)
     in
     OptimizedDecoder.oneOf
         [ OptimizedDecoder.succeed cont
@@ -147,7 +139,7 @@ renderArticle :
     { a
         | title : String
         , image : Maybe Shared.CmsImage
-        , body : Body msg
+        , body : Markdown.DecodedBody msg
     }
     -> Html.Html msg
 renderArticle contents =

@@ -1,4 +1,4 @@
-module Markdown exposing (deadEndsToString, decoder, parse, render, renderWithExcerpt)
+module Markdown exposing (DecodedBody, deadEndsToString, decoder, parse, render, renderWithExcerpt)
 
 import Html
 import Html.Attributes
@@ -53,14 +53,24 @@ renderFallback input err =
     ]
 
 
-renderWithExcerpt : String -> ( List (Html.Html msg), String )
+type alias DecodedBody msg =
+    { html : List (Html.Html msg)
+    , excerpt : String
+    }
+
+
+renderWithExcerpt : String -> DecodedBody msg
 renderWithExcerpt input =
     case parse input of
         Ok nodes ->
-            ( renderWithFallback input (render_ nodes), excerpt nodes )
+            { html = renderWithFallback input (render_ nodes)
+            , excerpt = excerpt nodes
+            }
 
         Err err ->
-            ( renderFallback input err, String.left 100 input ++ "..." )
+            { html = renderFallback input err
+            , excerpt = String.left 100 input ++ "..."
+            }
 
 
 excerpt : List Markdown.Block.Block -> String

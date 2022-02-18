@@ -7,9 +7,10 @@ import Html
 import Http
 import Iso8601
 import Json.Decode
+import Markdown
 import OptimizedDecoder
 import Page exposing (PageWithState, StaticPayload)
-import Page.Articles.ArticleId_ exposing (Body, cmsArticleBodyDecoder, renderArticle)
+import Page.Articles.ArticleId_ exposing (cmsArticleBodyDecoder, renderArticle)
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
 import Process
@@ -39,7 +40,7 @@ type alias DraftContents =
     , updatedAt : Time.Posix
     , title : String
     , image : Maybe Shared.CmsImage
-    , body : Body Msg
+    , body : Markdown.DecodedBody Msg
     , type_ : String
     }
 
