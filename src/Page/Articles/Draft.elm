@@ -12,8 +12,10 @@ import Page exposing (PageWithState, StaticPayload)
 import Page.Articles.ArticleId_ exposing (Body, cmsArticleBodyDecoder, renderArticle)
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
+import Process
 import QueryParams
 import Shared exposing (unixOrigin)
+import Task
 import Time
 import View exposing (View)
 
@@ -21,6 +23,7 @@ import View exposing (View)
 type alias Model =
     { keys : DraftKeys
     , contents : DraftContents
+    , polling : Bool
     }
 
 
@@ -39,10 +42,6 @@ type alias DraftContents =
     , body : Body Msg
     , type_ : String
     }
-
-
-type Msg
-    = Res_getDraft (Result Http.Error DraftContents)
 
 
 type alias RouteParams =
@@ -84,6 +83,7 @@ init maybeUrl _ _ =
                 , body = { html = [], excerpt = "" }
                 , type_ = "unknown"
                 }
+            , polling = True
             }
 
         withPageUrl fun =
@@ -105,18 +105,25 @@ init maybeUrl _ _ =
         andMap =
             QueryParams.map2 (|>)
     in
-    withPageUrl <| \keys -> ( { empty | keys = keys }, getDraft keys )
+    withPageUrl <| \keys -> ( { empty | keys = keys }, Task.attempt Res_getDraft (getDraft keys) )
 
 
 getDraft keys =
-    Http.request
+    Http.task
         { method = "GET"
         , url = "https://ymtszw.microcms.io/api/v1/articles/" ++ keys.contentId ++ "?draftKey=" ++ keys.draftKey
         , headers = [ Http.header "X-MICROCMS-API-KEY" keys.microCmsApiKey ]
         , body = Http.emptyBody
-        , expect = Http.expectJson Res_getDraft draftDecoder
+        , resolver =
+            Http.stringResolver <|
+                \resp ->
+                    case resp of
+                        Http.GoodStatus_ _ body ->
+                            Result.mapError Json.Decode.errorToString (Json.Decode.decodeString draftDecoder body)
+
+                        _ ->
+                            Err "something erroneous"
         , timeout = Nothing
-        , tracker = Nothing
         }
 
 
@@ -134,6 +141,10 @@ draftDecoder =
         |> Json.Decode.andThen (cmsArticleBodyDecoder >> OptimizedDecoder.decoder)
 
 
+type Msg
+    = Res_getDraft (Result String DraftContents)
+
+
 update :
     PageUrl
     -> Maybe Browser.Navigation.Key
@@ -145,10 +156,19 @@ update :
 update _ _ _ _ msg m =
     case msg of
         Res_getDraft (Ok contents) ->
-            ( { m | contents = contents }, Cmd.none )
+            ( { m | contents = contents }
+            , Process.sleep (pollingIntervalSeconds * 1000)
+                |> Task.andThen (\_ -> getDraft m.keys)
+                |> Task.attempt Res_getDraft
+            )
 
         Res_getDraft (Err _) ->
-            ( m, Cmd.none )
+            ( { m | polling = False }, Cmd.none )
+
+
+pollingIntervalSeconds : Float
+pollingIntervalSeconds =
+    3
 
 
 subscriptions : Maybe PageUrl -> RouteParams -> Path -> Model -> Sub Msg
@@ -177,7 +197,13 @@ view :
 view _ _ m _ =
     { title = "記事（下書き）"
     , body =
-        [ Html.table []
+        [ if m.polling then
+            Html.text <| "自動更新中（" ++ String.fromFloat pollingIntervalSeconds ++ "秒ごとに更新）"
+
+          else
+            Html.text "⛔ 自動更新エラー。Consoleを確認してリロードしよう。"
+        , Html.hr [] []
+        , Html.table []
             [ Html.tbody []
                 [ Html.tr [] [ Html.th [] [ Html.text "Content ID" ], Html.td [] [ Html.text m.keys.contentId ] ]
                 , Html.tr [] [ Html.th [] [ Html.text "Type" ], Html.td [] [ Html.text m.contents.type_ ] ]
