@@ -1,12 +1,11 @@
 module Page.Articles.ArticleId_ exposing (Body, Data, Model, Msg, cmsArticleBodyDecoder, page, renderArticle)
 
 import DataSource exposing (DataSource)
+import ExternalHtml
 import Head
 import Head.Seo as Seo
 import Html
 import Html.Attributes
-import Html.Parser
-import Html.Parser.Util
 import Iso8601
 import Markdown
 import OptimizedDecoder
@@ -83,15 +82,8 @@ cmsArticleBodyDecoder cont =
     let
         htmlDecoder =
             OptimizedDecoder.string
-                |> OptimizedDecoder.andThen
-                    (\input ->
-                        case Html.Parser.run input of
-                            Ok nodes ->
-                                OptimizedDecoder.succeed (Body (Html.Parser.Util.toVirtualDom nodes) (extractInlineTextFromHtml nodes))
-
-                            Err e ->
-                                OptimizedDecoder.fail (Markdown.deadEndsToString e)
-                    )
+                |> OptimizedDecoder.andThen ExternalHtml.decoder
+                |> OptimizedDecoder.map (\( html, excerpt ) -> Body html excerpt)
 
         markdownDecoder =
             OptimizedDecoder.string
@@ -106,45 +98,6 @@ cmsArticleBodyDecoder cont =
             |> OptimizedDecoder.andMap (OptimizedDecoder.field "markdown" markdownDecoder)
             |> OptimizedDecoder.andMap (OptimizedDecoder.succeed "markdown")
         ]
-
-
-extractInlineTextFromHtml : List Html.Parser.Node -> String
-extractInlineTextFromHtml nodes =
-    case extractInlineTextHelp nodes "" of
-        ( acc, True ) ->
-            acc
-
-        ( acc, False ) ->
-            String.left 100 acc ++ "..."
-
-
-extractInlineTextHelp nodes acc =
-    case ( nodes, String.length acc > 100 ) of
-        ( [], _ ) ->
-            ( acc, True )
-
-        ( _, True ) ->
-            ( acc, False )
-
-        ( h :: t, False ) ->
-            let
-                new =
-                    digHtmlNode h
-            in
-            extractInlineTextHelp t (acc ++ " " ++ new)
-
-
-digHtmlNode : Html.Parser.Node -> String
-digHtmlNode node =
-    case node of
-        Html.Parser.Text text ->
-            text
-
-        Html.Parser.Element _ _ nodes ->
-            Tuple.first (extractInlineTextHelp nodes "")
-
-        Html.Parser.Comment _ ->
-            ""
 
 
 head :
