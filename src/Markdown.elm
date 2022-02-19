@@ -1,4 +1,4 @@
-module Markdown exposing (DecodedBody, deadEndsToString, decoder, parse, render, renderWithExcerpt)
+module Markdown exposing (DecodedBody, deadEndToString, deadEndsToString, decoder, parse, render, renderWithExcerpt)
 
 import Html
 import Html.Attributes
