@@ -16,6 +16,8 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - uses: actions/cache@v2
         with:
           key: v1-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
