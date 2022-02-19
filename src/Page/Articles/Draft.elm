@@ -84,7 +84,7 @@ init maybeUrl _ _ =
                 , body = { html = [], excerpt = "" }
                 , type_ = "unknown"
                 }
-            , polling = True
+            , polling = False
             }
 
         withPageUrl fun =
@@ -106,7 +106,7 @@ init maybeUrl _ _ =
         andMap =
             QueryParams.map2 (|>)
     in
-    withPageUrl <| \keys -> ( { empty | keys = keys }, Task.attempt Res_getDraft (getDraft keys) )
+    withPageUrl <| \keys -> ( { empty | keys = keys, polling = True }, Task.attempt Res_getDraft (getDraft keys) )
 
 
 getDraft keys =
@@ -202,7 +202,7 @@ view _ _ m _ =
             Html.text <| "自動更新中（" ++ String.fromFloat pollingIntervalSeconds ++ "秒ごとに更新）"
 
           else
-            Html.text "⛔ 自動更新エラー。Consoleを確認してリロードしよう。"
+            Html.text "⛔ 自動更新エラー、またはクエリパラメータ不足"
         , Html.hr [] []
         , Html.table []
             [ Html.tbody []
