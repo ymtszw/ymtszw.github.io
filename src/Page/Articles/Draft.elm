@@ -2,6 +2,7 @@ module Page.Articles.Draft exposing (Data, Model, Msg, page)
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
+import Dict
 import Head
 import Html
 import Http
@@ -81,7 +82,7 @@ init maybeUrl _ _ =
                 , updatedAt = unixOrigin
                 , title = ""
                 , image = Nothing
-                , body = { html = [], excerpt = "" }
+                , body = { html = [], excerpt = "", links = [], htmlWithLinkPreview = \_ -> [] }
                 , type_ = "unknown"
                 }
             , polling = False
@@ -215,6 +216,7 @@ view _ _ m _ =
                 ]
             ]
         , Html.hr [] []
-        , renderArticle m.contents
+        , -- TODO Support runtime (draft) link preview
+          renderArticle Dict.empty m.contents
         ]
     }

@@ -1,12 +1,14 @@
 module Page.Articles.ArticleId_ exposing (Data, Model, Msg, cmsArticleBodyDecoder, page, renderArticle)
 
 import DataSource exposing (DataSource)
+import Dict exposing (Dict)
 import ExternalHtml
 import Head
 import Head.Seo as Seo
 import Html
 import Html.Attributes
 import Iso8601
+import LinkPreview
 import Markdown
 import OptimizedDecoder
 import Page exposing (Page, StaticPayload)
@@ -29,7 +31,9 @@ type alias RouteParams =
 
 
 type alias Data =
-    CmsArticle
+    { article : CmsArticle
+    , links : Dict String LinkPreview.Metadata
+    }
 
 
 type alias CmsArticle =
@@ -69,6 +73,8 @@ data routeParams =
             |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "image" Shared.cmsImageDecoder))
             |> OptimizedDecoder.andThen cmsArticleBodyDecoder
         )
+        |> DataSource.andThen
+            (\cmsArticle -> cmsArticle.body.links |> LinkPreview.collectMetadata { errOnFail = False } |> DataSource.map (Data cmsArticle))
 
 
 cmsArticleBodyDecoder : (Markdown.DecodedBody msg -> String -> a) -> OptimizedDecoder.Decoder a
@@ -98,15 +104,15 @@ head :
 head static =
     Seo.summaryLarge
         { seoBase
-            | title = Shared.makeTitle static.data.title
-            , description = static.data.body.excerpt
-            , image = Maybe.withDefault seoBase.image (Maybe.map Shared.makeSeoImageFromCmsImage static.data.image)
+            | title = Shared.makeTitle static.data.article.title
+            , description = static.data.article.body.excerpt
+            , image = Maybe.withDefault seoBase.image (Maybe.map Shared.makeSeoImageFromCmsImage static.data.article.image)
         }
         |> Seo.article
             { tags = []
             , section = Nothing
-            , publishedTime = Just (Iso8601.fromTime static.data.publishedAt)
-            , modifiedTime = Just (Iso8601.fromTime static.data.revisedAt)
+            , publishedTime = Just (Iso8601.fromTime static.data.article.publishedAt)
+            , modifiedTime = Just (Iso8601.fromTime static.data.article.revisedAt)
             , expirationTime = Nothing
             }
 
@@ -117,32 +123,34 @@ view :
     -> StaticPayload Data RouteParams
     -> View Msg
 view _ _ static =
-    { title = static.data.title
+    { title = static.data.article.title
     , body =
         [ Html.table []
             [ Html.tbody [] <|
-                Html.tr [] [ Html.th [] [ Html.text "公開" ], Html.td [] [ Html.text (Shared.formatPosix static.data.publishedAt) ] ]
-                    :: (if static.data.revisedAt /= static.data.publishedAt then
-                            [ Html.tr [] [ Html.th [] [ Html.text "更新" ], Html.td [] [ Html.text (Shared.formatPosix static.data.revisedAt) ] ] ]
+                Html.tr [] [ Html.th [] [ Html.text "公開" ], Html.td [] [ Html.text (Shared.formatPosix static.data.article.publishedAt) ] ]
+                    :: (if static.data.article.revisedAt /= static.data.article.publishedAt then
+                            [ Html.tr [] [ Html.th [] [ Html.text "更新" ], Html.td [] [ Html.text (Shared.formatPosix static.data.article.revisedAt) ] ] ]
 
                         else
                             []
                        )
             ]
         , Html.hr [] []
-        , renderArticle static.data
+        , renderArticle static.data.links static.data.article
         ]
     }
 
 
 renderArticle :
-    { a
-        | title : String
-        , image : Maybe Shared.CmsImage
-        , body : Markdown.DecodedBody msg
-    }
+    Dict String LinkPreview.Metadata
+    ->
+        { a
+            | title : String
+            , image : Maybe Shared.CmsImage
+            , body : Markdown.DecodedBody msg
+        }
     -> Html.Html msg
-renderArticle contents =
+renderArticle links contents =
     Html.article [] <|
         (case contents.image of
             Just cmsImage ->
@@ -152,4 +160,9 @@ renderArticle contents =
                 []
         )
             ++ Html.h1 [] [ Html.text contents.title ]
-            :: contents.body.html
+            :: (if Dict.isEmpty links then
+                    contents.body.html
+
+                else
+                    contents.body.htmlWithLinkPreview links
+               )
