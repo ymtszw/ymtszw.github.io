@@ -1,7 +1,9 @@
 module Markdown exposing (DecodedBody, deadEndToString, deadEndsToString, decoder, parse, render, renderWithExcerpt)
 
+import Dict exposing (Dict)
 import Html
 import Html.Attributes
+import LinkPreview exposing (Metadata)
 import Markdown.Block
 import Markdown.Html
 import Markdown.Parser
@@ -27,7 +29,7 @@ render : String -> List (Html.Html msg)
 render input =
     parse input
         |> Result.andThen render_
-        |> renderWithFallback input
+        |> defaultToErrorView input
 
 
 render_ nodes =
@@ -35,7 +37,7 @@ render_ nodes =
         |> Result.mapError ((++) "Error while rendering Markdown!\n\n")
 
 
-renderWithFallback input result =
+defaultToErrorView input result =
     case result of
         Ok renderred ->
             renderred
@@ -56,6 +58,8 @@ renderFallback input err =
 type alias DecodedBody msg =
     { html : List (Html.Html msg)
     , excerpt : String
+    , links : List String
+    , htmlWithLinkPreview : Dict String Metadata -> List (Html.Html msg)
     }
 
 
@@ -63,13 +67,21 @@ renderWithExcerpt : String -> DecodedBody msg
 renderWithExcerpt input =
     case parse input of
         Ok nodes ->
-            { html = renderWithFallback input (render_ nodes)
+            { html = defaultToErrorView input (render_ nodes)
             , excerpt = excerpt nodes
+            , links = enumerateLinks nodes
+            , htmlWithLinkPreview = transformWithLinkMetadata nodes >> render_ >> defaultToErrorView input
             }
 
         Err err ->
-            { html = renderFallback input err
+            let
+                renderred =
+                    renderFallback input err
+            in
+            { html = renderred
             , excerpt = String.left 100 input ++ "..."
+            , links = []
+            , htmlWithLinkPreview = \_ -> renderred
             }
 
 
@@ -278,3 +290,38 @@ htmlRenderer =
                 in
                 Html.a (titleAttr ++ destAttr) content
     }
+
+
+enumerateLinks : List Markdown.Block.Block -> List String
+enumerateLinks =
+    List.concatMap
+        (\block ->
+            case block of
+                Markdown.Block.Paragraph [ Markdown.Block.Link bareUrl _ _ ] ->
+                    [ bareUrl ]
+
+                _ ->
+                    []
+        )
+
+
+transformWithLinkMetadata : List Markdown.Block.Block -> Dict String LinkPreview.Metadata -> List Markdown.Block.Block
+transformWithLinkMetadata nodes links =
+    List.concatMap
+        (\block ->
+            case block of
+                Markdown.Block.Paragraph [ Markdown.Block.Link bareUrl _ _ ] ->
+                    case Dict.get bareUrl links of
+                        Just metadata ->
+                            [ block
+
+                            -- TODO Impl preview block here
+                            ]
+
+                        Nothing ->
+                            [ block ]
+
+                _ ->
+                    [ block ]
+        )
+        nodes

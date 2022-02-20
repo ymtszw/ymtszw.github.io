@@ -1,7 +1,9 @@
 module ExternalHtml exposing (decoder, extractInlineTextFromHtml)
 
+import Dict exposing (Dict)
 import Html.Parser exposing (Node(..))
 import Html.Parser.Util
+import LinkPreview
 import Markdown
 import OptimizedDecoder
 
@@ -14,7 +16,7 @@ decoder input =
                 { html = Html.Parser.Util.toVirtualDom nodes
                 , excerpt = extractInlineTextFromHtml nodes
                 , links = enumerateLinks nodes
-                , htmlWithLinkPreview = \_ -> Html.Parser.Util.toVirtualDom nodes
+                , htmlWithLinkPreview = transformWithLinkMetadata nodes >> Html.Parser.Util.toVirtualDom
                 }
 
         Err e ->
@@ -65,12 +67,35 @@ enumerateLinks =
     List.concatMap
         (\node ->
             case node of
-                Element "p" [] [ Element "a" (( "href", bareUrl ) :: _) _ ] ->
-                    [ bareUrl ]
+                Element "p" [] [ Element "a" (( "href", bareUrl ) :: _) [ Text linkText ] ] ->
+                    if bareUrl == linkText then
+                        [ bareUrl ]
 
-                Element "a" (( "href", bareUrl ) :: _) _ ->
-                    [ bareUrl ]
+                    else
+                        []
 
                 _ ->
                     []
         )
+
+
+transformWithLinkMetadata : List Node -> Dict String LinkPreview.Metadata -> List Node
+transformWithLinkMetadata nodes links =
+    List.concatMap
+        (\node ->
+            case node of
+                Element "p" [] [ Element "a" (( "href", bareUrl ) :: _) [ Text linkText ] ] ->
+                    case ( Dict.get bareUrl links, bareUrl == linkText ) of
+                        ( Just metadata, True ) ->
+                            [ node
+
+                            -- TODO Impl preview block here
+                            ]
+
+                        _ ->
+                            [ node ]
+
+                _ ->
+                    [ node ]
+        )
+        nodes

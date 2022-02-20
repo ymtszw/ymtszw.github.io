@@ -1,4 +1,4 @@
-module LinkPreview exposing (Metadata, getMetadata)
+module LinkPreview exposing (Metadata, collectMetadata, getMetadata, isEmpty)
 
 {-| Metadata for link preview.
 
@@ -11,6 +11,7 @@ Consumers of this metadata should:
 
 import DataSource
 import DataSource.Http
+import Dict exposing (Dict)
 import Html.Parser exposing (Node(..))
 import Maybe.Extra
 import Pages.Secrets
@@ -26,8 +27,39 @@ type alias Metadata =
     }
 
 
-getMetadata : String -> DataSource.DataSource ( String, Metadata )
-getMetadata url =
+collectMetadata : { errOnFail : Bool } -> List String -> DataSource.DataSource (Dict String Metadata)
+collectMetadata conf links =
+    let
+        removeEmpty =
+            DataSource.map
+                (\(( _, meta ) as result) ->
+                    if isEmpty meta then
+                        []
+
+                    else
+                        [ result ]
+                )
+    in
+    links
+        |> List.map (getMetadata conf >> removeEmpty)
+        |> DataSource.combine
+        |> DataSource.map (List.concat >> Dict.fromList)
+
+
+{-| Treat HTML without title (such as "301 moved permanently" page) as empty.
+-}
+isEmpty : Metadata -> Bool
+isEmpty { title } =
+    case title of
+        Just _ ->
+            False
+
+        Nothing ->
+            True
+
+
+getMetadata : { errOnFail : Bool } -> String -> DataSource.DataSource ( String, Metadata )
+getMetadata conf url =
     DataSource.Http.unoptimizedRequest
         (Pages.Secrets.succeed
             { url = url
@@ -36,12 +68,25 @@ getMetadata url =
             , body = DataSource.Http.emptyBody
             }
         )
-        (DataSource.Http.expectString (htmlMetadataParser (emptyMetadata url)))
+        (DataSource.Http.expectString (htmlMetadataParser conf (emptyMetadata url)))
         |> DataSource.map (Tuple.pair url)
 
 
-htmlMetadataParser : Metadata -> String -> Result String Metadata
-htmlMetadataParser meta str =
+htmlMetadataParser : { errOnFail : Bool } -> Metadata -> String -> Result String Metadata
+htmlMetadataParser { errOnFail } meta str =
+    case Html.Parser.runDocument str of
+        Err e ->
+            if errOnFail then
+                Err (List.map (showHtmlParseError str) e |> String.join "\n\n")
+
+            else
+                Ok meta
+
+        Ok parsed ->
+            Ok (parsed.document |> Tuple.second |> removeInsignificant [] |> walkHtmlNodesForMetadata meta)
+
+
+showHtmlParseError str =
     let
         lines =
             String.split "\n" str
@@ -70,9 +115,7 @@ htmlMetadataParser meta str =
             else
                 []
     in
-    Html.Parser.runDocument str
-        |> Result.mapError (List.map (\deadEnd -> "Html syntax error:\n\n" ++ showErrorLine deadEnd) >> String.join "\n\n")
-        |> Result.map (.document >> Tuple.second >> removeInsignificant [] >> walkHtmlNodesForMetadata meta)
+    (++) "Html syntax error:\n\n" << showErrorLine
 
 
 emptyMetadata url =
