@@ -1,4 +1,4 @@
-module LinkPreview exposing (Metadata, collectMetadata, getMetadata, isEmpty)
+module LinkPreview exposing (Metadata, collectMetadata, getMetadata, htmlMetadataParser, isEmpty, previewMetadata)
 
 {-| Metadata for link preview.
 
@@ -25,6 +25,35 @@ type alias Metadata =
     , -- Defaults to requested URL
       canonicalUrl : String
     }
+
+
+emptyMetadata url =
+    { title = Nothing
+    , description = Nothing
+    , iconUrl = Nothing
+    , imageUrl = Nothing
+    , canonicalUrl = url
+    }
+
+
+previewMetadata : String -> Metadata
+previewMetadata url =
+    { title = Just linkPreviewTitle
+    , description = Just linkPreviewDescription
+    , canonicalUrl = url
+    , imageUrl = Just "https://via.placeholder.com/640x480"
+    , iconUrl = Just "https://via.placeholder.com/150x150"
+    }
+
+
+linkPreviewTitle =
+    String.repeat 10 "Very Long Title. とても長い名前。"
+
+
+linkPreviewDescription =
+    """Link preview will be loaded on elm-pages build.
+If the page cannot be loaded, (e.g. no-good status like 404 or 301,) preview will not be rendered.
+It is advised to use canonical, direct and living URL of the target."""
 
 
 collectMetadata : { errOnFail : Bool } -> List String -> DataSource.DataSource (Dict String Metadata)
@@ -68,22 +97,26 @@ getMetadata conf url =
             , body = DataSource.Http.emptyBody
             }
         )
-        (DataSource.Http.expectString (htmlMetadataParser conf (emptyMetadata url)))
+        (DataSource.Http.expectString (htmlMetadataParser conf url))
         |> DataSource.map (Tuple.pair url)
 
 
-htmlMetadataParser : { errOnFail : Bool } -> Metadata -> String -> Result String Metadata
-htmlMetadataParser { errOnFail } meta str =
-    case Html.Parser.runDocument str of
+htmlMetadataParser : { errOnFail : Bool } -> String -> String -> Result String Metadata
+htmlMetadataParser { errOnFail } url rawBody =
+    let
+        empty =
+            emptyMetadata url
+    in
+    case Html.Parser.runDocument rawBody of
         Err e ->
             if errOnFail then
-                Err (List.map (showHtmlParseError str) e |> String.join "\n\n")
+                Err (List.map (showHtmlParseError rawBody) e |> String.join "\n\n")
 
             else
-                Ok meta
+                Ok empty
 
         Ok parsed ->
-            Ok (parsed.document |> Tuple.second |> removeInsignificant [] |> walkHtmlNodesForMetadata meta)
+            Ok (parsed.document |> Tuple.second |> removeInsignificant [] |> walkHtmlNodesForMetadata empty)
 
 
 showHtmlParseError str =
@@ -116,15 +149,6 @@ showHtmlParseError str =
                 []
     in
     (++) "Html syntax error:\n\n" << showErrorLine
-
-
-emptyMetadata url =
-    { title = Nothing
-    , description = Nothing
-    , iconUrl = Nothing
-    , imageUrl = Nothing
-    , canonicalUrl = url
-    }
 
 
 removeInsignificant acc nodes =

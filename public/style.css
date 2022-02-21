@@ -8,7 +8,7 @@ p img {
   margin-bottom: unset;
 }
 
-a[target="_blank"]::after {
+a[target="_blank"]:not(.link-preview)::after {
   content: "\1F5D7";
   margin-left: 2px;
   margin-right: 1px;
@@ -52,4 +52,50 @@ input[type="checkbox"].showless-toggle ~ label.showless-button::before {
 
 input[type="checkbox"].showless-toggle:checked ~ label.showless-button::before {
   content: "🔼 Show Less";
+}
+
+/*
+
+Link Preview
+
+*/
+
+.link-preview blockquote:hover {
+  outline: 2px solid #4a4a4a;
+}
+
+.link-preview table tr td:first-child {
+  width: 75%;
+  max-width: 75%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.link-preview table tr td:last-child {
+  width: 25%;
+  max-width: 25%;
+  min-width: 25%;
+}
+
+.link-preview table tr td strong {
+  display: -webkit-box;
+  width: 100%;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.link-preview table tr td strong img {
+  width: 1em;
+  height: 1em;
+  margin-bottom: 0;
+  margin-right: 0.2em;
+  vertical-align: text-bottom;
+}
+
+.link-preview table tr td small::after {
+  content: "\1F5D7";
+  margin-left: 2px;
+  width: 1em;
+  height: 1em;
 }

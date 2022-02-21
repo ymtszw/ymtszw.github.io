@@ -16,7 +16,7 @@ decoder input =
                 { html = Html.Parser.Util.toVirtualDom nodes
                 , excerpt = extractInlineTextFromHtml nodes
                 , links = enumerateLinks nodes
-                , htmlWithLinkPreview = transformWithLinkMetadata nodes >> Html.Parser.Util.toVirtualDom
+                , htmlWithLinkPreview = \conf links -> transformWithLinkMetadata conf nodes links |> Html.Parser.Util.toVirtualDom
                 }
 
         Err e ->
@@ -79,18 +79,18 @@ enumerateLinks =
         )
 
 
-transformWithLinkMetadata : List Node -> Dict String LinkPreview.Metadata -> List Node
-transformWithLinkMetadata nodes links =
+transformWithLinkMetadata : { draft : Bool } -> List Node -> Dict String LinkPreview.Metadata -> List Node
+transformWithLinkMetadata { draft } nodes links =
     List.concatMap
         (\node ->
             case node of
-                Element "p" [] [ Element "a" (( "href", bareUrl ) :: _) [ Text linkText ] ] ->
-                    case ( Dict.get bareUrl links, bareUrl == linkText ) of
-                        ( Just metadata, True ) ->
-                            [ node
+                Element "p" _ [ Element "a" ((( "href", bareUrl ) :: _) as linkAttrs) [ Text linkText ] ] ->
+                    case ( bareUrl == linkText, Dict.get bareUrl links, draft ) of
+                        ( True, Just metadata, _ ) ->
+                            [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview metadata ] ]
 
-                            -- TODO Impl preview block here
-                            ]
+                        ( True, Nothing, True ) ->
+                            [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview (LinkPreview.previewMetadata bareUrl) ] ]
 
                         _ ->
                             [ node ]
@@ -99,3 +99,42 @@ transformWithLinkMetadata nodes links =
                     [ node ]
         )
         nodes
+
+
+linkPreview : LinkPreview.Metadata -> Node
+linkPreview meta =
+    Element "blockquote" [] <|
+        [ Element "table" [] <|
+            [ Element "tr" [] <|
+                [ Element "td" [] <|
+                    [ case meta.title of
+                        Just title ->
+                            Element "strong" [] <|
+                                [ case meta.iconUrl of
+                                    Just iconUrl ->
+                                        Element "img" [ ( "src", iconUrl ) ] []
+
+                                    Nothing ->
+                                        Text ""
+                                , Text title
+                                ]
+
+                        Nothing ->
+                            Text ""
+                    , case meta.description of
+                        Just desc ->
+                            Element "p" [] [ Text desc ]
+
+                        Nothing ->
+                            Text ""
+                    , Element "small" [] [ Text meta.canonicalUrl ]
+                    ]
+                , case meta.imageUrl of
+                    Just imageUrl ->
+                        Element "td" [] [ Element "img" [ ( "src", imageUrl ) ] [] ]
+
+                    Nothing ->
+                        Text ""
+                ]
+            ]
+        ]

@@ -59,7 +59,7 @@ type alias DecodedBody msg =
     { html : List (Html.Html msg)
     , excerpt : String
     , links : List String
-    , htmlWithLinkPreview : Dict String Metadata -> List (Html.Html msg)
+    , htmlWithLinkPreview : { draft : Bool } -> Dict String Metadata -> List (Html.Html msg)
     }
 
 
@@ -70,7 +70,7 @@ renderWithExcerpt input =
             { html = defaultToErrorView input (render_ nodes)
             , excerpt = excerpt nodes
             , links = enumerateLinks nodes
-            , htmlWithLinkPreview = transformWithLinkMetadata nodes >> render_ >> defaultToErrorView input
+            , htmlWithLinkPreview = \conf links -> transformWithLinkMetadata conf nodes links |> render_ |> defaultToErrorView input
             }
 
         Err err ->
@@ -81,7 +81,7 @@ renderWithExcerpt input =
             { html = renderred
             , excerpt = String.left 100 input ++ "..."
             , links = []
-            , htmlWithLinkPreview = \_ -> renderred
+            , htmlWithLinkPreview = \_ _ -> renderred
             }
 
 
@@ -270,26 +270,35 @@ htmlRenderer =
                         Html.a [ Html.Attributes.name name, inline ] children
                     )
                     |> Markdown.Html.withAttribute "name"
+                , Markdown.Html.tag "a"
+                    (\href class children ->
+                        Html.a (Html.Attributes.class class :: destAttr href) children
+                    )
+                    |> Markdown.Html.withAttribute "href"
+                    |> Markdown.Html.withAttribute "class"
                 , Markdown.Html.tag "kbd" <| Html.kbd [ inline ]
                 , Markdown.Html.tag "b" <| Html.b [ inline ]
                 , Markdown.Html.tag "u" <| Html.u [ inline ]
                 , Markdown.Html.tag "small" <| Html.small [ inline ]
+                , Markdown.Html.tag "div" <| Html.div []
                 ]
         , link =
             \link content ->
                 let
                     titleAttr =
                         link.title |> Maybe.map (\title -> [ Html.Attributes.title title ]) |> Maybe.withDefault []
-
-                    destAttr =
-                        if String.startsWith "http://" link.destination || String.startsWith "https://" link.destination then
-                            [ Html.Attributes.href link.destination, Html.Attributes.target "_blank" ]
-
-                        else
-                            [ Html.Attributes.href link.destination ]
                 in
-                Html.a (titleAttr ++ destAttr) content
+                Html.a (titleAttr ++ destAttr link.destination) content
     }
+
+
+destAttr : String -> List (Html.Attribute msg)
+destAttr destination =
+    if String.startsWith "http://" destination || String.startsWith "https://" destination then
+        [ Html.Attributes.href destination, Html.Attributes.target "_blank" ]
+
+    else
+        [ Html.Attributes.href destination ]
 
 
 enumerateLinks : List Markdown.Block.Block -> List String
@@ -305,23 +314,63 @@ enumerateLinks =
         )
 
 
-transformWithLinkMetadata : List Markdown.Block.Block -> Dict String LinkPreview.Metadata -> List Markdown.Block.Block
-transformWithLinkMetadata nodes links =
+transformWithLinkMetadata : { draft : Bool } -> List Markdown.Block.Block -> Dict String LinkPreview.Metadata -> List Markdown.Block.Block
+transformWithLinkMetadata { draft } nodes links =
     List.concatMap
         (\block ->
             case block of
                 Markdown.Block.Paragraph [ Markdown.Block.Link bareUrl _ _ ] ->
-                    case Dict.get bareUrl links of
-                        Just metadata ->
-                            [ block
+                    case ( Dict.get bareUrl links, draft ) of
+                        ( Just metadata, _ ) ->
+                            [ Markdown.Block.HtmlBlock <| Markdown.Block.HtmlElement "a" [ { name = "class", value = "link-preview" }, { name = "href", value = bareUrl } ] [ linkPreview metadata ] ]
 
-                            -- TODO Impl preview block here
-                            ]
+                        ( Nothing, True ) ->
+                            [ Markdown.Block.HtmlBlock <| Markdown.Block.HtmlElement "a" [ { name = "class", value = "link-preview" }, { name = "href", value = bareUrl } ] [ linkPreview (LinkPreview.previewMetadata bareUrl) ] ]
 
-                        Nothing ->
+                        ( Nothing, False ) ->
                             [ block ]
 
                 _ ->
                     [ block ]
         )
         nodes
+
+
+linkPreview : LinkPreview.Metadata -> Markdown.Block.Block
+linkPreview meta =
+    Markdown.Block.BlockQuote
+        [ Markdown.Block.Table [] <|
+            [ [ [ case meta.title of
+                    Just title ->
+                        Markdown.Block.Strong <|
+                            [ case meta.iconUrl of
+                                Just iconUrl ->
+                                    Markdown.Block.Image iconUrl Nothing []
+
+                                Nothing ->
+                                    Markdown.Block.Text ""
+                            , Markdown.Block.Text title
+                            ]
+
+                    Nothing ->
+                        Markdown.Block.Text ""
+                , Markdown.Block.HtmlInline <|
+                    Markdown.Block.HtmlElement "div" [] <|
+                        case meta.description of
+                            Just desc ->
+                                [ Markdown.Block.Paragraph [ Markdown.Block.Text desc ] ]
+
+                            Nothing ->
+                                []
+                , Markdown.Block.HtmlInline <|
+                    Markdown.Block.HtmlElement "small" [] [ Markdown.Block.Paragraph [ Markdown.Block.Text meta.canonicalUrl ] ]
+                ]
+              , case meta.imageUrl of
+                    Just imageUrl ->
+                        [ Markdown.Block.Image imageUrl Nothing [] ]
+
+                    Nothing ->
+                        []
+              ]
+            ]
+        ]

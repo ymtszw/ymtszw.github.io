@@ -2,12 +2,13 @@ module Page.Articles.Draft exposing (Data, Model, Msg, page)
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
-import Dict
+import Dict exposing (Dict)
 import Head
 import Html
 import Http
 import Iso8601
 import Json.Decode
+import LinkPreview
 import Markdown
 import OptimizedDecoder
 import Page exposing (PageWithState, StaticPayload)
@@ -26,6 +27,7 @@ type alias Model =
     { keys : DraftKeys
     , contents : DraftContents
     , polling : Bool
+    , links : Dict String LinkPreview.Metadata
     }
 
 
@@ -75,19 +77,6 @@ init :
     -> ( Model, Cmd Msg )
 init maybeUrl _ _ =
     let
-        empty =
-            { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING" }
-            , contents =
-                { createdAt = unixOrigin
-                , updatedAt = unixOrigin
-                , title = ""
-                , image = Nothing
-                , body = { html = [], excerpt = "", links = [], htmlWithLinkPreview = \_ -> [] }
-                , type_ = "unknown"
-                }
-            , polling = False
-            }
-
         withPageUrl fun =
             Maybe.andThen .query maybeUrl
                 |> Maybe.andThen getContentIdAndDraftKey
@@ -108,6 +97,22 @@ init maybeUrl _ _ =
             QueryParams.map2 (|>)
     in
     withPageUrl <| \keys -> ( { empty | keys = keys, polling = True }, Task.attempt Res_getDraft (getDraft keys) )
+
+
+empty : Model
+empty =
+    { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING" }
+    , contents =
+        { createdAt = unixOrigin
+        , updatedAt = unixOrigin
+        , title = ""
+        , image = Nothing
+        , body = { html = [], excerpt = "", links = [], htmlWithLinkPreview = \_ _ -> [] }
+        , type_ = "unknown"
+        }
+    , polling = False
+    , links = Dict.empty
+    }
 
 
 getDraft keys =
@@ -216,7 +221,6 @@ view _ _ m _ =
                 ]
             ]
         , Html.hr [] []
-        , -- TODO Support runtime (draft) link preview
-          renderArticle Dict.empty m.contents
+        , renderArticle { draft = True } Dict.empty m.contents
         ]
     }

@@ -136,13 +136,14 @@ view _ _ static =
                        )
             ]
         , Html.hr [] []
-        , renderArticle static.data.links static.data.article
+        , renderArticle { draft = False } static.data.links static.data.article
         ]
     }
 
 
 renderArticle :
-    Dict String LinkPreview.Metadata
+    { draft : Bool }
+    -> Dict String LinkPreview.Metadata
     ->
         { a
             | title : String
@@ -150,7 +151,7 @@ renderArticle :
             , body : Markdown.DecodedBody msg
         }
     -> Html.Html msg
-renderArticle links contents =
+renderArticle conf links contents =
     Html.article [] <|
         (case contents.image of
             Just cmsImage ->
@@ -160,9 +161,9 @@ renderArticle links contents =
                 []
         )
             ++ Html.h1 [] [ Html.text contents.title ]
-            :: (if Dict.isEmpty links then
+            :: (if not conf.draft && Dict.isEmpty links then
                     contents.body.html
 
                 else
-                    contents.body.htmlWithLinkPreview links
+                    contents.body.htmlWithLinkPreview conf links
                )
