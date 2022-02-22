@@ -67,36 +67,71 @@ enumerateLinks =
     List.concatMap
         (\node ->
             case node of
-                Element "p" [] [ Element "a" (( "href", bareUrl ) :: _) [ Text linkText ] ] ->
-                    if bareUrl == linkText then
-                        [ bareUrl ]
+                Element "p" _ pChildren ->
+                    pChildren
+                        |> List.foldl splitParagraphByBr []
+                        |> List.concatMap
+                            (\lineInParagraph ->
+                                case lineInParagraph of
+                                    [ Element "a" (( "href", bareUrl ) :: _) [ Text linkText ] ] ->
+                                        if bareUrl == linkText then
+                                            [ bareUrl ]
 
-                    else
-                        []
+                                        else
+                                            []
+
+                                    _ ->
+                                        []
+                            )
 
                 _ ->
                     []
         )
 
 
+splitParagraphByBr pElem acc =
+    case ( pElem, acc ) of
+        ( Element "br" _ _, _ ) ->
+            [] :: acc
+
+        ( notBr, accHead :: accTail ) ->
+            (notBr :: accHead) :: accTail
+
+        ( notBr, [] ) ->
+            [ [ notBr ] ]
+
+
 transformWithLinkMetadata : { draft : Bool } -> List Node -> Dict String LinkPreview.Metadata -> List Node
 transformWithLinkMetadata { draft } nodes links =
-    List.concatMap
+    List.map
         (\node ->
             case node of
-                Element "p" _ [ Element "a" ((( "href", bareUrl ) :: _) as linkAttrs) [ Text linkText ] ] ->
-                    case ( bareUrl == linkText, Dict.get bareUrl links, draft ) of
-                        ( True, Just metadata, _ ) ->
-                            [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview metadata ] ]
+                Element "p" pAttrs pChildren ->
+                    pChildren
+                        |> List.foldr splitParagraphByBr []
+                        |> List.map
+                            (\lineInParagraph ->
+                                case lineInParagraph of
+                                    [ Element "a" ((( "href", bareUrl ) :: _) as linkAttrs) [ Text linkText ] ] ->
+                                        case ( bareUrl == linkText, Dict.get bareUrl links, draft ) of
+                                            ( True, Just metadata, _ ) ->
+                                                [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview metadata ] ]
 
-                        ( True, Nothing, True ) ->
-                            [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview (LinkPreview.previewMetadata bareUrl) ] ]
+                                            ( True, Nothing, True ) ->
+                                                [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview (LinkPreview.previewMetadata bareUrl) ] ]
 
-                        _ ->
-                            [ node ]
+                                            _ ->
+                                                lineInParagraph
+
+                                    _ ->
+                                        lineInParagraph
+                            )
+                        |> List.intersperse [ Element "br" [] [] ]
+                        |> List.concat
+                        |> Element "p" pAttrs
 
                 _ ->
-                    [ node ]
+                    node
         )
         nodes
 
