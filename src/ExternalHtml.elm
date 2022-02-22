@@ -115,10 +115,14 @@ transformWithLinkMetadata { draft } nodes links =
                                     [ Element "a" ((( "href", bareUrl ) :: _) as linkAttrs) [ Text linkText ] ] ->
                                         case ( bareUrl == linkText, Dict.get bareUrl links, draft ) of
                                             ( True, Just metadata, _ ) ->
-                                                [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview metadata ] ]
+                                                [ Element "br" [] [] -- Vertical balancing newline
+                                                , Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview metadata ]
+                                                ]
 
                                             ( True, Nothing, True ) ->
-                                                [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview (LinkPreview.previewMetadata bareUrl) ] ]
+                                                [ Element "br" [] [] -- Vertical balancing newline
+                                                , Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview (LinkPreview.previewMetadata bareUrl) ]
+                                                ]
 
                                             _ ->
                                                 lineInParagraph

@@ -1,3 +1,7 @@
+p {
+  text-align: left;
+}
+
 .inline > p {
   display: inline;
   margin-top: unset;
@@ -75,6 +79,7 @@ Link Preview
   width: 25%;
   max-width: 25%;
   min-width: 25%;
+  vertical-align: top;
 }
 
 .link-preview table tr td strong {
@@ -83,14 +88,14 @@ Link Preview
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
+  text-align: left;
 }
 
 .link-preview table tr td strong img {
   width: 1em;
   height: 1em;
   margin-bottom: 0;
-  margin-right: 0.2em;
-  vertical-align: text-bottom;
+  margin-right: 0.4em;
 }
 
 .link-preview table tr td small::after {
@@ -98,4 +103,8 @@ Link Preview
   margin-left: 2px;
   width: 1em;
   height: 1em;
+}
+
+.link-preview blockquote:hover table tr td small {
+  border-bottom: 2px solid #4a4a4a;
 }
