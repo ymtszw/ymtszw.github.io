@@ -74,7 +74,7 @@ data routeParams =
             |> OptimizedDecoder.andThen cmsArticleBodyDecoder
         )
         |> DataSource.andThen
-            (\cmsArticle -> cmsArticle.body.links |> LinkPreview.collectMetadata { errOnFail = False } |> DataSource.map (Data cmsArticle))
+            (\cmsArticle -> cmsArticle.body.links |> LinkPreview.collectMetadataOnBuild { errOnFail = False } |> DataSource.map (Data cmsArticle))
 
 
 cmsArticleBodyDecoder : (Markdown.DecodedBody msg -> String -> a) -> OptimizedDecoder.Decoder a

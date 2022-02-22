@@ -35,6 +35,7 @@ type alias DraftKeys =
     { contentId : String
     , draftKey : String
     , microCmsApiKey : String
+    , linkPreviewApiKey : String
     }
 
 
@@ -92,6 +93,7 @@ init maybeUrl _ _ =
                 |> andMap (QueryParams.string "contentId")
                 |> andMap (QueryParams.string "draftKey")
                 |> andMap (QueryParams.string "microCmsApiKey")
+                |> andMap (QueryParams.string "linkPreviewApiKey")
 
         andMap =
             QueryParams.map2 (|>)
@@ -101,7 +103,7 @@ init maybeUrl _ _ =
 
 empty : Model
 empty =
-    { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING" }
+    { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING", linkPreviewApiKey = "MISSING" }
     , contents =
         { createdAt = unixOrigin
         , updatedAt = unixOrigin
@@ -150,6 +152,7 @@ draftDecoder =
 
 type Msg
     = Res_getDraft (Result String DraftContents)
+    | Res_getMetadata (Result String ( String, LinkPreview.Metadata ))
 
 
 update :
@@ -164,12 +167,32 @@ update _ _ _ _ msg m =
     case msg of
         Res_getDraft (Ok contents) ->
             ( { m | contents = contents }
-            , Process.sleep (pollingIntervalSeconds * 1000)
-                |> Task.andThen (\_ -> getDraft m.keys)
-                |> Task.attempt Res_getDraft
+            , Cmd.batch
+                [ if m.polling then
+                    Process.sleep (pollingIntervalSeconds * 1000)
+                        |> Task.andThen (\_ -> getDraft m.keys)
+                        |> Task.attempt Res_getDraft
+
+                  else
+                    Cmd.none
+                , case List.filter (\newLink -> not (List.member newLink (Dict.keys m.links))) contents.body.links of
+                    [] ->
+                        Cmd.none
+
+                    nonEmpty ->
+                        nonEmpty
+                            |> List.map (LinkPreview.getMetadataOnDemand { errOnFail = True } m.keys.linkPreviewApiKey >> Task.attempt Res_getMetadata)
+                            |> Cmd.batch
+                ]
             )
 
         Res_getDraft (Err _) ->
+            ( { m | polling = False }, Cmd.none )
+
+        Res_getMetadata (Ok ( url, metadata )) ->
+            ( { m | links = Dict.insert url metadata m.links }, Cmd.none )
+
+        Res_getMetadata (Err _) ->
             ( { m | polling = False }, Cmd.none )
 
 
@@ -221,6 +244,6 @@ view _ _ m _ =
                 ]
             ]
         , Html.hr [] []
-        , renderArticle { draft = True } Dict.empty m.contents
+        , renderArticle { draft = True } m.links m.contents
         ]
     }

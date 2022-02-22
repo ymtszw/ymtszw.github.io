@@ -37,6 +37,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
+          LINK_PREVIEW_API_KEY: ${{ secrets.LINK_PREVIEW_API_KEY }}
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.ref == 'refs/heads/master' }}
