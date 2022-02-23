@@ -4,19 +4,8 @@
 
 ## 概要
 
-* [elm-pages]で作成している個人ページ
+* [elm-pages]で作成している個人ページ。[**elm-pagesについて**](https://ymtszw.github.io/articles/elm-pages-and-headless-cms)
 * これまでに書いたものなどをリンクしていく予定
-* スタイルは[sakura](https://github.com/oxalorg/sakura)をバニラで使用。~~このページではCSSを触らないという強い意志~~と言いつつすでに多少書いている
-* [elm-pages]について
-  * すごく良く出来てる
-  * ビルド時にヘッドレスCMSや他サイト、特定ディレクトリなどからリソースをフェッチしてきて、HTMLを事前ビルドする仕組みが最初から想定されている
-  * 静的ビルドされるのでちゃんとOGP/Twitter Cardヘッダも出る
-  * その割にブラウザロード後は普通のElm appになる
-  * つまり、**ビルドに関連するコードも、クライアントサイドスクリプティングに関するコードも、全部Elmで書ける**という世界観
-  * ちなみに、スタイル自前でやりたくなったら[elm-css]/[elm-tailwind-modules]/[elm-ui]あたりでハッピーに書ける
-    * 最近のオススメは[elm-css]系。styled-components風のscoped CSSになっている
+* スタイルは[sakura](https://github.com/oxalorg/sakura)をバニラで使用。~~このページではCSSを触らないという強い意志~~と言いつつすでに結構書いている
 
 [elm-pages]: https://github.com/dillonkearns/elm-pages
-[elm-css]: https://github.com/rtfeldman/elm-css
-[elm-tailwind-modules]: https://github.com/matheus23/elm-tailwind-modules
-[elm-ui]: https://github.com/mdgriffith/elm-ui

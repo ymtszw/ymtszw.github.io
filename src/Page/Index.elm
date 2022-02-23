@@ -69,41 +69,11 @@ view _ _ static =
     , body =
         Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             :: static.data.readme
-            ++ [ Html.h2 [] [ Html.text "自己紹介 ", Html.a [ Html.Attributes.href "https://github.com/ymtszw/ymtszw", Html.Attributes.target "_blank" ] [ Html.text "(source)" ] ]
-               , Html.blockquote []
-                    [ Html.text "この節は"
-                    , externalLink "https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/about-your-profile" "public profile repository"
-                    , Html.text "をサイトビルド時に読み込んでHTML化しています。"
-                    ]
-               , Html.div [] static.data.bio
-                    |> showless "bio"
-               , Html.h2 [] [ Html.text "記事" ]
-               , Html.blockquote [] [ Html.text "このリストはサイトビルド時にmicroCMSからデータを取得し、事前構築しています。公開が新しい順です" ]
+            ++ [ Html.h2 [] [ Html.text "記事" ]
                , static.sharedData.cmsArticles
-                    |> List.map
-                        (\metadata ->
-                            Html.li []
-                                [ Route.link (Route.Articles__ArticleId_ { articleId = metadata.contentId }) [] <|
-                                    [ Html.article []
-                                        [ Html.header []
-                                            [ Html.h3 []
-                                                [ Html.text metadata.title
-                                                , Html.small [] [ Html.text " [", Html.text (Shared.posixToYmd metadata.publishedAt), Html.text "]" ]
-                                                ]
-                                            ]
-                                        , case metadata.image of
-                                            Just cmsImage ->
-                                                Html.div [] [ Html.img [ Html.Attributes.src (cmsImage.url ++ "?h=150"), Html.Attributes.alt "Article Header Image", Html.Attributes.height 150 ] [] ]
-
-                                            Nothing ->
-                                                Html.div [] []
-                                        ]
-                                    ]
-                                ]
-                        )
-                    |> Html.ul []
+                    |> List.map cmsArticlePreview
+                    |> Html.div []
                , Html.h2 [] [ Html.text "Qiita記事" ]
-               , Html.blockquote [] [ Html.text "このリストはサイトビルド時にQiitaから（ｒｙ\u{3000}Like多い順です" ]
                , static.sharedData.qiitaArticles
                     |> List.sortBy (.likesCount >> negate)
                     |> List.map
@@ -124,7 +94,6 @@ view _ _ static =
                     |> Html.ul []
                     |> showless "qiita-articles"
                , Html.h2 [] [ Html.text "GitHub Public Repo" ]
-               , Html.blockquote [] [ Html.text "このリストはサイトビルド時にGitHub REST APIをHeadless CMSのように見立ててデータを取得し、事前構築しています。作成が新しい順です" ]
                , static.sharedData.repos
                     |> List.map
                         (\publicOriginalRepo ->
@@ -137,6 +106,9 @@ view _ _ static =
                     |> List.intersperse (Html.text " ")
                     |> Html.p []
                     |> showless "repos"
+               , Html.h2 [] [ Html.text "自己紹介 ", Html.a [ Html.Attributes.href "https://github.com/ymtszw/ymtszw", Html.Attributes.target "_blank" ] [ Html.text "(source)" ] ]
+               , Html.div [] static.data.bio
+                    |> showless "bio"
                ]
     }
 
@@ -151,3 +123,24 @@ showless id inner =
 
 externalLink url text_ =
     Html.a [ Html.Attributes.href url, Html.Attributes.target "_blank" ] [ Html.text text_ ]
+
+
+cmsArticlePreview meta =
+    Route.link (Route.Articles__ArticleId_ { articleId = meta.contentId }) [ Html.Attributes.class "link-preview" ] <|
+        [ Html.blockquote [] <|
+            [ Html.table [] <|
+                [ Html.tr [] <|
+                    [ Html.td [] <|
+                        [ Html.strong [] [ Html.text meta.title ]
+                        , Html.p [] [ Html.text ("[" ++ Shared.posixToYmd meta.publishedAt ++ "]") ]
+                        ]
+                    , case meta.image of
+                        Just cmsImage ->
+                            Html.td [] [ Html.img [ Html.Attributes.src (cmsImage.url ++ "?h=150"), Html.Attributes.alt "Article Header Image", Html.Attributes.height 150 ] [] ]
+
+                        Nothing ->
+                            Html.text ""
+                    ]
+                ]
+            ]
+        ]

@@ -8,16 +8,22 @@ p {
   margin-bottom: unset;
 }
 
-p img {
+p img,
+header img,
+footer img {
   margin-bottom: unset;
 }
 
-a[target="_blank"]:not(.link-preview)::after {
+a[target="_blank"]:not(.link-preview):not(.has-image)::after {
   content: "\1F5D7";
   margin-left: 2px;
   margin-right: 1px;
   width: 1em;
   height: 1em;
+}
+
+a.has-image:hover {
+  border-bottom: unset;
 }
 
 /*

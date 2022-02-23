@@ -125,17 +125,16 @@ view :
 view _ _ static =
     { title = static.data.article.title
     , body =
-        [ Html.table []
-            [ Html.tbody [] <|
-                Html.tr [] [ Html.th [] [ Html.text "公開" ], Html.td [] [ Html.text (Shared.formatPosix static.data.article.publishedAt) ] ]
+        [ Html.header []
+            [ Html.small [] <|
+                Html.text ("公開: " ++ Shared.formatPosix static.data.article.publishedAt)
                     :: (if static.data.article.revisedAt /= static.data.article.publishedAt then
-                            [ Html.tr [] [ Html.th [] [ Html.text "更新" ], Html.td [] [ Html.text (Shared.formatPosix static.data.article.revisedAt) ] ] ]
+                            [ Html.text (" (更新: " ++ Shared.formatPosix static.data.article.revisedAt ++ ")") ]
 
                         else
                             []
                        )
             ]
-        , Html.hr [] []
         , renderArticle { draft = False } static.data.links static.data.article
         ]
     }
@@ -155,7 +154,7 @@ renderArticle conf links contents =
     Html.article [] <|
         (case contents.image of
             Just cmsImage ->
-                [ Html.img [ Html.Attributes.src cmsImage.url, Html.Attributes.width cmsImage.width, Html.Attributes.height cmsImage.height, Html.Attributes.alt "Article Header Image" ] [] ]
+                [ Html.figure [] [ Html.img [ Html.Attributes.src cmsImage.url, Html.Attributes.width cmsImage.width, Html.Attributes.height cmsImage.height, Html.Attributes.alt "Article Header Image" ] [] ] ]
 
             Nothing ->
                 []

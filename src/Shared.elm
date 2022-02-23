@@ -1,4 +1,26 @@
-module Shared exposing (CmsImage, Data, Model, Msg(..), SharedMsg(..), cmsGet, cmsImageDecoder, formatPosix, getGitHubRepoReadme, githubGet, iso8601Decoder, makeSeoImageFromCmsImage, makeTitle, ogpHeaderImageUrl, posixToYmd, publicCmsArticles, publicOriginalRepos, seoBase, template, unixOrigin)
+module Shared exposing
+    ( CmsImage
+    , Data
+    , Model
+    , Msg(..)
+    , SharedMsg(..)
+    , cmsGet
+    , cmsImageDecoder
+    , formatPosix
+    , getGitHubRepoReadme
+    , githubGet
+    , iso8601Decoder
+    , makeSeoImageFromCmsImage
+    , makeTitle
+    , ogpHeaderImageUrl
+    , posixToYmd
+    , publicCmsArticles
+    , publicOriginalRepos
+    , seoBase
+    , template
+    , twitterLink
+    , unixOrigin
+    )
 
 import Base64
 import Browser.Navigation
@@ -6,6 +28,7 @@ import DataSource
 import DataSource.Http
 import Head.Seo
 import Html exposing (Html)
+import Html.Attributes
 import Iso8601
 import Markdown
 import OptimizedDecoder
@@ -326,10 +349,26 @@ view sharedData page _ _ pageView =
                                     )
                                 |> Maybe.withDefault []
                             ]
+                , twitterLink
                 ]
+            , Html.hr [] []
             , Html.main_ [] pageView.body
+            , Html.hr [] []
+            , Html.footer [] [ Html.text "© Yu Matsuzawa (ymtszw, Gada), 2022 ", Html.br [] [], twitterLink ]
             ]
     }
+
+
+twitterLink =
+    Html.a [ Html.Attributes.href "https://twitter.com/gada_twt", Html.Attributes.target "_blank", Html.Attributes.class "has-image" ]
+        [ Html.img
+            [ Html.Attributes.src "https://img.shields.io/twitter/follow/gada_twt.svg?style=social"
+            , Html.Attributes.alt "Twitter: gada_twt"
+            , Html.Attributes.width 156
+            , Html.Attributes.height 20
+            ]
+            []
+        ]
 
 
 makeTitle pageTitle =
