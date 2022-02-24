@@ -22,6 +22,7 @@ parse : String -> Result String (List Markdown.Block.Block)
 parse input =
     preprocessMarkdown input
         |> Markdown.Parser.parse
+        |> Result.map (List.map (Markdown.Block.walkInlines postprocessInline))
         |> Result.mapError (deadEndsToString >> (++) "Error while parsing Markdown!\n\n")
 
 
@@ -249,6 +250,17 @@ dollarsPattern =
     Maybe.withDefault Regex.never (Regex.fromString "\\$.+?\\$")
 
 
+postprocessInline : Markdown.Block.Inline -> Markdown.Block.Inline
+postprocessInline inline =
+    case inline of
+        Markdown.Block.Link url _ ([ Markdown.Block.Image _ _ _ ] as children) ->
+            -- Discard maybeTitle and use it for has-image identifier
+            Markdown.Block.Link url (Just "__has_image__") children
+
+        _ ->
+            inline
+
+
 htmlRenderer =
     { defaultHtmlRenderer
         | html =
@@ -286,7 +298,15 @@ htmlRenderer =
             \link content ->
                 let
                     titleAttr =
-                        link.title |> Maybe.map (\title -> [ Html.Attributes.title title ]) |> Maybe.withDefault []
+                        case link.title of
+                            Just "__has_image__" ->
+                                [ Html.Attributes.class "has-image" ]
+
+                            Just otherwise ->
+                                [ Html.Attributes.alt otherwise ]
+
+                            Nothing ->
+                                []
                 in
                 Html.a (titleAttr ++ destAttr link.destination) content
     }
