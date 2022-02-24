@@ -73,6 +73,26 @@ view _ _ static =
                , static.sharedData.cmsArticles
                     |> List.map cmsArticlePreview
                     |> Html.div []
+               , Html.h2 [] [ Html.text "Zenn記事" ]
+               , static.sharedData.zennArticles
+                    |> List.sortBy (.likedCount >> negate)
+                    |> List.map
+                        (\metadata ->
+                            Html.li []
+                                [ Html.strong [] [ externalLink metadata.url metadata.title ]
+                                , Html.br [] []
+                                , Html.small []
+                                    [ Html.strong [] [ Html.text (String.fromInt metadata.likedCount) ]
+                                    , Html.text " 💚"
+                                    , Html.code [] (List.map Html.text (List.intersperse ", " metadata.topics))
+                                    , Html.text " ["
+                                    , Html.text (Shared.posixToYmd metadata.publishedAt)
+                                    , Html.text "]"
+                                    ]
+                                ]
+                        )
+                    |> Html.ul []
+                    |> showless "zenn-articles"
                , Html.h2 [] [ Html.text "Qiita記事" ]
                , static.sharedData.qiitaArticles
                     |> List.sortBy (.likesCount >> negate)
