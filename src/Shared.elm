@@ -83,7 +83,7 @@ type alias CmsArticleMetadata =
 
 type alias ZennArticleMetadata =
     { url : String
-    , createdAt : Time.Posix
+    , bodyUpdatedAt : Time.Posix
     , publishedAt : Time.Posix
     , title : String
     , likedCount : Int
@@ -283,7 +283,7 @@ publicZennArticles =
         articleMetadataDecoder =
             OptimizedDecoder.succeed ZennArticleMetadata
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "slug" (OptimizedDecoder.map ((++) baseUrl) OptimizedDecoder.string))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "created_at" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "body_updated_at" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "published_at" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "liked_count" OptimizedDecoder.int)
