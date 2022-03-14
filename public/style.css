@@ -15,7 +15,7 @@ footer img {
 }
 
 a[target="_blank"]:not(.link-preview):not(.has-image)::after {
-  content: "\1F5D7";
+  content: "⤴";
   margin-left: 2px;
   margin-right: 1px;
   width: 1em;
