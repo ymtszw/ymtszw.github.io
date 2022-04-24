@@ -15,7 +15,7 @@ footer img {
 }
 
 a[target="_blank"]:not(.link-preview):not(.has-image)::after {
-  content: "⤴";
+  content: "⮭";
   margin-left: 2px;
   margin-right: 1px;
   width: 1em;
@@ -105,7 +105,7 @@ Link Preview
 }
 
 .link-preview table tr td small::after {
-  content: "⤴";
+  content: "⮭";
   margin-left: 2px;
   width: 1em;
   height: 1em;
