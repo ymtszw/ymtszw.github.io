@@ -3,11 +3,13 @@ module Api exposing (routes)
 import ApiRoute
 import DataSource exposing (DataSource)
 import Html exposing (Html)
+import Iso8601
 import Page.Articles.ArticleId_
 import Pages
 import Route exposing (Route(..))
 import Rss
 import Site
+import Sitemap
 import Time
 
 
@@ -15,7 +17,7 @@ routes :
     DataSource (List Route)
     -> (Html Never -> String)
     -> List (ApiRoute.ApiRoute ApiRoute.Response)
-routes _ _ =
+routes allRoutesSource _ =
     [ builtArticles
         |> DataSource.map (List.map makeArticleRssItem)
         |> rss
@@ -25,6 +27,9 @@ routes _ _ =
             , builtAt = Pages.builtAt
             , indexPage = []
             }
+    , allRoutesSource
+        |> makeSitemapEntries
+        |> sitemap
     ]
 
 
@@ -37,23 +42,22 @@ rss :
     }
     -> DataSource.DataSource (List Rss.Item)
     -> ApiRoute.ApiRoute ApiRoute.Response
-rss options itemsRequest =
+rss options itemsSource =
     ApiRoute.succeed
-        (itemsRequest
+        (itemsSource
             |> DataSource.map
                 (\items ->
-                    { body =
-                        Rss.generate
-                            { title = options.title
-                            , description = options.siteTagline
-                            , url = options.siteUrl ++ "/" ++ String.join "/" options.indexPage
-                            , lastBuildTime = options.builtAt
-                            , generator = Just "elm-pages"
-                            , items = items
-                            , siteUrl = options.siteUrl
-                            }
-                    }
+                    Rss.generate
+                        { title = options.title
+                        , description = options.siteTagline
+                        , url = options.siteUrl ++ "/" ++ String.join "/" options.indexPage
+                        , lastBuildTime = options.builtAt
+                        , generator = Just "elm-pages"
+                        , items = items
+                        , siteUrl = options.siteUrl
+                        }
                 )
+            |> DataSource.map ApiRoute.Response
         )
         |> ApiRoute.literal "articles/feed.xml"
         |> ApiRoute.single
@@ -89,4 +93,44 @@ builtArticles =
     in
     Page.Articles.ArticleId_.page.staticRoutes
         |> DataSource.map (List.map build)
+        |> DataSource.resolve
+
+
+sitemap :
+    DataSource.DataSource (List Sitemap.Entry)
+    -> ApiRoute.ApiRoute ApiRoute.Response
+sitemap entriesSource =
+    ApiRoute.succeed
+        (entriesSource
+            |> DataSource.map (Sitemap.build { siteUrl = Site.config.canonicalUrl })
+            |> DataSource.map ApiRoute.Response
+        )
+        |> ApiRoute.literal "sitemap.xml"
+        |> ApiRoute.single
+
+
+makeSitemapEntries : DataSource (List Route) -> DataSource (List Sitemap.Entry)
+makeSitemapEntries allRoutesSource =
+    let
+        build route =
+            case route of
+                Articles__Draft ->
+                    Nothing
+
+                Articles__ArticleId_ routeParam ->
+                    Page.Articles.ArticleId_.page.data routeParam
+                        |> DataSource.map
+                            (\data ->
+                                { path = Route.routeToPath route |> String.join "/"
+                                , lastMod = Just <| Iso8601.fromTime <| data.article.revisedAt
+                                }
+                            )
+                        |> Just
+
+                Index ->
+                    DataSource.succeed { path = "", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
+                        |> Just
+    in
+    allRoutesSource
+        |> DataSource.map (List.filterMap build)
         |> DataSource.resolve
