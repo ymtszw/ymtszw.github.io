@@ -87,7 +87,7 @@ type alias ZennArticleMetadata =
     , publishedAt : Time.Posix
     , title : String
     , likedCount : Int
-    , topics : List String
+    , articleType : String
     }
 
 
@@ -287,7 +287,7 @@ publicZennArticles =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "published_at" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "liked_count" OptimizedDecoder.int)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "topics" (OptimizedDecoder.list (OptimizedDecoder.field "name" OptimizedDecoder.string)))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "article_type" OptimizedDecoder.string)
     in
     cmsGet "https://zenn.dev/api/articles?username=ymtszw&count=500&order=latest"
         (OptimizedDecoder.field "articles" (OptimizedDecoder.list articleMetadataDecoder))

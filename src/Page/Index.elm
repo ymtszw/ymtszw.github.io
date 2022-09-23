@@ -84,7 +84,7 @@ view _ _ static =
                                 , Html.small []
                                     [ Html.strong [] [ Html.text (String.fromInt metadata.likedCount) ]
                                     , Html.text " 💚"
-                                    , Html.code [] (List.map Html.text (List.intersperse ", " metadata.topics))
+                                    , Html.code [] [ Html.text metadata.articleType ]
                                     , Html.text " ["
                                     , Html.text (Shared.posixToYmd metadata.publishedAt)
                                     , Html.text "]"
