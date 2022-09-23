@@ -69,11 +69,11 @@ view _ _ static =
     , body =
         Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             :: static.data.readme
-            ++ [ Html.h2 [] [ Html.text "記事" ]
+            ++ [ Html.h2 [] [ Html.text "記事", View.feedLink "/articles/feed.xml" ]
                , static.sharedData.cmsArticles
                     |> List.map cmsArticlePreview
                     |> Html.div []
-               , Html.h2 [] [ Html.text "Zenn記事" ]
+               , Html.h2 [] [ Html.text "Zenn記事", View.feedLink "https://zenn.dev/ymtszw/feed" ]
                , static.sharedData.zennArticles
                     |> List.sortBy (.likedCount >> negate)
                     |> List.map
@@ -93,7 +93,7 @@ view _ _ static =
                         )
                     |> Html.ul []
                     |> showless "zenn-articles"
-               , Html.h2 [] [ Html.text "Qiita記事" ]
+               , Html.h2 [] [ Html.text "Qiita記事", View.feedLink "https://qiita.com/ymtszw/feed" ]
                , static.sharedData.qiitaArticles
                     |> List.sortBy (.likesCount >> negate)
                     |> List.map
