@@ -51,27 +51,34 @@ input[type="checkbox"].showless-toggle {
 }
 
 input[type="checkbox"].showless-toggle + * {
+  transition: all 0.3s ease-out;
   max-height: 250px;
   margin-bottom: 0;
+  padding-bottom: 50px;
   overflow: hidden;
 }
 
 input[type="checkbox"].showless-toggle:checked + * {
-  max-height: unset;
+  /* This value have to be manually adjusted */
+  max-height: 2000px;
 }
 
 label.showless-button {
+  position: relative;
   display: block;
-  margin: 0;
+  margin: -50px 0 0;
   height: 50px;
-  line-height: 50px;
   width: 100%;
   text-align: center;
   cursor: pointer;
+  /* body background color from sakura.css */
+  background: linear-gradient(to bottom, #f9f9f900, #f9f9f980 20%, #f9f9f9ff);
 }
 
 input[type="checkbox"].showless-toggle ~ label.showless-button::before {
   content: "🔽 Show All";
+  line-height: 50px;
+  background: #f9f9f9cc;
 }
 
 input[type="checkbox"].showless-toggle:checked ~ label.showless-button::before {
