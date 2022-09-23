@@ -15,6 +15,13 @@ p {
   text-align: left;
 }
 
+img.feed {
+  width: 24px;
+  height: 24px;
+  margin-top: unset;
+  margin-bottom: unset;
+}
+
 .inline > p {
   display: inline;
   margin-top: unset;
