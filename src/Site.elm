@@ -1,4 +1,4 @@
-module Site exposing (config)
+module Site exposing (config, tagline, title)
 
 import DataSource
 import Head
@@ -17,8 +17,8 @@ config : SiteConfig Data
 config =
     { data = data
     , canonicalUrl = "https://ymtszw.github.io"
-    , manifest = manifest
     , head = head
+    , manifest = manifest
     }
 
 
@@ -40,8 +40,8 @@ head _ =
 manifest : Data -> Manifest.Config
 manifest _ =
     Manifest.init
-        { name = "ymtszw's page"
-        , description = "ymtszw's personal biography page"
+        { name = title
+        , description = tagline
         , startUrl = Route.Index |> Route.toPath
         , icons =
             [ { src = Pages.Url.external "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4a220ee277a54bd4a7cf59a2c423b096/header1500x500.jpg?fit=crop&h=200&w=200"
@@ -51,3 +51,13 @@ manifest _ =
               }
             ]
         }
+
+
+title : String
+title =
+    "ymtszw's page"
+
+
+tagline : String
+tagline =
+    "ymtszw's personal page"
