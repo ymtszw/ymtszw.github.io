@@ -13,6 +13,7 @@
             "dillonkearns/elm-markdown": "7.0.0",
             "dillonkearns/elm-pages": "9.0.0",
             "dillonkearns/elm-rss": "2.0.2",
+            "dillonkearns/elm-sitemap": "1.0.2",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
             "elm/html": "1.0.0",
