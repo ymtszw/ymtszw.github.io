@@ -283,7 +283,12 @@ publicZennArticles =
         articleMetadataDecoder =
             OptimizedDecoder.succeed ZennArticleMetadata
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "slug" (OptimizedDecoder.map ((++) baseUrl) OptimizedDecoder.string))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "body_updated_at" iso8601Decoder)
+                |> OptimizedDecoder.andMap
+                    (OptimizedDecoder.oneOf
+                        [ OptimizedDecoder.field "body_updated_at" iso8601Decoder
+                        , OptimizedDecoder.field "published_at" iso8601Decoder
+                        ]
+                    )
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "published_at" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "liked_count" OptimizedDecoder.int)

@@ -2,7 +2,7 @@
   "name": "ymtszw",
   "scripts": {
     "postinstall": "elm-tooling install",
-    "start": "elm-pages dev",
+    "start": "elm-pages dev --port 10101",
     "build": "elm-pages build"
   },
   "devDependencies": {
