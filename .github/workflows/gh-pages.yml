@@ -8,6 +8,8 @@ on:
   repository_dispatch:
     types:
       - on-demand-build
+  schedule:
+    - cron: "51 4 */3 * *"
 
 permissions:
   contents: read
