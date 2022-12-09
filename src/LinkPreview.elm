@@ -95,18 +95,15 @@ isEmpty { title } =
 getMetadataOnBuild : { errOnFail : Bool } -> String -> DataSource.DataSource ( String, Metadata )
 getMetadataOnBuild conf url =
     DataSource.Http.get
-        (Pages.Secrets.succeed (\key -> linkPreviewApiEndpoint key url)
-            |> Pages.Secrets.with "LINK_PREVIEW_API_KEY"
-        )
+        (Pages.Secrets.succeed (linkPreviewApiEndpoint url))
         (linkPreviewDecoder conf (emptyMetadata url))
         |> DataSource.map (Tuple.pair url)
 
 
-{-| Using <https://www.linkpreview.net/> for now,
-but this part is exchangeable to another API provider with appropriate decoder.
+{-| Using personal link preview service. <https://github.com/ymtszw/link-preview>
 -}
-linkPreviewApiEndpoint key url =
-    "https://api.linkpreview.net/?key=" ++ key ++ "&q=" ++ Url.percentEncode url
+linkPreviewApiEndpoint url =
+    "https://link-preview.ymtszw.workers.dev/?q=" ++ Url.percentEncode url
 
 
 linkPreviewDecoder : { errOnFail : Bool } -> Metadata -> OptimizedDecoder.Decoder Metadata
@@ -159,8 +156,8 @@ resolveUrl baseUrl pathOrUrl =
         baseUrl ++ String.dropLeft 1 pathOrUrl
 
 
-collectMetadataOnDemand : { errOnFail : Bool } -> String -> List String -> Task String (Dict String Metadata)
-collectMetadataOnDemand conf key links =
+collectMetadataOnDemand : { errOnFail : Bool } -> List String -> Task String (Dict String Metadata)
+collectMetadataOnDemand conf links =
     let
         removeEmpty =
             Task.map
@@ -173,16 +170,16 @@ collectMetadataOnDemand conf key links =
                 )
     in
     links
-        |> List.map (getMetadataOnDemand conf key >> removeEmpty)
+        |> List.map (getMetadataOnDemand conf >> removeEmpty)
         |> Task.sequence
         |> Task.map (List.concat >> Dict.fromList)
 
 
-getMetadataOnDemand : { errOnFail : Bool } -> String -> String -> Task String ( String, Metadata )
-getMetadataOnDemand conf key url =
+getMetadataOnDemand : { errOnFail : Bool } -> String -> Task String ( String, Metadata )
+getMetadataOnDemand conf url =
     Http.task
         { method = "GET"
-        , url = linkPreviewApiEndpoint key url
+        , url = linkPreviewApiEndpoint url
         , headers = []
         , body = Http.emptyBody
         , timeout = Just 20000

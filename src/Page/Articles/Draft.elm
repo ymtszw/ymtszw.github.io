@@ -35,7 +35,6 @@ type alias DraftKeys =
     { contentId : String
     , draftKey : String
     , microCmsApiKey : String
-    , linkPreviewApiKey : String
     }
 
 
@@ -93,7 +92,6 @@ init maybeUrl _ _ =
                 |> andMap (QueryParams.string "contentId")
                 |> andMap (QueryParams.string "draftKey")
                 |> andMap (QueryParams.string "microCmsApiKey")
-                |> andMap (QueryParams.string "linkPreviewApiKey")
 
         andMap =
             QueryParams.map2 (|>)
@@ -103,7 +101,7 @@ init maybeUrl _ _ =
 
 empty : Model
 empty =
-    { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING", linkPreviewApiKey = "MISSING" }
+    { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING" }
     , contents =
         { createdAt = unixOrigin
         , updatedAt = unixOrigin
@@ -181,7 +179,7 @@ update _ _ _ _ msg m =
 
                     nonEmpty ->
                         nonEmpty
-                            |> List.map (LinkPreview.getMetadataOnDemand { errOnFail = True } m.keys.linkPreviewApiKey >> Task.attempt Res_getMetadata)
+                            |> List.map (LinkPreview.getMetadataOnDemand { errOnFail = True } >> Task.attempt Res_getMetadata)
                             |> Cmd.batch
                 ]
             )
