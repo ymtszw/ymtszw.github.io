@@ -18,18 +18,17 @@ routes :
     -> (Html Never -> String)
     -> List (ApiRoute.ApiRoute ApiRoute.Response)
 routes allRoutesSource _ =
-    [ builtArticles
-        |> DataSource.map (List.map makeArticleRssItem)
-        |> rss
-            { siteTagline = Site.tagline
-            , siteUrl = Site.config.canonicalUrl
-            , title = Site.title
-            , builtAt = Pages.builtAt
-            , indexPage = []
-            }
-    , allRoutesSource
-        |> makeSitemapEntries
-        |> sitemap
+    [ rss
+        { siteTagline = Site.tagline
+        , siteUrl = Site.config.canonicalUrl
+        , title = Site.title
+        , builtAt = Pages.builtAt
+        , indexPage = []
+        }
+        (DataSource.map (List.map makeArticleRssItem) builtArticles)
+    , sitemap <|
+        makeSitemapEntries <|
+            allRoutesSource
     ]
 
 
