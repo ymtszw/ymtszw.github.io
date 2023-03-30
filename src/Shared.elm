@@ -25,7 +25,10 @@ module Shared exposing
 import Base64
 import Browser.Navigation
 import DataSource
+import DataSource.File
 import DataSource.Http
+import Date
+import Dict exposing (Dict)
 import Head.Seo
 import Html exposing (Html)
 import Html.Attributes
@@ -68,8 +71,13 @@ type alias Data =
     , cmsArticles : List CmsArticleMetadata
     , zennArticles : List ZennArticleMetadata
     , qiitaArticles : List QiitaArticleMetadata
+    , dailyTwilogs : Dict RataDie (List Twilog)
     , externalCss : String
     }
+
+
+type alias RataDie =
+    Int
 
 
 type alias CmsArticleMetadata =
@@ -177,11 +185,12 @@ data =
                 )
                 (DataSource.Http.expectString Result.Ok)
     in
-    DataSource.map5 Data
+    DataSource.map6 Data
         publicOriginalRepos
         publicCmsArticles
         publicZennArticles
         publicQiitaArticles
+        dailyTwilogs
         (DataSource.map2 (++) normalizeCss classlessCss)
 
 
@@ -312,6 +321,96 @@ publicQiitaArticles =
     in
     cmsGet "https://qiita.com/api/v2/users/ymtszw/items?per_page=100"
         (OptimizedDecoder.list articleMetadataDecoder)
+
+
+type alias Twilog =
+    { createdAt : Time.Posix
+    , createdDate : Date.Date
+    , text : String
+    , statusId : TwitterStatusId
+    , userName : String
+    , userProfileImageUrl : String
+    , retweet : Bool
+    , retweetedStatusFullText : Maybe String
+    , retweetedStatusId : Maybe TwitterStatusId
+    , retweetedStatusUserName : Maybe String
+    , retweetedStatusProfileUserImageUrl : Maybe String
+    , inReplyToStatusId : Maybe TwitterStatusId
+    , inReplyToUserId : Maybe TwitterUserId
+    }
+
+
+type TwitterStatusId
+    = TwitterStatusId String
+
+
+type TwitterUserId
+    = TwitterUserId String
+
+
+dailyTwilogs : DataSource.DataSource (Dict RataDie (List Twilog))
+dailyTwilogs =
+    let
+        twilogDecoder =
+            OptimizedDecoder.succeed Twilog
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (iso8601Decoder |> OptimizedDecoder.map (Date.fromPosix Time.utc)))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId OptimizedDecoder.string))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "Retweet" boolString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusFullText" (OptimizedDecoder.maybe nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusId" (OptimizedDecoder.maybe (OptimizedDecoder.map TwitterStatusId nonEmptyString)))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" (OptimizedDecoder.maybe nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusProfileUserImageUrl" (OptimizedDecoder.maybe nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToStatusId" (OptimizedDecoder.maybe (OptimizedDecoder.map TwitterStatusId nonEmptyString)))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToUserId" (OptimizedDecoder.maybe (OptimizedDecoder.map TwitterUserId nonEmptyString)))
+
+        toDailyDict =
+            List.foldl
+                (\twilog dict ->
+                    Dict.update (Date.toRataDie twilog.createdDate)
+                        (\dailySortedTwilogs ->
+                            case dailySortedTwilogs of
+                                Just twilogs ->
+                                    Just (List.sortBy (.createdAt >> Time.posixToMillis) (twilog :: twilogs))
+
+                                Nothing ->
+                                    Just [ twilog ]
+                        )
+                        dict
+                )
+                Dict.empty
+    in
+    DataSource.File.jsonFile
+        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map toDailyDict)
+        "twilogs.json"
+
+
+boolString =
+    OptimizedDecoder.string
+        |> OptimizedDecoder.andThen
+            (\s ->
+                case s of
+                    "TRUE" ->
+                        OptimizedDecoder.succeed True
+
+                    _ ->
+                        OptimizedDecoder.succeed False
+            )
+
+
+nonEmptyString =
+    OptimizedDecoder.string
+        |> OptimizedDecoder.andThen
+            (\s ->
+                if String.isEmpty s then
+                    OptimizedDecoder.fail "String is empty"
+
+                else
+                    OptimizedDecoder.succeed s
+            )
 
 
 seoBase :
