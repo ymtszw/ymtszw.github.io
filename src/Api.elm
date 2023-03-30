@@ -126,6 +126,10 @@ makeSitemapEntries allRoutesSource =
                             )
                         |> Just
 
+                Twilogs ->
+                    DataSource.succeed { path = "twilogs", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
+                        |> Just
+
                 Index ->
                     DataSource.succeed { path = "", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
                         |> Just

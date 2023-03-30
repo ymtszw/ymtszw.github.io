@@ -3,7 +3,11 @@ module Shared exposing
     , Data
     , Model
     , Msg(..)
+    , RataDie
     , SharedMsg(..)
+    , Twilog
+    , TwitterStatusId(..)
+    , TwitterUserId(..)
     , cmsGet
     , cmsImageDecoder
     , formatPosix
@@ -354,7 +358,7 @@ dailyTwilogs =
         twilogDecoder =
             OptimizedDecoder.succeed Twilog
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" iso8601Decoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (iso8601Decoder |> OptimizedDecoder.map (Date.fromPosix Time.utc)))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (iso8601Decoder |> OptimizedDecoder.map (Date.fromPosix jst)))
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId OptimizedDecoder.string))
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" OptimizedDecoder.string)
@@ -478,6 +482,9 @@ view sharedData page _ _ pageView =
 
                                             Route.Articles__Draft ->
                                                 [ Html.text "記事（下書き）" ]
+
+                                            Route.Twilogs ->
+                                                [ Html.text "Twilog" ]
 
                                             Route.Index ->
                                                 []
