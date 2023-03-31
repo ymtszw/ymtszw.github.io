@@ -3,6 +3,7 @@ module Shared exposing
     , Data
     , Model
     , Msg(..)
+    , Quote
     , RataDie
     , SharedMsg(..)
     , Twilog
@@ -336,6 +337,7 @@ type alias Twilog =
     , userProfileImageUrl : String
     , retweet : Maybe Retweet
     , inReplyTo : Maybe InReplyTo
+    , quote : Maybe Quote
     }
 
 
@@ -350,6 +352,15 @@ type alias Retweet =
 type alias InReplyTo =
     { id : TwitterStatusId
     , userId : TwitterUserId
+    }
+
+
+type alias Quote =
+    { fullText : String
+    , id : TwitterStatusId
+    , userName : String
+    , userProfileImageUrl : String
+    , permalinkUrl : String
     }
 
 
@@ -374,6 +385,7 @@ dailyTwilogs =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
 
         retweetDecoder =
             OptimizedDecoder.field "Retweet" boolString
@@ -394,6 +406,14 @@ dailyTwilogs =
             OptimizedDecoder.succeed InReplyTo
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToUserId" (OptimizedDecoder.map TwitterUserId nonEmptyString))
+
+        quoteDecoder =
+            OptimizedDecoder.succeed Quote
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusFullText" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserName" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
 
         toDailyDict =
             List.foldl

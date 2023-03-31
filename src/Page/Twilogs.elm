@@ -11,7 +11,7 @@ import Markdown
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Regex exposing (Regex)
-import Shared exposing (RataDie, Twilog, TwitterStatusId(..), seoBase)
+import Shared exposing (Quote, RataDie, Twilog, TwitterStatusId(..), seoBase)
 import View exposing (View)
 
 
@@ -94,7 +94,7 @@ twilogDailyExcerpt rataDie twilogs =
                                         , strong [] [ text retweet.userName ]
                                         ]
                                     ]
-                                , div [] (autoLinkedMarkdown retweet.fullText)
+                                , div [ class "body" ] (autoLinkedMarkdown retweet.fullText)
                                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                                 ]
 
@@ -105,7 +105,7 @@ twilogDailyExcerpt rataDie twilogs =
                                         , strong [] [ text twilog.userName ]
                                         ]
                                     ]
-                                , div [] (autoLinkedMarkdown twilog.text)
+                                , div [ class "body" ] <| appendQuote twilog.quote <| autoLinkedMarkdown <| removeQuoteUrl twilog.quote twilog.text
                                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                                 ]
                 )
@@ -120,6 +120,36 @@ statusLink { id } =
             id
     in
     "https://twitter.com/_/status/" ++ idStr
+
+
+removeQuoteUrl : Maybe Quote -> String -> String
+removeQuoteUrl maybeQuote rawText =
+    case maybeQuote of
+        Just quote ->
+            String.replace quote.permalinkUrl "" rawText
+
+        Nothing ->
+            rawText
+
+
+appendQuote : Maybe Quote -> List (Html msg) -> List (Html msg)
+appendQuote maybeQuote htmls =
+    case maybeQuote of
+        Just quote ->
+            htmls
+                ++ [ div [ class "tweet" ]
+                        [ a [ target "_blank", href (statusLink quote) ]
+                            [ header []
+                                [ img [ alt ("Avatar of " ++ quote.userName), src quote.userProfileImageUrl ] []
+                                , strong [] [ text quote.userName ]
+                                ]
+                            ]
+                        , div [ class "body" ] (autoLinkedMarkdown quote.fullText)
+                        ]
+                   ]
+
+        Nothing ->
+            htmls
 
 
 autoLinkedMarkdown : String -> List (Html msg)

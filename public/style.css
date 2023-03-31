@@ -190,10 +190,24 @@ Tweet-like style on top of Sakura.css
 }
 
 /* tweets or retweets' text body */
-.tweet p {
+.tweet .body {
   white-space: pre-wrap;
   margin: 0;
   padding: 0;
+}
+
+/* paragraphs in tweets or retweets' text body */
+.tweet .body p {
+  margin: 0;
+  padding: 0;
+}
+
+/* blockquote inside tweets or retweets' text body; loosely resembles Sakura's default blockquote style but deemphasized. slightly gapped */
+.tweet .body blockquote {
+  color: #4a4a4a;
+  border-left: 3px solid #eaeaea;
+  margin: 5px 0;
+  padding: 5px 10px;
 }
 
 /* tweets or retweets' timestamp */
