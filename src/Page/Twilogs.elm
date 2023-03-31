@@ -1,4 +1,4 @@
-module Page.Twilogs exposing (Data, Model, Msg, page, showTwilogsUpToDays)
+module Page.Twilogs exposing (Data, Model, Msg, page, showTwilogsUpToDays, twilogDailyExcerpt)
 
 import DataSource exposing (DataSource)
 import Date
@@ -11,6 +11,7 @@ import Markdown
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Regex exposing (Regex)
+import Route
 import Shared exposing (Media, Quote, RataDie, Reply(..), Twilog, TwitterStatusId(..), seoBase)
 import View exposing (View)
 
@@ -81,8 +82,12 @@ showTwilogsUpToDays days dailyTwilogs =
 
 twilogDailyExcerpt : RataDie -> List Twilog -> Html msg
 twilogDailyExcerpt rataDie twilogs =
+    let
+        date =
+            Date.fromRataDie rataDie
+    in
     section []
-        [ h3 [] [ text (Date.format "yyyy/MM/dd (E)" (Date.fromRataDie rataDie)) ]
+        [ h3 [] [ Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
         , twilogs
             -- Order reversed in index page; newest first
             |> List.reverse

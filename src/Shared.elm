@@ -13,6 +13,7 @@ module Shared exposing
     , TwitterUserId(..)
     , cmsGet
     , cmsImageDecoder
+    , dailyTwilogs
     , formatPosix
     , getGitHubRepoReadme
     , githubGet
@@ -620,6 +621,11 @@ view sharedData page _ _ pageView =
 
                                             Route.Twilogs ->
                                                 [ Html.text "Twilog" ]
+
+                                            Route.Twilogs__Day_ { day } ->
+                                                [ Route.link Route.Twilogs [] [ Html.text "Twilog" ]
+                                                , Html.text day
+                                                ]
 
                                             Route.Index ->
                                                 []

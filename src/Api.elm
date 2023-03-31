@@ -5,6 +5,7 @@ import DataSource exposing (DataSource)
 import Html exposing (Html)
 import Iso8601
 import Page.Articles.ArticleId_
+import Page.Twilogs.Day_
 import Pages
 import Route exposing (Route(..))
 import Rss
@@ -128,6 +129,17 @@ makeSitemapEntries allRoutesSource =
 
                 Twilogs ->
                     DataSource.succeed { path = "twilogs", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
+                        |> Just
+
+                Twilogs__Day_ routeParam ->
+                    Page.Twilogs.Day_.page.data routeParam
+                        |> DataSource.map
+                            (\data ->
+                                { path = Route.routeToPath route |> String.join "/"
+                                , -- TODO: set lastMod
+                                  lastMod = Nothing
+                                }
+                            )
                         |> Just
 
                 Index ->
