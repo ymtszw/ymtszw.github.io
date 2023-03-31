@@ -42,8 +42,12 @@ jobs:
         with:
           node-version: "16"
       - run: npm ci
-      - run: npm run build
-        timeout-minutes: 1
+      - uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_wait_seconds: 20
+          command: npm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
