@@ -41,6 +41,7 @@ jobs:
           node-version: "16"
       - run: npm ci
       - run: npm run build
+        timeout-minutes: 5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
