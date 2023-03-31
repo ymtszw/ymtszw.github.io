@@ -1,6 +1,7 @@
 module Shared exposing
     ( CmsImage
     , Data
+    , Media
     , Model
     , Msg(..)
     , Quote
@@ -342,6 +343,7 @@ type alias Twilog =
     , inReplyTo : Maybe InReplyTo
     , replies : List Reply
     , quote : Maybe Quote
+    , extendedEntitiesMedia : List Media
     }
 
 
@@ -354,6 +356,7 @@ type alias Retweet =
     , id : TwitterStatusId
     , userName : String
     , userProfileImageUrl : String
+    , extendedEntitiesMedia : List Media
     }
 
 
@@ -369,6 +372,14 @@ type alias Quote =
     , userName : String
     , userProfileImageUrl : String
     , permalinkUrl : String
+    }
+
+
+type alias Media =
+    { url : String
+    , sourceUrl : String
+    , type_ : String
+    , expandedUrl : String
     }
 
 
@@ -388,7 +399,7 @@ dailyTwilogs =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (iso8601Decoder |> OptimizedDecoder.map (Date.fromPosix jst)))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
@@ -397,6 +408,8 @@ dailyTwilogs =
                 -- Resolve replies later
                 |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
+                |> OptimizedDecoder.andMap extendedEntitiesDecoder
+                |> OptimizedDecoder.maybe
 
         retweetDecoder =
             OptimizedDecoder.field "Retweet" boolString
@@ -404,10 +417,12 @@ dailyTwilogs =
                     (\isRetweet ->
                         if isRetweet then
                             OptimizedDecoder.succeed Retweet
-                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusFullText" nonEmptyString)
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusFullText" OptimizedDecoder.string)
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" nonEmptyString)
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserProfileImageUrl" OptimizedDecoder.string)
+                                -- TODO Also fetch extended entities of retweet
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
 
                         else
                             OptimizedDecoder.fail "Not a retweet"
@@ -420,25 +435,44 @@ dailyTwilogs =
 
         quoteDecoder =
             OptimizedDecoder.succeed Quote
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusFullText" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusFullText" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserName" nonEmptyString)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
 
+        extendedEntitiesDecoder =
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map4 Media)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaExpandedUrls" commaSeparatedList)
+                , OptimizedDecoder.succeed (List.map3 (\url sourceUrl type_ -> Media url sourceUrl type_ sourceUrl))
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
+                , OptimizedDecoder.succeed []
+                ]
+
         toDailyDict =
             List.foldl
-                (\twilog dict ->
-                    Dict.update (Date.toRataDie twilog.createdDate)
-                        (\dailySortedTwilogs ->
-                            case dailySortedTwilogs of
-                                Just twilogs ->
-                                    Just (List.sortBy (.createdAt >> Time.posixToMillis) (twilog :: twilogs))
+                (\maybeTwilog dict ->
+                    case maybeTwilog of
+                        Just twilog ->
+                            Dict.update (Date.toRataDie twilog.createdDate)
+                                (\dailySortedTwilogs ->
+                                    case dailySortedTwilogs of
+                                        Just twilogs ->
+                                            Just (List.sortBy (.createdAt >> Time.posixToMillis) (twilog :: twilogs))
 
-                                Nothing ->
-                                    Just [ twilog ]
-                        )
-                        dict
+                                        Nothing ->
+                                            Just [ twilog ]
+                                )
+                                dict
+
+                        Nothing ->
+                            dict
                 )
                 Dict.empty
     in
@@ -511,6 +545,11 @@ nonEmptyString =
                 else
                     OptimizedDecoder.succeed s
             )
+
+
+commaSeparatedList =
+    nonEmptyString
+        |> OptimizedDecoder.andThen (\s -> OptimizedDecoder.succeed (String.split "," s))
 
 
 seoBase :

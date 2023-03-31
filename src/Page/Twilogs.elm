@@ -11,7 +11,7 @@ import Markdown
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Regex exposing (Regex)
-import Shared exposing (Quote, RataDie, Reply(..), Twilog, TwitterStatusId(..), seoBase)
+import Shared exposing (Media, Quote, RataDie, Reply(..), Twilog, TwitterStatusId(..), seoBase)
 import View exposing (View)
 
 
@@ -121,6 +121,7 @@ aTwilog twilog =
                         ]
                     ]
                 , div [ class "body" ] (autoLinkedMarkdown retweet.fullText)
+                , mediaGrid retweet
                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                 ]
 
@@ -137,7 +138,8 @@ aTwilog twilog =
                         , strong [] [ text twilog.userName ]
                         ]
                     ]
-                , div [ class "body" ] <| appendQuote twilog.quote <| autoLinkedMarkdown <| removeQuoteUrl twilog.quote twilog.text
+                , div [ class "body" ] <| appendQuote twilog.quote <| autoLinkedMarkdown <| removeMediaUrls twilog.extendedEntitiesMedia <| removeQuoteUrl twilog.quote twilog.text
+                , mediaGrid twilog
                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                 ]
 
@@ -159,6 +161,11 @@ removeQuoteUrl maybeQuote rawText =
 
         Nothing ->
             rawText
+
+
+removeMediaUrls : List Media -> String -> String
+removeMediaUrls media rawText =
+    List.foldl (\{ url } -> String.replace url "") rawText media
 
 
 appendQuote : Maybe Quote -> List (Html msg) -> List (Html msg)
@@ -203,3 +210,30 @@ mentionRegex =
 hashtagRegex : Regex
 hashtagRegex =
     Maybe.withDefault Regex.never (Regex.fromString "#[^- ]+")
+
+
+mediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> Html msg
+mediaGrid status =
+    case status.extendedEntitiesMedia of
+        [] ->
+            text ""
+
+        nonEmpty ->
+            let
+                -- Show media based on type: "photo" | "video" | "animated_gif"
+                aMedia media =
+                    case media.type_ of
+                        "photo" ->
+                            a [ target "_blank", href media.expandedUrl ] [ img [ src media.sourceUrl ] [] ]
+
+                        "video" ->
+                            -- TODO needs to figure out how to represent video
+                            a [ target "_blank", href media.expandedUrl ] [ img [ src media.sourceUrl ] [] ]
+
+                        "animated_gif" ->
+                            a [ target "_blank", href media.expandedUrl ] [ img [ src media.sourceUrl ] [] ]
+
+                        _ ->
+                            text ""
+            in
+            div [ class "media-grid" ] <| List.map aMedia nonEmpty
