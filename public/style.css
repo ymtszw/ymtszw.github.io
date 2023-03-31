@@ -208,6 +208,26 @@ Tweet-like style on top of Sakura.css
   border-left: 3px solid #eaeaea;
   margin: 5px 0;
   padding: 5px 10px;
+  font-size: 0.9em;
+}
+
+/* code block inside tweets or retweets' text body; */
+.tweet .body pre {
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  margin: 5px 0;
+  padding: 5px 10px;
+}
+
+/* list container inside tweets or retweets' text body; only slightly gapped */
+.tweet .body ul,.tweet .body ol {
+  margin: 5px 0;
+}
+
+/* list items inside tweets or retweets' text body; gap canceled */
+.tweet .body li {
+  margin: 0;
+  padding: 0;
 }
 
 /* tweets or retweets' timestamp */
