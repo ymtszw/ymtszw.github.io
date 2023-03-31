@@ -47,7 +47,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
-          MY_TWILOG_TSV_URL: ${{ secrets.MY_TWILOG_TSV_URL }}
+          MY_TWILOG_CSV_URL: ${{ secrets.MY_TWILOG_CSV_URL }}
       - uses: actions/upload-pages-artifact@v1
         with:
           path: ./dist
