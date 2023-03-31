@@ -125,7 +125,13 @@ aTwilog twilog =
                 ]
 
             Nothing ->
-                [ a [ target "_blank", href (statusLink twilog) ]
+                [ case twilog.inReplyTo of
+                    Just inReplyTo ->
+                        a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text (twilog.userName ++ " replied:") ]
+
+                    Nothing ->
+                        text ""
+                , a [ target "_blank", href (statusLink twilog) ]
                     [ header []
                         [ img [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
                         , strong [] [ text twilog.userName ]

@@ -200,7 +200,8 @@ Tweet-like style on top of Sakura.css
 }
 
 /* retweets' special textual label above their contents */
-.tweet > .retweet-label {
+.tweet > .retweet-label,
+.tweet > .reply-label {
   font-size: 0.7em;
   color: #999;
   margin-bottom: 5px;

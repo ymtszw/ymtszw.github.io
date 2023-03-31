@@ -464,7 +464,7 @@ resolveRepliesWithinDay =
                         Just index ->
                             let
                                 updatedOlderTwilogs =
-                                    List.Extra.updateAt index (\repliedTwilog -> { repliedTwilog | touchedAt = maxTime repliedTwilog.touchedAt twilog.touchedAt, replies = sortReplies (Reply twilog :: repliedTwilog.replies) }) olderTwilogs
+                                    List.Extra.updateAt index (\repliedTwilog -> { repliedTwilog | touchedAt = maxTime repliedTwilog.touchedAt twilog.touchedAt, replies = sortReplies (Reply { twilog | inReplyTo = Nothing } :: repliedTwilog.replies) }) olderTwilogs
                             in
                             resolveHelp acc updatedOlderTwilogs
 
