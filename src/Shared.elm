@@ -331,16 +331,25 @@ type alias Twilog =
     { createdAt : Time.Posix
     , createdDate : Date.Date
     , text : String
-    , statusId : TwitterStatusId
+    , id : TwitterStatusId
     , userName : String
     , userProfileImageUrl : String
-    , retweet : Bool
-    , retweetedStatusFullText : Maybe String
-    , retweetedStatusId : Maybe TwitterStatusId
-    , retweetedStatusUserName : Maybe String
-    , retweetedStatusProfileUserImageUrl : Maybe String
-    , inReplyToStatusId : Maybe TwitterStatusId
-    , inReplyToUserId : Maybe TwitterUserId
+    , retweet : Maybe Retweet
+    , inReplyTo : Maybe InReplyTo
+    }
+
+
+type alias Retweet =
+    { fullText : String
+    , id : TwitterStatusId
+    , userName : String
+    , userProfileImageUrl : String
+    }
+
+
+type alias InReplyTo =
+    { id : TwitterStatusId
+    , userId : TwitterUserId
     }
 
 
@@ -359,17 +368,32 @@ dailyTwilogs =
             OptimizedDecoder.succeed Twilog
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (iso8601Decoder |> OptimizedDecoder.map (Date.fromPosix jst)))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId OptimizedDecoder.string))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "Retweet" boolString)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusFullText" (OptimizedDecoder.maybe nonEmptyString))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusId" (OptimizedDecoder.maybe (OptimizedDecoder.map TwitterStatusId nonEmptyString)))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" (OptimizedDecoder.maybe nonEmptyString))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusProfileUserImageUrl" (OptimizedDecoder.maybe nonEmptyString))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToStatusId" (OptimizedDecoder.maybe (OptimizedDecoder.map TwitterStatusId nonEmptyString)))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToUserId" (OptimizedDecoder.maybe (OptimizedDecoder.map TwitterUserId nonEmptyString)))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
+
+        retweetDecoder =
+            OptimizedDecoder.field "Retweet" boolString
+                |> OptimizedDecoder.andThen
+                    (\isRetweet ->
+                        if isRetweet then
+                            OptimizedDecoder.succeed Retweet
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusFullText" nonEmptyString)
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" nonEmptyString)
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserProfileImageUrl" OptimizedDecoder.string)
+
+                        else
+                            OptimizedDecoder.fail "Not a retweet"
+                    )
+
+        inReplyToDecoder =
+            OptimizedDecoder.succeed InReplyTo
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToUserId" (OptimizedDecoder.map TwitterUserId nonEmptyString))
 
         toDailyDict =
             List.foldl
