@@ -1,8 +1,8 @@
-module Page.Twilogs exposing (Data, Model, Msg, page)
+module Page.Twilogs exposing (Data, Model, Msg, page, showTwilogsUpToDays)
 
 import DataSource exposing (DataSource)
 import Date
-import Dict
+import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
 import Html exposing (..)
@@ -60,19 +60,23 @@ view :
     -> View Msg
 view _ _ static =
     { title = "Twilog"
-    , body =
-        static.sharedData.dailyTwilogs
-            |> Dict.foldr
-                (\rataDie twilogs acc ->
-                    if List.length acc < 31 then
-                        twilogDailyExcerpt rataDie twilogs :: acc
-
-                    else
-                        acc
-                )
-                []
-            |> List.reverse
+    , body = showTwilogsUpToDays 31 static.sharedData.dailyTwilogs
     }
+
+
+showTwilogsUpToDays : Int -> Dict RataDie (List Twilog) -> List (Html msg)
+showTwilogsUpToDays days dailyTwilogs =
+    dailyTwilogs
+        |> Dict.foldr
+            (\rataDie twilogs acc ->
+                if List.length acc < days then
+                    twilogDailyExcerpt rataDie twilogs :: acc
+
+                else
+                    acc
+            )
+            []
+        |> List.reverse
 
 
 twilogDailyExcerpt : RataDie -> List Twilog -> Html msg

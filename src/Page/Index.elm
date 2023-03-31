@@ -8,6 +8,7 @@ import Html
 import Html.Attributes
 import Markdown
 import Page exposing (Page, StaticPayload)
+import Page.Twilogs
 import Pages.PageUrl exposing (PageUrl)
 import Route
 import Shared exposing (seoBase)
@@ -69,7 +70,11 @@ view _ _ static =
     , body =
         Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             :: static.data.readme
-            ++ [ Html.h2 [] [ Html.text "記事", View.feedLink "/articles/feed.xml" ]
+            ++ [ Html.h2 [] [ Route.link Route.Twilogs [] [ Html.text "Twilogs" ] ]
+               , Page.Twilogs.showTwilogsUpToDays 1 static.sharedData.dailyTwilogs
+                    |> Html.div []
+                    |> showless "twilogs"
+               , Html.h2 [] [ Html.text "記事", View.feedLink "/articles/feed.xml" ]
                , static.sharedData.cmsArticles
                     |> List.map cmsArticlePreview
                     |> Html.div []
