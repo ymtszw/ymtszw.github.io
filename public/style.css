@@ -161,6 +161,30 @@ Tweet-like style on top of Sakura.css
   margin: 10px 0;
 }
 
+.thread {
+  position: relative;
+  margin: 10px 0;
+}
+
+.reply {
+  position: relative;
+  padding-left: 1.1em;
+}
+
+/* In thread, tweets are rendered without gap, and only first and last children get rounded corners */
+.reply::before {
+  content: "↳";
+  font-family: 'Noto Sans Symbols 2', sans-serif;
+  display: block;
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  width: 1em;
+  height: 1em;
+  color: #999;
+}
+
+
 /* tweets or retweets' headers */
 .tweet header {
   display: flex;

@@ -11,7 +11,7 @@ import Markdown
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Regex exposing (Regex)
-import Shared exposing (Quote, RataDie, Twilog, TwitterStatusId(..), seoBase)
+import Shared exposing (Quote, RataDie, Reply(..), Twilog, TwitterStatusId(..), seoBase)
 import View exposing (View)
 
 
@@ -80,37 +80,60 @@ twilogDailyExcerpt rataDie twilogs =
     section []
         [ h3 [] [ text (Date.format "yyyy/MM/dd (E)" (Date.fromRataDie rataDie)) ]
         , twilogs
-            -- Order reversed in index page
+            -- Order reversed in index page; newest first
             |> List.reverse
-            |> List.map
-                (\twilog ->
-                    div [ class "tweet" ] <|
-                        case twilog.retweet of
-                            Just retweet ->
-                                [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]
-                                , a [ target "_blank", href (statusLink retweet) ]
-                                    [ header []
-                                        [ img [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
-                                        , strong [] [ text retweet.userName ]
-                                        ]
-                                    ]
-                                , div [ class "body" ] (autoLinkedMarkdown retweet.fullText)
-                                , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
-                                ]
-
-                            Nothing ->
-                                [ a [ target "_blank", href (statusLink twilog) ]
-                                    [ header []
-                                        [ img [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
-                                        , strong [] [ text twilog.userName ]
-                                        ]
-                                    ]
-                                , div [ class "body" ] <| appendQuote twilog.quote <| autoLinkedMarkdown <| removeQuoteUrl twilog.quote twilog.text
-                                , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
-                                ]
-                )
+            |> List.map threadAwareTwilogs
             |> div []
         ]
+
+
+threadAwareTwilogs : Twilog -> Html msg
+threadAwareTwilogs twilog =
+    case twilog.replies of
+        [] ->
+            aTwilog twilog
+
+        threads ->
+            let
+                recursivelyRenderThreadedTwilogs (Reply twilogInThread) =
+                    [ div [ class "reply" ] <|
+                        case twilogInThread.replies of
+                            [] ->
+                                [ aTwilog twilogInThread ]
+
+                            more ->
+                                aTwilog twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
+                    ]
+            in
+            div [ class "thread" ] <| aTwilog twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
+
+
+aTwilog : Twilog -> Html msg
+aTwilog twilog =
+    div [ class "tweet" ] <|
+        case twilog.retweet of
+            Just retweet ->
+                [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]
+                , a [ target "_blank", href (statusLink retweet) ]
+                    [ header []
+                        [ img [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
+                        , strong [] [ text retweet.userName ]
+                        ]
+                    ]
+                , div [ class "body" ] (autoLinkedMarkdown retweet.fullText)
+                , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
+                ]
+
+            Nothing ->
+                [ a [ target "_blank", href (statusLink twilog) ]
+                    [ header []
+                        [ img [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
+                        , strong [] [ text twilog.userName ]
+                        ]
+                    ]
+                , div [ class "body" ] <| appendQuote twilog.quote <| autoLinkedMarkdown <| removeQuoteUrl twilog.quote twilog.text
+                , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
+                ]
 
 
 statusLink : { a | id : TwitterStatusId } -> String

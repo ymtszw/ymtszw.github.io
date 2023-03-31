@@ -5,6 +5,7 @@ module Shared exposing
     , Msg(..)
     , Quote
     , RataDie
+    , Reply(..)
     , SharedMsg(..)
     , Twilog
     , TwitterStatusId(..)
@@ -38,6 +39,7 @@ import Head.Seo
 import Html exposing (Html)
 import Html.Attributes
 import Iso8601
+import List.Extra
 import Markdown
 import OptimizedDecoder
 import Pages.Flags
@@ -330,6 +332,7 @@ publicQiitaArticles =
 
 type alias Twilog =
     { createdAt : Time.Posix
+    , touchedAt : Time.Posix
     , createdDate : Date.Date
     , text : String
     , id : TwitterStatusId
@@ -337,8 +340,13 @@ type alias Twilog =
     , userProfileImageUrl : String
     , retweet : Maybe Retweet
     , inReplyTo : Maybe InReplyTo
+    , replies : List Reply
     , quote : Maybe Quote
     }
+
+
+type Reply
+    = Reply Twilog
 
 
 type alias Retweet =
@@ -378,6 +386,7 @@ dailyTwilogs =
         twilogDecoder =
             OptimizedDecoder.succeed Twilog
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (iso8601Decoder |> OptimizedDecoder.map (Date.fromPosix jst)))
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" nonEmptyString)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
@@ -385,6 +394,8 @@ dailyTwilogs =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
+                -- Resolve replies later
+                |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
 
         retweetDecoder =
@@ -432,8 +443,49 @@ dailyTwilogs =
                 Dict.empty
     in
     DataSource.File.jsonFile
-        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map toDailyDict)
+        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map toDailyDict |> OptimizedDecoder.map resolveRepliesWithinDay)
         "twilogs.json"
+
+
+resolveRepliesWithinDay : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
+resolveRepliesWithinDay =
+    let
+        -- Assume twilogsOfDay is newest-first.
+        -- Here we traverse the list so that reply tweets are brought under `.replies` field of the tweet (within the same day) they replied to.
+        -- Also at the same time, propagate touchedAt field to the tweet they replied to, eventually to the root tweet. At last we re-sort the list with touchedAt
+        resolveHelp : List Twilog -> List Twilog -> List Twilog
+        resolveHelp acc twilogsOfDay =
+            case twilogsOfDay of
+                [] ->
+                    List.sortBy (.touchedAt >> Time.posixToMillis) acc
+
+                twilog :: olderTwilogs ->
+                    case Maybe.andThen (\inReplyTo -> List.Extra.findIndex (\olderTwilog -> olderTwilog.id == inReplyTo.id) olderTwilogs) twilog.inReplyTo of
+                        Just index ->
+                            let
+                                updatedOlderTwilogs =
+                                    List.Extra.updateAt index (\repliedTwilog -> { repliedTwilog | touchedAt = maxTime repliedTwilog.touchedAt twilog.touchedAt, replies = sortReplies (Reply twilog :: repliedTwilog.replies) }) olderTwilogs
+                            in
+                            resolveHelp acc updatedOlderTwilogs
+
+                        Nothing ->
+                            resolveHelp (twilog :: acc) olderTwilogs
+
+        sortReplies =
+            -- Reverse to newsest-first
+            List.sortBy (\(Reply twilog) -> Time.posixToMillis twilog.touchedAt) >> List.reverse
+    in
+    -- Reverse the list so that the latest twilog is at the head
+    Dict.map (\_ twilogs -> twilogs |> List.reverse |> resolveHelp [])
+
+
+maxTime : Time.Posix -> Time.Posix -> Time.Posix
+maxTime t1 t2 =
+    if Time.posixToMillis t1 > Time.posixToMillis t2 then
+        t1
+
+    else
+        t2
 
 
 boolString =
