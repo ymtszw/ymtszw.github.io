@@ -143,3 +143,73 @@ Link Preview
 .link-preview blockquote:hover table tr td small {
   border-bottom: 2px solid #4a4a4a;
 }
+
+/*
+
+Twilogs
+
+Tweet-like style on top of Sakura.css
+
+*/
+
+.tweet {
+  font-size: 0.75em;
+  background: #f9f9f9;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+/* tweets or retweets' headers */
+.tweet header {
+  display: flex;
+  align-items: center;
+}
+
+/* tweets or retweets' avatars, rounded squared */
+.tweet header > img:first-child {
+  width: 1.3em;
+  height: 1.3em;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+/* retweets' special textual label above their contents */
+.tweet > .retweet-label {
+  font-size: 0.7em;
+  color: #999;
+  margin-bottom: 5px;
+}
+
+/* retweet icon using noto sans symbol font */
+.tweet > .retweet-label::before {
+  content: "🔁";
+  font-family: 'Noto Sans Symbols 2', sans-serif;
+  margin-right: 5px;
+}
+
+/* tweets or retweets' text body */
+.tweet p {
+  white-space: pre-wrap;
+  margin: 0;
+  padding: 0;
+}
+
+/* tweets or retweets' timestamp */
+.tweet time {
+  display: block;
+  font-size: 0.8em;
+  color: #999;
+  margin-bottom: 5px;
+}
+
+/* Cancel all new-tab links styles within .tweet */
+.tweet a[target="_blank"]::after {
+  content: unset!important;
+}
+
+/* Subtle underline on links of status URLs */
+.tweet > a:hover {
+  border-bottom: 1px solid #4a4a4a;
+}
