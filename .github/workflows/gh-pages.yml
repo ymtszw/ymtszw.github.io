@@ -23,8 +23,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -45,7 +43,7 @@ jobs:
           node-version: "16"
       - run: npm ci
       - run: npm run build
-        timeout-minutes: 5
+        timeout-minutes: 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
