@@ -398,9 +398,9 @@ dailyTwilogs =
     let
         twilogDecoder =
             OptimizedDecoder.succeed Twilog
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" iso8601Decoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" iso8601Decoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (iso8601Decoder |> OptimizedDecoder.map (Date.fromPosix jst)))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (createdAtDecoder |> OptimizedDecoder.map (Date.fromPosix jst)))
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
@@ -412,6 +412,24 @@ dailyTwilogs =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
                 |> OptimizedDecoder.andMap extendedEntitiesDecoder
                 |> OptimizedDecoder.maybe
+
+        createdAtDecoder =
+            OptimizedDecoder.oneOf
+                [ iso8601Decoder
+                , -- Decode date time string formatted with "ddd MMM DD HH:mm:ss Z YYYY" (originates from Twitter API)
+                  OptimizedDecoder.andThen
+                    (\str ->
+                        case String.split " " str of
+                            [ _, mon, paddedDay, paddedHourMinSec, zone, year ] ->
+                                Iso8601.toTime (year ++ "-" ++ monthToPaddedNumber mon ++ "-" ++ paddedDay ++ "T" ++ paddedHourMinSec ++ zone)
+                                    |> Result.mapError Markdown.deadEndsToString
+                                    |> OptimizedDecoder.fromResult
+
+                            _ ->
+                                OptimizedDecoder.fail ("Failed to parse date: " ++ str)
+                    )
+                    OptimizedDecoder.string
+                ]
 
         retweetDecoder =
             OptimizedDecoder.field "Retweet" boolString
@@ -767,3 +785,43 @@ jst =
 
 unixOrigin =
     Time.millisToPosix 0
+
+
+monthToPaddedNumber monStr =
+    case monStr of
+        "Jan" ->
+            "01"
+
+        "Feb" ->
+            "02"
+
+        "Mar" ->
+            "03"
+
+        "Apr" ->
+            "04"
+
+        "May" ->
+            "05"
+
+        "Jun" ->
+            "06"
+
+        "Jul" ->
+            "07"
+
+        "Aug" ->
+            "08"
+
+        "Sep" ->
+            "09"
+
+        "Oct" ->
+            "10"
+
+        "Nov" ->
+            "11"
+
+        _ ->
+            -- Dec
+            "12"

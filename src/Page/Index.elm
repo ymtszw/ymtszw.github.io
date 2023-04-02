@@ -74,8 +74,9 @@ view _ _ static =
 
             [] ->
                 Html.text ""
-        , Html.h2 [] [ Html.text "記事", View.feedLink "/articles/feed.xml" ]
+        , Html.h2 [] [ Route.link Route.Articles [] [ Html.text "記事" ], View.feedLink "/articles/feed.xml" ]
         , static.sharedData.cmsArticles
+            |> List.take 5
             |> List.map cmsArticlePreview
             |> Html.div []
             |> showless "cms-articles"

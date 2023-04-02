@@ -57,7 +57,7 @@ view :
 view _ _ static =
     { title = "記事"
     , body =
-        [ h1 [] [ text "記事" ]
+        [ h1 [] [ text "記事", View.feedLink "/articles/feed.xml" ]
         , p [] [ text "外部ブログサービス以外で書いた、自前CMSなどで管理している（主に）技術記事たち。なんとなく、個人の活動に属する記事がこっちにあることが多い。" ]
         , static.sharedData.cmsArticles
             |> List.map Page.Index.cmsArticlePreview
