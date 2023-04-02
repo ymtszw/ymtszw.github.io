@@ -359,6 +359,7 @@ type alias Retweet =
     , userName : String
     , userProfileImageUrl : String
     , extendedEntitiesMedia : List Media
+    , quote : Maybe Quote
     }
 
 
@@ -442,6 +443,7 @@ dailyTwilogs =
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" nonEmptyString)
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserProfileImageUrl" OptimizedDecoder.string)
                                 |> OptimizedDecoder.andMap retweetExtendedEntitiesDecoder
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetQuoteDecoder)
 
                         else
                             OptimizedDecoder.fail "Not a retweet"
@@ -483,6 +485,14 @@ dailyTwilogs =
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaExpandedUrls" commaSeparatedList)
                 , OptimizedDecoder.succeed []
                 ]
+
+        retweetQuoteDecoder =
+            OptimizedDecoder.succeed Quote
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusFullText" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserName" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
 
         toDailyDict =
             List.foldl

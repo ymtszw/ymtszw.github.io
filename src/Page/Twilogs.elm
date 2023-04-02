@@ -146,9 +146,11 @@ aTwilog twilog =
                         ]
                     ]
                 , retweet.fullText
+                    |> removeQuoteUrl retweet.quote
                     |> removeMediaUrls retweet.extendedEntitiesMedia
                     |> removeMediaUrls twilog.extendedEntitiesMedia
                     |> autoLinkedMarkdown
+                    |> appendQuote retweet.quote
                     |> div [ class "body" ]
                 , case retweet.extendedEntitiesMedia of
                     [] ->
