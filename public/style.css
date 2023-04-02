@@ -47,6 +47,15 @@ a.has-image:hover {
   border-bottom: unset;
 }
 
+/* Navigation for site metadata such as build status badge and author follow link.
+No excess margins, slightly gapped, centered horizontally
+*/
+nav.meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 /*
 
 Show All/Less Container
@@ -99,7 +108,7 @@ Link Preview
 */
 
 .link-preview blockquote:hover {
-  outline: 2px solid #4a4a4a;
+  border-color: #4a4a4a;
 }
 
 .link-preview table tr td:first-child {
@@ -299,4 +308,28 @@ Tweet-like style on top of Sakura.css
   object-fit: cover;
   height: 100%;
   width: 100%;
+}
+
+/* Show video icon overlay using Noto Symbol fonts */
+.tweet .media-grid figure.video-thumbnail {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.tweet .media-grid figure.video-thumbnail::before {
+  content: "▶";
+  font-family: 'Noto Sans Symbols 2', sans-serif;
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-size: 3em;
+  color: #fff;
+  background: rgba(0,0,0,0.5);
+  padding-top: 0.2em;
+  padding-left: 0.4em;
+  box-sizing: border-box;
 }

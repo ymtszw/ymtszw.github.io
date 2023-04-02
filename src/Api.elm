@@ -114,6 +114,10 @@ makeSitemapEntries allRoutesSource =
     let
         build route =
             case route of
+                About ->
+                    DataSource.succeed { path = "about", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
+                        |> Just
+
                 Articles__Draft ->
                     Nothing
 

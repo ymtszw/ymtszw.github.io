@@ -2,6 +2,7 @@ module Page.Index exposing (Data, Model, Msg, page)
 
 import DataSource exposing (DataSource)
 import DataSource.File
+import Dict
 import Head
 import Head.Seo as Seo
 import Html
@@ -27,6 +28,10 @@ type alias RouteParams =
     {}
 
 
+type alias Data =
+    ()
+
+
 page : Page RouteParams Data
 page =
     Page.single
@@ -38,12 +43,7 @@ page =
 
 data : DataSource Data
 data =
-    let
-        readme =
-            DataSource.File.bodyWithoutFrontmatter "README.md"
-                |> DataSource.map Markdown.render
-    in
-    DataSource.map2 Data readme (Shared.getGitHubRepoReadme "ymtszw")
+    DataSource.succeed ()
 
 
 head :
@@ -54,12 +54,6 @@ head _ =
         |> Seo.website
 
 
-type alias Data =
-    { readme : List (Html.Html Never)
-    , bio : List (Html.Html Never)
-    }
-
-
 view :
     Maybe PageUrl
     -> Shared.Model
@@ -68,73 +62,79 @@ view :
 view _ _ static =
     { title = "Index"
     , body =
-        Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
-            :: static.data.readme
-            ++ [ Html.h2 [] [ Route.link Route.Twilogs [] [ Html.text "Twilogs" ] ]
-               , Page.Twilogs.showTwilogsUpToDays 1 static.sharedData.dailyTwilogs
-                    |> Html.div []
-                    |> showless "twilogs"
-               , Html.h2 [] [ Html.text "記事", View.feedLink "/articles/feed.xml" ]
-               , static.sharedData.cmsArticles
-                    |> List.map cmsArticlePreview
-                    |> Html.div []
-               , Html.h2 [] [ Html.text "Zenn記事", View.feedLink "https://zenn.dev/ymtszw/feed" ]
-               , static.sharedData.zennArticles
-                    |> List.sortBy (.likedCount >> negate)
-                    |> List.map
-                        (\metadata ->
-                            Html.li []
-                                [ Html.strong [] [ externalLink metadata.url metadata.title ]
-                                , Html.br [] []
-                                , Html.small []
-                                    [ Html.strong [] [ Html.text (String.fromInt metadata.likedCount) ]
-                                    , Html.text " 💚"
-                                    , Html.code [] [ Html.text metadata.articleType ]
-                                    , Html.text " ["
-                                    , Html.text (Shared.posixToYmd metadata.publishedAt)
-                                    , Html.text "]"
-                                    ]
-                                ]
-                        )
-                    |> Html.ul []
-                    |> showless "zenn-articles"
-               , Html.h2 [] [ Html.text "Qiita記事", View.feedLink "https://qiita.com/ymtszw/feed" ]
-               , static.sharedData.qiitaArticles
-                    |> List.sortBy (.likesCount >> negate)
-                    |> List.map
-                        (\metadata ->
-                            Html.li []
-                                [ Html.strong [] [ externalLink metadata.url metadata.title ]
-                                , Html.br [] []
-                                , Html.small []
-                                    [ Html.strong [] [ Html.text (String.fromInt metadata.likesCount) ]
-                                    , Html.text " ✅"
-                                    , Html.code [] (List.map Html.text (List.intersperse ", " metadata.tags))
-                                    , Html.text " ["
-                                    , Html.text (Shared.posixToYmd metadata.createdAt)
-                                    , Html.text "]"
-                                    ]
-                                ]
-                        )
-                    |> Html.ul []
-                    |> showless "qiita-articles"
-               , Html.h2 [] [ Html.text "GitHub Public Repo" ]
-               , static.sharedData.repos
-                    |> List.map
-                        (\publicOriginalRepo ->
-                            Html.strong []
-                                [ Html.text "["
-                                , externalLink ("https://github.com/ymtszw/" ++ publicOriginalRepo) publicOriginalRepo
-                                , Html.text "]"
-                                ]
-                        )
-                    |> List.intersperse (Html.text " ")
-                    |> Html.p []
-                    |> showless "repos"
-               , Html.h2 [] [ Html.text "自己紹介 ", Html.a [ Html.Attributes.href "https://github.com/ymtszw/ymtszw", Html.Attributes.target "_blank" ] [ Html.text "(source)" ] ]
-               , Html.div [] static.data.bio
-                    |> showless "bio"
-               ]
+        [ Html.h1 []
+            [ Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
+            , Html.text "ymtszw's page"
+            ]
+        , Html.h2 [] [ Route.link Route.Twilogs [] [ Html.text "Twilog" ] ]
+        , -- get latest day's twilogs from static.sharedData.dailyTwilogs
+          case List.reverse (Dict.values static.sharedData.dailyTwilogs) of
+            latestTwilogs :: _ ->
+                latestTwilogs
+                    |> Page.Twilogs.twilogsOfTheDay
+                    |> showless "latest-twilogs"
+
+            [] ->
+                Html.text ""
+        , Html.h2 [] [ Html.text "記事", View.feedLink "/articles/feed.xml" ]
+        , static.sharedData.cmsArticles
+            |> List.map cmsArticlePreview
+            |> Html.div []
+            |> showless "cms-articles"
+        , Html.h2 [] [ Html.text "Zenn記事", View.feedLink "https://zenn.dev/ymtszw/feed" ]
+        , static.sharedData.zennArticles
+            |> List.sortBy (.likedCount >> negate)
+            |> List.map
+                (\metadata ->
+                    Html.li []
+                        [ Html.strong [] [ externalLink metadata.url metadata.title ]
+                        , Html.br [] []
+                        , Html.small []
+                            [ Html.strong [] [ Html.text (String.fromInt metadata.likedCount) ]
+                            , Html.text " 💚"
+                            , Html.code [] [ Html.text metadata.articleType ]
+                            , Html.text " ["
+                            , Html.text (Shared.posixToYmd metadata.publishedAt)
+                            , Html.text "]"
+                            ]
+                        ]
+                )
+            |> Html.ul []
+            |> showless "zenn-articles"
+        , Html.h2 [] [ Html.text "Qiita記事", View.feedLink "https://qiita.com/ymtszw/feed" ]
+        , static.sharedData.qiitaArticles
+            |> List.sortBy (.likesCount >> negate)
+            |> List.map
+                (\metadata ->
+                    Html.li []
+                        [ Html.strong [] [ externalLink metadata.url metadata.title ]
+                        , Html.br [] []
+                        , Html.small []
+                            [ Html.strong [] [ Html.text (String.fromInt metadata.likesCount) ]
+                            , Html.text " ✅"
+                            , Html.code [] (List.map Html.text (List.intersperse ", " metadata.tags))
+                            , Html.text " ["
+                            , Html.text (Shared.posixToYmd metadata.createdAt)
+                            , Html.text "]"
+                            ]
+                        ]
+                )
+            |> Html.ul []
+            |> showless "qiita-articles"
+        , Html.h2 [] [ Html.text "GitHub Public Repo" ]
+        , static.sharedData.repos
+            |> List.map
+                (\publicOriginalRepo ->
+                    Html.strong []
+                        [ Html.text "["
+                        , externalLink ("https://github.com/ymtszw/" ++ publicOriginalRepo) publicOriginalRepo
+                        , Html.text "]"
+                        ]
+                )
+            |> List.intersperse (Html.text " ")
+            |> Html.p []
+            |> showless "repos"
+        ]
     }
 
 

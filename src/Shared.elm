@@ -607,12 +607,15 @@ view sharedData page _ _ pageView =
             , Html.header []
                 [ Html.nav [] <|
                     List.intersperse (Html.text " / ") <|
-                        List.concat
+                        List.concatMap (\kids -> List.map (\kid -> Html.strong [] [ kid ]) kids)
                             [ [ Route.link Route.Index [] [ Html.text "Index" ] ]
                             , page.route
                                 |> Maybe.map
                                     (\route ->
                                         case route of
+                                            Route.About ->
+                                                [ Html.text "このサイトについて" ]
+
                                             Route.Articles__ArticleId_ _ ->
                                                 [ Html.text "記事" ]
 
@@ -632,14 +635,36 @@ view sharedData page _ _ pageView =
                                     )
                                 |> Maybe.withDefault []
                             ]
-                , twitterLink
+                , sitemap
+                , Html.nav [ Html.Attributes.class "meta" ]
+                    [ siteBuildStatus
+                    , twitterLink
+                    ]
                 ]
             , Html.hr [] []
             , Html.main_ [] pageView.body
             , Html.hr [] []
-            , Html.footer [] [ Html.text "© Yu Matsuzawa (ymtszw, Gada), 2022 ", Html.br [] [], twitterLink ]
+            , Html.footer []
+                [ Html.text "© Yu Matsuzawa (ymtszw, Gada), 2022 "
+                , sitemap
+                , Html.nav [ Html.Attributes.class "meta" ]
+                    [ siteBuildStatus
+                    , twitterLink
+                    ]
+                ]
             ]
     }
+
+
+siteBuildStatus =
+    Html.a [ Html.Attributes.href "https://github.com/ymtszw/ymtszw.github.io", Html.Attributes.target "_blank", Html.Attributes.class "has-image" ]
+        [ Html.img
+            [ Html.Attributes.src "https://github.com/ymtszw/ymtszw.github.io/actions/workflows/gh-pages.yml/badge.svg"
+            , Html.Attributes.alt "GitHub Pages: ymtszw/ymtszw.github.io"
+            , Html.Attributes.height 20
+            ]
+            []
+        ]
 
 
 twitterLink =
@@ -647,11 +672,25 @@ twitterLink =
         [ Html.img
             [ Html.Attributes.src "https://img.shields.io/twitter/follow/gada_twt.svg?style=social"
             , Html.Attributes.alt "Twitter: gada_twt"
-            , Html.Attributes.width 156
-            , Html.Attributes.height 20
             ]
             []
         ]
+
+
+sitemap =
+    Html.nav [] <|
+        List.intersperse (Html.text " | ")
+            [ Html.text ""
+            , Route.link Route.About [] [ Html.text "このサイトについて" ]
+            , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
+            , Html.text ""
+            ]
+
+
+
+-----------------
+-- HELPERS
+-----------------
 
 
 makeTitle pageTitle =

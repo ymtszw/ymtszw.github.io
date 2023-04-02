@@ -1,4 +1,4 @@
-module Page.Twilogs exposing (Data, Model, Msg, page, showTwilogsUpToDays, twilogDailyExcerpt)
+module Page.Twilogs exposing (Data, Model, Msg, page, showTwilogsUpToDays, twilogDailyExcerpt, twilogsOfTheDay)
 
 import DataSource exposing (DataSource)
 import Date
@@ -88,12 +88,17 @@ twilogDailyExcerpt rataDie twilogs =
     in
     section []
         [ h3 [] [ Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
-        , twilogs
-            -- Order reversed in index page; newest first
-            |> List.reverse
-            |> List.map threadAwareTwilogs
-            |> div []
+        , twilogsOfTheDay twilogs
         ]
+
+
+twilogsOfTheDay : List Twilog -> Html msg
+twilogsOfTheDay twilogs =
+    twilogs
+        -- Order reversed in index page; newest first
+        |> List.reverse
+        |> List.map threadAwareTwilogs
+        |> div []
 
 
 threadAwareTwilogs : Twilog -> Html msg
@@ -129,8 +134,8 @@ aTwilog twilog =
                         , strong [] [ text retweet.userName ]
                         ]
                     ]
-                , div [ class "body" ] (autoLinkedMarkdown retweet.fullText)
-                , mediaGrid retweet
+                , div [ class "body" ] (autoLinkedMarkdown <| removeMediaUrls twilog.extendedEntitiesMedia retweet.fullText)
+                , mediaGrid twilog
                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                 ]
 
@@ -201,8 +206,8 @@ autoLinkedMarkdown : String -> List (Html msg)
 autoLinkedMarkdown rawText =
     rawText
         |> Regex.replace urlInTweetRegex (\{ match } -> "<" ++ match ++ ">")
-        |> Regex.replace mentionRegex (\{ match } -> "[" ++ match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
-        |> Regex.replace hashtagRegex (\{ match } -> "[" ++ match ++ "](https://twitter.com/hashtag/" ++ String.dropLeft 1 match ++ ")")
+        |> Regex.replace mentionRegex (\{ match } -> "[@" ++ String.dropLeft 1 match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
+        |> Regex.replace hashtagRegex (\{ match } -> "[#" ++ String.dropLeft 1 match ++ "](https://twitter.com/hashtag/" ++ String.dropLeft 1 match ++ ")")
         |> Markdown.render
 
 
@@ -213,12 +218,12 @@ urlInTweetRegex =
 
 mentionRegex : Regex
 mentionRegex =
-    Maybe.withDefault Regex.never (Regex.fromString "@[a-zA-Z0-9_]+")
+    Maybe.withDefault Regex.never (Regex.fromString "(@|＠)[a-zA-Z0-9_]+")
 
 
 hashtagRegex : Regex
 hashtagRegex =
-    Maybe.withDefault Regex.never (Regex.fromString "#[^- ]+")
+    Maybe.withDefault Regex.never (Regex.fromString "(#|＃)[^- ]+")
 
 
 mediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> Html msg
@@ -236,8 +241,8 @@ mediaGrid status =
                             a [ target "_blank", href media.expandedUrl ] [ img [ src media.sourceUrl ] [] ]
 
                         "video" ->
-                            -- TODO needs to figure out how to represent video
-                            a [ target "_blank", href media.expandedUrl ] [ img [ src media.sourceUrl ] [] ]
+                            -- Looks like expanded_url is a thumbnail in simple Media object
+                            a [ target "_blank", href media.expandedUrl ] [ figure [ class "video-thumbnail" ] [ img [ src media.sourceUrl ] [] ] ]
 
                         "animated_gif" ->
                             a [ target "_blank", href media.expandedUrl ] [ img [ src media.sourceUrl ] [] ]
