@@ -1,6 +1,6 @@
-# ymtszw's page [(source)](https://github.com/ymtszw/ymtszw.github.io)
+## ymtszw's page [(source)](https://github.com/ymtszw/ymtszw.github.io)
 
-## 概要
+### 概要
 
 * [elm-pages]で作成している個人ページ。[**elm-pagesについて**](https://ymtszw.github.io/articles/elm-pages-and-headless-cms)
 * これまでに書いたものなどをリンクしていく予定
