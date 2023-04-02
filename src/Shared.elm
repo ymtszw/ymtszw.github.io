@@ -441,8 +441,7 @@ dailyTwilogs =
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" nonEmptyString)
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserProfileImageUrl" OptimizedDecoder.string)
-                                -- TODO Also fetch extended entities of retweet
-                                |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
+                                |> OptimizedDecoder.andMap retweetExtendedEntitiesDecoder
 
                         else
                             OptimizedDecoder.fail "Not a retweet"
@@ -472,6 +471,16 @@ dailyTwilogs =
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedList)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
+                , OptimizedDecoder.succeed []
+                ]
+
+        retweetExtendedEntitiesDecoder =
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map4 Media)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaSourceUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaTypes" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaExpandedUrls" commaSeparatedList)
                 , OptimizedDecoder.succeed []
                 ]
 

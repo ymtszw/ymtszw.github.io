@@ -145,8 +145,17 @@ aTwilog twilog =
                         , strong [] [ text retweet.userName ]
                         ]
                     ]
-                , div [ class "body" ] (autoLinkedMarkdown <| removeMediaUrls twilog.extendedEntitiesMedia retweet.fullText)
-                , mediaGrid twilog
+                , retweet.fullText
+                    |> removeMediaUrls retweet.extendedEntitiesMedia
+                    |> removeMediaUrls twilog.extendedEntitiesMedia
+                    |> autoLinkedMarkdown
+                    |> div [ class "body" ]
+                , case retweet.extendedEntitiesMedia of
+                    [] ->
+                        mediaGrid twilog
+
+                    _ ->
+                        mediaGrid retweet
                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                 ]
 
@@ -163,7 +172,12 @@ aTwilog twilog =
                         , strong [] [ text twilog.userName ]
                         ]
                     ]
-                , div [ class "body" ] <| appendQuote twilog.quote <| autoLinkedMarkdown <| removeMediaUrls twilog.extendedEntitiesMedia <| removeQuoteUrl twilog.quote twilog.text
+                , twilog.text
+                    |> removeQuoteUrl twilog.quote
+                    |> removeMediaUrls twilog.extendedEntitiesMedia
+                    |> autoLinkedMarkdown
+                    |> appendQuote twilog.quote
+                    |> div [ class "body" ]
                 , mediaGrid twilog
                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                 ]
