@@ -12,7 +12,7 @@ import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Regex exposing (Regex)
 import Route
-import Shared exposing (Media, Quote, RataDie, Reply(..), Twilog, TwitterStatusId(..), seoBase)
+import Shared exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..), seoBase)
 import View exposing (View)
 
 
@@ -149,6 +149,8 @@ aTwilog twilog =
                     |> removeQuoteUrl retweet.quote
                     |> removeMediaUrls retweet.extendedEntitiesMedia
                     |> removeMediaUrls twilog.extendedEntitiesMedia
+                    |> replaceTcoUrls retweet.entitiesTcoUrl
+                    |> replaceTcoUrls twilog.entitiesTcoUrl
                     |> autoLinkedMarkdown
                     |> appendQuote retweet.quote
                     |> div [ class "body" ]
@@ -177,6 +179,7 @@ aTwilog twilog =
                 , twilog.text
                     |> removeQuoteUrl twilog.quote
                     |> removeMediaUrls twilog.extendedEntitiesMedia
+                    |> replaceTcoUrls twilog.entitiesTcoUrl
                     |> autoLinkedMarkdown
                     |> appendQuote twilog.quote
                     |> div [ class "body" ]
@@ -209,6 +212,35 @@ removeMediaUrls media rawText =
     List.foldl (\{ url } -> String.replace url "") rawText media
 
 
+replaceTcoUrls : List TcoUrl -> String -> String
+replaceTcoUrls tcoUrls rawText =
+    List.foldl
+        (\{ url, expandedUrl } acc ->
+            if Regex.contains tcoUrlInTweetRegex expandedUrl then
+                -- NoOp, since if the url is expanded to another t.co URL, it will be caught again in autoLinkedMarkdown.
+                acc
+
+            else
+                String.replace url ("[" ++ shortenRawUrl expandedUrl ++ "](" ++ expandedUrl ++ ")") acc
+        )
+        rawText
+        tcoUrls
+
+
+shortenRawUrl : String -> String
+shortenRawUrl rawUrl =
+    if String.length rawUrl > 40 then
+        (rawUrl
+            |> String.left 40
+            |> String.replace "https://" ""
+            |> String.replace "http://" ""
+        )
+            ++ "..."
+
+    else
+        rawUrl
+
+
 appendQuote : Maybe Quote -> List (Html msg) -> List (Html msg)
 appendQuote maybeQuote htmls =
     case maybeQuote of
@@ -232,20 +264,21 @@ appendQuote maybeQuote htmls =
 autoLinkedMarkdown : String -> List (Html msg)
 autoLinkedMarkdown rawText =
     rawText
-        |> Regex.replace urlInTweetRegex (\{ match } -> "<" ++ match ++ ">")
+        -- Shorten remaining t.co URLs. Another URLs, if any, will be autolinked by Markdown.render
+        |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ String.dropLeft 8 match ++ "](" ++ match ++ ")")
         |> Regex.replace mentionRegex (\{ match } -> "[@" ++ String.dropLeft 1 match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
         |> Regex.replace hashtagRegex (\{ match } -> "[#" ++ String.dropLeft 1 match ++ "](https://twitter.com/hashtag/" ++ String.dropLeft 1 match ++ ")")
         |> Markdown.render
 
 
-urlInTweetRegex : Regex
-urlInTweetRegex =
+tcoUrlInTweetRegex : Regex
+tcoUrlInTweetRegex =
     Maybe.withDefault Regex.never (Regex.fromString "https?://t.co/[a-zA-Z0-9]+")
 
 
 mentionRegex : Regex
 mentionRegex =
-    Maybe.withDefault Regex.never (Regex.fromString "(@|＠)[a-zA-Z0-9_]+")
+    Maybe.withDefault Regex.never (Regex.fromString "@[a-zA-Z0-9_]+")
 
 
 hashtagRegex : Regex

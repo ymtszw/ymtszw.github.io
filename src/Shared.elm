@@ -9,6 +9,7 @@ module Shared exposing
     , RataDie
     , Reply(..)
     , SharedMsg(..)
+    , TcoUrl
     , Twilog
     , TwitterStatusId(..)
     , TwitterUserId(..)
@@ -345,6 +346,7 @@ type alias Twilog =
     , inReplyTo : Maybe InReplyTo
     , replies : List Reply
     , quote : Maybe Quote
+    , entitiesTcoUrl : List TcoUrl
     , extendedEntitiesMedia : List Media
     }
 
@@ -358,8 +360,9 @@ type alias Retweet =
     , id : TwitterStatusId
     , userName : String
     , userProfileImageUrl : String
-    , extendedEntitiesMedia : List Media
     , quote : Maybe Quote
+    , entitiesTcoUrl : List TcoUrl
+    , extendedEntitiesMedia : List Media
     }
 
 
@@ -375,6 +378,12 @@ type alias Quote =
     , userName : String
     , userProfileImageUrl : String
     , permalinkUrl : String
+    }
+
+
+type alias TcoUrl =
+    { url : String
+    , expandedUrl : String
     }
 
 
@@ -411,7 +420,8 @@ dailyTwilogs =
                 -- Resolve replies later
                 |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
-                |> OptimizedDecoder.andMap extendedEntitiesDecoder
+                |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
+                |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
                 |> OptimizedDecoder.maybe
 
         createdAtDecoder =
@@ -442,8 +452,9 @@ dailyTwilogs =
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" nonEmptyString)
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserProfileImageUrl" OptimizedDecoder.string)
-                                |> OptimizedDecoder.andMap retweetExtendedEntitiesDecoder
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetQuoteDecoder)
+                                |> OptimizedDecoder.andMap retweetEntitiesTcoUrlDecoder
+                                |> OptimizedDecoder.andMap retweetExtendedEntitiesMediaDecoder
 
                         else
                             OptimizedDecoder.fail "Not a retweet"
@@ -462,7 +473,15 @@ dailyTwilogs =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
 
-        extendedEntitiesDecoder =
+        entitiesTcoUrlDecoder =
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map2 TcoUrl)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsExpandedUrls" commaSeparatedList)
+                , OptimizedDecoder.succeed []
+                ]
+
+        extendedEntitiesMediaDecoder =
             OptimizedDecoder.oneOf
                 [ OptimizedDecoder.succeed (List.map4 Media)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
@@ -476,7 +495,15 @@ dailyTwilogs =
                 , OptimizedDecoder.succeed []
                 ]
 
-        retweetExtendedEntitiesDecoder =
+        retweetEntitiesTcoUrlDecoder =
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map2 TcoUrl)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsExpandedUrls" commaSeparatedList)
+                , OptimizedDecoder.succeed []
+                ]
+
+        retweetExtendedEntitiesMediaDecoder =
             OptimizedDecoder.oneOf
                 [ OptimizedDecoder.succeed (List.map4 Media)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaUrls" commaSeparatedList)
