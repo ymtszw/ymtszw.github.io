@@ -61,7 +61,18 @@ view :
     -> View Msg
 view _ _ static =
     { title = "Twilog"
-    , body = showTwilogsUpToDays 31 static.sharedData.dailyTwilogs
+    , body =
+        [ h1 [] [ text "Twilog" ]
+        , div [] <| Markdown.render """
+2023年に、Twitter APIの大幅値上げ（無料枠縮小）で[Twilogが新規データを記録できなくなる](https://twitter.com/ropross/status/1641353674046992385)ようなのだが、
+そのタイミングで遅ればせながらTwilogがどういうサービスか知り、Twitterを自動で日記化するという便利さに気づいたので自作し始めたページ。仕組み：
+
+- Zapierを起点としてうまいことTweetを継続的に蓄積
+- それを自前でTwilogっぽくwebページ化（サイトはデイリービルド）
+- Twitter公式機能で取得したアーカイブから過去ページも追って作成（予定）
+"""
+        ]
+            ++ showTwilogsUpToDays 31 static.sharedData.dailyTwilogs
     }
 
 
