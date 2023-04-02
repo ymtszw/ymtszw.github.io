@@ -1,13 +1,11 @@
-module Page.Index exposing (Data, Model, Msg, page)
+module Page.Index exposing (Data, Model, Msg, cmsArticlePreview, page)
 
 import DataSource exposing (DataSource)
-import DataSource.File
 import Dict
 import Head
 import Head.Seo as Seo
 import Html
 import Html.Attributes
-import Markdown
 import Page exposing (Page, StaticPayload)
 import Page.Twilogs
 import Pages.PageUrl exposing (PageUrl)
@@ -150,6 +148,7 @@ externalLink url text_ =
     Html.a [ Html.Attributes.href url, Html.Attributes.target "_blank" ] [ Html.text text_ ]
 
 
+cmsArticlePreview : Shared.CmsArticleMetadata -> Html.Html Msg
 cmsArticlePreview meta =
     Route.link (Route.Articles__ArticleId_ { articleId = meta.contentId }) [ Html.Attributes.class "link-preview" ] <|
         [ Html.blockquote [] <|

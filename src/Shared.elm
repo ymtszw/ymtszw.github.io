@@ -1,5 +1,6 @@
 module Shared exposing
-    ( CmsImage
+    ( CmsArticleMetadata
+    , CmsImage
     , Data
     , Media
     , Model
@@ -616,8 +617,13 @@ view sharedData page _ _ pageView =
                                             Route.About ->
                                                 [ Html.text "このサイトについて" ]
 
-                                            Route.Articles__ArticleId_ _ ->
+                                            Route.Articles ->
                                                 [ Html.text "記事" ]
+
+                                            Route.Articles__ArticleId_ { articleId } ->
+                                                [ Html.text "記事"
+                                                , Html.text articleId
+                                                ]
 
                                             Route.Articles__Draft ->
                                                 [ Html.text "記事（下書き）" ]
@@ -683,6 +689,7 @@ sitemap =
             [ Html.text ""
             , Route.link Route.About [] [ Html.text "このサイトについて" ]
             , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
+            , Route.link Route.Articles [] [ Html.text "記事" ]
             , Html.text ""
             ]
 

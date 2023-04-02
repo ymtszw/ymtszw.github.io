@@ -118,6 +118,10 @@ makeSitemapEntries allRoutesSource =
                     DataSource.succeed { path = "about", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
                         |> Just
 
+                Articles ->
+                    DataSource.succeed { path = "articles", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
+                        |> Just
+
                 Articles__Draft ->
                     Nothing
 
