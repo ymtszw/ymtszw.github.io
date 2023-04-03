@@ -90,7 +90,7 @@ view _ shared _ static =
     { title = ""
     , body =
         [ Html.h1 []
-            [ Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
+            [ View.imgLazy [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             , Html.text "ymtszw's page"
             ]
         , Html.h2 [] [ Route.link Route.Twilogs [] [ Html.text "Twilog" ] ]
@@ -190,7 +190,7 @@ cmsArticlePreview meta =
                         ]
                     , case meta.image of
                         Just cmsImage ->
-                            Html.td [] [ Html.img [ Html.Attributes.src (cmsImage.url ++ "?h=150"), Html.Attributes.alt "Article Header Image", Html.Attributes.height 150 ] [] ]
+                            Html.td [] [ View.imgLazy [ Html.Attributes.src (cmsImage.url ++ "?h=150"), Html.Attributes.alt "Article Header Image", Html.Attributes.height 150 ] [] ]
 
                         Nothing ->
                             Html.text ""

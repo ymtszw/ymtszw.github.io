@@ -1,4 +1,4 @@
-module View exposing (View, feedLink, map, placeholder)
+module View exposing (View, feedLink, imgLazy, map, placeholder)
 
 import Html exposing (Html)
 import Html.Attributes
@@ -31,10 +31,15 @@ feedLink linkTo =
         , Html.Attributes.target "_blank"
         , Html.Attributes.class "has-image"
         ]
-        [ Html.img
+        [ imgLazy
             [ Html.Attributes.src "/feed.png"
             , Html.Attributes.alt "feed icon"
             , Html.Attributes.class "feed"
             ]
             []
         ]
+
+
+imgLazy : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+imgLazy attrs kids =
+    Html.img (Html.Attributes.attribute "loading" "lazy" :: attrs) kids

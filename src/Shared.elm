@@ -761,7 +761,7 @@ cmsArticleShortTitle articleId cmsArticles =
 
 siteBuildStatus =
     Html.a [ Html.Attributes.href "https://github.com/ymtszw/ymtszw.github.io", Html.Attributes.target "_blank", Html.Attributes.class "has-image" ]
-        [ Html.img
+        [ View.imgLazy
             [ Html.Attributes.src "https://github.com/ymtszw/ymtszw.github.io/actions/workflows/gh-pages.yml/badge.svg"
             , Html.Attributes.alt "GitHub Pages: ymtszw/ymtszw.github.io"
             , Html.Attributes.height 20
@@ -772,7 +772,7 @@ siteBuildStatus =
 
 twitterLink =
     Html.a [ Html.Attributes.href "https://twitter.com/gada_twt", Html.Attributes.target "_blank", Html.Attributes.class "has-image" ]
-        [ Html.img
+        [ View.imgLazy
             [ Html.Attributes.src "https://img.shields.io/twitter/follow/gada_twt.svg?style=social"
             , Html.Attributes.alt "Twitter: gada_twt"
             ]

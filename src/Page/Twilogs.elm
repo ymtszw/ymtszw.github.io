@@ -17,7 +17,7 @@ import Regex exposing (Regex)
 import Route
 import Shared exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..), seoBase)
 import Task
-import View exposing (View)
+import View exposing (View, imgLazy)
 
 
 type alias Model =
@@ -239,7 +239,7 @@ aTwilog links twilog =
                 [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]
                 , a [ target "_blank", href (statusLink retweet) ]
                     [ header []
-                        [ img [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
+                        [ imgLazy [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
                         , strong [] [ text retweet.userName ]
                         ]
                     ]
@@ -273,7 +273,7 @@ aTwilog links twilog =
                         text ""
                 , a [ target "_blank", href (statusLink twilog) ]
                     [ header []
-                        [ img [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
+                        [ imgLazy [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
                         , strong [] [ text twilog.userName ]
                         ]
                     ]
@@ -351,7 +351,7 @@ appendQuote maybeQuote htmls =
                 ++ [ div [ class "tweet" ]
                         [ a [ target "_blank", href (statusLink quote) ]
                             [ header []
-                                [ img [ alt ("Avatar of " ++ quote.userName), src quote.userProfileImageUrl ] []
+                                [ imgLazy [ alt ("Avatar of " ++ quote.userName), src quote.userProfileImageUrl ] []
                                 , strong [] [ text quote.userName ]
                                 ]
                             ]
@@ -383,7 +383,7 @@ appendLinkPreviews links entitiesTcoUrl htmls =
                                 [ div [ class "link-preview" ]
                                     [ case imageUrl of
                                         Just imageUrl_ ->
-                                            img [ src imageUrl_ ] []
+                                            imgLazy [ src imageUrl_ ] []
 
                                         Nothing ->
                                             text ""
@@ -441,14 +441,14 @@ appendMediaGrid status htmls =
                 aMedia media =
                     case media.type_ of
                         "photo" ->
-                            a [ target "_blank", href media.expandedUrl ] [ img [ src media.sourceUrl ] [] ]
+                            a [ target "_blank", href media.expandedUrl ] [ imgLazy [ src media.sourceUrl ] [] ]
 
                         "video" ->
                             -- Looks like expanded_url is a thumbnail in simple Media object
-                            a [ target "_blank", href media.expandedUrl ] [ figure [ class "video-thumbnail" ] [ img [ src media.sourceUrl ] [] ] ]
+                            a [ target "_blank", href media.expandedUrl ] [ figure [ class "video-thumbnail" ] [ imgLazy [ src media.sourceUrl ] [] ] ]
 
                         "animated_gif" ->
-                            a [ target "_blank", href media.expandedUrl ] [ img [ src media.sourceUrl ] [] ]
+                            a [ target "_blank", href media.expandedUrl ] [ imgLazy [ src media.sourceUrl ] [] ]
 
                         _ ->
                             text ""

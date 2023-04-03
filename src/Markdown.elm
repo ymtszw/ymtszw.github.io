@@ -11,6 +11,7 @@ import Markdown.Renderer exposing (defaultHtmlRenderer)
 import OptimizedDecoder
 import Parser
 import Regex
+import View
 
 
 decoder : String -> OptimizedDecoder.Decoder (List (Html.Html msg))
@@ -273,7 +274,7 @@ htmlRenderer =
             Markdown.Html.oneOf
                 [ Markdown.Html.tag "img"
                     (\src _ ->
-                        Html.img [ Html.Attributes.src src ] []
+                        View.imgLazy [ Html.Attributes.src src ] []
                     )
                     |> Markdown.Html.withAttribute "src"
                 , -- src-less anchor

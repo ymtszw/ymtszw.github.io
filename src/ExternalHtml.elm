@@ -157,7 +157,7 @@ linkPreview meta =
                     ]
                 , case meta.imageUrl of
                     Just imageUrl ->
-                        Element "td" [] [ Element "img" [ ( "src", imageUrl ) ] [] ]
+                        Element "td" [] [ Element "img" [ ( "src", imageUrl ), ( "loading", "lazy" ) ] [] ]
 
                     Nothing ->
                         Text ""

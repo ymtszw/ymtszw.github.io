@@ -190,7 +190,7 @@ renderArticle conf links contents =
     Html.article [] <|
         (case contents.image of
             Just cmsImage ->
-                [ Html.figure [] [ Html.img [ Html.Attributes.src cmsImage.url, Html.Attributes.width cmsImage.width, Html.Attributes.height cmsImage.height, Html.Attributes.alt "Article Header Image" ] [] ] ]
+                [ Html.figure [] [ View.imgLazy [ Html.Attributes.src cmsImage.url, Html.Attributes.width cmsImage.width, Html.Attributes.height cmsImage.height, Html.Attributes.alt "Article Header Image" ] [] ] ]
 
             Nothing ->
                 []
