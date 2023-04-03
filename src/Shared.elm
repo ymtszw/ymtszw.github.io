@@ -15,7 +15,7 @@ module Shared exposing
     , TwitterUserId(..)
     , cmsGet
     , cmsImageDecoder
-    , dailyTwilogs
+    , dailyTwilogsFromOldest
     , formatPosix
     , getGitHubRepoReadme
     , githubGet
@@ -28,7 +28,6 @@ module Shared exposing
     , publicOriginalRepos
     , seoBase
     , template
-    , twitterLink
     , unixOrigin
     )
 
@@ -201,7 +200,7 @@ data =
         publicCmsArticles
         publicZennArticles
         publicQiitaArticles
-        dailyTwilogs
+        dailyTwilogsFromOldest
         (DataSource.map2 (++) normalizeCss classlessCss)
 
 
@@ -403,8 +402,8 @@ type TwitterUserId
     = TwitterUserId String
 
 
-dailyTwilogs : DataSource.DataSource (Dict RataDie (List Twilog))
-dailyTwilogs =
+dailyTwilogsFromOldest : DataSource.DataSource (Dict RataDie (List Twilog))
+dailyTwilogsFromOldest =
     let
         twilogDecoder =
             OptimizedDecoder.succeed Twilog
@@ -685,8 +684,8 @@ view sharedData page _ _ pageView =
                                                 [ Html.text "記事" ]
 
                                             Route.Articles__ArticleId_ { articleId } ->
-                                                [ Html.text "記事"
-                                                , Html.text articleId
+                                                [ Route.link Route.Articles [] [ Html.text "記事" ]
+                                                , Html.text (cmsArticleShortTitle articleId sharedData.cmsArticles)
                                                 ]
 
                                             Route.Articles__Draft ->
@@ -724,6 +723,21 @@ view sharedData page _ _ pageView =
                 ]
             ]
     }
+
+
+cmsArticleShortTitle : String -> List CmsArticleMetadata -> String
+cmsArticleShortTitle articleId cmsArticles =
+    cmsArticles
+        |> List.Extra.find (\cmsArticle -> cmsArticle.contentId == articleId)
+        |> Maybe.map
+            (\cmsArticle ->
+                if String.length cmsArticle.title > 40 then
+                    String.left 40 cmsArticle.title ++ "..."
+
+                else
+                    cmsArticle.title
+            )
+        |> Maybe.withDefault articleId
 
 
 siteBuildStatus =

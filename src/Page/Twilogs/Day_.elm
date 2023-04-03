@@ -40,7 +40,7 @@ page =
 
 routes : DataSource (List RouteParams)
 routes =
-    DataSource.map (Dict.keys >> List.map (toRouteString >> RouteParams)) Shared.dailyTwilogs
+    DataSource.map (Dict.keys >> List.map (toRouteString >> RouteParams)) Shared.dailyTwilogsFromOldest
 
 
 toRouteString rataDie =
@@ -50,7 +50,7 @@ toRouteString rataDie =
 
 data : RouteParams -> DataSource Data
 data routeParams =
-    Shared.dailyTwilogs
+    Shared.dailyTwilogsFromOldest
         |> DataSource.andThen
             (\dailyTwilogs ->
                 fromRouteString routeParams.day
@@ -77,7 +77,11 @@ head :
     StaticPayload Data RouteParams
     -> List Head.Tag
 head static =
-    Seo.summaryLarge { seoBase | title = "Twilogs of " ++ static.routeParams.day }
+    Seo.summaryLarge
+        { seoBase
+            | title = Shared.makeTitle ("Twilogs of " ++ static.routeParams.day)
+            , description = "Twilogs of " ++ static.routeParams.day
+        }
         |> Seo.article
             { tags = []
             , section = Nothing
@@ -96,6 +100,6 @@ view _ _ static =
     { title = "Twilogs of " ++ static.routeParams.day
     , body =
         -- TODO: show navigation links to previous and next days
-        [ Page.Twilogs.twilogDailyExcerpt static.data.rataDie static.data.twilogs
+        [ Page.Twilogs.twilogDailySection static.data.rataDie static.data.twilogs
         ]
     }

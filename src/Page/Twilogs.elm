@@ -1,4 +1,4 @@
-module Page.Twilogs exposing (Data, Model, Msg, page, showTwilogsUpToDays, twilogDailyExcerpt, twilogsOfTheDay)
+module Page.Twilogs exposing (Data, Model, Msg, page, showTwilogsUpToDays, twilogDailySection, twilogsOfTheDay)
 
 import DataSource exposing (DataSource)
 import Date
@@ -50,7 +50,11 @@ head :
     StaticPayload Data RouteParams
     -> List Head.Tag
 head _ =
-    Seo.summaryLarge seoBase
+    Seo.summaryLarge
+        { seoBase
+            | title = Shared.makeTitle "Twilog"
+            , description = "2023年4月から作り始めた自作Twilog。Twitterを日記化している"
+        }
         |> Seo.website
 
 
@@ -82,7 +86,7 @@ showTwilogsUpToDays days dailyTwilogs =
         |> Dict.foldr
             (\rataDie twilogs acc ->
                 if List.length acc < days then
-                    twilogDailyExcerpt rataDie twilogs :: acc
+                    twilogDailySection rataDie twilogs :: acc
 
                 else
                     acc
@@ -91,8 +95,8 @@ showTwilogsUpToDays days dailyTwilogs =
         |> List.reverse
 
 
-twilogDailyExcerpt : RataDie -> List Twilog -> Html msg
-twilogDailyExcerpt rataDie twilogs =
+twilogDailySection : RataDie -> List Twilog -> Html msg
+twilogDailySection rataDie twilogs =
     let
         date =
             Date.fromRataDie rataDie

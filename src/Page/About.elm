@@ -54,7 +54,11 @@ head :
     StaticPayload Data RouteParams
     -> List Head.Tag
 head _ =
-    Seo.summaryLarge seoBase
+    Seo.summaryLarge
+        { seoBase
+            | title = Shared.makeTitle "このサイトについて"
+            , description = "Gada / ymtszwの個人ページ。これまでに書いたものなどをリンクしていく予定。elm-pagesで作っている。"
+        }
         |> Seo.website
 
 
