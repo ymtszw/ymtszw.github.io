@@ -1,4 +1,4 @@
-module Page.Twilogs exposing (Data, Model, Msg, listUrlsForPreview, page, showTwilogsUpToDays, twilogDailySection, twilogsOfTheDay)
+module Page.Twilogs exposing (Data, Model, Msg, listUrlsForPreviewBulk, listUrlsForPreviewSingle, page, showTwilogsUpToDays, twilogDailySection, twilogsOfTheDay)
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
@@ -55,18 +55,6 @@ data =
     DataSource.succeed ()
 
 
-head :
-    StaticPayload Data RouteParams
-    -> List Head.Tag
-head _ =
-    Seo.summaryLarge
-        { seoBase
-            | title = Shared.makeTitle "Twilog"
-            , description = "2023年4月から作り始めた自作Twilog。Twitterを日記化している"
-        }
-        |> Seo.website
-
-
 update :
     PageUrl
     -> Maybe Browser.Navigation.Key
@@ -84,13 +72,13 @@ update _ _ shared static msg model =
                 |> Dict.keys
                 |> List.reverse
                 |> List.take daysToPeek
-                |> listUrlsForPreview shared static
+                |> listUrlsForPreviewBulk shared static
             )
 
 
-listUrlsForPreview : Shared.Model -> StaticPayload templateData routeParams -> List RataDie -> Maybe Shared.Msg
-listUrlsForPreview { links } { sharedData } rataDiesToPeek =
-    case listUrlsForPreviewHelp links rataDiesToPeek sharedData.dailyTwilogs of
+listUrlsForPreviewBulk : Shared.Model -> StaticPayload templateData routeParams -> List RataDie -> Maybe Shared.Msg
+listUrlsForPreviewBulk { links } { sharedData } rataDiesToPeek =
+    case listUrlsForPreviewBulkHelp links rataDiesToPeek sharedData.dailyTwilogs of
         [] ->
             Nothing
 
@@ -98,35 +86,63 @@ listUrlsForPreview { links } { sharedData } rataDiesToPeek =
             Just (Shared.SharedMsg (Shared.Req_LinkPreview urls))
 
 
-listUrlsForPreviewHelp : Dict String LinkPreview.Metadata -> List RataDie -> Dict RataDie (List Twilog) -> List String
-listUrlsForPreviewHelp links rataDies dailyTwilogsFromOldest =
+listUrlsForPreviewBulkHelp : Dict String LinkPreview.Metadata -> List RataDie -> Dict RataDie (List Twilog) -> List String
+listUrlsForPreviewBulkHelp links rataDies dailyTwilogsFromOldest =
     rataDies
         |> List.concatMap
             (\rataDie ->
                 Dict.get rataDie dailyTwilogsFromOldest
                     |> Maybe.withDefault []
-                    |> List.concatMap
-                        (\twilog ->
-                            (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
-                                |> List.filterMap
-                                    (\tcoUrl ->
-                                        -- list not-yet previewed URLs
-                                        case Dict.get tcoUrl.expandedUrl links of
-                                            Just _ ->
-                                                Nothing
-
-                                            Nothing ->
-                                                -- Do not list twitter-internal URLs since they are likely quote/reply permalinks
-                                                if String.startsWith "https://twitter.com" tcoUrl.expandedUrl then
-                                                    Nothing
-
-                                                else
-                                                    Just tcoUrl.expandedUrl
-                                    )
-                        )
-                    |> List.Extra.unique
+                    |> listUrlsForPreviewSingleHelp links
             )
         |> List.Extra.unique
+
+
+listUrlsForPreviewSingle : Shared.Model -> List Twilog -> Maybe Shared.Msg
+listUrlsForPreviewSingle { links } twilogs =
+    case listUrlsForPreviewSingleHelp links twilogs of
+        [] ->
+            Nothing
+
+        urls ->
+            Just (Shared.SharedMsg (Shared.Req_LinkPreview urls))
+
+
+listUrlsForPreviewSingleHelp : Dict String LinkPreview.Metadata -> List Twilog -> List String
+listUrlsForPreviewSingleHelp links twilogs =
+    twilogs
+        |> List.concatMap
+            (\twilog ->
+                (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
+                    |> List.filterMap
+                        (\tcoUrl ->
+                            -- list not-yet previewed URLs
+                            case Dict.get tcoUrl.expandedUrl links of
+                                Just _ ->
+                                    Nothing
+
+                                Nothing ->
+                                    -- Do not list twitter-internal URLs since they are likely quote/reply permalinks
+                                    if String.startsWith "https://twitter.com" tcoUrl.expandedUrl then
+                                        Nothing
+
+                                    else
+                                        Just tcoUrl.expandedUrl
+                        )
+            )
+        |> List.Extra.unique
+
+
+head :
+    StaticPayload Data RouteParams
+    -> List Head.Tag
+head _ =
+    Seo.summaryLarge
+        { seoBase
+            | title = Shared.makeTitle "Twilog"
+            , description = "2023年4月から作り始めた自作Twilog。Twitterを日記化している"
+        }
+        |> Seo.website
 
 
 view :
@@ -231,19 +247,20 @@ aTwilog links twilog =
                     |> removeQuoteUrl retweet.quote
                     |> removeMediaUrls retweet.extendedEntitiesMedia
                     |> removeMediaUrls twilog.extendedEntitiesMedia
-                    |> replaceTcoUrls links retweet.entitiesTcoUrl
-                    |> replaceTcoUrls links twilog.entitiesTcoUrl
+                    |> replaceTcoUrls retweet.entitiesTcoUrl
+                    |> replaceTcoUrls twilog.entitiesTcoUrl
                     |> autoLinkedMarkdown
+                    |> (case retweet.extendedEntitiesMedia of
+                            [] ->
+                                appendMediaGrid twilog
+
+                            _ ->
+                                appendMediaGrid retweet
+                       )
                     |> appendQuote retweet.quote
                     -- Only show link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
                     |> appendLinkPreviews links retweet.entitiesTcoUrl
                     |> div [ class "body" ]
-                , case retweet.extendedEntitiesMedia of
-                    [] ->
-                        mediaGrid twilog
-
-                    _ ->
-                        mediaGrid retweet
                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                 ]
 
@@ -263,12 +280,12 @@ aTwilog links twilog =
                 , twilog.text
                     |> removeQuoteUrl twilog.quote
                     |> removeMediaUrls twilog.extendedEntitiesMedia
-                    |> replaceTcoUrls links twilog.entitiesTcoUrl
+                    |> replaceTcoUrls twilog.entitiesTcoUrl
                     |> autoLinkedMarkdown
+                    |> appendMediaGrid twilog
                     |> appendQuote twilog.quote
                     |> appendLinkPreviews links twilog.entitiesTcoUrl
                     |> div [ class "body" ]
-                , mediaGrid twilog
                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                 ]
 
@@ -297,8 +314,8 @@ removeMediaUrls media rawText =
     List.foldl (\{ url } -> String.replace url "") rawText media
 
 
-replaceTcoUrls : Dict String LinkPreview.Metadata -> List TcoUrl -> String -> String
-replaceTcoUrls links tcoUrls rawText =
+replaceTcoUrls : List TcoUrl -> String -> String
+replaceTcoUrls tcoUrls rawText =
     List.foldl
         (\{ url, expandedUrl } acc ->
             if Regex.contains tcoUrlInTweetRegex expandedUrl then
@@ -412,11 +429,11 @@ hashtagRegex =
     Maybe.withDefault Regex.never (Regex.fromString "(#|＃)[^- ]+")
 
 
-mediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> Html msg
-mediaGrid status =
+appendMediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
+appendMediaGrid status htmls =
     case status.extendedEntitiesMedia of
         [] ->
-            text ""
+            htmls
 
         nonEmpty ->
             let
@@ -436,4 +453,4 @@ mediaGrid status =
                         _ ->
                             text ""
             in
-            div [ class "media-grid" ] <| List.map aMedia nonEmpty
+            htmls ++ [ div [ class "media-grid" ] <| List.map aMedia nonEmpty ]
