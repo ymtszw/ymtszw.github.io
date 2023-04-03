@@ -81,8 +81,8 @@ linkPreviewDecoder =
                 OptimizedDecoder.succeed Metadata
                     -- Treat HTML without title (such as "301 moved permanently" page) as empty.
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" nonEmptyString)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "description" (OptimizedDecoder.maybe nonEmptyString))
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "image" (OptimizedDecoder.maybe (OptimizedDecoder.map (resolveUrl baseUrl) nonEmptyString)))
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "description" nonEmptyString)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "image" (OptimizedDecoder.map (resolveUrl baseUrl) nonEmptyString))
                     |> OptimizedDecoder.andMap (OptimizedDecoder.succeed baseUrl)
             )
 
