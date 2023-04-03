@@ -2,6 +2,7 @@ module Api exposing (routes)
 
 import ApiRoute
 import DataSource exposing (DataSource)
+import Dict
 import Html exposing (Html)
 import Iso8601
 import Page.Articles.ArticleId_
@@ -9,6 +10,7 @@ import Page.Twilogs.Day_
 import Pages
 import Route exposing (Route(..))
 import Rss
+import Shared
 import Site
 import Sitemap
 import Time
@@ -113,13 +115,27 @@ makeSitemapEntries : DataSource (List Route) -> DataSource (List Sitemap.Entry)
 makeSitemapEntries allRoutesSource =
     let
         build route =
+            let
+                routeSource lastMod =
+                    DataSource.succeed
+                        { path = String.join "/" (Route.routeToPath route)
+                        , lastMod = Just lastMod
+                        }
+            in
             case route of
                 About ->
-                    DataSource.succeed { path = "about", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
-                        |> Just
+                    Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
 
                 Articles ->
-                    DataSource.succeed { path = "articles", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
+                    Shared.publicCmsArticles
+                        |> DataSource.andThen
+                            (\articles ->
+                                articles
+                                    |> List.head
+                                    |> Maybe.map (.revisedAt >> Iso8601.fromTime)
+                                    |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
+                                    |> routeSource
+                            )
                         |> Just
 
                 Articles__Draft ->
@@ -127,32 +143,38 @@ makeSitemapEntries allRoutesSource =
 
                 Articles__ArticleId_ routeParam ->
                     Page.Articles.ArticleId_.page.data routeParam
-                        |> DataSource.map
-                            (\data ->
-                                { path = Route.routeToPath route |> String.join "/"
-                                , lastMod = Just <| Iso8601.fromTime <| data.article.revisedAt
-                                }
-                            )
+                        |> DataSource.andThen (\data -> routeSource (Iso8601.fromTime data.article.revisedAt))
                         |> Just
 
                 Twilogs ->
-                    DataSource.succeed { path = "twilogs", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
+                    Shared.dailyTwilogsFromOldest
+                        |> DataSource.andThen
+                            (\dailyTwilogsFromOldest ->
+                                dailyTwilogsFromOldest
+                                    |> Dict.values
+                                    |> List.reverse
+                                    |> List.head
+                                    |> Maybe.andThen List.head
+                                    |> Maybe.map (\latestTwilog -> Iso8601.fromTime latestTwilog.createdAt)
+                                    |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
+                                    |> routeSource
+                            )
                         |> Just
 
                 Twilogs__Day_ routeParam ->
                     Page.Twilogs.Day_.page.data routeParam
-                        |> DataSource.map
+                        |> DataSource.andThen
                             (\data ->
-                                { path = Route.routeToPath route |> String.join "/"
-                                , -- TODO: set lastMod
-                                  lastMod = Nothing
-                                }
+                                data.twilogs
+                                    |> List.head
+                                    |> Maybe.map (\latestTwilog -> Iso8601.fromTime latestTwilog.createdAt)
+                                    |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
+                                    |> routeSource
                             )
                         |> Just
 
                 Index ->
-                    DataSource.succeed { path = "", lastMod = Just <| Iso8601.fromTime <| Pages.builtAt }
-                        |> Just
+                    Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
     in
     allRoutesSource
         |> DataSource.map (List.filterMap build)
