@@ -3,7 +3,7 @@
 Symbol font
 
 */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap");
 
 /*
 
@@ -36,7 +36,7 @@ footer img {
 
 a[target="_blank"]:not(.link-preview):not(.has-image)::after {
   content: "🗗";
-  font-family: 'Noto Sans Symbols 2', sans-serif;
+  font-family: "Noto Sans Symbols 2", sans-serif;
   margin-left: 2px;
   margin-right: 1px;
   width: 1em;
@@ -54,6 +54,14 @@ nav.meta {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+nav.prev-next-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0;
+  height: 1.5em;
 }
 
 /*
@@ -88,7 +96,13 @@ label.showless-button {
   text-align: center;
   cursor: pointer;
   /* body background color from sakura.css */
-  background: linear-gradient(to bottom, #f9f9f900, #f9f9f980 10%, #f9f9f9ff 30%, #f9f9f9ff);
+  background: linear-gradient(
+    to bottom,
+    #f9f9f900,
+    #f9f9f980 10%,
+    #f9f9f9ff 30%,
+    #f9f9f9ff
+  );
 }
 
 input[type="checkbox"].showless-toggle ~ label.showless-button::before {
@@ -142,7 +156,7 @@ Link Preview
 
 .link-preview table tr td small::after {
   content: "🗗";
-  font-family: 'Noto Sans Symbols 2', sans-serif;
+  font-family: "Noto Sans Symbols 2", sans-serif;
   margin-left: 2px;
   width: 1em;
   height: 1em;
@@ -182,7 +196,7 @@ Tweet-like style on top of Sakura.css
 /* In thread, tweets are rendered without gap, and only first and last children get rounded corners */
 .reply::before {
   content: "↳";
-  font-family: 'Noto Sans Symbols 2', sans-serif;
+  font-family: "Noto Sans Symbols 2", sans-serif;
   display: block;
   position: absolute;
   top: 0.5em;
@@ -191,7 +205,6 @@ Tweet-like style on top of Sakura.css
   height: 1em;
   color: #999;
 }
-
 
 /* tweets or retweets' headers */
 .tweet header {
@@ -218,7 +231,7 @@ Tweet-like style on top of Sakura.css
 /* retweet icon using noto sans symbol font */
 .tweet > .retweet-label::before {
   content: "🔁";
-  font-family: 'Noto Sans Symbols 2', sans-serif;
+  font-family: "Noto Sans Symbols 2", sans-serif;
   margin-right: 5px;
 }
 
@@ -253,7 +266,8 @@ Tweet-like style on top of Sakura.css
 }
 
 /* list container inside tweets or retweets' text body; only slightly gapped */
-.tweet .body ul,.tweet .body ol {
+.tweet .body ul,
+.tweet .body ol {
   margin: 5px 0;
 }
 
@@ -273,7 +287,7 @@ Tweet-like style on top of Sakura.css
 
 /* Cancel all new-tab links styles within .tweet */
 .tweet a[target="_blank"]::after {
-  content: unset!important;
+  content: unset !important;
 }
 
 /* Subtle underline on links of status URLs */
@@ -293,7 +307,7 @@ Tweet-like style on top of Sakura.css
   overflow: hidden;
 }
 
-.tweet .media-grid > *:last-child:nth-child(2n+1) {
+.tweet .media-grid > *:last-child:nth-child(2n + 1) {
   grid-column-end: span 2;
 }
 /* Link in .media-grid must not have underline and margins */
@@ -320,14 +334,14 @@ Tweet-like style on top of Sakura.css
 }
 .tweet .media-grid figure.video-thumbnail::before {
   content: "▶";
-  font-family: 'Noto Sans Symbols 2', sans-serif;
+  font-family: "Noto Sans Symbols 2", sans-serif;
   position: absolute;
   display: block;
   width: 100%;
   height: 100%;
   font-size: 3em;
   color: #fff;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   padding-top: 0.2em;
   padding-left: 0.4em;
   box-sizing: border-box;
