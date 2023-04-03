@@ -1,5 +1,6 @@
-module Page.Twilogs exposing (Data, Model, Msg, page, showTwilogsUpToDays, twilogDailySection, twilogsOfTheDay)
+module Page.Twilogs exposing (Data, Model, Msg, listUrlsForPreview, page, showTwilogsUpToDays, twilogDailySection, twilogsOfTheDay)
 
+import Browser.Navigation
 import DataSource exposing (DataSource)
 import Date
 import Dict exposing (Dict)
@@ -8,12 +9,14 @@ import Head.Seo as Seo
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, href, src, target)
 import LinkPreview
+import List.Extra
 import Markdown
-import Page exposing (Page, StaticPayload)
+import Page exposing (PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Regex exposing (Regex)
 import Route
 import Shared exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..), seoBase)
+import Task
 import View exposing (View)
 
 
@@ -21,21 +24,26 @@ type alias Model =
     ()
 
 
-type alias Msg =
-    Never
+type Msg
+    = InitiateLinkPreviewPopulation
 
 
 type alias RouteParams =
     {}
 
 
-page : Page RouteParams Data
+page : PageWithState RouteParams Data Model Msg
 page =
     Page.single
         { head = head
         , data = data
         }
-        |> Page.buildNoState { view = view }
+        |> Page.buildWithSharedState
+            { view = view
+            , init = \_ _ _ -> ( (), Task.perform (\() -> InitiateLinkPreviewPopulation) (Task.succeed ()) )
+            , update = update
+            , subscriptions = \_ _ _ _ _ -> Sub.none
+            }
 
 
 type alias Data =
@@ -59,12 +67,75 @@ head _ =
         |> Seo.website
 
 
+update :
+    PageUrl
+    -> Maybe Browser.Navigation.Key
+    -> Shared.Model
+    -> StaticPayload Data RouteParams
+    -> Msg
+    -> Model
+    -> ( Model, Cmd Msg, Maybe Shared.Msg )
+update _ _ shared static msg model =
+    case msg of
+        InitiateLinkPreviewPopulation ->
+            ( model
+            , Cmd.none
+            , static.sharedData.dailyTwilogs
+                |> Dict.keys
+                |> List.reverse
+                |> List.take daysToPeek
+                |> listUrlsForPreview shared static
+            )
+
+
+listUrlsForPreview : Shared.Model -> StaticPayload templateData routeParams -> List RataDie -> Maybe Shared.Msg
+listUrlsForPreview { links } { sharedData } rataDiesToPeek =
+    case listUrlsForPreviewHelp links rataDiesToPeek sharedData.dailyTwilogs of
+        [] ->
+            Nothing
+
+        urls ->
+            Just (Shared.SharedMsg (Shared.Req_LinkPreview urls))
+
+
+listUrlsForPreviewHelp : Dict String LinkPreview.Metadata -> List RataDie -> Dict RataDie (List Twilog) -> List String
+listUrlsForPreviewHelp links rataDies dailyTwilogsFromOldest =
+    rataDies
+        |> List.concatMap
+            (\rataDie ->
+                Dict.get rataDie dailyTwilogsFromOldest
+                    |> Maybe.withDefault []
+                    |> List.concatMap
+                        (\twilog ->
+                            (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
+                                |> List.filterMap
+                                    (\tcoUrl ->
+                                        -- list not-yet previewed URLs
+                                        case Dict.get tcoUrl.expandedUrl links of
+                                            Just _ ->
+                                                Nothing
+
+                                            Nothing ->
+                                                -- Do not list twitter-internal URLs since they are likely quote/reply permalinks
+                                                if String.startsWith "https://twitter.com" tcoUrl.expandedUrl then
+                                                    Nothing
+
+                                                else
+                                                    Just tcoUrl.expandedUrl
+                                    )
+                        )
+                    |> List.Extra.unique
+            )
+        |> List.Extra.unique
+
+
 view :
     Maybe PageUrl
     -> Shared.Model
+    -> Model
     -> StaticPayload Data RouteParams
     -> View Msg
-view _ shared static =
+view _ shared _ static =
     { title = "Twilog"
     , body =
         [ h1 [] [ text "Twilog" ]
@@ -77,8 +148,12 @@ view _ shared static =
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（予定）
 """
         ]
-            ++ showTwilogsUpToDays 10 shared static.sharedData.dailyTwilogs
+            ++ showTwilogsUpToDays daysToPeek shared static.sharedData.dailyTwilogs
     }
+
+
+daysToPeek =
+    10
 
 
 showTwilogsUpToDays : Int -> Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
@@ -156,10 +231,12 @@ aTwilog links twilog =
                     |> removeQuoteUrl retweet.quote
                     |> removeMediaUrls retweet.extendedEntitiesMedia
                     |> removeMediaUrls twilog.extendedEntitiesMedia
-                    |> replaceTcoUrls retweet.entitiesTcoUrl
-                    |> replaceTcoUrls twilog.entitiesTcoUrl
+                    |> replaceTcoUrls links retweet.entitiesTcoUrl
+                    |> replaceTcoUrls links twilog.entitiesTcoUrl
                     |> autoLinkedMarkdown
                     |> appendQuote retweet.quote
+                    -- Only show link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
+                    |> appendLinkPreviews links retweet.entitiesTcoUrl
                     |> div [ class "body" ]
                 , case retweet.extendedEntitiesMedia of
                     [] ->
@@ -186,9 +263,10 @@ aTwilog links twilog =
                 , twilog.text
                     |> removeQuoteUrl twilog.quote
                     |> removeMediaUrls twilog.extendedEntitiesMedia
-                    |> replaceTcoUrls twilog.entitiesTcoUrl
+                    |> replaceTcoUrls links twilog.entitiesTcoUrl
                     |> autoLinkedMarkdown
                     |> appendQuote twilog.quote
+                    |> appendLinkPreviews links twilog.entitiesTcoUrl
                     |> div [ class "body" ]
                 , mediaGrid twilog
                 , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
@@ -219,8 +297,8 @@ removeMediaUrls media rawText =
     List.foldl (\{ url } -> String.replace url "") rawText media
 
 
-replaceTcoUrls : List TcoUrl -> String -> String
-replaceTcoUrls tcoUrls rawText =
+replaceTcoUrls : Dict String LinkPreview.Metadata -> List TcoUrl -> String -> String
+replaceTcoUrls links tcoUrls rawText =
     List.foldl
         (\{ url, expandedUrl } acc ->
             if Regex.contains tcoUrlInTweetRegex expandedUrl then
@@ -266,6 +344,47 @@ appendQuote maybeQuote htmls =
 
         Nothing ->
             htmls
+
+
+appendLinkPreviews : Dict String LinkPreview.Metadata -> List TcoUrl -> List (Html msg) -> List (Html msg)
+appendLinkPreviews links entitiesTcoUrl htmls =
+    let
+        linkPreviews =
+            entitiesTcoUrl
+                |> List.Extra.uniqueBy .expandedUrl
+                |> List.filterMap (\{ expandedUrl } -> Dict.get expandedUrl links)
+    in
+    if List.isEmpty linkPreviews then
+        htmls
+
+    else
+        htmls
+            ++ [ div [ class "link-previews" ]
+                    (List.map
+                        (\{ title, description, imageUrl, canonicalUrl } ->
+                            a [ target "_blank", href canonicalUrl ]
+                                [ div [ class "link-preview" ]
+                                    [ case imageUrl of
+                                        Just imageUrl_ ->
+                                            img [ src imageUrl_ ] []
+
+                                        Nothing ->
+                                            text ""
+                                    , div []
+                                        [ header [] [ strong [] [ text title ] ]
+                                        , case description of
+                                            Just description_ ->
+                                                p [] [ text description_ ]
+
+                                            Nothing ->
+                                                text ""
+                                        ]
+                                    ]
+                                ]
+                        )
+                        linkPreviews
+                    )
+               ]
 
 
 autoLinkedMarkdown : String -> List (Html msg)
