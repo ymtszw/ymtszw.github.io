@@ -349,7 +349,8 @@ Tweet-like style on top of Sakura.css
 
 .tweet .link-preview {
   display: grid;
-  grid-template-rows: minmax(auto, 200px) 1fr;
+  grid-template-columns: minmax(auto, calc(200px * 16 / 9)) 1fr;
+  margin: 5px 0;
   /* Subtle border */
   border: 1px solid #eaeaea;
   border-radius: 10px;
@@ -358,13 +359,13 @@ Tweet-like style on top of Sakura.css
 .tweet .link-preview img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 .tweet .link-preview div {
   padding: 5px 10px;
 }
 .tweet .link-preview div:not(:first-child) {
-  border-top: 1px solid #eaeaea;
+  border-left: 1px solid #eaeaea;
 }
 .tweet .link-preview div header {
   margin: 5px 0;

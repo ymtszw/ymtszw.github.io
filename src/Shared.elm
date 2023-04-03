@@ -797,8 +797,14 @@ sitemap =
 -----------------
 
 
+makeTitle : String -> String
 makeTitle pageTitle =
-    pageTitle ++ " | " ++ seoBase.siteName
+    case pageTitle of
+        "" ->
+            seoBase.siteName
+
+        nonEmpty ->
+            nonEmpty ++ " | " ++ seoBase.siteName
 
 
 posixToYmd : Time.Posix -> String
