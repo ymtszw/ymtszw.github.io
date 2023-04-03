@@ -42,6 +42,7 @@ import Head.Seo
 import Html exposing (Html)
 import Html.Attributes
 import Iso8601
+import LinkPreview
 import List.Extra
 import Markdown
 import OptimizedDecoder
@@ -52,6 +53,7 @@ import Pages.Url
 import Path exposing (Path)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
+import Task
 import Time exposing (Month(..))
 import View exposing (View)
 
@@ -128,10 +130,13 @@ type alias CmsImage =
 
 type SharedMsg
     = NoOp
+    | Req_LinkPreview (List String)
+    | Res_LinkPreview (List String) (Result String ( String, LinkPreview.Metadata ))
 
 
 type alias Model =
     { showMobileMenu : Bool
+    , links : Dict String LinkPreview.Metadata
     }
 
 
@@ -150,7 +155,7 @@ init :
             }
     -> ( Model, Cmd Msg )
 init _ _ _ =
-    ( { showMobileMenu = False }
+    ( { showMobileMenu = False, links = Dict.empty }
     , Cmd.none
     )
 
@@ -161,8 +166,33 @@ update msg model =
         OnPageChange _ ->
             ( { model | showMobileMenu = False }, Cmd.none )
 
+        SharedMsg (Req_LinkPreview (url :: urls)) ->
+            ( model, requestLinkPreviewSequentially urls url )
+
+        SharedMsg (Res_LinkPreview remainingUrls result) ->
+            ( case result of
+                Ok ( url, metadata ) ->
+                    { model | links = Dict.insert url metadata model.links }
+
+                Err _ ->
+                    model
+            , case remainingUrls of
+                [] ->
+                    Cmd.none
+
+                url :: urls ->
+                    requestLinkPreviewSequentially urls url
+            )
+
         SharedMsg _ ->
             ( model, Cmd.none )
+
+
+requestLinkPreviewSequentially : List String -> String -> Cmd Msg
+requestLinkPreviewSequentially urls url =
+    LinkPreview.getMetadataOnDemand { errOnFail = False } url
+        |> Task.attempt (Res_LinkPreview urls)
+        |> Cmd.map SharedMsg
 
 
 subscriptions : Path -> Model -> Sub Msg
