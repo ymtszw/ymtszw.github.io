@@ -39,6 +39,7 @@ import DataSource.Http
 import Date
 import Dict exposing (Dict)
 import Head.Seo
+import Helper exposing (nonEmptyString)
 import Html exposing (Html)
 import Html.Attributes
 import Iso8601
@@ -190,7 +191,7 @@ update msg model =
 
 requestLinkPreviewSequentially : List String -> String -> Cmd Msg
 requestLinkPreviewSequentially urls url =
-    LinkPreview.getMetadataOnDemand { errOnFail = False } url
+    LinkPreview.getMetadataOnDemand url
         |> Task.attempt (Res_LinkPreview urls)
         |> Cmd.map SharedMsg
 
@@ -627,18 +628,6 @@ boolString =
 
                     _ ->
                         OptimizedDecoder.succeed False
-            )
-
-
-nonEmptyString =
-    OptimizedDecoder.string
-        |> OptimizedDecoder.andThen
-            (\s ->
-                if String.isEmpty s then
-                    OptimizedDecoder.fail "String is empty"
-
-                else
-                    OptimizedDecoder.succeed s
             )
 
 
