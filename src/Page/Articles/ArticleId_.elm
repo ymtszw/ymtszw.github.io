@@ -9,11 +9,13 @@ import Html
 import Html.Attributes
 import Iso8601
 import LinkPreview
+import List.Extra
 import Markdown
 import OptimizedDecoder
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
-import Shared exposing (seoBase)
+import Route
+import Shared exposing (CmsArticleMetadata, seoBase)
 import Time
 import View exposing (View)
 
@@ -33,6 +35,8 @@ type alias RouteParams =
 type alias Data =
     { article : CmsArticle
     , links : Dict String LinkPreview.Metadata
+    , prevArticleMeta : Maybe CmsArticleMetadata
+    , nextArticleMeta : Maybe CmsArticleMetadata
     }
 
 
@@ -74,7 +78,26 @@ data routeParams =
             |> OptimizedDecoder.andThen cmsArticleBodyDecoder
         )
         |> DataSource.andThen
-            (\cmsArticle -> cmsArticle.body.links |> LinkPreview.collectMetadataOnBuild { errOnFail = False } |> DataSource.map (Data cmsArticle))
+            (\currentArticle ->
+                currentArticle.body.links
+                    |> LinkPreview.collectMetadataOnBuild { errOnFail = False }
+                    |> DataSource.andThen
+                        (\links ->
+                            Shared.publicCmsArticles
+                                |> DataSource.map
+                                    (\cmsArticles ->
+                                        let
+                                            ( next, prev ) =
+                                                findNextAndPrevArticleMeta currentArticle cmsArticles
+                                        in
+                                        { article = currentArticle
+                                        , links = links
+                                        , prevArticleMeta = prev
+                                        , nextArticleMeta = next
+                                        }
+                                    )
+                        )
+            )
 
 
 cmsArticleBodyDecoder : (Markdown.DecodedBody msg -> String -> a) -> OptimizedDecoder.Decoder a
@@ -96,6 +119,17 @@ cmsArticleBodyDecoder cont =
             |> OptimizedDecoder.andMap (OptimizedDecoder.field "markdown" markdownDecoder)
             |> OptimizedDecoder.andMap (OptimizedDecoder.succeed "markdown")
         ]
+
+
+findNextAndPrevArticleMeta : CmsArticle -> List CmsArticleMetadata -> ( Maybe CmsArticleMetadata, Maybe CmsArticleMetadata )
+findNextAndPrevArticleMeta currentArticle cmsArticlesFromLatest =
+    case List.Extra.splitWhen (\a -> a.contentId == currentArticle.contentId) cmsArticlesFromLatest of
+        Just ( newer, _ :: older ) ->
+            ( List.Extra.last newer, List.head older )
+
+        _ ->
+            -- Entry from latest, if query doesn't match'
+            ( Nothing, List.head cmsArticlesFromLatest )
 
 
 head :
@@ -125,7 +159,8 @@ view :
 view _ _ static =
     { title = static.data.article.title
     , body =
-        [ Html.header []
+        [ prevNextNavigation static.data
+        , Html.header []
             [ Html.small [] <|
                 Html.text ("公開: " ++ Shared.formatPosix static.data.article.publishedAt)
                     :: (if static.data.article.revisedAt /= static.data.article.publishedAt then
@@ -136,6 +171,7 @@ view _ _ static =
                        )
             ]
         , renderArticle { draft = False } static.data.links static.data.article
+        , prevNextNavigation static.data
         ]
     }
 
@@ -166,3 +202,20 @@ renderArticle conf links contents =
                 else
                     contents.body.htmlWithLinkPreview conf links
                )
+
+
+prevNextNavigation : Data -> Html.Html msg
+prevNextNavigation data_ =
+    let
+        toLink maybeArticleMeta child =
+            case maybeArticleMeta of
+                Just articleMeta ->
+                    Route.link (Route.Articles__ArticleId_ { articleId = articleMeta.contentId }) [] [ Html.strong [] [ child ] ]
+
+                Nothing ->
+                    child
+    in
+    Html.nav [ Html.Attributes.class "prev-next-navigation" ]
+        [ toLink data_.prevArticleMeta <| Html.text "← 前"
+        , toLink data_.nextArticleMeta <| Html.text "次 →"
+        ]
