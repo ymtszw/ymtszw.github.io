@@ -153,12 +153,12 @@ view :
     -> Shared.Model
     -> StaticPayload Data RouteParams
     -> View Msg
-view _ _ static =
+view _ shared static =
     { title = "Twilogs of " ++ static.routeParams.day
     , body =
         [ -- show navigation links to previous and next days
           prevNextNavigation static.data
-        , Page.Twilogs.twilogDailySection static.data.rataDie static.data.twilogs
+        , Page.Twilogs.twilogDailySection shared static.data.rataDie static.data.twilogs
         , prevNextNavigation static.data
         ]
     }

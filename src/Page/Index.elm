@@ -57,7 +57,7 @@ view :
     -> Shared.Model
     -> StaticPayload Data RouteParams
     -> View Msg
-view _ _ static =
+view _ shared static =
     { title = "Index"
     , body =
         [ Html.h1 []
@@ -69,7 +69,7 @@ view _ _ static =
           case List.reverse (Dict.values static.sharedData.dailyTwilogs) of
             latestTwilogs :: _ ->
                 latestTwilogs
-                    |> Page.Twilogs.twilogsOfTheDay
+                    |> Page.Twilogs.twilogsOfTheDay shared
                     |> showless "latest-twilogs"
 
             [] ->

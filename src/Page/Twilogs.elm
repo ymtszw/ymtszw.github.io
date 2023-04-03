@@ -7,6 +7,7 @@ import Head
 import Head.Seo as Seo
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, href, src, target)
+import LinkPreview
 import Markdown
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
@@ -63,7 +64,7 @@ view :
     -> Shared.Model
     -> StaticPayload Data RouteParams
     -> View Msg
-view _ _ static =
+view _ shared static =
     { title = "Twilog"
     , body =
         [ h1 [] [ text "Twilog" ]
@@ -76,51 +77,52 @@ view _ _ static =
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（予定）
 """
         ]
-            ++ showTwilogsUpToDays 31 static.sharedData.dailyTwilogs
+            ++ showTwilogsUpToDays 10 shared static.sharedData.dailyTwilogs
     }
 
 
-showTwilogsUpToDays : Int -> Dict RataDie (List Twilog) -> List (Html msg)
-showTwilogsUpToDays days dailyTwilogs =
+showTwilogsUpToDays : Int -> Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
+showTwilogsUpToDays days shared dailyTwilogs =
     dailyTwilogs
         |> Dict.foldr
             (\rataDie twilogs acc ->
                 if List.length acc < days then
-                    twilogDailySection rataDie twilogs :: acc
+                    twilogDailySection shared rataDie twilogs :: acc
 
                 else
+                    -- TODO Link to old dates
                     acc
             )
             []
         |> List.reverse
 
 
-twilogDailySection : RataDie -> List Twilog -> Html msg
-twilogDailySection rataDie twilogs =
+twilogDailySection : Shared.Model -> RataDie -> List Twilog -> Html msg
+twilogDailySection shared rataDie twilogs =
     let
         date =
             Date.fromRataDie rataDie
     in
     section []
         [ h3 [] [ Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
-        , twilogsOfTheDay twilogs
+        , twilogsOfTheDay shared twilogs
         ]
 
 
-twilogsOfTheDay : List Twilog -> Html msg
-twilogsOfTheDay twilogs =
+twilogsOfTheDay : Shared.Model -> List Twilog -> Html msg
+twilogsOfTheDay shared twilogs =
     twilogs
         -- Order reversed in index page; newest first
         |> List.reverse
-        |> List.map threadAwareTwilogs
+        |> List.map (threadAwareTwilogs shared.links)
         |> div []
 
 
-threadAwareTwilogs : Twilog -> Html msg
-threadAwareTwilogs twilog =
+threadAwareTwilogs : Dict String LinkPreview.Metadata -> Twilog -> Html msg
+threadAwareTwilogs links twilog =
     case twilog.replies of
         [] ->
-            aTwilog twilog
+            aTwilog links twilog
 
         threads ->
             let
@@ -128,17 +130,18 @@ threadAwareTwilogs twilog =
                     [ div [ class "reply" ] <|
                         case twilogInThread.replies of
                             [] ->
-                                [ aTwilog twilogInThread ]
+                                [ aTwilog links twilogInThread ]
 
                             more ->
-                                aTwilog twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
+                                aTwilog links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
                     ]
             in
-            div [ class "thread" ] <| aTwilog twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
+            div [ class "thread" ] <| aTwilog links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
 
 
-aTwilog : Twilog -> Html msg
-aTwilog twilog =
+aTwilog : Dict String LinkPreview.Metadata -> Twilog -> Html msg
+aTwilog links twilog =
+    -- TODO: show link-previews when links are populated at runtime
     div [ class "tweet" ] <|
         case twilog.retweet of
             Just retweet ->
