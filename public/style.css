@@ -88,13 +88,12 @@ label.showless-button {
   text-align: center;
   cursor: pointer;
   /* body background color from sakura.css */
-  background: linear-gradient(to bottom, #f9f9f900, #f9f9f980 20%, #f9f9f9ff);
+  background: linear-gradient(to bottom, #f9f9f900, #f9f9f980 10%, #f9f9f9ff 30%, #f9f9f9ff);
 }
 
 input[type="checkbox"].showless-toggle ~ label.showless-button::before {
   content: "🔽 Show All";
   line-height: 50px;
-  background: #f9f9f9cc;
 }
 
 input[type="checkbox"].showless-toggle:checked ~ label.showless-button::before {
