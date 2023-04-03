@@ -146,20 +146,7 @@ linkPreview meta =
         [ Element "table" [] <|
             [ Element "tr" [] <|
                 [ Element "td" [] <|
-                    [ case meta.title of
-                        Just title ->
-                            Element "strong" [] <|
-                                [ case meta.iconUrl of
-                                    Just iconUrl ->
-                                        Element "img" [ ( "src", iconUrl ) ] []
-
-                                    Nothing ->
-                                        Text ""
-                                , Text title
-                                ]
-
-                        Nothing ->
-                            Text ""
+                    [ Element "strong" [] [ Text meta.title ]
                     , case meta.description of
                         Just desc ->
                             Element "p" [] [ Text desc ]

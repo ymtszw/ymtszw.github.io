@@ -179,7 +179,7 @@ update _ _ _ _ msg m =
 
                     nonEmpty ->
                         nonEmpty
-                            |> List.map (LinkPreview.getMetadataOnDemand { errOnFail = True } >> Task.attempt Res_getMetadata)
+                            |> List.map (LinkPreview.getMetadataOnDemand >> Task.attempt Res_getMetadata)
                             |> Cmd.batch
                 ]
             )

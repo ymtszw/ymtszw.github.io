@@ -80,7 +80,7 @@ data routeParams =
         |> DataSource.andThen
             (\currentArticle ->
                 currentArticle.body.links
-                    |> LinkPreview.collectMetadataOnBuild { errOnFail = False }
+                    |> LinkPreview.collectMetadataOnBuild
                     |> DataSource.andThen
                         (\links ->
                             Shared.publicCmsArticles

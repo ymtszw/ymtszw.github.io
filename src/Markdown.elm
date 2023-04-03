@@ -360,20 +360,7 @@ linkPreview : LinkPreview.Metadata -> Markdown.Block.Block
 linkPreview meta =
     Markdown.Block.BlockQuote
         [ Markdown.Block.Table [] <|
-            [ [ [ case meta.title of
-                    Just title ->
-                        Markdown.Block.Strong <|
-                            [ case meta.iconUrl of
-                                Just iconUrl ->
-                                    Markdown.Block.Image iconUrl Nothing []
-
-                                Nothing ->
-                                    Markdown.Block.Text ""
-                            , Markdown.Block.Text title
-                            ]
-
-                    Nothing ->
-                        Markdown.Block.Text ""
+            [ [ [ Markdown.Block.Strong [ Markdown.Block.Text meta.title ]
                 , Markdown.Block.HtmlInline <|
                     Markdown.Block.HtmlElement "div" [] <|
                         case meta.description of
