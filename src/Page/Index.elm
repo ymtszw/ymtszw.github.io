@@ -1,16 +1,18 @@
 module Page.Index exposing (Data, Model, Msg, cmsArticlePreview, page)
 
+import Browser.Navigation
 import DataSource exposing (DataSource)
 import Dict
 import Head
 import Head.Seo as Seo
 import Html
 import Html.Attributes
-import Page exposing (Page, StaticPayload)
+import Page exposing (PageWithState, StaticPayload)
 import Page.Twilogs
 import Pages.PageUrl exposing (PageUrl)
 import Route
 import Shared exposing (seoBase)
+import Task
 import View exposing (View)
 
 
@@ -18,8 +20,8 @@ type alias Model =
     ()
 
 
-type alias Msg =
-    Never
+type Msg
+    = InitiateLinkPreviewPopulation
 
 
 type alias RouteParams =
@@ -30,18 +32,44 @@ type alias Data =
     ()
 
 
-page : Page RouteParams Data
+page : PageWithState RouteParams Data Model Msg
 page =
     Page.single
         { head = head
         , data = data
         }
-        |> Page.buildNoState { view = view }
+        |> Page.buildWithSharedState
+            { view = view
+            , init = \_ _ _ -> ( (), Task.perform (\() -> InitiateLinkPreviewPopulation) (Task.succeed ()) )
+            , update = update
+            , subscriptions = \_ _ _ _ _ -> Sub.none
+            }
 
 
 data : DataSource Data
 data =
     DataSource.succeed ()
+
+
+update :
+    PageUrl
+    -> Maybe Browser.Navigation.Key
+    -> Shared.Model
+    -> StaticPayload Data RouteParams
+    -> Msg
+    -> Model
+    -> ( Model, Cmd Msg, Maybe Shared.Msg )
+update _ _ shared static msg model =
+    case msg of
+        InitiateLinkPreviewPopulation ->
+            ( model
+            , Cmd.none
+            , static.sharedData.dailyTwilogs
+                |> Dict.keys
+                |> List.reverse
+                |> List.take 1
+                |> Page.Twilogs.listUrlsForPreviewBulk shared static
+            )
 
 
 head :
@@ -55,10 +83,11 @@ head _ =
 view :
     Maybe PageUrl
     -> Shared.Model
+    -> Model
     -> StaticPayload Data RouteParams
     -> View Msg
-view _ shared static =
-    { title = "Index"
+view _ shared _ static =
+    { title = ""
     , body =
         [ Html.h1 []
             [ Html.img [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
@@ -149,7 +178,7 @@ externalLink url text_ =
     Html.a [ Html.Attributes.href url, Html.Attributes.target "_blank" ] [ Html.text text_ ]
 
 
-cmsArticlePreview : Shared.CmsArticleMetadata -> Html.Html Msg
+cmsArticlePreview : Shared.CmsArticleMetadata -> Html.Html msg
 cmsArticlePreview meta =
     Route.link (Route.Articles__ArticleId_ { articleId = meta.contentId }) [ Html.Attributes.class "link-preview" ] <|
         [ Html.blockquote [] <|

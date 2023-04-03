@@ -1,5 +1,6 @@
 module Page.Twilogs.Day_ exposing (Data, Model, Msg, page)
 
+import Browser.Navigation
 import DataSource exposing (DataSource)
 import Date
 import Dict exposing (Dict)
@@ -8,11 +9,12 @@ import Head.Seo as Seo
 import Html exposing (Html, nav, strong, text)
 import Html.Attributes exposing (class)
 import List.Extra
-import Page exposing (Page, StaticPayload)
+import Page exposing (PageWithState, StaticPayload)
 import Page.Twilogs
 import Pages.PageUrl exposing (PageUrl)
 import Route
 import Shared exposing (RataDie, Twilog, seoBase)
+import Task
 import View exposing (View)
 
 
@@ -20,8 +22,8 @@ type alias Model =
     ()
 
 
-type alias Msg =
-    Never
+type Msg
+    = InitiateLinkPreviewPopulation
 
 
 type alias RouteParams =
@@ -36,14 +38,19 @@ type alias Data =
     }
 
 
-page : Page RouteParams Data
+page : PageWithState RouteParams Data Model Msg
 page =
     Page.prerender
         { head = head
         , routes = routes
         , data = data
         }
-        |> Page.buildNoState { view = view }
+        |> Page.buildWithSharedState
+            { view = view
+            , init = \_ _ _ -> ( (), Task.perform (\() -> InitiateLinkPreviewPopulation) (Task.succeed ()) )
+            , update = update
+            , subscriptions = \_ _ _ _ _ -> Sub.none
+            }
 
 
 routes : DataSource (List RouteParams)
@@ -130,14 +137,31 @@ findPrevRataDie today dailyTwilogsFromOldest =
             Nothing
 
 
+update :
+    PageUrl
+    -> Maybe Browser.Navigation.Key
+    -> Shared.Model
+    -> StaticPayload Data RouteParams
+    -> Msg
+    -> Model
+    -> ( Model, Cmd Msg, Maybe Shared.Msg )
+update _ _ shared static msg model =
+    case msg of
+        InitiateLinkPreviewPopulation ->
+            ( model
+            , Cmd.none
+            , Page.Twilogs.listUrlsForPreviewSingle shared static.data.twilogs
+            )
+
+
 head :
     StaticPayload Data RouteParams
     -> List Head.Tag
 head static =
     Seo.summaryLarge
         { seoBase
-            | title = Shared.makeTitle ("Twilogs of " ++ static.routeParams.day)
-            , description = "Twilogs of " ++ static.routeParams.day
+            | title = Shared.makeTitle (static.routeParams.day ++ "のTwilog")
+            , description = static.routeParams.day ++ "のTwilog"
         }
         |> Seo.article
             { tags = []
@@ -151,10 +175,11 @@ head static =
 view :
     Maybe PageUrl
     -> Shared.Model
+    -> Model
     -> StaticPayload Data RouteParams
     -> View Msg
-view _ shared static =
-    { title = "Twilogs of " ++ static.routeParams.day
+view _ shared _ static =
+    { title = static.routeParams.day ++ "のTwilog"
     , body =
         [ -- show navigation links to previous and next days
           prevNextNavigation static.data
