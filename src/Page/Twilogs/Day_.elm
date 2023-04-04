@@ -185,6 +185,7 @@ view _ shared _ static =
           prevNextNavigation static.data
         , Page.Twilogs.twilogDailySection shared static.data.rataDie static.data.twilogs
         , prevNextNavigation static.data
+        , Page.Twilogs.linksByMonths (Just (Date.fromRataDie static.data.rataDie)) static.sharedData.dailyTwilogs
         ]
     }
 

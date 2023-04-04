@@ -383,3 +383,41 @@ Tweet-like style on top of Sakura.css
   /* change background color slightly, so that user can recognize links */
   background: #f5f5f5;
 }
+
+/* Twilog archive menu by year-month.
+
+Each year-month makes details container with year-month text in summary,
+and a list of available days in the body.
+*/
+nav.twilog-archive-navigation {
+  margin: 5px 0;
+}
+
+nav.twilog-archive-navigation details {
+  margin: 5px 0;
+}
+
+nav.twilog-archive-navigation details summary {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #4a4a4a;
+  cursor: pointer;
+}
+
+nav.twilog-archive-navigation ul {
+  margin: 0;
+  padding: 5px;
+  list-style-position: inside;
+  font-size: 0.9em;
+}
+nav.twilog-archive-navigation ul li {
+  margin: 0;
+  padding: 0;
+}
+/* Fancy list marker for twilog archive menu items */
+nav.twilog-archive-navigation ul li::marker {
+  content: "📅";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  color: #999;
+  letter-spacing: 5px;
+}

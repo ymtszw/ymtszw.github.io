@@ -1,13 +1,13 @@
-module Page.Twilogs exposing (Data, Model, Msg, listUrlsForPreviewBulk, listUrlsForPreviewSingle, page, showTwilogsUpToDays, twilogDailySection, twilogsOfTheDay)
+module Page.Twilogs exposing (Data, Model, Msg, linksByMonths, listUrlsForPreviewBulk, listUrlsForPreviewSingle, page, showTwilogsUpToDays, twilogDailySection, twilogsOfTheDay)
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
-import Date
+import Date exposing (Date)
 import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, href, src, target)
+import Html.Attributes exposing (alt, attribute, class, classList, href, src, target)
 import LinkPreview
 import List.Extra
 import Markdown
@@ -174,6 +174,7 @@ view _ shared _ static =
 """
         ]
             ++ showTwilogsUpToDays daysToPeek shared static.sharedData.dailyTwilogs
+            ++ [ linksByMonths Nothing static.sharedData.dailyTwilogs ]
     }
 
 
@@ -490,3 +491,76 @@ appendMediaGrid status htmls =
                             text ""
             in
             htmls ++ [ div [ class "media-grid" ] <| List.map aMedia nonEmpty ]
+
+
+linksByMonths : Maybe Date -> Dict RataDie twilogs -> Html msg
+linksByMonths maybeOpenedDate dailyTwilogsFromOldest =
+    let
+        datesGroupedByYearMonthFromNewest =
+            Dict.keys dailyTwilogsFromOldest
+                -- Traverse from oldest
+                |> List.foldl
+                    (\rataDie acc ->
+                        let
+                            date =
+                                Date.fromRataDie rataDie
+
+                            yearMonth =
+                                ( Date.year date, Date.monthNumber date )
+                        in
+                        Dict.update yearMonth
+                            (\maybeDates ->
+                                case maybeDates of
+                                    Nothing ->
+                                        Just [ date ]
+
+                                    Just dates ->
+                                        -- Cons from oldest to newest
+                                        Just (date :: dates)
+                            )
+                            acc
+                    )
+                    Dict.empty
+                -- Here Dict -> List conversion makes the resulting list oldest-first again
+                |> Dict.toList
+                |> List.reverse
+
+        openedYearMonth =
+            case maybeOpenedDate of
+                Nothing ->
+                    case datesGroupedByYearMonthFromNewest of
+                        [] ->
+                            ( 2023, 4 )
+
+                        ( yearMonth, _ ) :: _ ->
+                            yearMonth
+
+                Just date ->
+                    ( Date.year date, Date.monthNumber date )
+    in
+    datesGroupedByYearMonthFromNewest
+        |> List.map
+            (\( ( year, monthNum ), dates ) ->
+                details
+                    [ if ( year, monthNum ) == openedYearMonth then
+                        attribute "open" ""
+
+                      else
+                        classList []
+                    ]
+                    [ summary [] [ text <| String.fromInt year ++ "/" ++ String.padLeft 2 '0' (String.fromInt monthNum) ]
+                    , dates
+                        |> List.map
+                            (\date ->
+                                li []
+                                    [ if Just date == maybeOpenedDate then
+                                        text <| Date.format "yyyy/MM/dd (E)" date ++ " ◀"
+
+                                      else
+                                        Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ]
+                                    ]
+                            )
+                        |> ul []
+                    ]
+            )
+        |> nav [ class "twilog-archive-navigation" ]
