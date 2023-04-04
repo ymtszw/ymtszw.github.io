@@ -191,7 +191,8 @@ update msg model =
 
 requestLinkPreviewSequentially : List String -> String -> Cmd Msg
 requestLinkPreviewSequentially urls url =
-    LinkPreview.getMetadataOnDemand url
+    url
+        |> LinkPreview.getMetadataOnDemand
         |> Task.attempt (Res_LinkPreview urls)
         |> Cmd.map SharedMsg
 

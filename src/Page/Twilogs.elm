@@ -332,14 +332,14 @@ replaceTcoUrls tcoUrls rawText =
                 acc
 
             else
-                String.replace url ("[" ++ shortenRawUrl expandedUrl ++ "](" ++ expandedUrl ++ ")") acc
+                String.replace url ("[" ++ makeDisplayUrl expandedUrl ++ "](" ++ expandedUrl ++ ")") acc
         )
         rawText
         tcoUrls
 
 
-shortenRawUrl : String -> String
-shortenRawUrl rawUrl =
+makeDisplayUrl : String -> String
+makeDisplayUrl rawUrl =
     if String.length rawUrl > 40 then
         (rawUrl
             |> String.left 40
@@ -350,6 +350,8 @@ shortenRawUrl rawUrl =
 
     else
         rawUrl
+            |> String.replace "https://" ""
+            |> String.replace "http://" ""
 
 
 appendQuote : Maybe Quote -> List (Html msg) -> List (Html msg)
@@ -430,12 +432,14 @@ tcoUrlInTweetRegex =
 
 mentionRegex : Regex
 mentionRegex =
-    Maybe.withDefault Regex.never (Regex.fromString "@[a-zA-Z0-9_]+")
+    -- FIXME: URL内部でないなら','の直後でも認める必要がある
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)@[a-zA-Z0-9_]+")
 
 
 hashtagRegex : Regex
 hashtagRegex =
-    Maybe.withDefault Regex.never (Regex.fromString "(#|＃)[^- ]+")
+    -- FIXME: URL内部でないなら','の直後でも認める必要がある
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)(#|＃)[^-\\s]+")
 
 
 appendMediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
