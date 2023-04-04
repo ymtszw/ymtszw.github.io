@@ -117,6 +117,7 @@ listUrlsForPreviewSingleHelp links twilogs =
                     urlsFromReplies =
                         listUrlsForPreviewFromReplies links twilog.replies
                 in
+                -- TODO: Also list t.co URLs from twilog.text and twilog.retweet.fullText, if they do not have corresponding expandedUrls
                 (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
                     |> List.filterMap
                         (\tcoUrl ->
@@ -191,7 +192,6 @@ showTwilogsUpToDays days shared dailyTwilogs =
                     twilogDailySection shared rataDie twilogs :: acc
 
                 else
-                    -- TODO Link to old dates
                     acc
             )
             []
@@ -242,7 +242,6 @@ threadAwareTwilogs links twilog =
 
 aTwilog : Dict String LinkPreview.Metadata -> Twilog -> Html msg
 aTwilog links twilog =
-    -- TODO: show link-previews when links are populated at runtime
     div [ class "tweet" ] <|
         case twilog.retweet of
             Just retweet ->

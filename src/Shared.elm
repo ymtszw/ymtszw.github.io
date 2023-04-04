@@ -573,6 +573,7 @@ dailyTwilogsFromOldest =
                 )
                 Dict.empty
     in
+    -- TODO: merge archived twilogs.json files
     DataSource.File.jsonFile
         (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map toDailyDict |> OptimizedDecoder.map resolveRepliesWithinDay)
         "twilogs.json"
