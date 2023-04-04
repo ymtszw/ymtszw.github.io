@@ -508,7 +508,7 @@ dailyTwilogsFromOldest =
             OptimizedDecoder.oneOf
                 [ OptimizedDecoder.succeed (List.map2 TcoUrl)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsExpandedUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsExpandedUrls" commaSeparatedUrls)
                 , OptimizedDecoder.succeed []
                 ]
 
@@ -516,12 +516,12 @@ dailyTwilogsFromOldest =
             OptimizedDecoder.oneOf
                 [ OptimizedDecoder.succeed (List.map4 Media)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaExpandedUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
                 , OptimizedDecoder.succeed (List.map3 (\url sourceUrl type_ -> Media url sourceUrl type_ sourceUrl))
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
                 , OptimizedDecoder.succeed []
                 ]
@@ -530,7 +530,7 @@ dailyTwilogsFromOldest =
             OptimizedDecoder.oneOf
                 [ OptimizedDecoder.succeed (List.map2 TcoUrl)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsExpandedUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsExpandedUrls" commaSeparatedUrls)
                 , OptimizedDecoder.succeed []
                 ]
 
@@ -538,9 +538,9 @@ dailyTwilogsFromOldest =
             OptimizedDecoder.oneOf
                 [ OptimizedDecoder.succeed (List.map4 Media)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaSourceUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaTypes" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaExpandedUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
                 , OptimizedDecoder.succeed []
                 ]
 
@@ -635,6 +635,38 @@ boolString =
 commaSeparatedList =
     nonEmptyString
         |> OptimizedDecoder.andThen (\s -> OptimizedDecoder.succeed (String.split "," s))
+
+
+commaSeparatedUrls =
+    nonEmptyString
+        |> OptimizedDecoder.andThen
+            (\s ->
+                let
+                    -- Since URLs MAY contain commas, we need special handling
+                    -- If split items are not starting with "http", merge it with previous item
+                    normalize : List String -> List String -> List String
+                    normalize acc items =
+                        case items of
+                            [] ->
+                                List.reverse acc
+
+                            item :: rest ->
+                                if String.startsWith "http" item then
+                                    normalize (item :: acc) rest
+
+                                else
+                                    case acc of
+                                        prev :: prevRest ->
+                                            normalize ((prev ++ "," ++ item) :: prevRest) rest
+
+                                        [] ->
+                                            -- 最初のスロットがURLでない文字列だった場合。まず起こらないが、fallbackとしては通常進行にしちゃう
+                                            normalize (item :: acc) rest
+                in
+                String.split "," s
+                    |> normalize []
+                    |> OptimizedDecoder.succeed
+            )
 
 
 seoBase :

@@ -80,6 +80,9 @@ linkPreviewDecoder requestUrl =
             (\canonicalUrl ->
                 let
                     -- canonicalUrl does not include fragment, so we need to append it back from requestUrl
+                    -- OTOH inclusion of query parameters should be determined by the server, so we do not bring them up
+                    -- i.e. if the parameters affect contents of the page, it should be part of the canonical URL. if not, they can be safely stripped
+                    -- cf. https://webmasters.stackexchange.com/q/114622
                     canonicalUrlWithFragment =
                         case String.split "#" requestUrl of
                             [ _, fragment ] ->

@@ -421,7 +421,27 @@ autoLinkedMarkdown rawText =
         -- Shorten remaining t.co URLs. Another URLs, if any, will be autolinked by Markdown.render
         |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ String.dropLeft 8 match ++ "](" ++ match ++ ")")
         |> Regex.replace mentionRegex (\{ match } -> "[@" ++ String.dropLeft 1 match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
-        |> Regex.replace hashtagRegex (\{ match } -> "[#" ++ String.dropLeft 1 match ++ "](https://twitter.com/hashtag/" ++ String.dropLeft 1 match ++ ")")
+        |> (\tcoUrlsExpandedText ->
+                Regex.find hashtagRegex tcoUrlsExpandedText
+                    |> List.foldl
+                        (\{ match } accText ->
+                            let
+                                -- hashtagっぽいmatchが、Markdownリンクの内部にないことを確認する
+                                -- これがないと、`[#foo](https://example.com)`や`[foo](https://example.com#foo)`のようなすでにここまでで整形されたテキストに含まれるhashtagらしき文字列が、
+                                -- `[[#foo](https://example.com)](https://twitter.com/hashtag/foo)`と二重にリンク化されてしまう
+                                hashInMarkdownLinkPattern =
+                                    Maybe.withDefault Regex.never (Regex.fromString ("(\\[[^\\]]*?" ++ match ++ "[^\\]]*?\\]\\(|\\]\\([^\\]]*?" ++ match ++ "[^\\]]*?\\))"))
+                            in
+                            -- 同じhashtagが複数Regex.findでマッチし、foldで同じ内容の`match`がマッチした分繰り返し評価されるパターンについてもここでスルーできる
+                            -- String.replaceは最初の評価時に一発でaccText内の同じmatchをすべて置換してしまうため、結果として求める形が得られる
+                            if Regex.contains hashInMarkdownLinkPattern accText then
+                                accText
+
+                            else
+                                String.replace match ("[#" ++ String.dropLeft 1 match ++ "](https://twitter.com/hashtag/" ++ String.dropLeft 1 match ++ ")") accText
+                        )
+                        tcoUrlsExpandedText
+           )
         |> Markdown.render
 
 
@@ -440,7 +460,9 @@ mentionRegex =
 hashtagRegex : Regex
 hashtagRegex =
     -- 厳密にはURLはカンマを含むことができるので、`https://...?foo,bar,#hashtag`のようなURLがあると誤認識する。が、制限事項とする
-    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)(#|＃)[^ \\t\\r\\n$-\\u002F:-@\\[-^`{-~]+")
+    -- このRegexはdeny-list方式で、hashtagに使用できない文字列をひたすら列挙している。ASCII記号としては`_`以外すべての記号を除外。
+    -- その他、Unicodeの記号系文字列も可能な範囲で弾いている
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)(#|＃)[^\\s!-/:-@\\[-\\^`{-~＠＃「」（）…]+")
 
 
 appendMediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
