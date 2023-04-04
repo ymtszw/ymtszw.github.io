@@ -63,7 +63,7 @@ getMetadataOnBuild : String -> DataSource.DataSource ( String, Metadata )
 getMetadataOnBuild url =
     DataSource.Http.get
         (Pages.Secrets.succeed (linkPreviewApiEndpoint url))
-        linkPreviewDecoder
+        (linkPreviewDecoder url)
         |> DataSource.map (Tuple.pair url)
 
 
@@ -73,17 +73,27 @@ linkPreviewApiEndpoint url =
     "https://link-preview.ymtszw.workers.dev/?q=" ++ Url.percentEncode url
 
 
-linkPreviewDecoder : OptimizedDecoder.Decoder Metadata
-linkPreviewDecoder =
+linkPreviewDecoder : String -> OptimizedDecoder.Decoder Metadata
+linkPreviewDecoder requestUrl =
     OptimizedDecoder.field "url" OptimizedDecoder.string
         |> OptimizedDecoder.andThen
-            (\baseUrl ->
+            (\canonicalUrl ->
+                let
+                    -- canonicalUrl does not include fragment, so we need to append it back from requestUrl
+                    canonicalUrlWithFragment =
+                        case String.split "#" requestUrl of
+                            [ _, fragment ] ->
+                                canonicalUrl ++ "#" ++ fragment
+
+                            _ ->
+                                canonicalUrl
+                in
                 OptimizedDecoder.succeed Metadata
                     -- Treat HTML without title (such as "301 moved permanently" page) as empty.
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" nonEmptyString)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "description" nonEmptyString)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "image" (OptimizedDecoder.map (resolveUrl baseUrl) nonEmptyString))
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.succeed baseUrl)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "image" (OptimizedDecoder.map (resolveUrl canonicalUrl) nonEmptyString))
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.succeed canonicalUrlWithFragment)
             )
 
 
@@ -128,7 +138,7 @@ getMetadataOnDemand url =
                 \response ->
                     case response of
                         Http.GoodStatus_ _ body ->
-                            Json.Decode.decodeString (OptimizedDecoder.decoder linkPreviewDecoder) body
+                            Json.Decode.decodeString (OptimizedDecoder.decoder (linkPreviewDecoder url)) body
                                 |> Result.mapError OptimizedDecoder.errorToString
 
                         _ ->
