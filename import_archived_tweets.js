@@ -61,7 +61,7 @@ function destructivelyResolveRetweet(simplified, tweet) {
   const rtPattern = /(RT @([^:]+?): )/;
   if (tweet.full_text.match(rtPattern)) {
     const [_, rtPrefix, rtUserName] = tweet.full_text.match(rtPattern);
-    simplified.Retweeted = "TRUE";
+    simplified.Retweet = "TRUE";
     simplified.RetweetedStatusFullText = tweet.full_text.replace(rtPrefix, "");
     // Sadly we cannot get original tweet ID here, only "retweet" ID is available
     simplified.RetweetedStatusId = tweet.id;
@@ -71,7 +71,7 @@ function destructivelyResolveRetweet(simplified, tweet) {
       )?.name || rtUserName; // if display_name is changed, we cannot track author name
     simplified.RetweetedStatusUserProfileImageUrl = placeholderAvatarUrl;
   } else {
-    simplified.Retweeted = "FALSE";
+    simplified.Retweet = "FALSE";
   }
 }
 
