@@ -113,6 +113,10 @@ listUrlsForPreviewSingleHelp links twilogs =
     twilogs
         |> List.concatMap
             (\twilog ->
+                let
+                    urlsFromReplies =
+                        listUrlsForPreviewFromReplies links twilog.replies
+                in
                 (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
                     |> List.filterMap
                         (\tcoUrl ->
@@ -129,8 +133,13 @@ listUrlsForPreviewSingleHelp links twilogs =
                                     else
                                         Just tcoUrl.expandedUrl
                         )
+                    |> List.append urlsFromReplies
             )
         |> List.Extra.unique
+
+
+listUrlsForPreviewFromReplies links replies =
+    listUrlsForPreviewSingleHelp links (List.map (\(Reply twilog) -> twilog) replies)
 
 
 head :
