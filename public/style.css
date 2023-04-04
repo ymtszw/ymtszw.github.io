@@ -305,6 +305,9 @@ Tweet-like style on top of Sakura.css
   margin: 5px 0;
   border-radius: 10px;
   overflow: hidden;
+  /* subtle box-shadow and background-color */
+  box-shadow: 0 0 0 1px #eaeaea;
+  background-color: #eaeaea;
 }
 
 .tweet .media-grid > *:last-child:nth-child(2n + 1) {
@@ -390,7 +393,7 @@ Each year-month makes details container with year-month text in summary,
 and a list of available days in the body.
 */
 nav.twilog-archive-navigation {
-  margin: 5px 0;
+  margin: 1.3em 0;
 }
 
 nav.twilog-archive-navigation details {
