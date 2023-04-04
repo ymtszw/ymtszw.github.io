@@ -1,0 +1,131 @@
+[
+{"CreatedAt":"Fri Aug 31 12:03:02 +0000 2012","Text":"すっげーどうでもいいけど、ProtでPummelすると盾で殴る（旧Shield Bashみたいになる）ようになった","StatusId":"241506378861137921","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 31 03:48:55 +0000 2012","Text":"FireEleはむっちゃくちゃ強くてヘタすると本人の素殴りより強い。そしてEarthEleさえも結構強くてSearingTotemを上回るから、Tauntが問題にならない状況ではEarthEleもCDスキルになる。どうせ土トーテムはバリアくらいしかないし","StatusId":"241382030431100928","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 31 03:46:39 +0000 2012","Text":"kan3が書いてたけど、EnhのSearingTotemがむちゃくちゃ弱い。多分これ、前はDoTだったSFをプレイヤーBuffに変更（これ自体はスイッチに強くなるから嬉しいけど）したはいいものの、DoT分のダメージをDDに還元し忘れてるんだな","StatusId":"241381459728945153","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 30 05:28:52 +0000 2012","Text":"ツールチップの中に「その手のDebuffなら大抵こう書かれてる」語句（\"Stunned\"とか）があるかないか判定するというトリガーをたくさん作る、大変ダルい作業だった。例外的なスキル（Hexとか）は仕方ないのでリストアップした。結局半日かかった","StatusId":"241044794984501248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 30 05:24:16 +0000 2012","Text":"だもんで、リストを更新して新Ver向けに対応させる作業はされてないっぽい。一応カスタムトリガーを自作するオプションはあるけど、難しそうだったのでWeakAuraに切り替えてみた。WAにも旧PAにあった機能そのままのものはなかったけど、まあ何とか設定できた","StatusId":"241043640623955968","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 30 05:17:28 +0000 2012","Text":"PowerAuraが予告通りガラっと変わっちゃったけど、併せて種類ごと（Root,Silenceとか）に分けてCC系Debuffに反応してくれたトリガーが廃止されてしまった。元々このトリガーは対応するAPIみたいなものがあったわけじゃなく、内部にリストが用意されていただけらしい","StatusId":"241041928613924865","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 30 05:09:37 +0000 2012","Text":"Defendx2が取れたのに！ All-StarもOverly Defensiveも取れなかった！ pugでBGアチーブやるのは難しいなあ","StatusId":"241039952899612673","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 29 18:47:15 +0000 2012","Text":"これmoonkinでマウントできるようになったのはマジで新仕様なのか","StatusId":"240883328440492032","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 29 18:36:28 +0000 2012","Text":"釣竿無しで釣りできるようになったのは嬉しいけどmacro的にめんどい","StatusId":"240880615430422528","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Tue Aug 28 22:12:22 +0000 2012","Text":"鯖うp。Heraldが他キャラでもちゃんと名乗れたので安心しました","StatusId":"240572560855670784","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Tue Aug 28 21:01:51 +0000 2012","Text":"息をするがごとく自然に延長されていくメンテナンス","StatusId":"240554815506231296","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Tue Aug 28 18:45:50 +0000 2012","Text":"PowerAuraの新バージョンは旧バージョンのオーラを引き継がないので全部最初から設定してくださいとのこと。まあ予想はしていた。http://t.co/OWq5erNI","StatusId":"240520583933222912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 27 13:27:17 +0000 2012","Text":"テンパズル（4つの1桁整数と加減乗除とカッコを使って10を作るパズル）の若干難しいやつを2問解かされる機会があってどっちも時間内に解けなかったんだけど、そのあと少し考えたら解けてしまって悔しい思いをした日でした","StatusId":"240078029114703873","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Sat Aug 25 10:16:46 +0000 2012","Text":"1.0.4を機にD3復帰して、少し真面目に装備揃えて、今日InfDiaまでソロできた。そこかしこNerfが読み取れたけど、やっぱ一番はEnrage撤廃が大きいな。逃げAI相手でも詰まないのはやはりやる気を奪わないという意味で重要だと思う","StatusId":"239305308281925632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 24 13:42:20 +0000 2012","Text":"Herald2週目完了。希望者みんなゲットできました。レベル上げご苦労様でした！ GJ！","StatusId":"238994655960760320","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 24 13:14:31 +0000 2012","Text":"@Train_WoW Ulduarで待ってます！","StatusId":"238987654941777920","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 24 11:07:53 +0000 2012","Text":"WorldRaidボスは最初の週からできるらしい。Sha of AngerがMoPのVoAでPvE/PのLeg/HandとPvPアクセを落とす。Salyis' Warbandはilvl489の独自loot（セット外）を持ってる。そしてどっちもマウント（多分レア）を落とす","StatusId":"238955783537188864","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 24 10:57:55 +0000 2012","Text":"VPアップグレードはもう実質廃案扱いになってたのか。まあ確かに面倒すぎるし導入したらしたで手抜きっぽく映る機能だし、残念でもないし当然ってやつだな","StatusId":"238953278975643648","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 24 04:25:09 +0000 2012","Text":"PickUpRadiusもPLで上がったら大変嬉しかったんですがそうはならないですかそうですか","StatusId":"238854434938044417","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 23 21:21:17 +0000 2012","Text":"そして一切使い方がわからぬ。というよりまだ使えないっぽい？ WeakAura（かなんか）っぽくしたのか設定画面がまるっと変わっている。これ来週までには絶対間に合わない気がするんだが・・・","StatusId":"238747763620331520","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 23 21:09:34 +0000 2012","Text":"PowerAuraがMoP向けアップデートで大幅リニューアルされてる","StatusId":"238744817276968961","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 23 17:14:55 +0000 2012","Text":"待ち時間のうちに構成を見てTalentやGlyph変更するのもありらしい。Glyphは今も替えられるんだっけ","StatusId":"238685765083729920","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 23 17:13:42 +0000 2012","Text":"MoPではArenaで敵チームの構成がデフォルトで公開されるらしい","StatusId":"238685457762897920","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 23 13:17:36 +0000 2012","Text":"装備のResilienceがリスケールされてて、4.8kくらいあったのが2.8kまで減ってた。代わりにMoPからはデフォルトで40%のResilienceがついてて、装備のと合わせてプレイヤーダメージ66.8%軽減とかになっている","StatusId":"238626043823550464","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 23 13:08:44 +0000 2012","Text":"Cataが来たときと同じように、Insc用Ink交換の通貨がMoPのInkになるんで、CataInk余してる人は今のうちに使い所多そうな他のInk（BCレベルのとか）に交換しちゃうか、Infernoに交換して最後のDMC作るかしちゃったほうがいいかも","StatusId":"238623810289545216","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 23 12:45:55 +0000 2012","Text":"PTRのカレンダー見るとBGCtAが週末1マップ週中1マップの週2マップ制になるっぽいんだけどいつの間に決まったんだろう","StatusId":"238618067217817600","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 22 17:25:45 +0000 2012","Text":"複垢RAFしてくださいと言わんばかりのディスカウントだなあと思いました","StatusId":"238326104887279616","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Tue Aug 21 06:39:00 +0000 2012","Text":"VPによるアイテムアップグレードがいつの間にか5.1に順延されていた","StatusId":"237800954534195200","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 20 09:09:18 +0000 2012","Text":"とりあえずこいつがほしい http://t.co/tT6w2wyH","StatusId":"237476390683942915","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"http://t.co/tT6w2wyH","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/A0uvhOWCIAA7DL6.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/237476390683942915/photo/1","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 20 08:42:08 +0000 2012","Text":"PTRでペットジャーナル見てたら（フィールドで捕まえられるペットが網羅されてる）、86エリアのJade Forestで「Tanuki」を捕まえられることが発覚した","StatusId":"237469553351852033","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 17 16:25:36 +0000 2012","Text":"SinestraのWipeなしアチーブひょっとして28日で取れなくなる？ FoSになるだけでMoP入っても取れると勝手に思っていたけれども、Req Lv85みたいな文面が追加されないってことはImmortalみたいに取れなくなると考えるほうが確かに自然だ","StatusId":"236499026063790080","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 17 14:06:41 +0000 2012","Text":"Herald達成GJ！ 1stPullはPre-Potできないなあとか話してたら終わっていました。なんか1人だけ2回も死んで恥ずかしかったです。来週もやるのでよろしく！","StatusId":"236464066732904448","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 17 10:47:59 +0000 2012","Text":"たしかにこれは重要なことやと思うよ","StatusId":"236414060365770752","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 17 10:47:25 +0000 2012","Text":"RT @dailyblink: Today's Daily Blink explores reactions to the new cinematic in: We've Had It Up To Here http://t.co/07qCCKHh","StatusId":"236413921827893248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"TRUE","RetweetedStatusFullText":"Today's Daily Blink explores reactions to the new cinematic in: We've Had It Up To Here http://t.co/07qCCKHh","RetweetedStatusId":"236413921827893248","RetweetedStatusUserName":"The Daily Blink","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Aug 17 09:01:14 +0000 2012","Text":"あとEngで作れるロケット、どうも1機60kからかかるらしい。GoldSinkのMatsが1個20kでx3必要。あとアルケミ錬成の金属が12日分","StatusId":"236387198180663296","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 17 08:58:56 +0000 2012","Text":"WoW農場はCraft Matsのなる木とかも植えられるのか。Cataと比べたらだけど、相当やること多そうだ。","StatusId":"236386620994093056","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 17 04:18:39 +0000 2012","Text":"DoomguardのCastモーションが若干まともになっている気がするけど、liveであんまりまじまじと見たことがないのでこれも気のせいかもしれない","StatusId":"236316082443546624","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 17 03:42:52 +0000 2012","Text":"PandariaワームホールのCDいつの間にか15分になってるな。位置指定できない代わりにってわけか","StatusId":"236307077025386496","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 16 13:29:35 +0000 2012","Text":"復習してきた http://t.co/M2XXCv3v","StatusId":"236092339087622144","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"http://t.co/M2XXCv3v","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/A0bEu0XCQAAnGec.png","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/236092339087622144/photo/1","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 16 13:00:57 +0000 2012","Text":"Chenさん若干声低くなってる気がするけど単にそういうトーンで喋ってるだけなんかな。WC3を久々に立ち上げるか","StatusId":"236085135991259136","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 15 16:56:23 +0000 2012","Text":"ドイツの標準時間ってわからなかったからググっちゃったよ","StatusId":"235781997992218624","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 15 03:23:39 +0000 2012","Text":"@sui__ 25HのKill動画あった？","StatusId":"235577464682848260","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Tue Aug 14 15:37:49 +0000 2012","Text":"Cataclysmicには残ってるけどDreadfulとMalevolantからは外れてるんだな。あと歯車3つ入れられるEngTrinketが使い物になったら嬉しいなあ","StatusId":"235399837913337857","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Tue Aug 14 15:29:00 +0000 2012","Text":"MoPのPvPDPSTrinketから静的Statsがなくなってる。でも相変わらずRaidのStrTrinketにHaste品しかないのは変わらず。そしてDMCが鬼強い。Greatness以来の静的Str＋ProcStr。Inscがまた成金になる予感","StatusId":"235397618363162624","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 13 09:37:02 +0000 2012","Text":"あとはPri作れば埋まるんだけどいまいちピンとくる種族がない。Allyだったら厳格Draeneiで是非作りたいが","StatusId":"234946656347492352","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 13 09:35:58 +0000 2012","Text":"スパイキャラでDruをAllyに置いてたけどあんま利用してないし、潰してTrollで作るかな","StatusId":"234946388759281664","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 13 06:58:01 +0000 2012","Text":"いい加減デュアルモニタにしたい","StatusId":"234906637700304898","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 12 11:12:24 +0000 2012","Text":"Mogu'shan Vaults前半3ボスのTac書きました。どれもジャーナル訳と大雑把な流れ程度。多分難易度は2nd＞1st＞3rdだろうと思われる。Trollが雑魚。今回からは、やってみてからギルドで実際に採用したTacまとめたページとか作れたらいいね。","StatusId":"234608267362459649","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Sat Aug 11 11:30:49 +0000 2012","Text":"PTRでどっか地味な改善点でも見つけようといろいろやって、「おっ」と思ってからLiveを立ち上げていざ比較してみると気のせいだったりする。","StatusId":"234250513451982848","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Sat Aug 11 09:12:15 +0000 2012","Text":"MoPではTalentやSpecのスキルで置換されるベースラインスキルがどのクラスにもちょこちょこあるんだけど、その場合もベースとなるスキルで作ったMacroはそのまま呼べて、置換された上位スキルを勝手に使ってくれる","StatusId":"234215642373423104","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 14:38:28 +0000 2012","Text":"しばし経って気づいたけど、そう考えるとWarriorのHeroic Throwも跳ね返って来るべきじゃね？　利き手の武器投げっぱってのは冒涜的じゃね？　馬場のAncient Spear的に投げた武器を手許にたぐり寄せるエフェクト実装希望","StatusId":"233572961012035584","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 13:40:29 +0000 2012","Text":"考えてみればTankの拠り所である盾を投げつけたっきりだった今までがおかしいのであって、ある意味冒涜的な行為であったとさえ言える。この変更は極めて合理的であると言わざるをえない。","StatusId":"233558368713850882","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 13:38:31 +0000 2012","Text":"すごいことに気づいた。PalTankの盾投げ（Avenger's Shield）は現状だとMissしようがHitしようが、当たって（＋跳ねて）それっきりなのだが、PTRでは投げて当たったあと盾がちゃんと自分の元に跳ね返ってくる。","StatusId":"233557876780707840","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 11:48:26 +0000 2012","Text":"@kusunoki666 今日木曜やで","StatusId":"233530171037192192","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 14:06:48 +0000 2012","Text":"旧RaidのゴールドドロップNerfについて、「敵を倒してGを入手するのは流通する通貨を増やす(お金を刷る)行為で、インフレに結びつくんで手を打つよ」とのことだけど、遠回しに「どうせそれ(造幣)やるならデイリーでやってね。ちなみにキャップ廃止しましたｖ」と宣伝しているようにも映る","StatusId":"233202605155840000","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 09:15:41 +0000 2012","Text":"オランジーナって2Lボトルとか出さないのかな。近くのセブンだと常に125円だからまあいいかって感じでいつも買ってるんだけど、420mlで若干物足りないしいちいち買うのがめんどいぞ","StatusId":"233129342580953088","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 03:15:38 +0000 2012","Text":"Googleトップのフリースローゲーム楽しいぞ！","StatusId":"233038733761466368","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 05 07:01:07 +0000 2012","Text":"ソケボー無視でIntEpicGemを熱く全ツッパ","StatusId":"232008314895081472","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 02 16:27:59 +0000 2012","Text":"Shado-Panのオッサンがかっこよすぎてやべえ","StatusId":"231063806204317696","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 01 23:23:17 +0000 2012","Text":"現状Mogu'shan Vaultsの4週間後にHoFとToESオープン予定らしい　http://t.co/7CnEIceO","StatusId":"230805935851982848","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 01 21:02:38 +0000 2012","Text":"ランダムCataダンジョンの140JPは週7回までもらえます。JPの200/213/226装備には最終的に結構世話になる可能性が高いのでやっておくとベターです。","StatusId":"230770540158275584","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 01 21:00:39 +0000 2012","Text":"徐々にLv80まで上げ終えた人が現れ始めましたので、Herald参加予定の人はちょいちょい顔を出してみて下さい。Lv80用5manやToC（232武器）などに行く流れになるやも。5manはCata装備やlv85ヘルプがあれば簡単ですが、ランダムqueは結構長いです","StatusId":"230770039639384064","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 01 12:37:15 +0000 2012","Text":"そういえば今日から無料ユーザーのはてダは強制広告だった。","StatusId":"230643353908301824","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 01 00:22:33 +0000 2012","Text":"改めて眺めてみたら、どうもまだ数字の調整が済んでないようだし（アルケミTrinketと比べてHeroicTrinketのほうが数字が低かったりする。ICDが破壊的に短いのかもしれんけど）、そのうち改善されるだろう","StatusId":"230458462058979329","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 01 00:08:28 +0000 2012","Text":"T14のStrTrinketがStr/HasteProcとHaste/StrProcしかないんだけど、これ下手するとLFR相当のilvlのPvPモノ（Str/Resil/StrProcかStr/Resil/StrUse）がBiSにならんか……？　大丈夫か？","StatusId":"230454917112934401","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweeted":"FALSE"}
+]
