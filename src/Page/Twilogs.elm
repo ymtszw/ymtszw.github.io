@@ -432,14 +432,15 @@ tcoUrlInTweetRegex =
 
 mentionRegex : Regex
 mentionRegex =
-    -- FIXME: URL内部でないなら','の直後でも認める必要がある
-    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)@[a-zA-Z0-9_]+")
+    -- 厳密にはURLはカンマを含むことができるので、`https://...,@mention`のようなURLがあると誤認識する。が、制限事項とする
+    -- 少なくともauthority partに@を含む認証可能URL（URL内に@を含むパターンとして第一にありがちなやつ）などはカンマが先行しないはず
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)@[a-zA-Z0-9_]+")
 
 
 hashtagRegex : Regex
 hashtagRegex =
-    -- FIXME: URL内部でないなら','の直後でも認める必要がある
-    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)(#|＃)[^-\\s]+")
+    -- 厳密にはURLはカンマを含むことができるので、`https://...?foo,bar,#hashtag`のようなURLがあると誤認識する。が、制限事項とする
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)(#|＃)[^ \\t\\r\\n$-\\u002F:-@\\[-^`{-~]+")
 
 
 appendMediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
