@@ -35,6 +35,7 @@ import Base64
 import Browser.Navigation
 import DataSource
 import DataSource.File
+import DataSource.Glob
 import DataSource.Http
 import Date
 import Dict exposing (Dict)
@@ -437,6 +438,16 @@ type TwitterUserId
 dailyTwilogsFromOldest : DataSource.DataSource (Dict RataDie (List Twilog))
 dailyTwilogsFromOldest =
     let
+        archivedTwilogsJsonGlobSource =
+            DataSource.Glob.succeed (\c1 yyyy c3 mm c5 -> c1 ++ yyyy ++ c3 ++ mm ++ c5)
+                |> DataSource.Glob.capture (DataSource.Glob.literal "data/")
+                |> -- TODO: Divide and conquer?
+                   DataSource.Glob.capture (DataSource.Glob.literal "2023")
+                |> DataSource.Glob.capture (DataSource.Glob.literal "/")
+                |> DataSource.Glob.capture DataSource.Glob.wildcard
+                |> DataSource.Glob.capture (DataSource.Glob.literal "/twilogs.json")
+                |> DataSource.Glob.toDataSource
+
         twilogDecoder =
             OptimizedDecoder.succeed Twilog
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
@@ -552,7 +563,7 @@ dailyTwilogsFromOldest =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
 
-        toDailyDict =
+        toDailyDict baseDict =
             List.foldl
                 (\maybeTwilog dict ->
                     case maybeTwilog of
@@ -561,7 +572,10 @@ dailyTwilogsFromOldest =
                                 (\dailySortedTwilogs ->
                                     case dailySortedTwilogs of
                                         Just twilogs ->
-                                            Just (List.sortBy (.createdAt >> Time.posixToMillis) (twilog :: twilogs))
+                                            -- ArchiveとSpreadsheetで重複があるのを後勝ちで解消する
+                                            List.Extra.uniqueBy .id (twilog :: twilogs)
+                                                |> List.sortBy (.createdAt >> Time.posixToMillis)
+                                                |> Just
 
                                         Nothing ->
                                             Just [ twilog ]
@@ -571,12 +585,24 @@ dailyTwilogsFromOldest =
                         Nothing ->
                             dict
                 )
-                Dict.empty
+                baseDict
     in
-    -- TODO: merge archived twilogs.json files
-    DataSource.File.jsonFile
-        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map toDailyDict |> OptimizedDecoder.map resolveRepliesWithinDay)
-        "twilogs.json"
+    archivedTwilogsJsonGlobSource
+        |> DataSource.andThen
+            (\archivedTwilogsJsonFiles ->
+                (archivedTwilogsJsonFiles ++ [ "twilogs.json" ])
+                    |> List.foldl
+                        (\file accDS ->
+                            DataSource.andThen
+                                (\accDict ->
+                                    DataSource.File.jsonFile
+                                        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map (toDailyDict accDict) |> OptimizedDecoder.map resolveRepliesWithinDay)
+                                        file
+                                )
+                                accDS
+                        )
+                        (DataSource.succeed Dict.empty)
+            )
 
 
 resolveRepliesWithinDay : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
