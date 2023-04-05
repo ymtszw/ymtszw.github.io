@@ -11,6 +11,7 @@ module Shared exposing
     , SharedMsg(..)
     , TcoUrl
     , Twilog
+    , TwilogArchiveMetadata
     , TwitterStatusId(..)
     , TwitterUserId(..)
     , cmsGet
@@ -22,12 +23,14 @@ module Shared exposing
     , iso8601Decoder
     , makeSeoImageFromCmsImage
     , makeTitle
+    , makeTwilogsJsonPath
     , ogpHeaderImageUrl
     , posixToYmd
     , publicCmsArticles
     , publicOriginalRepos
     , seoBase
     , template
+    , twilogArchives
     , unixOrigin
     )
 
@@ -85,7 +88,7 @@ type alias Data =
     , cmsArticles : List CmsArticleMetadata
     , zennArticles : List ZennArticleMetadata
     , qiitaArticles : List QiitaArticleMetadata
-    , dailyTwilogs : Dict RataDie (List Twilog)
+    , twilogArchives : List TwilogArchiveMetadata
     , externalCss : String
     }
 
@@ -233,7 +236,7 @@ data =
         publicCmsArticles
         publicZennArticles
         publicQiitaArticles
-        dailyTwilogsFromOldest
+        twilogArchives
         (DataSource.map2 (++) normalizeCss classlessCss)
 
 
@@ -435,19 +438,48 @@ type TwitterUserId
     = TwitterUserId String
 
 
-dailyTwilogsFromOldest : DataSource.DataSource (Dict RataDie (List Twilog))
-dailyTwilogsFromOldest =
-    let
-        archivedTwilogsJsonGlobSource =
-            DataSource.Glob.succeed (\c1 yyyy c3 mm c5 -> c1 ++ yyyy ++ c3 ++ mm ++ c5)
-                |> DataSource.Glob.capture (DataSource.Glob.literal "data/")
-                |> -- TODO: Divide and conquer?
-                   DataSource.Glob.capture (DataSource.Glob.literal "2023")
-                |> DataSource.Glob.capture (DataSource.Glob.literal "/")
-                |> DataSource.Glob.capture DataSource.Glob.wildcard
-                |> DataSource.Glob.capture (DataSource.Glob.literal "/twilogs.json")
-                |> DataSource.Glob.toDataSource
+type alias TwilogArchiveMetadata =
+    { date : Date.Date
+    , isoDate : String
+    , rataDie : RataDie
+    , path : String
+    }
 
+
+twilogArchives : DataSource.DataSource (List TwilogArchiveMetadata)
+twilogArchives =
+    DataSource.Glob.succeed makeTwilogArchiveMetadata
+        |> DataSource.Glob.match (DataSource.Glob.literal "data/")
+        |> DataSource.Glob.capture DataSource.Glob.int
+        |> DataSource.Glob.match (DataSource.Glob.literal "/")
+        |> DataSource.Glob.capture DataSource.Glob.int
+        |> DataSource.Glob.match (DataSource.Glob.literal "/")
+        |> DataSource.Glob.capture DataSource.Glob.int
+        |> DataSource.Glob.match (DataSource.Glob.literal "-twilogs.json")
+        |> DataSource.Glob.toDataSource
+
+
+makeTwilogArchiveMetadata : Int -> Int -> Int -> TwilogArchiveMetadata
+makeTwilogArchiveMetadata year month day =
+    let
+        date =
+            Date.fromCalendarDate year (Date.numberToMonth month) day
+    in
+    { date = date
+    , isoDate = Date.toIsoString date
+    , rataDie = Date.toRataDie date
+    , path = makeTwilogsJsonPath date
+    }
+
+
+makeTwilogsJsonPath : Date.Date -> String
+makeTwilogsJsonPath date =
+    "data/" ++ Date.format "yyyy/MM/dd" date ++ "-twilogs.json"
+
+
+dailyTwilogsFromOldest : List String -> DataSource.DataSource (Dict RataDie (List Twilog))
+dailyTwilogsFromOldest paths =
+    let
         twilogDecoder =
             OptimizedDecoder.succeed Twilog
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
@@ -587,22 +619,18 @@ dailyTwilogsFromOldest =
                 )
                 baseDict
     in
-    archivedTwilogsJsonGlobSource
-        |> DataSource.andThen
-            (\archivedTwilogsJsonFiles ->
-                (archivedTwilogsJsonFiles ++ [ "twilogs.json" ])
-                    |> List.foldl
-                        (\file accDS ->
-                            DataSource.andThen
-                                (\accDict ->
-                                    DataSource.File.jsonFile
-                                        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map (toDailyDict accDict) |> OptimizedDecoder.map resolveRepliesWithinDay)
-                                        file
-                                )
-                                accDS
-                        )
-                        (DataSource.succeed Dict.empty)
-            )
+    List.foldl
+        (\path accDS ->
+            DataSource.andThen
+                (\accDict ->
+                    DataSource.File.jsonFile
+                        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map (toDailyDict accDict) |> OptimizedDecoder.map resolveRepliesWithinDay)
+                        path
+                )
+                accDS
+        )
+        (DataSource.succeed Dict.empty)
+        paths
 
 
 resolveRepliesWithinDay : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)

@@ -1,4 +1,4 @@
-module Page.Twilogs exposing (Data, Model, Msg, linksByMonths, listUrlsForPreviewBulk, listUrlsForPreviewSingle, page, showTwilogsUpToDays, twilogDailySection, twilogsOfTheDay)
+module Page.Twilogs exposing (Data, Model, Msg, linksByMonths, listUrlsForPreviewBulk, listUrlsForPreviewSingle, page, twilogDailySection, twilogsOfTheDay)
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
@@ -47,12 +47,23 @@ page =
 
 
 type alias Data =
-    ()
+    { recentDailyTwilogs : Dict RataDie (List Twilog) }
 
 
 data : DataSource Data
 data =
-    DataSource.succeed ()
+    Shared.twilogArchives
+        |> DataSource.andThen
+            (\archives ->
+                List.take daysToPeek archives
+                    |> List.map .path
+                    |> Shared.dailyTwilogsFromOldest
+                    |> DataSource.map Data
+            )
+
+
+daysToPeek =
+    5
 
 
 update :
@@ -68,17 +79,13 @@ update _ _ shared static msg model =
         InitiateLinkPreviewPopulation ->
             ( model
             , Cmd.none
-            , static.sharedData.dailyTwilogs
-                |> Dict.keys
-                |> List.reverse
-                |> List.take daysToPeek
-                |> listUrlsForPreviewBulk shared static
+            , listUrlsForPreviewBulk shared static.data.recentDailyTwilogs
             )
 
 
-listUrlsForPreviewBulk : Shared.Model -> StaticPayload templateData routeParams -> List RataDie -> Maybe Shared.Msg
-listUrlsForPreviewBulk { links } { sharedData } rataDiesToPeek =
-    case listUrlsForPreviewBulkHelp links rataDiesToPeek sharedData.dailyTwilogs of
+listUrlsForPreviewBulk : Shared.Model -> Dict RataDie (List Twilog) -> Maybe Shared.Msg
+listUrlsForPreviewBulk { links } recentDailyTwilogs =
+    case listUrlsForPreviewBulkHelp links recentDailyTwilogs of
         [] ->
             Nothing
 
@@ -86,15 +93,11 @@ listUrlsForPreviewBulk { links } { sharedData } rataDiesToPeek =
             Just (Shared.SharedMsg (Shared.Req_LinkPreview urls))
 
 
-listUrlsForPreviewBulkHelp : Dict String LinkPreview.Metadata -> List RataDie -> Dict RataDie (List Twilog) -> List String
-listUrlsForPreviewBulkHelp links rataDies dailyTwilogsFromOldest =
-    rataDies
-        |> List.concatMap
-            (\rataDie ->
-                Dict.get rataDie dailyTwilogsFromOldest
-                    |> Maybe.withDefault []
-                    |> listUrlsForPreviewSingleHelp links
-            )
+listUrlsForPreviewBulkHelp : Dict String LinkPreview.Metadata -> Dict RataDie (List Twilog) -> List String
+listUrlsForPreviewBulkHelp links recentDailyTwilogsFromOldest =
+    Dict.values recentDailyTwilogsFromOldest
+        |> List.concat
+        |> listUrlsForPreviewSingleHelp links
         |> List.Extra.unique
 
 
@@ -174,28 +177,15 @@ view _ shared _ static =
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（予定）
 """
         ]
-            ++ showTwilogsUpToDays daysToPeek shared static.sharedData.dailyTwilogs
-            ++ [ linksByMonths Nothing static.sharedData.dailyTwilogs ]
+            ++ showRecentTwilogs shared static.data.recentDailyTwilogs
+            ++ [ linksByMonths Nothing static.sharedData.twilogArchives ]
     }
 
 
-daysToPeek =
-    10
-
-
-showTwilogsUpToDays : Int -> Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
-showTwilogsUpToDays days shared dailyTwilogs =
-    dailyTwilogs
-        |> Dict.foldr
-            (\rataDie twilogs acc ->
-                if List.length acc < days then
-                    twilogDailySection shared rataDie twilogs :: acc
-
-                else
-                    acc
-            )
-            []
-        |> List.reverse
+showRecentTwilogs : Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
+showRecentTwilogs shared recentDailyTwilogs =
+    -- foldl to traverse from the oldest
+    Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared rataDie twilogs :: acc) [] recentDailyTwilogs
 
 
 twilogDailySection : Shared.Model -> RataDie -> List Twilog -> Html msg
@@ -492,18 +482,15 @@ appendMediaGrid status htmls =
             htmls ++ [ div [ class "media-grid" ] <| List.map aMedia nonEmpty ]
 
 
-linksByMonths : Maybe Date -> Dict RataDie twilogs -> Html msg
-linksByMonths maybeOpenedDate dailyTwilogsFromOldest =
+linksByMonths : Maybe Date -> List Shared.TwilogArchiveMetadata -> Html msg
+linksByMonths maybeOpenedDate twilogArchives =
     let
         datesGroupedByYearMonthFromNewest =
-            Dict.keys dailyTwilogsFromOldest
+            twilogArchives
                 -- Traverse from oldest
                 |> List.foldl
-                    (\rataDie acc ->
+                    (\{ date } acc ->
                         let
-                            date =
-                                Date.fromRataDie rataDie
-
                             yearMonth =
                                 ( Date.year date, Date.monthNumber date )
                         in
@@ -520,7 +507,7 @@ linksByMonths maybeOpenedDate dailyTwilogsFromOldest =
                             acc
                     )
                     Dict.empty
-                -- Here Dict -> List conversion makes the resulting list oldest-first again
+                -- Here Dict -> List conversion makes the resulting list oldest-first
                 |> Dict.toList
                 |> List.reverse
 
