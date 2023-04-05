@@ -457,6 +457,8 @@ twilogArchives =
         |> DataSource.Glob.capture DataSource.Glob.int
         |> DataSource.Glob.match (DataSource.Glob.literal "-twilogs.json")
         |> DataSource.Glob.toDataSource
+        -- Make newest first
+        |> DataSource.map (List.sortBy .rataDie >> List.reverse)
 
 
 makeTwilogArchiveMetadata : Int -> Int -> Int -> TwilogArchiveMetadata
