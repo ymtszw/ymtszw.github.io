@@ -1,0 +1,39 @@
+[
+{"CreatedAt":"Wed Jan 09 14:41:48 +0000 2019","Text":"@kazachino_wow なんかそういう役職というか専用職みたいなんがストーリーの都合上用意されたんだぞ","StatusId":"1083010957863874560","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 14:32:33 +0000 2019","Text":"@kazachino_wow NPCのクラスはいろいろ混ざるからよくわからないけどNight Warriorらしいよ","StatusId":"1083008628557148161","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 13:48:50 +0000 2019","Text":"@kazachino_wow ティラ「おれはPriestをやめるぞ！ Eluneーーーッ！！」","StatusId":"1082997626876788737","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 13:37:03 +0000 2019","Text":"dynamic sushiもあるのか。。。","StatusId":"1082994665056460803","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 13:07:30 +0000 2019","Text":"RT @arowM_: Elm guide で Evan も言ってるように WebフロントエンドだとDOMの再描画が圧倒的に重いので、JSのデータ構造とかを変に工夫して計算量を減らしたところで、データ量が膨大じゃなければ実は大した意味がないんですよね。\nhttps://t.co…","StatusId":"1082987226408017921","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Elm guide で Evan も言ってるように WebフロントエンドだとDOMの再描画が圧倒的に重いので、JSのデータ構造とかを変に工夫して計算量を減らしたところで、データ量が膨大じゃなければ実は大した意味がないんですよね。\nhttps://t.co…","RetweetedStatusId":"1082987226408017921","RetweetedStatusUserName":"ヤギの🐐さくらちゃん🎯","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Wed Jan 09 13:07:25 +0000 2019","Text":"この主張は自分の経験的にも恐らく真なんだけど、オフライン動作も可能かつ各種WebStorageを使ってクライアント側に状態を永続化するWebAppで、マジで扱うデータが多い場合に60fpsを維持したいという前提だと、どこまでデータ構造の選定をサボれるのかは気になっており、AssocListは試すかもしれない https://t.co/iQSoy7Z9xB","StatusId":"1082987204706631680","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:51:00 +0000 2019","Text":"Loa契約の変更はPTRだと25日CDだったから気軽には変えられなかった。でも最終ではなさそう。あとHealer用オプションもある。","StatusId":"1082983072549617669","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:46:09 +0000 2019","Text":"Wowheadで見てみたけど、そもそもHumanのヒゲバリエーション、どれも解像度低い上に選択肢も乏しかった","StatusId":"1082981853798133760","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:44:02 +0000 2019","Text":"このタイプのヒゲ(いわゆるmustache)ってHumanにあったっけ。嫌いじゃない https://t.co/4DgBQtCLIM","StatusId":"1082981320630841344","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/4DgBQtCLIM","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DweFsCdUwAAhWwY.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1082981320630841344/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:41:08 +0000 2019","Text":"IRC持ち出そ。","StatusId":"1082980591551668224","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:38:56 +0000 2019","Text":"Zandalariのattackモーションはちょっとかっこいいけど、それ以外は全体的に平凡だ。まだ入ってないモーションも多い","StatusId":"1082980037740027909","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:14:49 +0000 2019","Text":"いやーこれ、Horde全員どっちかのTrollになるしかないでしょ。Sylvanasの思惑とは裏腹にTrollにあらずんばHordeにあらずな世の中になる","StatusId":"1082973969571926016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:09:54 +0000 2019","Text":"ZandalariのLoa契約はまあまあ強そうだし効果を選べることを考えると、この種族強すぎる。Gold farmも強いしグライダー持って来るしなんなんだ。\nそもそもRegeneratin'とForsakenのCannibalize比べてなにか思わなかったのか","StatusId":"1082972732436803594","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:06:25 +0000 2019","Text":"一方のKul TiranのBrush It Offは、versa 1%はまあ他にも似たような種族あるから仕方ないとして、回復パートがあまりにも無意味だ。仮にMaxHPの100%のダメージを受けるギミックがあったとして、それに対して4秒かけてMaxHPの2％回復は弱すぎるでしょ","StatusId":"1082971856330579969","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:03:53 +0000 2019","Text":"ZandalariのRegeneratin'は凶悪で、せめてNot usable in combatをつけるか10min CDくらいにしないとCDRacialとしては強すぎるように見える。1 tick (1sec) channel成功で25%回復/1.5minは実質Desparate Prayerでany classとか","StatusId":"1082971218863509504","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 12:02:35 +0000 2019","Text":"KulTiran Racial結構ひどいな。\nHaymakerは面白いかもしれないけど、ほかはZandalariと比べると寄与が弱すぎる。","StatusId":"1082970892081160192","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 11:12:24 +0000 2019","Text":"shellscriptだから可搬性あると思ったらbashismが使用されていて、shebangでbash指定したから大丈夫だと思ったらbashバージョン依存の機能が使用されていて、bash4だから大丈夫だと思ったらbash5が出ていた案件が到来する https://t.co/4nSXt5iQiu","StatusId":"1082958261035253761","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 09 01:52:06 +0000 2019","Text":"RT @a_to_z_17: シネマシティのボヘミアン・ラプソディ ライブスタイル上映、何から何までいいな〜\n応援上映はサイリウムOKだけど何か違う感がずっとあったので、このルールはでかい。\nめっちゃくちゃ行きたい… https://t.co/7RNKJd7szg","StatusId":"1082817256386482176","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/7RNKJd7szg","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DwUnqf1VYAIrAKU.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/a_to_z_17/status/1082314900314062849/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"シネマシティのボヘミアン・ラプソディ ライブスタイル上映、何から何までいいな〜\n応援上映はサイリウムOKだけど何か違う感がずっとあったので、このルールはでかい。\nめっちゃくちゃ行きたい… https://t.co/7RNKJd7szg","RetweetedStatusId":"1082817256386482176","RetweetedStatusUserName":"フレディ","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Tue Jan 08 19:33:01 +0000 2019","Text":"遅い代わりにシンプルな実装のAnyDict。\nちょっと良さそう。 https://t.co/JMZFOgAYVj","StatusId":"1082721856434581504","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

@@ -1,0 +1,27 @@
+[
+{"CreatedAt":"Fri Aug 02 12:18:00 +0000 2019","Text":"@Ndanka 了解ガンバ","StatusId":"1157264282637094912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 02 10:34:01 +0000 2019","Text":"RT @sy_izumi: Again, this volume has Elm Europe 2019 Special Report that I have written. Don't miss it! 🙌 #elm https://t.co/MN4yWNTt2p","StatusId":"1157238112898052096","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Again, this volume has Elm Europe 2019 Special Report that I have written. Don't miss it! 🙌 #elm https://t.co/MN4yWNTt2p","RetweetedStatusId":"1157238112898052096","RetweetedStatusUserName":"IzumiSy™","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Aug 02 10:01:29 +0000 2019","Text":"@y047aka PATHにインストールされてれば勝手にdiagnosticsとして動作するはずです","StatusId":"1157229927659212800","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 02 09:59:44 +0000 2019","Text":"RT @shinyahoya: 地図についての記事を書きました。長崎市のトンネルでの事故が契機です。取材の過程で、地道な作業で地図が作られていることを実感しました。記事に登場する図化機の操作はまさに「職人技」。地図について考えてもらう機会になればと思います。 #地図 #国土地理…","StatusId":"1157229484585603072","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"地図についての記事を書きました。長崎市のトンネルでの事故が契機です。取材の過程で、地道な作業で地図が作られていることを実感しました。記事に登場する図化機の操作はまさに「職人技」。地図について考えてもらう機会になればと思います。 #地図 #国土地理…","RetweetedStatusId":"1157229484585603072","RetweetedStatusUserName":"藤島新也＠災害担当記者🌏","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Aug 02 09:43:20 +0000 2019","Text":"k8sすっかり慣れた（ように見える）勢も観測していて、多少焦ってはいる","StatusId":"1157225360611672064","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 02 09:42:21 +0000 2019","Text":"RT @jinjor: k8s メリットがあるからみんなやってるんだろうけど、疲れたコスト高い大変という情報だけが濾過されて届く。","StatusId":"1157225113793810438","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"k8s メリットがあるからみんなやってるんだろうけど、疲れたコスト高い大変という情報だけが濾過されて届く。","RetweetedStatusId":"1157225113793810438","RetweetedStatusUserName":"Yosuke Torii / ジンジャー","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Aug 02 09:38:43 +0000 2019","Text":"elm-analyseが構文解析に失敗するとLSがその後応答不能になってプロセスリークする問題がありましたが、それが解決して今のところ完璧に動くようになってます（VSCode 1.36.1）。VSCode勢は今後こちらにコントリしていきましょう #elm #vscode https://t.co/YKmmU2BJoJ","StatusId":"1157224196432265217","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 02 09:34:23 +0000 2019","Text":"&lt;form&gt;タグとbutton[type=\"submit\"]を使ってると、ブラウザデフォルトでEnter押下時に自動送信する挙動があって、これを活かすべきか回避すべきかはそこそこ迷う。活かしてよいなら活かすとちょっと楽なんこともあるんだけど、理解して使ってないとろくなことにならなそう","StatusId":"1157223107871965184","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 02 09:32:21 +0000 2019","Text":"denolandのマスコットなのかこいつ","StatusId":"1157222596284301312","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 02 09:31:03 +0000 2019","Text":"@417_2000 にてる https://t.co/hZg7LhSyrZ","StatusId":"1157222269891956737","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 02 08:52:59 +0000 2019","Text":"でも5Gで対戦やMMOオンゲやる人柱はそろそろ必要なはずだ","StatusId":"1157212689669603330","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 02 08:49:35 +0000 2019","Text":"@xamiemon @kusunoki666 びっくりした","StatusId":"1157211832701972480","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Aug 02 03:04:44 +0000 2019","Text":"Future of Elm tooling in VSCode · Issue #334 · Krzysztof-Cieslak/vscode-elm https://t.co/1msYumoTRS\n\nVSCode-Elm（前からある方）はdisconになり、いよいよElmLSがVScodeでの本流になりそうです。 #elm #vscode","StatusId":"1157125049221967872","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

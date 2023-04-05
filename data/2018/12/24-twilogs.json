@@ -1,0 +1,45 @@
+[
+{"CreatedAt":"Mon Dec 24 14:47:14 +0000 2018","Text":"elm-ui自作してる気分になってきた","StatusId":"1077214118535254016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 14:13:04 +0000 2018","Text":"てかやってみたらだいたい動くとかねえかな。そうであってくれ","StatusId":"1077205521550127106","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 14:12:35 +0000 2018","Text":"なんでこんな事になってるのかと思ったら、flexレイアウトに対するgapプロパティの実装状況が不明瞭だからか。gridレイアウトならgapで一発らしい","StatusId":"1077205399814561793","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 13:21:20 +0000 2018","Text":"rowとcolumnはこれでいいけど、wrappedRowはどうやってるんだろうと思って見てみたら、想像以上に泥臭いコードを吐くようになっていた。直上のrowとcolumnに対する行数の差が激しい\nhttps://t.co/l8W8Q65Px3","StatusId":"1077192503248310272","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 13:14:24 +0000 2018","Text":"隣接兄弟結合子\n\nhttps://t.co/2n21VygZgS\n\nelm-uiはspacingをこいつでやっていた","StatusId":"1077190755796414464","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 12:32:34 +0000 2018","Text":"乾燥がヤバすぎて、何もしてないのに寝て起きたら唇切れてたのには驚いた","StatusId":"1077180230287056896","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 12:05:46 +0000 2018","Text":"まあ使わなくていいや","StatusId":"1077173486450204673","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 12:04:02 +0000 2018","Text":"普通の(OSが標準で持ってくるような)フォントで複数種類のweight持ってるやつってどれくらいあるんだろ。よくあるsansSerifにweight 1000のclassあててみたけど変化ないな","StatusId":"1077173048287973376","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 06:20:31 +0000 2018","Text":"RT @arowM_: @miyamo_madoka だいたいなんかいい感じにしたらなんかいい感じになるものなので、とりあえずなんかいい感じにしたら良いですよね！","StatusId":"1077086599555407872","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"@miyamo_madoka だいたいなんかいい感じにしたらなんかいい感じになるものなので、とりあえずなんかいい感じにしたら良いですよね！","RetweetedStatusId":"1077086599555407872","RetweetedStatusUserName":"ヤギの🐐さくらちゃん🎯","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Dec 24 06:20:26 +0000 2018","Text":"本質トーク https://t.co/MceDTIOeOv","StatusId":"1077086578785144835","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 06:08:58 +0000 2018","Text":"誰かElmをネイティブに解釈できるブラウザ作ってくれ","StatusId":"1077083692021932032","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 06:08:26 +0000 2018","Text":"RT @myuon_myon: ブログ書いた\nhttps://t.co/wMpC8ptsJs","StatusId":"1077083560568221696","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ブログ書いた\nhttps://t.co/wMpC8ptsJs","RetweetedStatusId":"1077083560568221696","RetweetedStatusUserName":"みょん","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Dec 24 05:08:32 +0000 2018","Text":"&gt; it’s not necessarily about using Bootstrap for every client, but rather creating “tiny Bootstraps for every client.”\n\nDesigning Systems | Atomic Design by Brad Frost https://t.co/4NpAOn671m\n\nこの一文を読んだ瞬間完璧な理解の気配を感じた","StatusId":"1077068485778333696","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 24 05:00:18 +0000 2018","Text":"RT @michiyukiaporo: 今日はクリスマスイブですが、全国のサンタさんは包装紙にお気をつけください。 https://t.co/SB5TVgcOTf","StatusId":"1077066414853304322","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/SB5TVgcOTf","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DvJnCVAUUAE74i7.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/michiyukiaporo/status/1077036556911763457/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"今日はクリスマスイブですが、全国のサンタさんは包装紙にお気をつけください。 https://t.co/SB5TVgcOTf","RetweetedStatusId":"1077066414853304322","RetweetedStatusUserName":"道雪 葵","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Dec 24 04:42:06 +0000 2018","Text":"自分でelm/htmlベースでいい感じにviewをまとめるとなると、UIカタログとかAtomicとか多少つまみ食いしていい感じにしたほうがいいかもって気になる","StatusId":"1077061831644962816","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Dec 23 17:47:44 +0000 2018","Text":"popo3にGrim Dawnを思い出させてもらったけど、動画見たらDiablo3やりたくなったという","StatusId":"1076897156559134721","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Dec 23 17:40:37 +0000 2018","Text":"動画で見た目だけ眺めた感じだと、正直クオリティ高いゲームには見えない。。","StatusId":"1076895365066969088","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Dec 23 16:15:29 +0000 2018","Text":"elm-uiを全部書き換えるのは流石にかったるいけど、やったほうがいいかあ。大層なbranchになってしまった","StatusId":"1076873940046237696","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Dec 23 15:35:13 +0000 2018","Text":"というかこれfragmentと解釈されてなかなかキナ臭いことになっとるな。いろんな実装に放り込んで試す価値がありそうだ。。。","StatusId":"1076863806247133186","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Dec 23 15:32:12 +0000 2018","Text":"branch名の最初のセグメントを自動でcommit logに仕込むpre-commit-msgを長いこと使ってて、\"#\"含んだbranch名と組み合わせるとGitHubで自動リンク効いて大変便利なんだが、Url encodeの実装が微妙だと問題になるな。","StatusId":"1076863049577857024","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Dec 23 15:06:18 +0000 2018","Text":"いわゆる\n\nThe DOM Is NOT Slow, Your Abstraction Is\nhttps://t.co/dEaBQUep3E\n\nってやつを感じたけど、少なくともElmでは\n\n* elm/virtual-domは十分速い\n* elm-uiはmany-DOMでは(少なくとも今は)遅い\n\nってのはほぼ確実そう","StatusId":"1076856530996125698","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Dec 23 15:02:38 +0000 2018","Text":"ブラウザはChromeでi7 8770k, GTX1050ti。\nカラム部分はelm-uiをやめてHtmlパッケージをbareに使っている＆inline CSS in Elm。\n不可視部分にTomestoneは使っていない。Scrollされると単純に多くの要素がmodelから引き出されてrenderされる。Lazyは使用している","StatusId":"1076855607058001920","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

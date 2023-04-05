@@ -1,0 +1,41 @@
+[
+{"CreatedAt":"Mon Sep 17 14:13:06 +0000 2018","Text":"40man WQグループで試した感じでは、少なくとも戦闘開始時などに処理落ちすることはなくなったように見える。たぶん","StatusId":"1041691517474070529","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 13:09:24 +0000 2018","Text":"1時間半かけてCPU/MB/Mem換装。最近のOSは内臓がまるごとすげ代わっても普通に起動してくれて優秀である。新しいMBはM.2スロットが最初からついてて助かる","StatusId":"1041675488429654018","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 09:47:24 +0000 2018","Text":"今日頼んで今日届くの、魔法の域だよ https://t.co/zkVFk3JCCM","StatusId":"1041624653159051266","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/zkVFk3JCCM","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DnSYGQtV4AEKGKL.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1041624653159051266/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 09:00:27 +0000 2018","Text":"実際、Twitterのつぶやきと位置情報をもとにリアルタイム気象情報を構成する研究は確かあった","StatusId":"1041612838366666753","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 08:52:47 +0000 2018","Text":"Componentパターンを導入しないことにはしょうがない感じのデータ構造に帰着してしまったので仕方なくComponent的に書いている。一部だけどね！ #elm","StatusId":"1041610907518824448","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 08:11:11 +0000 2018","Text":"まあ2,3ヶ月に1回、2週間Live to winするくらいいいんじゃないかな。湯治みたいなもんでしょ","StatusId":"1041600440507355137","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 05:36:29 +0000 2018","Text":"「確か今使ってるのはこれだったはず」程度でクーラーマスタのそれっぽいCPUファンを調べた限りでは使い回せるようでよかった","StatusId":"1041561508201652224","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 05:28:10 +0000 2018","Text":"Chromeまだバージョン上げてないからkey変わったの試してないけど、配列的にはUS配列の位置関係と合わせたんだね","StatusId":"1041559416347090944","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 02:30:28 +0000 2018","Text":"青梅はやはり秘境","StatusId":"1041514696745005058","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 02:29:43 +0000 2018","Text":"RT @Shinjuku10000: 【悲報】JR東日本が東武のパクリを始め、青梅線の一部が「東京アドベンチャーライン」へ。 https://t.co/zSXUqrGwXw","StatusId":"1041514508181630977","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/zSXUqrGwXw","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DnCWQvfU4AErMUt.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/Shinjuku10000/status/1040496738493071360/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"【悲報】JR東日本が東武のパクリを始め、青梅線の一部が「東京アドベンチャーライン」へ。 https://t.co/zSXUqrGwXw","RetweetedStatusId":"1041514508181630977","RetweetedStatusUserName":"青帯Memoria@船橋の人","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Sep 17 02:27:59 +0000 2018","Text":"自分のPC，思っていたより一世代くらい前だったのでポチるものが増えた〈メモリがDDR3だったし〉。今のパーツはどれも電源効率が良くて、TDP的にはピーク見込んでも電源は今ので余裕だけど、CPUファンが使いまわせるかは微妙なので追加が発生するかもしれない","StatusId":"1041514072292782080","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Sep 17 02:16:27 +0000 2018","Text":"RT @pankona: 就活生と面談、みたいなイベントが時々発生するのであるが、就活生に「プログラミング言語はどれもだいたい同じじゃないですか」って言われたときには少し心がざわつきましたね...。あいつ元気かな、戦争起こしてなきゃいいけど。ま、どの言語もマシンを動かすという意…","StatusId":"1041511168911654912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"就活生と面談、みたいなイベントが時々発生するのであるが、就活生に「プログラミング言語はどれもだいたい同じじゃないですか」って言われたときには少し心がざわつきましたね...。あいつ元気かな、戦争起こしてなきゃいいけど。ま、どの言語もマシンを動かすという意…","RetweetedStatusId":"1041511168911654912","RetweetedStatusUserName":"パン粉","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Sep 17 02:01:13 +0000 2018","Text":"RT @rui314: Linusには今後とも強いリーダーシップを発揮しつつも他人を侮辱するのははやめてもらって、人は何歳からでも変われるし、Linuxの成功と口の悪さは関係なかったんだという、新しい形のロールモデルになってほしい。","StatusId":"1041507334181203968","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Linusには今後とも強いリーダーシップを発揮しつつも他人を侮辱するのははやめてもらって、人は何歳からでも変われるし、Linuxの成功と口の悪さは関係なかったんだという、新しい形のロールモデルになってほしい。","RetweetedStatusId":"1041507334181203968","RetweetedStatusUserName":"Rui Ueyama","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Sep 17 01:57:36 +0000 2018","Text":"RT @EzoeRyou: 本の虫: Linus、今までの行いを謝罪し一時的にカーネルメンテナーの立場を退いて人の気持ちを勉強してくると発言 https://t.co/vX8wlhbNVd","StatusId":"1041506423870414849","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"本の虫: Linus、今までの行いを謝罪し一時的にカーネルメンテナーの立場を退いて人の気持ちを勉強してくると発言 https://t.co/vX8wlhbNVd","RetweetedStatusId":"1041506423870414849","RetweetedStatusUserName":"江添亮@左足首靭帯負傷中","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Sep 17 01:47:58 +0000 2018","Text":"DBMを支援しよう。マジで https://t.co/vWQafFEGMo","StatusId":"1041504000187686912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Sep 16 17:13:10 +0000 2018","Text":"今後別のWarfrontも増えるはずだけど、ドロップとかどうなるんだろう。Arathiは誰もやらなくなるのかな","StatusId":"1041374448085921792","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Sep 16 17:12:15 +0000 2018","Text":"RT @hal_tvvitter: off期間中に納品素材を7day分あつめておくのが吉か？","StatusId":"1041374217608998912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"off期間中に納品素材を7day分あつめておくのが吉か？","RetweetedStatusId":"1041374217608998912","RetweetedStatusUserName":"HAL#1579🏴‍☠️🌠","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Sep 16 17:00:45 +0000 2018","Text":"Bohemian Rhapsodyを聞くと脳内に流れる歌詞がこっちになってしまっている\nhttps://t.co/1T6FhlrBoQ","StatusId":"1041371322331258880","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Sep 16 16:58:29 +0000 2018","Text":"https://t.co/p9FmmGrYYt","StatusId":"1041370752237264896","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Sep 16 15:16:21 +0000 2018","Text":"Zek'voz slain, GJ! 意外とシステマチックにAddsをやれるボスだった。残りはZulを練習してP2まで。こっちも結構行けそう。\n今日はRaidしながらAlexaを操作するアチーブを達成した。\nhttps://t.co/tUn5bqfJxb\n#ut_wow","StatusId":"1041345047021535234","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

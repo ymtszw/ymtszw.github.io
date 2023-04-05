@@ -1,0 +1,71 @@
+[
+{"CreatedAt":"Thu Nov 08 14:11:58 +0000 2018","Text":"* Major reflowを極力避ける\n* 巨大なDOM構築を極力避ける(事前に作っておく、再利用する)\n\n結局この辺だということがわかってよかった。後者をそこそこやった上で前者が避けられないケース(設定画面などの比較的大きいが普段隠れているDOMが現れる場合とか)はどうしたってちょっとラグが発生する","StatusId":"1060535404854599682","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 13:28:32 +0000 2018","Text":"当然drawbackは本来生成されなくても良かったDOMを初回起動時に生成しなければならないケースが増えることなんだろうけど、手元のコードだと入力遅延解消の影響が死ぬほど大きくてヤバい。初回表示時に初めてDOM生成したら、以降それをうまいこと使い回せるsmartなHtml.Lazyの変種がほしい","StatusId":"1060524471004487680","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 13:24:36 +0000 2018","Text":"ElmUIで作ってるElm appでDOMが増えると入力遅延が激しくなってくる問題と戦ってるんだけど、単純に「非表示だが再利用されうるDOM」をModelの状態に応じてElement.noneで消すのでなく、display: none;をstyle経由で適用して隠すようにするだけで劇的に改善する現象を目の当たりにしている","StatusId":"1060523484650950656","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 13:01:57 +0000 2018","Text":"visibility: collapseのflex要素への対応が進んでかつanimate可能になったら結構楽になりそうだな","StatusId":"1060517781689356288","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 12:35:40 +0000 2018","Text":"極めて重大なボトルネックを解消できた気がする","StatusId":"1060511169616633856","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 12:33:32 +0000 2018","Text":"RT @mhartl: When you pronounce \"regex\", is the \"g\" hard or soft?","StatusId":"1060510633064427526","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"When you pronounce \"regex\", is the \"g\" hard or soft?","RetweetedStatusId":"1060510633064427526","RetweetedStatusUserName":"Michael Hartl","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Nov 08 12:30:10 +0000 2018","Text":"どうもこっちが本命っぽい気がしてきた https://t.co/io6C9JdhId","StatusId":"1060509783898284034","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 12:14:36 +0000 2018","Text":"作ってる代物はTweetdeckみたいなマルチカラムUIでDOM山盛りなんだけど、Tweetdeckの似たような箇所でプロファイルしてみるとやはり似たようなforced reflowは発生してるし、ある程度避けられない感はする","StatusId":"1060505868184109056","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 12:11:33 +0000 2018","Text":"でもどっちかっていえば別口で発生してるforced reflowのほうが影響デカいようにも見えるし、profileは茨の道だ","StatusId":"1060505099301089281","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 11:59:52 +0000 2018","Text":"つまるところaddEventListener/removeEventListenerのオーバーヘッドがそこそこあるのではという気配を感じたのだが、そのあたりを言及をしている文献があったら嬉しい","StatusId":"1060502157827366917","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 11:55:12 +0000 2018","Text":"ちなみにVirtualDOMを使用します。私の場合はElm","StatusId":"1060500984705646593","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 11:54:23 +0000 2018","Text":"@xamiemon そです。JSです。","StatusId":"1060500777263742976","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 11:54:16 +0000 2018","Text":"背景としては、scrollイベントに応じてinfinite scrollなどしたいって話なのですが、scroll開始したらonscrollハンドラを抜くのではなく、onscrollハンドラは挿しっぱなしにし、スクロール開始の瞬間だけ何か処理をして、その後scrollイベントは無視する方式のほうが挙動が安定したケースが有った","StatusId":"1060500750034300928","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 11:51:32 +0000 2018","Text":"どなたか知見あったら教えてほしいのですが、WebApp(言語・FWはなんでも)で、アプリケーションの状態に応じて不要なイベントハンドラを挿したり抜いたりするより、ハンドラは挿しっぱなしにしておいて状態によって不要なイベントを無視するほうが高速だったりします？","StatusId":"1060500059689635841","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 11:32:49 +0000 2018","Text":"@bicycle_panda なんかもうドアホだ","StatusId":"1060495352933937152","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 11:28:23 +0000 2018","Text":"Yet another 車輪 with Elm\n今日はinfinite scroll https://t.co/OMAhhZsgg6","StatusId":"1060494234514423808","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/OMAhhZsgg6","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/tweet_video_thumb/DrehyW5UcAEbfvJ.jpg","ExtendedEntitiesMediaTypes":"animated_gif","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1060494234514423808/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 11:27:08 +0000 2018","Text":"Dなあ。。。","StatusId":"1060493923255111680","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 10:25:37 +0000 2018","Text":"ヤバさよ","StatusId":"1060478441986830336","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 09:42:12 +0000 2018","Text":"Google Developer Blogには俺が知りたいと思うことは何でも書いてあるなあ、と思って読んだけど、記事が古いのか、自分で考えついた以上のことがそんなになかった\n\nComplexities of an Infinite Scroller  |  Web  |  Google Developers https://t.co/VZQxtBi89Q","StatusId":"1060467513559998464","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 09:06:15 +0000 2018","Text":"ExecutionContext, 個人的には研究プログラミングでクソ我流Java書いてた修士時代から業務(Scala)に入って、直接知識が役立った数少ない例だ","StatusId":"1060458467838746625","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 06:40:46 +0000 2018","Text":"language-elmのブロックコメント内部にhttps://t.co/j2nuw4cXcWスコープを適用するかどうか悩んでいる。markdown syntaxとかfenced code block内部でのハイライトとかが入るようになるが、コメントっぽさが若干薄れるので危険かもしれない","StatusId":"1060421853573931009","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 06:11:58 +0000 2018","Text":"@Opaopa691 4/1なら。。。","StatusId":"1060414606600851456","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 05:59:21 +0000 2018","Text":"自前Logger、Msgのペイロード部分を適宜dumpしているんだけど、コピペして眺めたいときにいちいち選択するのが面倒でどうにかできないかと思っていたところ、user-select: allで一発解決した。\nhttps://t.co/kUzAfjFBHI","StatusId":"1060411432276127744","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 05:21:50 +0000 2018","Text":"Scaffoldingどうしてたっけって思ったけど、Main.elmファイルに関してはsnippetが主だった","StatusId":"1060401990545563648","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 05:20:07 +0000 2018","Text":"RT @jinjor: はてなブログに投稿しました\nGISC : Scaffolding のネタを Git のリポジトリから取ってくるツール作った - ジンジャー研究室 https://t.co/FRGZceyxzl #はてなブログ","StatusId":"1060401556502114304","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"はてなブログに投稿しました\nGISC : Scaffolding のネタを Git のリポジトリから取ってくるツール作った - ジンジャー研究室 https://t.co/FRGZceyxzl #はてなブログ","RetweetedStatusId":"1060401556502114304","RetweetedStatusUserName":"Yosuke Torii / ジンジャー","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Nov 08 03:58:26 +0000 2018","Text":"片方の塔がサルマンのいるアイゼンガルドのオルサンクの塔だというのはわかりやすいんだけど(結構たくさん出てくるから)、もう片方がサウロンの目があるバラド＝ドゥアを指しているというのは忘れやすいぞ","StatusId":"1060381001854025730","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 03:57:15 +0000 2018","Text":"RT @moznion: ロード・オブ・ザ・リング/二つの塔のネタバレなんですが，塔が2つ出てきます","StatusId":"1060380705006399488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ロード・オブ・ザ・リング/二つの塔のネタバレなんですが，塔が2つ出てきます","RetweetedStatusId":"1060380705006399488","RetweetedStatusUserName":"moznion","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Nov 08 03:13:18 +0000 2018","Text":"gumi TECH Drinkup #4 -【推しプログラミング言語】エンジニア飲み会 - に参加を申し込みました！ https://t.co/QIZEmT7hgV #gumiTECH","StatusId":"1060369644303790081","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 03:10:46 +0000 2018","Text":"抽選だし、とりあえず投げてみるか","StatusId":"1060369007126007808","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Nov 08 03:08:17 +0000 2018","Text":"RT @GumiTech: 隔月で開催しているエンジニア交流飲み会 gumi TECH Drinkup ですが、第4回は、【推しプログラミング言語】をテーマにします。LT もありますので、あなたの推しプログラミング言語を語ってください。参加無料です。クラフトビール2杯と食事代は…","StatusId":"1060368381914767360","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"隔月で開催しているエンジニア交流飲み会 gumi TECH Drinkup ですが、第4回は、【推しプログラミング言語】をテーマにします。LT もありますので、あなたの推しプログラミング言語を語ってください。参加無料です。クラフトビール2杯と食事代は…","RetweetedStatusId":"1060368381914767360","RetweetedStatusUserName":"gumi TECH","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Nov 08 03:08:11 +0000 2018","Text":"Elmで出そかな。 https://t.co/s2ZC2Po3vb","StatusId":"1060368355863883776","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Nov 07 18:04:19 +0000 2018","Text":"SATISFACTION\nhttps://t.co/50tl1OimnC","StatusId":"1060231489147723776","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Nov 07 17:44:27 +0000 2018","Text":"RT @momoiktkr: ぜんっぜん違うとわかっているけど、携帯キャリアの更新月ってFA権を取得した選手のオフのような気持ちにならない？\n移る気はなくても残留の意思を最初は示さずに「他の球団の条件も聞いてみたい」みたいな……\n好条件で慰留されたい。","StatusId":"1060226488979546112","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ぜんっぜん違うとわかっているけど、携帯キャリアの更新月ってFA権を取得した選手のオフのような気持ちにならない？\n移る気はなくても残留の意思を最初は示さずに「他の球団の条件も聞いてみたい」みたいな……\n好条件で慰留されたい。","RetweetedStatusId":"1060226488979546112","RetweetedStatusUserName":"桃井はるこ☺︎ 𝙼𝙾𝙼𝙾𝙸 𝙷𝙰𝚁𝚄𝙺𝙾☆𝚄𝙿 𝙳𝙰𝚃𝙴","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Wed Nov 07 15:10:31 +0000 2018","Text":"完全に忘れていた","StatusId":"1060187749720895488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Nov 07 15:10:20 +0000 2018","Text":"RT @moznion: ところでフリクリ オルタナの感想はみんないい感じで話していたのにプログレの感想全然みませんね，どうしたんですか","StatusId":"1060187704183316480","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ところでフリクリ オルタナの感想はみんないい感じで話していたのにプログレの感想全然みませんね，どうしたんですか","RetweetedStatusId":"1060187704183316480","RetweetedStatusUserName":"moznion","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+]
