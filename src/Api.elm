@@ -102,7 +102,11 @@ sitemap :
 sitemap entriesSource =
     ApiRoute.succeed
         (entriesSource
-            |> DataSource.map (Sitemap.build { siteUrl = Site.config.canonicalUrl })
+            |> DataSource.map
+                (\entries ->
+                    """<?xml version="1.0" encoding="UTF-8"?>
+""" ++ Sitemap.build { siteUrl = Site.config.canonicalUrl } entries
+                )
             |> DataSource.map ApiRoute.Response
         )
         |> ApiRoute.literal "sitemap.xml"
