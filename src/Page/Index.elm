@@ -11,7 +11,7 @@ import Page exposing (PageWithState, StaticPayload)
 import Page.Twilogs
 import Pages.PageUrl exposing (PageUrl)
 import Route
-import Shared exposing (seoBase)
+import Shared exposing (RataDie, Twilog, seoBase)
 import Task
 import View exposing (View)
 
@@ -29,7 +29,9 @@ type alias RouteParams =
 
 
 type alias Data =
-    ()
+    { rataDie : RataDie
+    , twilogs : List Twilog
+    }
 
 
 page : PageWithState RouteParams Data Model Msg
@@ -48,7 +50,23 @@ page =
 
 data : DataSource Data
 data =
-    DataSource.succeed ()
+    Shared.twilogArchives
+        |> DataSource.andThen
+            (\twilogArchives ->
+                case twilogArchives of
+                    latestArchive :: _ ->
+                        Shared.dailyTwilogsFromOldest [ latestArchive.path ]
+                            |> DataSource.map
+                                (\dailyTwilogs ->
+                                    -- In this page dailyTwilogs contain only one day
+                                    Dict.get latestArchive.rataDie dailyTwilogs
+                                        |> Maybe.withDefault []
+                                        |> Data latestArchive.rataDie
+                                )
+
+                    [] ->
+                        DataSource.fail "No twilogs; Should not happen"
+            )
 
 
 update :
@@ -64,11 +82,7 @@ update _ _ shared static msg model =
         InitiateLinkPreviewPopulation ->
             ( model
             , Cmd.none
-            , static.sharedData.dailyTwilogs
-                |> Dict.keys
-                |> List.reverse
-                |> List.take 1
-                |> Page.Twilogs.listUrlsForPreviewBulk shared static
+            , Page.Twilogs.listUrlsForPreviewSingle shared static.data.twilogs
             )
 
 
@@ -94,15 +108,9 @@ view _ shared _ static =
             , Html.text "ymtszw's page"
             ]
         , Html.h2 [] [ Route.link Route.Twilogs [] [ Html.text "Twilog" ] ]
-        , -- get latest day's twilogs from static.sharedData.dailyTwilogs
-          case List.reverse (Dict.values static.sharedData.dailyTwilogs) of
-            latestTwilogs :: _ ->
-                latestTwilogs
-                    |> Page.Twilogs.twilogsOfTheDay shared
-                    |> showless "latest-twilogs"
-
-            [] ->
-                Html.text ""
+        , static.data.twilogs
+            |> Page.Twilogs.twilogsOfTheDay shared
+            |> showless "latest-twilogs"
         , Html.h2 [] [ Route.link Route.Articles [] [ Html.text "記事" ], View.feedLink "/articles/feed.xml" ]
         , static.sharedData.cmsArticles
             |> List.take 5
