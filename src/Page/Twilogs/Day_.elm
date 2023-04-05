@@ -145,14 +145,14 @@ prevNextNavigation { rataDie } twilogArchives =
 
 findNextRataDie : RataDie -> List Shared.TwilogArchiveMetadata -> Maybe RataDie
 findNextRataDie today twilogArchives =
-    case twilogArchives of
-        oldestArchive :: _ ->
+    case List.reverse twilogArchives of
+        (oldestArchive :: _) as reversedArchives ->
             if today < oldestArchive.rataDie then
                 -- Enter into range from oldest
                 Just oldestArchive.rataDie
 
             else
-                case List.Extra.dropWhile (\a -> a.rataDie <= today) twilogArchives of
+                case List.Extra.dropWhile (\a -> a.rataDie <= today) reversedArchives of
                     nearestNextArchive :: _ ->
                         Just nearestNextArchive.rataDie
 
@@ -167,7 +167,7 @@ findNextRataDie today twilogArchives =
 
 findPrevRataDie : RataDie -> List Shared.TwilogArchiveMetadata -> Maybe RataDie
 findPrevRataDie today twilogArchives =
-    case List.reverse twilogArchives of
+    case twilogArchives of
         latestArchive :: _ ->
             if today > latestArchive.rataDie then
                 -- Enter into range from latest
