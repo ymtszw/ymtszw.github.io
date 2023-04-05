@@ -1,7 +1,7 @@
 {
   "name": "ymtszw",
   "scripts": {
-    "postinstall": "elm-tooling install",
+    "postinstall": "elm-tooling install && patch-package",
     "import_archived_tweets": "TZ=Asia/Tokyo node import_archived_tweets.js",
     "prestart": "./fetch_twilogs_json.sh",
     "start": "elm-pages dev --port 10101",
