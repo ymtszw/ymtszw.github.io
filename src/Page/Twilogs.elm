@@ -488,65 +488,86 @@ linksByMonths maybeOpenedDate twilogArchives =
         datesGroupedByYearMonthFromNewest =
             twilogArchives
                 -- Traverse from oldest
-                |> List.foldl
+                |> List.foldr
                     (\{ date } acc ->
-                        let
-                            yearMonth =
-                                ( Date.year date, Date.monthNumber date )
-                        in
-                        Dict.update yearMonth
-                            (\maybeDates ->
-                                case maybeDates of
+                        Dict.update (Date.year date)
+                            (\maybeMonths ->
+                                case maybeMonths of
                                     Nothing ->
-                                        Just [ date ]
+                                        Just (Dict.singleton (Date.monthNumber date) [ date ])
 
-                                    Just dates ->
-                                        -- Cons from oldest to newest
-                                        Just (date :: dates)
+                                    Just months ->
+                                        Just
+                                            (Dict.update (Date.monthNumber date)
+                                                (\maybeDates ->
+                                                    case maybeDates of
+                                                        Nothing ->
+                                                            Just [ date ]
+
+                                                        Just dates ->
+                                                            -- Cons from oldest to newest
+                                                            Just (date :: dates)
+                                                )
+                                                months
+                                            )
                             )
                             acc
                     )
                     Dict.empty
                 -- Here Dict -> List conversion makes the resulting list oldest-first
+                |> Dict.map (\_ v -> v |> Dict.toList |> List.reverse)
                 |> Dict.toList
                 |> List.reverse
 
-        openedYearMonth =
+        ( openedYear, openedMonth ) =
             case maybeOpenedDate of
                 Nothing ->
                     case datesGroupedByYearMonthFromNewest of
-                        [] ->
-                            ( 2023, 4 )
+                        ( year, ( month, _ ) :: _ ) :: _ ->
+                            ( year, month )
 
-                        ( yearMonth, _ ) :: _ ->
-                            yearMonth
+                        _ ->
+                            ( 2023, 4 )
 
                 Just date ->
                     ( Date.year date, Date.monthNumber date )
     in
     datesGroupedByYearMonthFromNewest
         |> List.map
-            (\( ( year, monthNum ), dates ) ->
+            (\( year, months ) ->
                 details
-                    [ if ( year, monthNum ) == openedYearMonth then
+                    [ if year == openedYear then
                         attribute "open" ""
 
                       else
                         classList []
                     ]
-                    [ summary [] [ text <| String.fromInt year ++ "/" ++ String.padLeft 2 '0' (String.fromInt monthNum) ]
-                    , dates
-                        |> List.map
-                            (\date ->
-                                li []
-                                    [ if Just date == maybeOpenedDate then
-                                        text <| Date.format "yyyy/MM/dd (E)" date ++ " ◀"
+                    (summary [] [ text (String.fromInt year ++ "年") ]
+                        :: List.map
+                            (\( monthNum, dates ) ->
+                                details
+                                    [ if ( year, monthNum ) == ( openedYear, openedMonth ) then
+                                        attribute "open" ""
 
                                       else
-                                        Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ]
+                                        classList []
+                                    ]
+                                    [ summary [] [ text (String.fromInt monthNum ++ "月") ]
+                                    , List.map
+                                        (\date ->
+                                            li []
+                                                [ if Just date == maybeOpenedDate then
+                                                    text <| Date.format "yyyy/MM/dd (E)" date ++ " ◀"
+
+                                                  else
+                                                    Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ]
+                                                ]
+                                        )
+                                        dates
+                                        |> ul []
                                     ]
                             )
-                        |> ul []
-                    ]
+                            months
+                    )
             )
         |> nav [ class "twilog-archive-navigation" ]
