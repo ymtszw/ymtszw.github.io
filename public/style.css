@@ -406,8 +406,17 @@ nav.twilog-archive-navigation details summary {
   color: #4a4a4a;
   cursor: pointer;
 }
+nav.twilog-archive-navigation details[open] > summary {
+  /* Somewhat bright border-bottom, in-line with Sakura's link style */
+  border-bottom: 2px solid #4a4a4a;
+}
+
+nav.twilog-archive-navigation details details {
+  margin-left: 20px;
+}
 
 nav.twilog-archive-navigation ul {
+  columns: 2 auto;
   margin: 0;
   padding: 5px;
   list-style-position: inside;
