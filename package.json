@@ -2,6 +2,7 @@
   "name": "ymtszw",
   "scripts": {
     "postinstall": "elm-tooling install && patch-package",
+    "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs",
     "import_archived_tweets": "TZ=Asia/Tokyo node import_archived_tweets.js",
     "prestart": "./fetch_twilogs_json.sh",
     "start": "elm-pages dev --port 10101",
@@ -13,6 +14,7 @@
     "elm-pages": "^2.1",
     "elm-review": "^2.5",
     "elm-tooling": "^1.4",
+    "node-fetch": "^3.3.1",
     "patch-package": "^6.5"
   }
 }
