@@ -97,6 +97,8 @@ listUrlsForPreviewBulkHelp : Dict String LinkPreview.Metadata -> Dict RataDie (L
 listUrlsForPreviewBulkHelp links recentDailyTwilogsFromOldest =
     Dict.values recentDailyTwilogsFromOldest
         |> List.concat
+        -- Make it newest first
+        |> List.reverse
         |> listUrlsForPreviewSingleHelp links
         |> List.Extra.unique
 
