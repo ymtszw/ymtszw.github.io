@@ -9,7 +9,7 @@
 
 import fetch from "node-fetch";
 import csv from "csvtojson";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, writeFile, readFile } from "fs/promises";
 import { existsSync } from "fs";
 
 let groupedByYearMonthDay = {};
@@ -42,9 +42,23 @@ function dumpGroupedTwilogs() {
       const file = `${dir}/${day}-twilogs.json`;
       await mkdir(dir, { recursive: true });
       if (existsSync(file)) {
-        // TODO: Merge smartly with existing file if they differ
-        console.log("Already exists, skipping:", file);
-        return 0;
+        const currentData = JSON.parse(await readFile(file));
+        const mergedData = twilogs
+          .reduce((acc, twilog) => {
+            // Update `acc` array element by `twilog` if it has the same `StatusId`, otherwise append `twilog` to `acc`
+            const index = acc.findIndex((t) => t.StatusId === twilog.StatusId);
+            if (index >= 0) {
+              acc[index] = twilog;
+            } else {
+              acc.push(twilog);
+            }
+            return acc;
+          }, currentData)
+          .sort((a, b) => a.StatusId.localeCompare(b.StatusId))
+          .map((twilog) => JSON.stringify(twilog))
+          .join("\n,\n");
+        console.log("Merging:", file);
+        return writeFile(file, "[\n" + mergedData + "\n]\n");
       } else {
         const data = twilogs
           .sort((a, b) => a.StatusId.localeCompare(b.StatusId))
