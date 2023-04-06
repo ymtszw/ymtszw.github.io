@@ -4,9 +4,8 @@
     "postinstall": "elm-tooling install && patch-package",
     "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs",
     "import_archived_tweets": "TZ=Asia/Tokyo node import_archived_tweets.js",
-    "prestart": "./fetch_twilogs_json.sh",
     "start": "elm-pages dev --port 10101",
-    "build": "./fetch_twilogs_json.sh && elm-pages build"
+    "build": "elm-pages build"
   },
   "devDependencies": {
     "csvtojson": "^2.0",
