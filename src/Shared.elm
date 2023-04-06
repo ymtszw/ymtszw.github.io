@@ -498,6 +498,7 @@ dailyTwilogsFromOldest paths =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
                 |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
                 |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
+                -- Make it Maybe, allow decode-failures to be ignored
                 |> OptimizedDecoder.maybe
 
         createdAtDecoder =
@@ -597,7 +598,7 @@ dailyTwilogsFromOldest paths =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
 
-        toDailyDict baseDict =
+        toDailyDictFromNewest baseDict =
             List.foldl
                 (\maybeTwilog dict ->
                     case maybeTwilog of
@@ -606,10 +607,9 @@ dailyTwilogsFromOldest paths =
                                 (\dailySortedTwilogs ->
                                     case dailySortedTwilogs of
                                         Just twilogs ->
-                                            -- ArchiveとSpreadsheetで重複があるのを後勝ちで解消する
-                                            List.Extra.uniqueBy .id (twilog :: twilogs)
-                                                |> List.sortBy (.createdAt >> Time.posixToMillis)
-                                                |> Just
+                                            -- コミット済みJSON由来のtwilogは古い順、かつArchive/Spreadsheetをマージ済み
+                                            -- foldlで古い順からtraverseし、ここで到着順にconsしているので、最終的に結果は新しい順になる
+                                            Just (twilog :: twilogs)
 
                                         Nothing ->
                                             Just [ twilog ]
@@ -626,7 +626,7 @@ dailyTwilogsFromOldest paths =
             DataSource.andThen
                 (\accDict ->
                     DataSource.File.jsonFile
-                        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map (toDailyDict accDict) |> OptimizedDecoder.map resolveRepliesWithinDay)
+                        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map (toDailyDictFromNewest accDict) |> OptimizedDecoder.map resolveRepliesWithinDayAndSortFromOldest)
                         path
                 )
                 accDS
@@ -635,8 +635,8 @@ dailyTwilogsFromOldest paths =
         paths
 
 
-resolveRepliesWithinDay : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
-resolveRepliesWithinDay =
+resolveRepliesWithinDayAndSortFromOldest : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
+resolveRepliesWithinDayAndSortFromOldest =
     let
         -- Assume twilogsOfDay is newest-first.
         -- Here we traverse the list so that reply tweets are brought under `.replies` field of the tweet (within the same day) they replied to.
@@ -645,9 +645,11 @@ resolveRepliesWithinDay =
         resolveHelp acc twilogsOfDay =
             case twilogsOfDay of
                 [] ->
+                    -- Finally sort acc list again with touchedAt, but stays mostly oldest-first
                     List.sortBy (.touchedAt >> Time.posixToMillis) acc
 
                 twilog :: olderTwilogs ->
+                    -- With this recursion acc list eventually becomes oldest-first
                     case Maybe.andThen (\inReplyTo -> List.Extra.findIndex (\olderTwilog -> olderTwilog.id == inReplyTo.id) olderTwilogs) twilog.inReplyTo of
                         Just index ->
                             let
@@ -663,8 +665,7 @@ resolveRepliesWithinDay =
             -- Reverse to newsest-first
             List.sortBy (\(Reply twilog) -> Time.posixToMillis twilog.touchedAt) >> List.reverse
     in
-    -- Reverse the list so that the latest twilog is at the head
-    Dict.map (\_ twilogs -> twilogs |> List.reverse |> resolveHelp [])
+    Dict.map (\_ twilogs -> resolveHelp [] twilogs)
 
 
 maxTime : Time.Posix -> Time.Posix -> Time.Posix
