@@ -1,31 +1,31 @@
 [
-{"CreatedAt":"Tue Oct 10 13:16:44 +0000 2017","Text":"@Lhurgoyf1997 @gachinabe @kazachino_wow 麻雀脳かな？","StatusId":"917740682600517637","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Oct 10 12:23:34 +0000 2017","Text":"@gachinabe @kazachino_wow やっば","StatusId":"917727303492263936","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Oct 10 12:08:22 +0000 2017","Text":"その分オプション画面が複雑になったのがネックだったかな。あとはいろいろ表示させられても結局そんなに見てられないことが多いので、カスタムコードなしのWAで実現できる程度の内容に集約された。","StatusId":"917723479511752704","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Oct 10 12:06:38 +0000 2017","Text":"「combat logから取れる情報を表示する」という機能はWAその他いろんなAddonでできるんだけど、MSBTの良かったところは、sourceとdestそれぞれのunitについてそこそこ細かい条件をカスタムコード無しで指定できたことだと思う。これが色々役に立った","StatusId":"917723041919942656","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Oct 10 12:00:50 +0000 2017","Text":"ちまちま微妙なところはありつつも、MSBTで表示してた大体のテキスト情報をWAで置き換えられた。しばらく様子見てMSBTは消そう","StatusId":"917721584877498369","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Oct 10 08:39:54 +0000 2017","Text":"（もちろんアプリケーションのデータモデルの中にrelation/associationがある場合、ネストされた形で表現されるケースがあるのは間違いないので、ネスト自体は発生するが、最小限にしたいという思いがある）","StatusId":"917671017178214400","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Oct 10 08:38:35 +0000 2017","Text":"それでもそこそこめんどくさいことには間違いないので、今はextensibleなrecordをメインのデータ構造とみなして、あまりネストせずにやりくりする方向性でどの程度のことができるか試している。","StatusId":"917670684104450048","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Oct 10 08:35:04 +0000 2017","Text":"初めてElmでそこそこの規模のアプリを書いたとき、ネストされたデータ構造のアップデートが鬼門であることは肌感としてあった。結果的には、フィールドごとのupdateを生成して、さらに下の階層のものとcomposeしていくというパターンを手で実装していたことに気づく。","StatusId":"917669800419012608","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Oct 10 08:32:53 +0000 2017","Text":"Lens系ライブラリがあることは知っていたんだけど、そんなに理解せずに今までいたからむしろAPIを知れて有意義だった。\nhttps://t.co/XKN2lEzzAL #elmlang","StatusId":"917669251007127552","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Mon Oct 09 20:08:57 +0000 2017","Text":"@yoshinZ80 naruhodo","StatusId":"917482035551207424","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Mon Oct 09 18:32:42 +0000 2017","Text":"わたモテは現代の正統派ビルドゥングスロマンだった・・・？","StatusId":"917457811071574016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Mon Oct 09 18:23:13 +0000 2017","Text":"PMとNerzの鯖時間は同じPST/PDTだったはずなんだけど、今見たら2時間ずれていた（Nerzが2時間早いので、中部時間になってる？）。\nConnectedになったあたりからかな。それともリセット時刻統一のあたりから？","StatusId":"917455426542723072","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Mon Oct 09 17:57:42 +0000 2017","Text":"まだそこそこの値段だった。が、Argussianのマウントはお金で買えるし、Paragon箱にはマウントやペットはないらしいので、あんまりMacReeやる旨みがない","StatusId":"917449003561656321","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Oct 09 16:52:48 +0000 2017","Text":"RT @BlizzHeroes: It's all coming up EXPLODEY! 💣 \n\nHero Spotlight: Junkrat ⚙️🐀  | https://t.co/6B7g2XESjR https://t.co/t5yqH5xjlO","StatusId":"917432672892289024","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/t5yqH5xjlO","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/tweet_video_thumb/DLtepDLVAAAkIbQ.jpg","ExtendedEntitiesMediaTypes":"animated_gif","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/BlizzHeroes/status/917431164276588544/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"It's all coming up EXPLODEY! 💣 \n\nHero Spotlight: Junkrat ⚙️🐀  | https://t.co/6B7g2XESjR https://t.co/t5yqH5xjlO","RetweetedStatusId":"917432672892289024","RetweetedStatusUserName":"Heroes of the Storm","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
 {"CreatedAt":"Mon Oct 09 17:46:40 +0000 2017","Text":"Macree開いてから2週間くらい、Talbukをhunterで捕まえるためのアイテム（肉）が結構いい値段で売れてたんだけど、流石にもう下がったかな","StatusId":"917446227502931968","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Mon Oct 09 16:52:48 +0000 2017","Text":"RT @BlizzHeroes: It's all coming up EXPLODEY! 💣 \n\nHero Spotlight: Junkrat ⚙️🐀  | https://t.co/6B7g2XESjR https://t.co/t5yqH5xjlO","StatusId":"917432672892289024","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/t5yqH5xjlO","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/tweet_video_thumb/DLtepDLVAAAkIbQ.jpg","ExtendedEntitiesMediaTypes":"animated_gif","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/BlizzHeroes/status/917431164276588544/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"It's all coming up EXPLODEY! 💣 \n\nHero Spotlight: Junkrat ⚙️🐀  | https://t.co/6B7g2XESjR https://t.co/t5yqH5xjlO","RetweetedStatusId":"917432672892289024","RetweetedStatusUserName":"Heroes of the Storm","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+{"CreatedAt":"Mon Oct 09 17:57:42 +0000 2017","Text":"まだそこそこの値段だった。が、Argussianのマウントはお金で買えるし、Paragon箱にはマウントやペットはないらしいので、あんまりMacReeやる旨みがない","StatusId":"917449003561656321","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Oct 09 18:23:13 +0000 2017","Text":"PMとNerzの鯖時間は同じPST/PDTだったはずなんだけど、今見たら2時間ずれていた（Nerzが2時間早いので、中部時間になってる？）。\nConnectedになったあたりからかな。それともリセット時刻統一のあたりから？","StatusId":"917455426542723072","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Oct 09 18:32:42 +0000 2017","Text":"わたモテは現代の正統派ビルドゥングスロマンだった・・・？","StatusId":"917457811071574016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Oct 09 20:08:57 +0000 2017","Text":"@yoshinZ80 naruhodo","StatusId":"917482035551207424","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 10 08:32:53 +0000 2017","Text":"Lens系ライブラリがあることは知っていたんだけど、そんなに理解せずに今までいたからむしろAPIを知れて有意義だった。\nhttps://t.co/XKN2lEzzAL #elmlang","StatusId":"917669251007127552","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 10 08:35:04 +0000 2017","Text":"初めてElmでそこそこの規模のアプリを書いたとき、ネストされたデータ構造のアップデートが鬼門であることは肌感としてあった。結果的には、フィールドごとのupdateを生成して、さらに下の階層のものとcomposeしていくというパターンを手で実装していたことに気づく。","StatusId":"917669800419012608","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 10 08:38:35 +0000 2017","Text":"それでもそこそこめんどくさいことには間違いないので、今はextensibleなrecordをメインのデータ構造とみなして、あまりネストせずにやりくりする方向性でどの程度のことができるか試している。","StatusId":"917670684104450048","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 10 08:39:54 +0000 2017","Text":"（もちろんアプリケーションのデータモデルの中にrelation/associationがある場合、ネストされた形で表現されるケースがあるのは間違いないので、ネスト自体は発生するが、最小限にしたいという思いがある）","StatusId":"917671017178214400","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 10 12:00:50 +0000 2017","Text":"ちまちま微妙なところはありつつも、MSBTで表示してた大体のテキスト情報をWAで置き換えられた。しばらく様子見てMSBTは消そう","StatusId":"917721584877498369","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 10 12:06:38 +0000 2017","Text":"「combat logから取れる情報を表示する」という機能はWAその他いろんなAddonでできるんだけど、MSBTの良かったところは、sourceとdestそれぞれのunitについてそこそこ細かい条件をカスタムコード無しで指定できたことだと思う。これが色々役に立った","StatusId":"917723041919942656","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 10 12:08:22 +0000 2017","Text":"その分オプション画面が複雑になったのがネックだったかな。あとはいろいろ表示させられても結局そんなに見てられないことが多いので、カスタムコードなしのWAで実現できる程度の内容に集約された。","StatusId":"917723479511752704","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 10 12:23:34 +0000 2017","Text":"@gachinabe @kazachino_wow やっば","StatusId":"917727303492263936","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 10 13:16:44 +0000 2017","Text":"@Lhurgoyf1997 @gachinabe @kazachino_wow 麻雀脳かな？","StatusId":"917740682600517637","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ]

@@ -1,85 +1,85 @@
 [
-{"CreatedAt":"Sun Aug 25 14:57:52 +0000 2019","Text":"RT @negiboudu: gadaさんに、どうやって英語を学んだんですかって聞いたら、洋ゲーでっていう答えだった。\nリアルタイムのチャットでというより、情報収集でとのこと。なるほど。\nプログラムを組む我々としては、ゲームをコードに置き換えても英語を学べるはず。って思った。…","StatusId":"1165639433237852161","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"gadaさんに、どうやって英語を学んだんですかって聞いたら、洋ゲーでっていう答えだった。\nリアルタイムのチャットでというより、情報収集でとのこと。なるほど。\nプログラムを組む我々としては、ゲームをコードに置き換えても英語を学べるはず。って思った。…","RetweetedStatusId":"1165639433237852161","RetweetedStatusUserName":"negiboudu","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sun Aug 25 14:54:52 +0000 2019","Text":"@shikamiya 二次会で自作キーボードの話、Dvorakの話、いっぱい聞かせてもらってありがとうございました！こだわりすごくて感心しっぱなしでした","StatusId":"1165638678200213504","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 14:27:50 +0000 2019","Text":"今日は面白い発表が多かっただけでなく、座談会でいろいろと思いを伝えられたし、Twitterで普段お話させて頂いてる方と何人も初顔合わせできて、大変濃い時間でした。またやりましょう。\n#elm_meetup","StatusId":"1165631878402990081","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 13:27:15 +0000 2019","Text":"RT @ponkikizzz: 大したものではないですが今日の資料アップしました🙏\nhttps://t.co/xpw2BkqyPf\n\n#elm_meetup","StatusId":"1165616629448790016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"大したものではないですが今日の資料アップしました🙏\nhttps://t.co/xpw2BkqyPf\n\n#elm_meetup","RetweetedStatusId":"1165616629448790016","RetweetedStatusUserName":"ナツミ","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sun Aug 25 10:27:52 +0000 2019","Text":"RT @nahokomatsui: 型で世界を救う未来を見つめる女性エンジニア達の図 https://t.co/VM8A2ETNcv","StatusId":"1165571486133829632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/VM8A2ETNcv","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/ECze3jiUcAInXQR.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/nahokomatsui/status/1165551454230175744/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"型で世界を救う未来を見つめる女性エンジニア達の図 https://t.co/VM8A2ETNcv","RetweetedStatusId":"1165571486133829632","RetweetedStatusUserName":"nahokomatsui","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sun Aug 25 09:55:09 +0000 2019","Text":"グランドタワーとにかく眺めが良かった https://t.co/EIPC4AoVPA","StatusId":"1165563253184811008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/EIPC4AoVPA","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/ECzpmTAUYAAwX30.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1165563253184811008/photo/1","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 07:50:37 +0000 2019","Text":"アンケートリンク  https://t.co/xKAikfIECh\n#elm_meetup","StatusId":"1165531913039167488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 07:40:59 +0000 2019","Text":"Gada（松澤）は、\n\n- エディタプラグインの話\n- Json.Decodeの話\n- GraphQLの話\n\nあたりはそこそこ話せるので是非どうぞ\n#elm_meetup","StatusId":"1165529487661920256","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 07:21:40 +0000 2019","Text":"これか\nLamdera\nhttps://t.co/NWeO33gx0z\n#elm_meetup","StatusId":"1165524628241932288","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 07:19:15 +0000 2019","Text":"RT @sy_izumi: https://t.co/EwYoYi9iAM #elm_meetup","StatusId":"1165524020290187264","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"https://t.co/EwYoYi9iAM #elm_meetup","RetweetedStatusId":"1165524020290187264","RetweetedStatusUserName":"IzumiSy™","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sun Aug 25 07:17:47 +0000 2019","Text":"F#のwebリソースをもとに書いたのがこの記事です\n「ADT, 直和・直積, State Machine」 - Qiita\nhttps://t.co/t8RNOqIamk\n#elm_meetup","StatusId":"1165523652063854592","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:59:43 +0000 2019","Text":"Elmはどんな人にオススメできないか - Qiita https://t.co/leRBaaPM6l\n#elm_meetup","StatusId":"1165519104800772096","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:51:54 +0000 2019","Text":"@omiend です！","StatusId":"1165517138431336450","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:45:44 +0000 2019","Text":"#elm_meetup https://t.co/zo1rqorFK1","StatusId":"1165515585171542016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:44:44 +0000 2019","Text":"最初に出た勉強会はこれでした\nElm Tokyo Meetup #4 - connpass\nhttps://t.co/b5BG54NeQI","StatusId":"1165515334683545601","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:34:45 +0000 2019","Text":"皆さんから見て一番右にいるのが私です！\n#elm_meetup","StatusId":"1165512823557869568","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:16:15 +0000 2019","Text":"この会合、ミサかなにかか？ #elm_meetup","StatusId":"1165508167716917248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:13:57 +0000 2019","Text":"挫折を遠ざける言語、それがElm\n#elm_meetup","StatusId":"1165507587476869120","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:12:43 +0000 2019","Text":"お、地獄か？ #elm_meetup","StatusId":"1165507277203234818","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:11:19 +0000 2019","Text":"サーバサイドで関数型言語使ってた人は、Elmと親和性が高いという経験則がある\n#elm_meetup","StatusId":"1165506925649264642","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:08:09 +0000 2019","Text":"（シュバババババ\n#elm_meetup","StatusId":"1165506127653564417","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:04:50 +0000 2019","Text":"@taashi_s それちょっと面白そうですね","StatusId":"1165505293133828096","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 06:03:53 +0000 2019","Text":"RT @taashi_s: 前も書いた気がするが、自分たちがやったときのグローバルデータは、グローバルデータがほしいモジュールが、それぞれsubscriptionで、それを監視しておいて、どこかでグローバルデータへの変更が発生すると、subscriptionで通知発生するように…","StatusId":"1165505054033338368","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"前も書いた気がするが、自分たちがやったときのグローバルデータは、グローバルデータがほしいモジュールが、それぞれsubscriptionで、それを監視しておいて、どこかでグローバルデータへの変更が発生すると、subscriptionで通知発生するように…","RetweetedStatusId":"1165505054033338368","RetweetedStatusUserName":"taashi","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sun Aug 25 06:02:43 +0000 2019","Text":"Siiiboでも、今日の発表で複数登場している、各PageのModel内に共通（グローバル）データを持ち回す、elm-spa-example &amp; https://t.co/TvPGTrBwdS方式で実装しています。個人的にSessionという名前は誤解を招くと思っているのでSharedとしている。\n#elm_meetup","StatusId":"1165504760708886533","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 05:55:18 +0000 2019","Text":"Signal（上代の神話\n#elm_meetup","StatusId":"1165502892243075072","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 05:49:24 +0000 2019","Text":"コードが成長したとき、どうしてもコンポーネント横断・親子間でのコミュニケーションが必要になる場合は間違いなくある。個人的には内部構造が隠蔽されるCmdよりは、専用のtypeを用意してやるかなー。\n#elm_meetup","StatusId":"1165501409346781184","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 05:44:31 +0000 2019","Text":"なかなかアグレッシブなやりかたしてるな！ #elm_meetup","StatusId":"1165500180000460800","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 05:40:21 +0000 2019","Text":"分割しない #elm_meetup","StatusId":"1165499130292002816","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 05:36:47 +0000 2019","Text":"CORSはCORSがめんどくさいということがわかっていれば意外と解決できる。\n問題はWebアプリのプログラミングを始めたばかりの人にも襲いかかるので、CORSというものの意義や正体を理解するところから始めなければならないという点だ\n#elm_meetup","StatusId":"1165498233675628544","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 05:12:00 +0000 2019","Text":"elm-uiも、レイアウト言語としてはいいんだけどスタイル言語としては微妙だし、パフォーマンス問題も出るという経験があったので、モチベーションはすごく共感できる\n#elm_meetup","StatusId":"1165491996628119553","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 04:30:32 +0000 2019","Text":"RT @shirosawa_noel: elm手動RTbotの圧がないほう(@miyamo_madoka) #elm_meetup","StatusId":"1165481562588078081","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"elm手動RTbotの圧がないほう(@miyamo_madoka) #elm_meetup","RetweetedStatusId":"1165481562588078081","RetweetedStatusUserName":"shirosawa_noel","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sun Aug 25 04:29:55 +0000 2019","Text":"会場内ちょっと暗くできないかな #elm_meetup","StatusId":"1165481405775667202","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 04:21:37 +0000 2019","Text":"赤は黄に勝ち、黄は緑に勝ち、緑は赤に勝ちます #elm_meetup","StatusId":"1165479317163261952","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 04:03:08 +0000 2019","Text":"@Yametaro1983 紀伊半島だぞ","StatusId":"1165474666787426305","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 04:02:09 +0000 2019","Text":"着 #elm_meetup","StatusId":"1165474419910705152","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Aug 25 03:14:30 +0000 2019","Text":"RT @myuon_myon: 「ふわっとしたタスクを投げたら完璧にロードマップ作って自力で管理してくれて高い専門性を持っていて呼吸をするようにあらゆる分野の勉強するエンジニアがほしい」を縮めて「優秀な人欲しい」って言ってる","StatusId":"1165462426348736512","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"「ふわっとしたタスクを投げたら完璧にロードマップ作って自力で管理してくれて高い専門性を持っていて呼吸をするようにあらゆる分野の勉強するエンジニアがほしい」を縮めて「優秀な人欲しい」って言ってる","RetweetedStatusId":"1165462426348736512","RetweetedStatusUserName":"みょん","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sun Aug 25 03:10:51 +0000 2019","Text":"RT @ababupdownba: #elm_meetup \n\nご飯食べてきてくださいねー\n一階入ったら出れません\n\n最寄りもコンビニとか分かりづらいので、食料確保は早めに！","StatusId":"1165461506441404416","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"#elm_meetup \n\nご飯食べてきてくださいねー\n一階入ったら出れません\n\n最寄りもコンビニとか分かりづらいので、食料確保は早めに！","RetweetedStatusId":"1165461506441404416","RetweetedStatusUserName":"ABAB↑↓BA","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sat Aug 24 15:14:13 +0000 2019","Text":"RT @kameo1048: うしレベル https://t.co/HUnlKVxOq1","StatusId":"1165281160827555841","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/HUnlKVxOq1","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/ECvoy7qU4AArXed.png","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/kameo1048/status/1165280892257894400/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"うしレベル https://t.co/HUnlKVxOq1","RetweetedStatusId":"1165281160827555841","RetweetedStatusUserName":"Kameo","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sat Aug 24 15:10:23 +0000 2019","Text":"十角館の殺人の漫画版がアフタヌーンで始まったんだけど、内容思い出せないので多分読んでないんだなこれ","StatusId":"1165280198654251008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sat Aug 24 15:06:04 +0000 2019","Text":"AzsharaアチーブはHelya並みに難しいかもと思ったけど、狙ってやれば意外と自然に条件を満たす感じだったのでちゃっと取れてよかった","StatusId":"1165279112480485376","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Aug 24 15:01:50 +0000 2019","Text":"Glory of the Eternal Raider, 完！ GJ！\n来週Farm最後＆取りこぼしachiだけリトライです。今季もおつでした。\nhttps://t.co/leJ5i7ASpy\n#ut_wow #wowjp https://t.co/tgmBgcHNpp","StatusId":"1165278044325441536","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/tgmBgcHNpp,https://t.co/tgmBgcHNpp","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/ECvmI4aUcAEVdvC.jpg,https://pbs.twimg.com/media/ECvmLhBUUAEGVeX.jpg","ExtendedEntitiesMediaTypes":"photo,photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1165278044325441536/photo/1,https://twitter.com/gada_twt/status/1165278044325441536/photo/1","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Sat Aug 24 15:03:38 +0000 2019","Text":"ちなみにZa’qulアチーブでsecret cow levelに行けるので、Diabloやらなくてもいいね","StatusId":"1165278500267286531","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Aug 24 15:01:50 +0000 2019","Text":"Glory of the Eternal Raider, 完！ GJ！\n来週Farm最後＆取りこぼしachiだけリトライです。今季もおつでした。\nhttps://t.co/leJ5i7ASpy\n#ut_wow #wowjp https://t.co/tgmBgcHNpp","StatusId":"1165278044325441536","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/tgmBgcHNpp,https://t.co/tgmBgcHNpp","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/ECvmI4aUcAEVdvC.jpg,https://pbs.twimg.com/media/ECvmLhBUUAEGVeX.jpg","ExtendedEntitiesMediaTypes":"photo,photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1165278044325441536/photo/1,https://twitter.com/gada_twt/status/1165278044325441536/photo/1","Retweet":"FALSE"}
+{"CreatedAt":"Sat Aug 24 15:06:04 +0000 2019","Text":"AzsharaアチーブはHelya並みに難しいかもと思ったけど、狙ってやれば意外と自然に条件を満たす感じだったのでちゃっと取れてよかった","StatusId":"1165279112480485376","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Aug 24 15:10:23 +0000 2019","Text":"十角館の殺人の漫画版がアフタヌーンで始まったんだけど、内容思い出せないので多分読んでないんだなこれ","StatusId":"1165280198654251008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Aug 24 15:14:13 +0000 2019","Text":"RT @kameo1048: うしレベル https://t.co/HUnlKVxOq1","StatusId":"1165281160827555841","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/HUnlKVxOq1","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/ECvoy7qU4AArXed.png","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/kameo1048/status/1165280892257894400/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"うしレベル https://t.co/HUnlKVxOq1","RetweetedStatusId":"1165281160827555841","RetweetedStatusUserName":"Kameo","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Aug 25 03:10:51 +0000 2019","Text":"RT @ababupdownba: #elm_meetup \n\nご飯食べてきてくださいねー\n一階入ったら出れません\n\n最寄りもコンビニとか分かりづらいので、食料確保は早めに！","StatusId":"1165461506441404416","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"#elm_meetup \n\nご飯食べてきてくださいねー\n一階入ったら出れません\n\n最寄りもコンビニとか分かりづらいので、食料確保は早めに！","RetweetedStatusId":"1165461506441404416","RetweetedStatusUserName":"ABAB↑↓BA","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Aug 25 03:14:30 +0000 2019","Text":"RT @myuon_myon: 「ふわっとしたタスクを投げたら完璧にロードマップ作って自力で管理してくれて高い専門性を持っていて呼吸をするようにあらゆる分野の勉強するエンジニアがほしい」を縮めて「優秀な人欲しい」って言ってる","StatusId":"1165462426348736512","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"「ふわっとしたタスクを投げたら完璧にロードマップ作って自力で管理してくれて高い専門性を持っていて呼吸をするようにあらゆる分野の勉強するエンジニアがほしい」を縮めて「優秀な人欲しい」って言ってる","RetweetedStatusId":"1165462426348736512","RetweetedStatusUserName":"みょん","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Aug 25 04:02:09 +0000 2019","Text":"着 #elm_meetup","StatusId":"1165474419910705152","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 04:03:08 +0000 2019","Text":"@Yametaro1983 紀伊半島だぞ","StatusId":"1165474666787426305","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 04:21:37 +0000 2019","Text":"赤は黄に勝ち、黄は緑に勝ち、緑は赤に勝ちます #elm_meetup","StatusId":"1165479317163261952","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 04:29:55 +0000 2019","Text":"会場内ちょっと暗くできないかな #elm_meetup","StatusId":"1165481405775667202","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 04:30:32 +0000 2019","Text":"RT @shirosawa_noel: elm手動RTbotの圧がないほう(@miyamo_madoka) #elm_meetup","StatusId":"1165481562588078081","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"elm手動RTbotの圧がないほう(@miyamo_madoka) #elm_meetup","RetweetedStatusId":"1165481562588078081","RetweetedStatusUserName":"shirosawa_noel","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Aug 25 05:12:00 +0000 2019","Text":"elm-uiも、レイアウト言語としてはいいんだけどスタイル言語としては微妙だし、パフォーマンス問題も出るという経験があったので、モチベーションはすごく共感できる\n#elm_meetup","StatusId":"1165491996628119553","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 05:36:47 +0000 2019","Text":"CORSはCORSがめんどくさいということがわかっていれば意外と解決できる。\n問題はWebアプリのプログラミングを始めたばかりの人にも襲いかかるので、CORSというものの意義や正体を理解するところから始めなければならないという点だ\n#elm_meetup","StatusId":"1165498233675628544","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 05:40:21 +0000 2019","Text":"分割しない #elm_meetup","StatusId":"1165499130292002816","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 05:44:31 +0000 2019","Text":"なかなかアグレッシブなやりかたしてるな！ #elm_meetup","StatusId":"1165500180000460800","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 05:49:24 +0000 2019","Text":"コードが成長したとき、どうしてもコンポーネント横断・親子間でのコミュニケーションが必要になる場合は間違いなくある。個人的には内部構造が隠蔽されるCmdよりは、専用のtypeを用意してやるかなー。\n#elm_meetup","StatusId":"1165501409346781184","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 05:55:18 +0000 2019","Text":"Signal（上代の神話\n#elm_meetup","StatusId":"1165502892243075072","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:02:43 +0000 2019","Text":"Siiiboでも、今日の発表で複数登場している、各PageのModel内に共通（グローバル）データを持ち回す、elm-spa-example &amp; https://t.co/TvPGTrBwdS方式で実装しています。個人的にSessionという名前は誤解を招くと思っているのでSharedとしている。\n#elm_meetup","StatusId":"1165504760708886533","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:03:53 +0000 2019","Text":"RT @taashi_s: 前も書いた気がするが、自分たちがやったときのグローバルデータは、グローバルデータがほしいモジュールが、それぞれsubscriptionで、それを監視しておいて、どこかでグローバルデータへの変更が発生すると、subscriptionで通知発生するように…","StatusId":"1165505054033338368","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"前も書いた気がするが、自分たちがやったときのグローバルデータは、グローバルデータがほしいモジュールが、それぞれsubscriptionで、それを監視しておいて、どこかでグローバルデータへの変更が発生すると、subscriptionで通知発生するように…","RetweetedStatusId":"1165505054033338368","RetweetedStatusUserName":"taashi","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Aug 25 06:04:50 +0000 2019","Text":"@taashi_s それちょっと面白そうですね","StatusId":"1165505293133828096","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:08:09 +0000 2019","Text":"（シュバババババ\n#elm_meetup","StatusId":"1165506127653564417","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:11:19 +0000 2019","Text":"サーバサイドで関数型言語使ってた人は、Elmと親和性が高いという経験則がある\n#elm_meetup","StatusId":"1165506925649264642","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:12:43 +0000 2019","Text":"お、地獄か？ #elm_meetup","StatusId":"1165507277203234818","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:13:57 +0000 2019","Text":"挫折を遠ざける言語、それがElm\n#elm_meetup","StatusId":"1165507587476869120","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:16:15 +0000 2019","Text":"この会合、ミサかなにかか？ #elm_meetup","StatusId":"1165508167716917248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:34:45 +0000 2019","Text":"皆さんから見て一番右にいるのが私です！\n#elm_meetup","StatusId":"1165512823557869568","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:44:44 +0000 2019","Text":"最初に出た勉強会はこれでした\nElm Tokyo Meetup #4 - connpass\nhttps://t.co/b5BG54NeQI","StatusId":"1165515334683545601","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:45:44 +0000 2019","Text":"#elm_meetup https://t.co/zo1rqorFK1","StatusId":"1165515585171542016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:51:54 +0000 2019","Text":"@omiend です！","StatusId":"1165517138431336450","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 06:59:43 +0000 2019","Text":"Elmはどんな人にオススメできないか - Qiita https://t.co/leRBaaPM6l\n#elm_meetup","StatusId":"1165519104800772096","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 07:17:47 +0000 2019","Text":"F#のwebリソースをもとに書いたのがこの記事です\n「ADT, 直和・直積, State Machine」 - Qiita\nhttps://t.co/t8RNOqIamk\n#elm_meetup","StatusId":"1165523652063854592","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 07:19:15 +0000 2019","Text":"RT @sy_izumi: https://t.co/EwYoYi9iAM #elm_meetup","StatusId":"1165524020290187264","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"https://t.co/EwYoYi9iAM #elm_meetup","RetweetedStatusId":"1165524020290187264","RetweetedStatusUserName":"IzumiSy™","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Aug 25 07:21:40 +0000 2019","Text":"これか\nLamdera\nhttps://t.co/NWeO33gx0z\n#elm_meetup","StatusId":"1165524628241932288","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 07:40:59 +0000 2019","Text":"Gada（松澤）は、\n\n- エディタプラグインの話\n- Json.Decodeの話\n- GraphQLの話\n\nあたりはそこそこ話せるので是非どうぞ\n#elm_meetup","StatusId":"1165529487661920256","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 07:50:37 +0000 2019","Text":"アンケートリンク  https://t.co/xKAikfIECh\n#elm_meetup","StatusId":"1165531913039167488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 09:55:09 +0000 2019","Text":"グランドタワーとにかく眺めが良かった https://t.co/EIPC4AoVPA","StatusId":"1165563253184811008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/EIPC4AoVPA","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/ECzpmTAUYAAwX30.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1165563253184811008/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 10:27:52 +0000 2019","Text":"RT @nahokomatsui: 型で世界を救う未来を見つめる女性エンジニア達の図 https://t.co/VM8A2ETNcv","StatusId":"1165571486133829632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/VM8A2ETNcv","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/ECze3jiUcAInXQR.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/nahokomatsui/status/1165551454230175744/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"型で世界を救う未来を見つめる女性エンジニア達の図 https://t.co/VM8A2ETNcv","RetweetedStatusId":"1165571486133829632","RetweetedStatusUserName":"nahokomatsui","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Aug 25 13:27:15 +0000 2019","Text":"RT @ponkikizzz: 大したものではないですが今日の資料アップしました🙏\nhttps://t.co/xpw2BkqyPf\n\n#elm_meetup","StatusId":"1165616629448790016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"大したものではないですが今日の資料アップしました🙏\nhttps://t.co/xpw2BkqyPf\n\n#elm_meetup","RetweetedStatusId":"1165616629448790016","RetweetedStatusUserName":"ナツミ","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Aug 25 14:27:50 +0000 2019","Text":"今日は面白い発表が多かっただけでなく、座談会でいろいろと思いを伝えられたし、Twitterで普段お話させて頂いてる方と何人も初顔合わせできて、大変濃い時間でした。またやりましょう。\n#elm_meetup","StatusId":"1165631878402990081","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 14:54:52 +0000 2019","Text":"@shikamiya 二次会で自作キーボードの話、Dvorakの話、いっぱい聞かせてもらってありがとうございました！こだわりすごくて感心しっぱなしでした","StatusId":"1165638678200213504","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 14:57:52 +0000 2019","Text":"RT @negiboudu: gadaさんに、どうやって英語を学んだんですかって聞いたら、洋ゲーでっていう答えだった。\nリアルタイムのチャットでというより、情報収集でとのこと。なるほど。\nプログラムを組む我々としては、ゲームをコードに置き換えても英語を学べるはず。って思った。…","StatusId":"1165639433237852161","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"gadaさんに、どうやって英語を学んだんですかって聞いたら、洋ゲーでっていう答えだった。\nリアルタイムのチャットでというより、情報収集でとのこと。なるほど。\nプログラムを組む我々としては、ゲームをコードに置き換えても英語を学べるはず。って思った。…","RetweetedStatusId":"1165639433237852161","RetweetedStatusUserName":"negiboudu","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ]

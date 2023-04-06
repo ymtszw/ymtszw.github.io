@@ -1,43 +1,43 @@
 [
-{"CreatedAt":"Fri Dec 01 12:33:28 +0000 2017","Text":"あと、ドメインrootからのリダイレクト先が/trendになってるのはなんか変な意図を感じる。/timelineが主でほかが従になる関係性が自然なんでは？\n#Qiita","StatusId":"936573965081853952","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 12:30:57 +0000 2017","Text":"Qiitaの新しいUI、タグフィードとタイムラインは一緒でよかったと思うんだけどなんで分けたんだろう。遷移挟まないとこの両方確認できないのは個人的にはめんどい。俺の使い方のほうが少数派なのかな\n#Qiita","StatusId":"936573330034892800","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 12:00:28 +0000 2017","Text":"@nf_shirosawa @ababupdownba https://t.co/GbFxhaRfiL\n\nオススメです！","StatusId":"936565659441315842","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 11:26:38 +0000 2017","Text":"@feenal ただフォーカスが当たってなくて効かないことも多い","StatusId":"936557144429568000","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 11:26:04 +0000 2017","Text":"@feenal 左右カーソルキーで10秒戻る進むはできる気がする","StatusId":"936557004687998976","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 10:47:15 +0000 2017","Text":"@akisaya_mkd バーキンになった","StatusId":"936547233532542976","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 10:38:57 +0000 2017","Text":"RT @gohan_pan_gohan: 真面目に転職活動中エンジニアです。Go言語書くのがとても得意/好きでGo書く仕事、特にある程度リモートOKのところ探してます。属性は組込系、Jenkinsおじさん、Androidアプリ開発、Vimmer、社会人10年程度、です。英語読み…","StatusId":"936545144307716096","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"真面目に転職活動中エンジニアです。Go言語書くのがとても得意/好きでGo書く仕事、特にある程度リモートOKのところ探してます。属性は組込系、Jenkinsおじさん、Androidアプリ開発、Vimmer、社会人10年程度、です。英語読み…","RetweetedStatusId":"936545144307716096","RetweetedStatusUserName":"いわむら","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Fri Dec 01 10:34:47 +0000 2017","Text":"超今更だけどfactory_girlってfactory_botに変わってたんだ。ほげー","StatusId":"936544096608444419","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 10:18:49 +0000 2017","Text":"mapによりFunctorではあって、\nandThenによりMonadではあるはずなんだけど、\nDecoder (a -&gt; b) -&gt; Decoder a -&gt; Decoder b\nという関数をあえて用意する必要がある型なのかがわからない。\nただ、まったくないわけじゃない気もしてる。","StatusId":"936540080457445376","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 10:15:48 +0000 2017","Text":"目下の悩みはDecoder aはApplicativeであり得るのかということです","StatusId":"936539320529207296","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 10:10:18 +0000 2017","Text":"宅内に光終端装置があるタイプだから、とりあえず部屋ン中のケーブルだけ見ときゃいい認識なんだけど、合ってんのかな。\nそしてカテゴリは確か確認したはずなんだけど、もう数年経ってるから自信はないぞ","StatusId":"936537937377820675","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 10:08:32 +0000 2017","Text":"RT @kusunoki666: PCが普及しだした頃からそろそろ10年選手のケーブルも多そうだし、無理な曲げ、踏みによる圧着、銅線の微妙な断線とか起きててもおかしく無いっていうのもあるから、これから家用で買うならCat5eかCat6aにしたら良いんじゃないかなー","StatusId":"936537490600554496","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"PCが普及しだした頃からそろそろ10年選手のケーブルも多そうだし、無理な曲げ、踏みによる圧着、銅線の微妙な断線とか起きててもおかしく無いっていうのもあるから、これから家用で買うならCat5eかCat6aにしたら良いんじゃないかなー","RetweetedStatusId":"936537490600554496","RetweetedStatusUserName":"くすのき＠酒","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Fri Dec 01 09:42:46 +0000 2017","Text":"今更だけど関係者各位にfollow飛ばしたのでよしなにお願い致します。\n\n雇用流動性の高まりに配慮し、環境に依存しないロバストな社会的連携を維持するための施策がどーたらこーたら","StatusId":"936531006974173184","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 08:57:07 +0000 2017","Text":"Decoderの記事はそこそこ真面目に書きつつ成果物もちゃんとパッケージにしよう。\n一方で五七五クオリティで適当に開いてるカレンダーの枠埋めを投下していくか","StatusId":"936519517030645762","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 08:22:09 +0000 2017","Text":"RT @gada_twt: 入り口はここです。 #ut_wow https://t.co/8J7bgvhDE8","StatusId":"936510717783449600","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/8J7bgvhDE8","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DPy8RzgUIAIsUAO.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/935829838866219008/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"入り口はここです。 #ut_wow https://t.co/8J7bgvhDE8","RetweetedStatusId":"936510717783449600","RetweetedStatusUserName":"Gada / ymtszw","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Fri Dec 01 08:18:20 +0000 2017","Text":"今日からRaid Days！！\nぼくは1行も読んでいません。Tacは現地調達しましょう。Trash終わったらデデデーン =&gt; カウントダウンでいきます。なぜなら @kazachino_wow\nを信じているから。 #ut_wow","StatusId":"936509758382645249","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 08:00:09 +0000 2017","Text":"初日ゆえ、とはいえ、どこのアドカレもけっこう気合入った記事が多くてintimidatingである","StatusId":"936505181256028160","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 04:15:30 +0000 2017","Text":"Amazon Echo Dot招待来たので買えた。","StatusId":"936448649097179141","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Fri Dec 01 03:17:06 +0000 2017","Text":"蒼き鋼のアルペジオ(15) (ヤングキングコミックス)   Ark Performance https://t.co/wYSwmqeBex @amazonJPさんから","StatusId":"936433949122818049","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Thu Nov 30 15:19:09 +0000 2017","Text":"@miyamo_madoka 👍\nちなみにパクリ元\nhttps://t.co/TxHoj3K1eB","StatusId":"936253274172170240","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Fri Dec 01 03:04:03 +0000 2017","Text":"RT @kkw_official: 【舞台】\nカジャラ＃3 『 働けど働けど 』 詳細決定！\nチケットの情報が更新されました。\nhttps://t.co/uL0GR4pwNQ","StatusId":"936430665142120448","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"【舞台】\nカジャラ＃3 『 働けど働けど 』 詳細決定！\nチケットの情報が更新されました。\nhttps://t.co/uL0GR4pwNQ","RetweetedStatusId":"936430665142120448","RetweetedStatusUserName":"スタジオコンテナ","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
-{"CreatedAt":"Thu Nov 30 15:19:09 +0000 2017","Text":"@miyamo_madoka 👍\nちなみにパクリ元\nhttps://t.co/TxHoj3K1eB","StatusId":"936253274172170240","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Fri Dec 01 03:17:06 +0000 2017","Text":"蒼き鋼のアルペジオ(15) (ヤングキングコミックス)   Ark Performance https://t.co/wYSwmqeBex @amazonJPさんから","StatusId":"936433949122818049","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 04:15:30 +0000 2017","Text":"Amazon Echo Dot招待来たので買えた。","StatusId":"936448649097179141","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 08:00:09 +0000 2017","Text":"初日ゆえ、とはいえ、どこのアドカレもけっこう気合入った記事が多くてintimidatingである","StatusId":"936505181256028160","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 08:18:20 +0000 2017","Text":"今日からRaid Days！！\nぼくは1行も読んでいません。Tacは現地調達しましょう。Trash終わったらデデデーン =&gt; カウントダウンでいきます。なぜなら @kazachino_wow\nを信じているから。 #ut_wow","StatusId":"936509758382645249","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 08:22:09 +0000 2017","Text":"RT @gada_twt: 入り口はここです。 #ut_wow https://t.co/8J7bgvhDE8","StatusId":"936510717783449600","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/8J7bgvhDE8","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DPy8RzgUIAIsUAO.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/935829838866219008/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"入り口はここです。 #ut_wow https://t.co/8J7bgvhDE8","RetweetedStatusId":"936510717783449600","RetweetedStatusUserName":"Gada / ymtszw","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Dec 01 08:57:07 +0000 2017","Text":"Decoderの記事はそこそこ真面目に書きつつ成果物もちゃんとパッケージにしよう。\n一方で五七五クオリティで適当に開いてるカレンダーの枠埋めを投下していくか","StatusId":"936519517030645762","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 09:42:46 +0000 2017","Text":"今更だけど関係者各位にfollow飛ばしたのでよしなにお願い致します。\n\n雇用流動性の高まりに配慮し、環境に依存しないロバストな社会的連携を維持するための施策がどーたらこーたら","StatusId":"936531006974173184","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 10:08:32 +0000 2017","Text":"RT @kusunoki666: PCが普及しだした頃からそろそろ10年選手のケーブルも多そうだし、無理な曲げ、踏みによる圧着、銅線の微妙な断線とか起きててもおかしく無いっていうのもあるから、これから家用で買うならCat5eかCat6aにしたら良いんじゃないかなー","StatusId":"936537490600554496","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"PCが普及しだした頃からそろそろ10年選手のケーブルも多そうだし、無理な曲げ、踏みによる圧着、銅線の微妙な断線とか起きててもおかしく無いっていうのもあるから、これから家用で買うならCat5eかCat6aにしたら良いんじゃないかなー","RetweetedStatusId":"936537490600554496","RetweetedStatusUserName":"くすのき＠酒","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Dec 01 10:10:18 +0000 2017","Text":"宅内に光終端装置があるタイプだから、とりあえず部屋ン中のケーブルだけ見ときゃいい認識なんだけど、合ってんのかな。\nそしてカテゴリは確か確認したはずなんだけど、もう数年経ってるから自信はないぞ","StatusId":"936537937377820675","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 10:15:48 +0000 2017","Text":"目下の悩みはDecoder aはApplicativeであり得るのかということです","StatusId":"936539320529207296","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 10:18:49 +0000 2017","Text":"mapによりFunctorではあって、\nandThenによりMonadではあるはずなんだけど、\nDecoder (a -&gt; b) -&gt; Decoder a -&gt; Decoder b\nという関数をあえて用意する必要がある型なのかがわからない。\nただ、まったくないわけじゃない気もしてる。","StatusId":"936540080457445376","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 10:34:47 +0000 2017","Text":"超今更だけどfactory_girlってfactory_botに変わってたんだ。ほげー","StatusId":"936544096608444419","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 10:38:57 +0000 2017","Text":"RT @gohan_pan_gohan: 真面目に転職活動中エンジニアです。Go言語書くのがとても得意/好きでGo書く仕事、特にある程度リモートOKのところ探してます。属性は組込系、Jenkinsおじさん、Androidアプリ開発、Vimmer、社会人10年程度、です。英語読み…","StatusId":"936545144307716096","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"真面目に転職活動中エンジニアです。Go言語書くのがとても得意/好きでGo書く仕事、特にある程度リモートOKのところ探してます。属性は組込系、Jenkinsおじさん、Androidアプリ開発、Vimmer、社会人10年程度、です。英語読み…","RetweetedStatusId":"936545144307716096","RetweetedStatusUserName":"いわむら","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Dec 01 10:47:15 +0000 2017","Text":"@akisaya_mkd バーキンになった","StatusId":"936547233532542976","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 11:26:04 +0000 2017","Text":"@feenal 左右カーソルキーで10秒戻る進むはできる気がする","StatusId":"936557004687998976","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 11:26:38 +0000 2017","Text":"@feenal ただフォーカスが当たってなくて効かないことも多い","StatusId":"936557144429568000","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 12:00:28 +0000 2017","Text":"@nf_shirosawa @ababupdownba https://t.co/GbFxhaRfiL\n\nオススメです！","StatusId":"936565659441315842","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 12:30:57 +0000 2017","Text":"Qiitaの新しいUI、タグフィードとタイムラインは一緒でよかったと思うんだけどなんで分けたんだろう。遷移挟まないとこの両方確認できないのは個人的にはめんどい。俺の使い方のほうが少数派なのかな\n#Qiita","StatusId":"936573330034892800","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 01 12:33:28 +0000 2017","Text":"あと、ドメインrootからのリダイレクト先が/trendになってるのはなんか変な意図を感じる。/timelineが主でほかが従になる関係性が自然なんでは？\n#Qiita","StatusId":"936573965081853952","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ]

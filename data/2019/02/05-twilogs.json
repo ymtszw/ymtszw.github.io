@@ -1,27 +1,27 @@
 [
-{"CreatedAt":"Tue Feb 05 14:51:02 +0000 2019","Text":"@gokumon_blade いろいろあってKul Tirasの大ボスに返り咲いたからしばらくは死なないぞ","StatusId":"1092797754311618563","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Feb 05 14:46:35 +0000 2019","Text":"@gokumon_blade ぶっちゃけ今回のも遠因はそのへん","StatusId":"1092796635124502529","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Feb 05 14:44:20 +0000 2019","Text":"@gokumon_blade 更年期障害","StatusId":"1092796068474118144","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Feb 05 14:38:30 +0000 2019","Text":"14ちゃん見てると、植物とか自然造形はすごく良いのに、人工物(建物とかプロップ)の造形に全然魅力がないな。庭に置いたレゴみたいだ。キャラのアニメーションは結構悪くないように見える","StatusId":"1092794600148910080","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Feb 05 14:32:06 +0000 2019","Text":"Elmの学習コストはAmortized 0だよ","StatusId":"1092792989758431232","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Feb 05 13:55:47 +0000 2019","Text":"RT @kurage313book: 人工内耳をつけて「これまで使わなかった脳が成長する」って経験をした身からすると乙武洋平さん（@h_ototake ）がいまやってる義足プロジェクトがどんだけきっついかわかるんで応援したい。金ないけど。サイボーグの先輩としてアドバイスさせてく…","StatusId":"1092783850588012544","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"人工内耳をつけて「これまで使わなかった脳が成長する」って経験をした身からすると乙武洋平さん（@h_ototake ）がいまやってる義足プロジェクトがどんだけきっついかわかるんで応援したい。金ないけど。サイボーグの先輩としてアドバイスさせてく…","RetweetedStatusId":"1092783850588012544","RetweetedStatusUserName":"くらげ＠バッテリーセーバーモード","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Tue Feb 05 13:12:55 +0000 2019","Text":"問題はD3だとmogをしなくなるということだ","StatusId":"1092773063609864195","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Feb 05 10:02:48 +0000 2019","Text":"麻雀はともかく、次拡張も発表されたんだっけ","StatusId":"1092725217913270272","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Feb 05 09:39:39 +0000 2019","Text":"RT @superhahnah: Elm製SPAの動的レンダリングをGoogleBotは何秒間待ってくれるのか？\n\n検証によると約20秒らしい https://t.co/Lj9Asf565P","StatusId":"1092719392285052928","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Elm製SPAの動的レンダリングをGoogleBotは何秒間待ってくれるのか？\n\n検証によると約20秒らしい https://t.co/Lj9Asf565P","RetweetedStatusId":"1092719392285052928","RetweetedStatusUserName":"hahnah/はーな","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Tue Feb 05 09:39:20 +0000 2019","Text":"Elmでany typeではなくany record typeを表現する型シンタックスがないことに気づいた。まあ実用上恐らく不要なんだけど。\n{}はempty record typeに解釈されてしまうので。\n\nこの話SlackかMLで以前流れていた気もする","StatusId":"1092719311372705793","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Tue Feb 05 07:11:02 +0000 2019","Text":"APIとかABIとかシステムコールとか - Qiita https://t.co/rG5nSFO73y","StatusId":"1092681993156841472","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Feb 04 20:00:34 +0000 2019","Text":"Methodの鯖にQueueが発生していてLimitによるDDoSが疑われる展開","StatusId":"1092513263508631553","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Tue Feb 05 03:39:45 +0000 2019","Text":"RT @KateMakesStuff: https://t.co/U6TCBD0jew","StatusId":"1092628822455812096","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/U6TCBD0jew","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DymooX7VYAAFmGc.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/KateMakesStuff/status/1092589809279922178/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"https://t.co/U6TCBD0jew","RetweetedStatusId":"1092628822455812096","RetweetedStatusUserName":"KatieDev 💙","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
-{"CreatedAt":"Mon Feb 04 20:00:34 +0000 2019","Text":"Methodの鯖にQueueが発生していてLimitによるDDoSが疑われる展開","StatusId":"1092513263508631553","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Feb 05 07:11:02 +0000 2019","Text":"APIとかABIとかシステムコールとか - Qiita https://t.co/rG5nSFO73y","StatusId":"1092681993156841472","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 05 09:39:20 +0000 2019","Text":"Elmでany typeではなくany record typeを表現する型シンタックスがないことに気づいた。まあ実用上恐らく不要なんだけど。\n{}はempty record typeに解釈されてしまうので。\n\nこの話SlackかMLで以前流れていた気もする","StatusId":"1092719311372705793","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 05 09:39:39 +0000 2019","Text":"RT @superhahnah: Elm製SPAの動的レンダリングをGoogleBotは何秒間待ってくれるのか？\n\n検証によると約20秒らしい https://t.co/Lj9Asf565P","StatusId":"1092719392285052928","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Elm製SPAの動的レンダリングをGoogleBotは何秒間待ってくれるのか？\n\n検証によると約20秒らしい https://t.co/Lj9Asf565P","RetweetedStatusId":"1092719392285052928","RetweetedStatusUserName":"hahnah/はーな","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Tue Feb 05 10:02:48 +0000 2019","Text":"麻雀はともかく、次拡張も発表されたんだっけ","StatusId":"1092725217913270272","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 05 13:12:55 +0000 2019","Text":"問題はD3だとmogをしなくなるということだ","StatusId":"1092773063609864195","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 05 13:55:47 +0000 2019","Text":"RT @kurage313book: 人工内耳をつけて「これまで使わなかった脳が成長する」って経験をした身からすると乙武洋平さん（@h_ototake ）がいまやってる義足プロジェクトがどんだけきっついかわかるんで応援したい。金ないけど。サイボーグの先輩としてアドバイスさせてく…","StatusId":"1092783850588012544","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"人工内耳をつけて「これまで使わなかった脳が成長する」って経験をした身からすると乙武洋平さん（@h_ototake ）がいまやってる義足プロジェクトがどんだけきっついかわかるんで応援したい。金ないけど。サイボーグの先輩としてアドバイスさせてく…","RetweetedStatusId":"1092783850588012544","RetweetedStatusUserName":"くらげ＠バッテリーセーバーモード","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Tue Feb 05 14:32:06 +0000 2019","Text":"Elmの学習コストはAmortized 0だよ","StatusId":"1092792989758431232","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 05 14:38:30 +0000 2019","Text":"14ちゃん見てると、植物とか自然造形はすごく良いのに、人工物(建物とかプロップ)の造形に全然魅力がないな。庭に置いたレゴみたいだ。キャラのアニメーションは結構悪くないように見える","StatusId":"1092794600148910080","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 05 14:44:20 +0000 2019","Text":"@gokumon_blade 更年期障害","StatusId":"1092796068474118144","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 05 14:46:35 +0000 2019","Text":"@gokumon_blade ぶっちゃけ今回のも遠因はそのへん","StatusId":"1092796635124502529","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 05 14:51:02 +0000 2019","Text":"@gokumon_blade いろいろあってKul Tirasの大ボスに返り咲いたからしばらくは死なないぞ","StatusId":"1092797754311618563","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ]

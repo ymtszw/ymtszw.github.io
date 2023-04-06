@@ -1,21 +1,21 @@
 [
-{"CreatedAt":"Sun Nov 18 14:39:43 +0000 2018","Text":"RT @superhahnah: Elm で作ったやつ👇\nUnfair Roulette : インチキできるルーレットアプリを作成した - https://t.co/u6OWMPjOiF","StatusId":"1064166263109210112","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Elm で作ったやつ👇\nUnfair Roulette : インチキできるルーレットアプリを作成した - https://t.co/u6OWMPjOiF","RetweetedStatusId":"1064166263109210112","RetweetedStatusUserName":"hahnah/はーな","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Sun Nov 18 13:55:14 +0000 2018","Text":"@jinjor elm-spa-exampleだと、どのpage stateもSessionはmodelに抱えてしまえ、とやってきれいにしていますけど、私が今やりたいのはそれでいうとSession部分に現在のpage stateにかかわらずバックグラウンドで常にタイマーで動いている更新処理があって、その部分は専用moduleに閉じ込めているイメージ","StatusId":"1064155070411898886","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Nov 18 13:51:20 +0000 2018","Text":"@jinjor このパターンが必要になる時点でmodularizationがヘタクソっていう可能性はありますね。とはいえ100％避けられるものでもない気がしている。\n例えば、直接viewを持たない、バックグラウンドプロセスのような位置づけのmoduleがあって、そいつの更新が複数のcomponentに波及するケースをうまく扱いたい","StatusId":"1064154087388663809","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Nov 18 13:43:05 +0000 2018","Text":"@jinjor そのパターンですね。\nEventかあ、、、https://t.co/KZ9UURa0LVなどが対象としてるJSのEventもあるから、ちょっと避けたい単語","StatusId":"1064152012646830080","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Nov 18 13:34:43 +0000 2018","Text":"component化してあるmoduleのAPI返り値として、新しいcomponent stateやそのmodule専用のCmdだけでなく、rootアプリケーションに委ねなければならない副作用や他のcomponentへの影響伝搬などを含める必要性が出てきて、これの統一的でいい感じな呼び名にまだ辿り着けていない","StatusId":"1064149907873783809","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Nov 18 12:11:02 +0000 2018","Text":"intersectionObserverつかいてえ","StatusId":"1064128849695240192","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Nov 18 10:48:01 +0000 2018","Text":"『タコの心身問題』, 原著ならkindle版があるよ\n\nPeter Godfrey-Smith Other Minds: The Octopus and the Evolution of Intelligent Life\nhttps://t.co/XCdzempk0F","StatusId":"1064107956201869313","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sat Nov 17 20:34:52 +0000 2018","Text":"また話題にしたら負けみたいなリテラシーチェック記事が上がってきている気がするよ","StatusId":"1063893252871413766","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Nov 17 18:23:36 +0000 2018","Text":"MASTERPIECE\nhttps://t.co/RpD9vOF9tB","StatusId":"1063860218784755712","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Sat Nov 17 18:25:15 +0000 2018","Text":"シンプルにしてベスト","StatusId":"1063860633555283968","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Nov 17 18:23:36 +0000 2018","Text":"MASTERPIECE\nhttps://t.co/RpD9vOF9tB","StatusId":"1063860218784755712","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Nov 17 20:34:52 +0000 2018","Text":"また話題にしたら負けみたいなリテラシーチェック記事が上がってきている気がするよ","StatusId":"1063893252871413766","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 10:48:01 +0000 2018","Text":"『タコの心身問題』, 原著ならkindle版があるよ\n\nPeter Godfrey-Smith Other Minds: The Octopus and the Evolution of Intelligent Life\nhttps://t.co/XCdzempk0F","StatusId":"1064107956201869313","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 12:11:02 +0000 2018","Text":"intersectionObserverつかいてえ","StatusId":"1064128849695240192","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 13:34:43 +0000 2018","Text":"component化してあるmoduleのAPI返り値として、新しいcomponent stateやそのmodule専用のCmdだけでなく、rootアプリケーションに委ねなければならない副作用や他のcomponentへの影響伝搬などを含める必要性が出てきて、これの統一的でいい感じな呼び名にまだ辿り着けていない","StatusId":"1064149907873783809","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 13:43:05 +0000 2018","Text":"@jinjor そのパターンですね。\nEventかあ、、、https://t.co/KZ9UURa0LVなどが対象としてるJSのEventもあるから、ちょっと避けたい単語","StatusId":"1064152012646830080","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 13:51:20 +0000 2018","Text":"@jinjor このパターンが必要になる時点でmodularizationがヘタクソっていう可能性はありますね。とはいえ100％避けられるものでもない気がしている。\n例えば、直接viewを持たない、バックグラウンドプロセスのような位置づけのmoduleがあって、そいつの更新が複数のcomponentに波及するケースをうまく扱いたい","StatusId":"1064154087388663809","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 13:55:14 +0000 2018","Text":"@jinjor elm-spa-exampleだと、どのpage stateもSessionはmodelに抱えてしまえ、とやってきれいにしていますけど、私が今やりたいのはそれでいうとSession部分に現在のpage stateにかかわらずバックグラウンドで常にタイマーで動いている更新処理があって、その部分は専用moduleに閉じ込めているイメージ","StatusId":"1064155070411898886","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 14:39:43 +0000 2018","Text":"RT @superhahnah: Elm で作ったやつ👇\nUnfair Roulette : インチキできるルーレットアプリを作成した - https://t.co/u6OWMPjOiF","StatusId":"1064166263109210112","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Elm で作ったやつ👇\nUnfair Roulette : インチキできるルーレットアプリを作成した - https://t.co/u6OWMPjOiF","RetweetedStatusId":"1064166263109210112","RetweetedStatusUserName":"hahnah/はーな","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ]

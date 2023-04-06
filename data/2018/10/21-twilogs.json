@@ -1,17 +1,17 @@
 [
-{"CreatedAt":"Sun Oct 21 13:06:21 +0000 2018","Text":"Released ymtszw/elm-xml-decode 2.0.0 for Elm 0.19! 🚀\nhttps://t.co/NdFYusXQ8c\nhttps://t.co/cEh3DUMGIs\n#elm #elmlang","StatusId":"1053995907945979904","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Oct 21 11:41:27 +0000 2018","Text":"どうもelm diff/bumpにtype aliasまわりの判定bugがある臭い","StatusId":"1053974542224318466","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Oct 21 11:08:40 +0000 2018","Text":"Parser.deadendsToString未実装やんけ！！！","StatusId":"1053966292145688576","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Oct 21 08:27:06 +0000 2018","Text":"この議論(do記法的な新しいAPIの提案)がJson.Decode周りから出てきているのが象徴的で、いい感じのデータ設計を保証できない「外界」との対話において必要性が上がってくる。\n\nExperimental JSON decoding API - Request Feedback - Elm Discourse\nhttps://t.co/sYsK00uFY0","StatusId":"1053925632810209280","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Oct 21 06:42:34 +0000 2018","Text":"Fuzz入れてるテストを更新しようとしたら、Fuzz.conditionalがなくなっていた","StatusId":"1053899324579471360","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Sun Oct 21 02:16:36 +0000 2018","Text":"昨晩はHeroic Night．無事Ghuunまで。30分残しで終わったので、来週からは金・土の2日開催とします。\n8.1が見えてきています。今からRaid参加も歓迎です。\nhttps://t.co/F1nEWqXsmb\n#ut_wow #wowjp","StatusId":"1053832394929692672","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Oct 20 16:37:23 +0000 2018","Text":"RT @bicycle_panda: 我が名はraid寝過ごし侍","StatusId":"1053686627128684545","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"我が名はraid寝過ごし侍","RetweetedStatusId":"1053686627128684545","RetweetedStatusUserName":"パンダ","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
 {"CreatedAt":"Sat Oct 20 17:37:56 +0000 2018","Text":"RT @ababupdownba: Mock, DI基本的にマジックなので、マジックのマジックを覚えると本質を見失う","StatusId":"1053701866591145984","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Mock, DI基本的にマジックなので、マジックのマジックを覚えると本質を見失う","RetweetedStatusId":"1053701866591145984","RetweetedStatusUserName":"ABAB↑↓BA","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
-{"CreatedAt":"Sat Oct 20 16:37:23 +0000 2018","Text":"RT @bicycle_panda: 我が名はraid寝過ごし侍","StatusId":"1053686627128684545","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"我が名はraid寝過ごし侍","RetweetedStatusId":"1053686627128684545","RetweetedStatusUserName":"パンダ","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+{"CreatedAt":"Sun Oct 21 02:16:36 +0000 2018","Text":"昨晩はHeroic Night．無事Ghuunまで。30分残しで終わったので、来週からは金・土の2日開催とします。\n8.1が見えてきています。今からRaid参加も歓迎です。\nhttps://t.co/F1nEWqXsmb\n#ut_wow #wowjp","StatusId":"1053832394929692672","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 21 06:42:34 +0000 2018","Text":"Fuzz入れてるテストを更新しようとしたら、Fuzz.conditionalがなくなっていた","StatusId":"1053899324579471360","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 21 08:27:06 +0000 2018","Text":"この議論(do記法的な新しいAPIの提案)がJson.Decode周りから出てきているのが象徴的で、いい感じのデータ設計を保証できない「外界」との対話において必要性が上がってくる。\n\nExperimental JSON decoding API - Request Feedback - Elm Discourse\nhttps://t.co/sYsK00uFY0","StatusId":"1053925632810209280","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 21 11:08:40 +0000 2018","Text":"Parser.deadendsToString未実装やんけ！！！","StatusId":"1053966292145688576","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 21 11:41:27 +0000 2018","Text":"どうもelm diff/bumpにtype aliasまわりの判定bugがある臭い","StatusId":"1053974542224318466","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 21 13:06:21 +0000 2018","Text":"Released ymtszw/elm-xml-decode 2.0.0 for Elm 0.19! 🚀\nhttps://t.co/NdFYusXQ8c\nhttps://t.co/cEh3DUMGIs\n#elm #elmlang","StatusId":"1053995907945979904","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ]

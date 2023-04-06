@@ -1,13 +1,13 @@
 [
-{"CreatedAt":"Wed Aug 01 06:48:00 +0000 2018","Text":"高祖父の残した文書を母が電子化していて、それをもとに家系図を描いた。11代前、明暦年間まで遡れる","StatusId":"1024547277216468992","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Wed Aug 01 06:26:38 +0000 2018","Text":"RT @CircleCIJapan: Yay!! Docker image for Elm ❤️🥳 https://t.co/SyvcdJvegI","StatusId":"1024541897300238336","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Yay!! Docker image for Elm ❤️🥳 https://t.co/SyvcdJvegI","RetweetedStatusId":"1024541897300238336","RetweetedStatusUserName":"CircleCI Japan","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
-,
-{"CreatedAt":"Wed Aug 01 02:01:06 +0000 2018","Text":"circleci/node imageベースにすると380MBとかあるけど、これは43MB\n\nhttps://t.co/9fccyEcdGy https://t.co/FjnKfyzLGS","StatusId":"1024475076983308289","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
-,
-{"CreatedAt":"Wed Aug 01 01:59:06 +0000 2018","Text":"ymtszw/elm_for_ci: Docker image suitable for testing Elm codes in CI https://t.co/I3aSY5uUnJ\n\nできた。最強に使いやすい気がする","StatusId":"1024474571087306752","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Jul 31 15:14:01 +0000 2018","Text":"Cannot get elm-make to run on Alpine Linux · Issue #216 · elm-lang/elm-platform https://t.co/lUtJflNkS7\n\nそうか","StatusId":"1024312233222782976","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Wed Aug 01 00:16:00 +0000 2018","Text":"なかったのでalpineベースで作り始めてみたけど、sysconfcpusのビルドにgccが必要だったりとか、glibcがないとElm Platform動かないとか、いろいろ制約があり、足りないものを補っていくと結局image sizeはそこそこでかくなってしまう悲しさ","StatusId":"1024448624632025088","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Tue Jul 31 15:14:01 +0000 2018","Text":"Cannot get elm-make to run on Alpine Linux · Issue #216 · elm-lang/elm-platform https://t.co/lUtJflNkS7\n\nそうか","StatusId":"1024312233222782976","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Wed Aug 01 01:59:06 +0000 2018","Text":"ymtszw/elm_for_ci: Docker image suitable for testing Elm codes in CI https://t.co/I3aSY5uUnJ\n\nできた。最強に使いやすい気がする","StatusId":"1024474571087306752","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 01 02:01:06 +0000 2018","Text":"circleci/node imageベースにすると380MBとかあるけど、これは43MB\n\nhttps://t.co/9fccyEcdGy https://t.co/FjnKfyzLGS","StatusId":"1024475076983308289","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 01 06:26:38 +0000 2018","Text":"RT @CircleCIJapan: Yay!! Docker image for Elm ❤️🥳 https://t.co/SyvcdJvegI","StatusId":"1024541897300238336","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Yay!! Docker image for Elm ❤️🥳 https://t.co/SyvcdJvegI","RetweetedStatusId":"1024541897300238336","RetweetedStatusUserName":"CircleCI Japan","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Wed Aug 01 06:48:00 +0000 2018","Text":"高祖父の残した文書を母が電子化していて、それをもとに家系図を描いた。11代前、明暦年間まで遡れる","StatusId":"1024547277216468992","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ]
