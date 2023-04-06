@@ -8,7 +8,7 @@
  */
 
 window = { YTD: { tweets: {} } };
-const { mkdir, writeFile } = require("fs").promises;
+const { mkdir, writeFile } = require("fs/promises");
 
 // require archived tweets js file
 require(process.argv[2]);
@@ -116,7 +116,10 @@ Object.entries(groupedByYearMonthDay).forEach(
     const dir = `data/${year}/${month}`;
     const file = `${dir}/${day}-twilogs.json`;
     await mkdir(dir, { recursive: true });
-    const data = twilogs.map((twilog) => JSON.stringify(twilog)).join("\n,\n");
+    const data = twilogs
+      .sort((a, b) => a.StatusId.localeCompare(b.StatusId))
+      .map((twilog) => JSON.stringify(twilog))
+      .join("\n,\n");
     console.log("Writing:", file);
     return writeFile(file, "[\n" + data + "\n]\n");
   }
