@@ -12,12 +12,22 @@ import csv from "csvtojson";
 import { mkdir, writeFile, readFile } from "fs/promises";
 import { existsSync } from "fs";
 
+const previousCursor = Number.parseInt(
+  await readFile("data/MY_TWILOGS_CSV_CURSOR")
+);
+
+let cursor = previousCursor;
 let groupedByYearMonthDay = {};
 const resp = await fetch(process.env.MY_TWILOG_CSV_URL);
 csv({ delimiter: "," })
   .fromStream(resp.body)
   .subscribe(
-    (tweet) => {
+    (tweet, lineNumber) => {
+      if (lineNumber <= previousCursor) {
+        return;
+      } else {
+        cursor = lineNumber;
+      }
       // TZ env var must be set. See package.json
       const ca = new Date(tweet.CreatedAt);
       const yearMonthDay = [
@@ -69,4 +79,6 @@ function dumpGroupedTwilogs() {
       }
     }
   );
+  console.log("Cursor:", cursor);
+  writeFile("data/MY_TWILOGS_CSV_CURSOR", cursor.toString());
 }
