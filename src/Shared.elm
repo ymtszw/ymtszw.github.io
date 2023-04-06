@@ -375,6 +375,7 @@ type alias Twilog =
     , createdDate : Date.Date
     , text : String
     , id : TwitterStatusId
+    , idStr : String
     , userName : String
     , userProfileImageUrl : String
     , retweet : Maybe Retweet
@@ -489,6 +490,7 @@ dailyTwilogsFromOldest paths =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (createdAtDecoder |> OptimizedDecoder.map (Date.fromPosix jst)))
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" nonEmptyString)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)

@@ -8,6 +8,7 @@ import Head
 import Head.Seo as Seo
 import Html exposing (..)
 import Html.Attributes exposing (alt, attribute, class, classList, href, src, target)
+import Html.Keyed
 import LinkPreview
 import List.Extra
 import Markdown
@@ -208,28 +209,29 @@ twilogsOfTheDay shared twilogs =
         -- Order reversed in index page; newest first
         |> List.reverse
         |> List.map (threadAwareTwilogs shared.links)
-        |> div []
+        |> Html.Keyed.node "div" []
 
 
-threadAwareTwilogs : Dict String LinkPreview.Metadata -> Twilog -> Html msg
+threadAwareTwilogs : Dict String LinkPreview.Metadata -> Twilog -> ( String, Html msg )
 threadAwareTwilogs links twilog =
-    case twilog.replies of
-        [] ->
-            aTwilog links twilog
+    Tuple.pair twilog.idStr <|
+        case twilog.replies of
+            [] ->
+                aTwilog links twilog
 
-        threads ->
-            let
-                recursivelyRenderThreadedTwilogs (Reply twilogInThread) =
-                    [ div [ class "reply" ] <|
-                        case twilogInThread.replies of
-                            [] ->
-                                [ aTwilog links twilogInThread ]
+            threads ->
+                let
+                    recursivelyRenderThreadedTwilogs (Reply twilogInThread) =
+                        [ div [ class "reply" ] <|
+                            case twilogInThread.replies of
+                                [] ->
+                                    [ aTwilog links twilogInThread ]
 
-                            more ->
-                                aTwilog links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
-                    ]
-            in
-            div [ class "thread" ] <| aTwilog links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
+                                more ->
+                                    aTwilog links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
+                        ]
+                in
+                div [ class "thread" ] <| aTwilog links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
 
 
 aTwilog : Dict String LinkPreview.Metadata -> Twilog -> Html msg
