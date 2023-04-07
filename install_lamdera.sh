@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if node_modules/.bin/lamdera --version &>/dev/null; then
+  # Already installed
+  exit 0
+fi
+
 # Set OS var based on `uname -s`
 case "$(uname -s)" in
   Linux*)

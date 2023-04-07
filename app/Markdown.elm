@@ -3,20 +3,20 @@ module Markdown exposing (DecodedBody, deadEndToString, deadEndsToString, decode
 import Dict exposing (Dict)
 import Html
 import Html.Attributes
+import Json.Decode
 import LinkPreview exposing (Metadata)
 import Markdown.Block
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
-import OptimizedDecoder
 import Parser
 import Regex
 import View
 
 
-decoder : String -> OptimizedDecoder.Decoder (List (Html.Html msg))
+decoder : String -> Json.Decode.Decoder (List (Html.Html msg))
 decoder input =
-    OptimizedDecoder.succeed (render input)
+    Json.Decode.succeed (render input)
 
 
 parse : String -> Result String (List Markdown.Block.Block)

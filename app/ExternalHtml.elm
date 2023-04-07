@@ -3,16 +3,16 @@ module ExternalHtml exposing (decoder, extractInlineTextFromHtml)
 import Dict exposing (Dict)
 import Html.Parser exposing (Node(..))
 import Html.Parser.Util
+import Json.Decode
 import LinkPreview
 import Markdown
-import OptimizedDecoder
 
 
-decoder : String -> OptimizedDecoder.Decoder (Markdown.DecodedBody msg)
+decoder : String -> Json.Decode.Decoder (Markdown.DecodedBody msg)
 decoder input =
     case Html.Parser.run input of
         Ok nodes ->
-            OptimizedDecoder.succeed
+            Json.Decode.succeed
                 { html = Html.Parser.Util.toVirtualDom nodes
                 , excerpt = extractInlineTextFromHtml nodes
                 , links = enumerateLinks nodes
@@ -20,7 +20,7 @@ decoder input =
                 }
 
         Err e ->
-            OptimizedDecoder.fail (Markdown.deadEndsToString e)
+            Json.Decode.fail (Markdown.deadEndsToString e)
 
 
 extractInlineTextFromHtml : List Node -> String
