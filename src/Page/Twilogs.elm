@@ -576,13 +576,11 @@ linksByMonths maybeOpenedDate twilogArchives =
                                     [ summary [] [ text (String.fromInt monthNum ++ "月") ]
                                     , List.map
                                         (\date ->
-                                            li []
-                                                [ if Just date == maybeOpenedDate then
-                                                    text <| Date.format "yyyy/MM/dd (E)" date ++ " ◀"
+                                            if Just date == maybeOpenedDate then
+                                                li [ class "selected" ] [ text <| Date.format "yyyy/MM/dd (E)" date ]
 
-                                                  else
-                                                    Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ]
-                                                ]
+                                            else
+                                                li [] [ Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
                                         )
                                         dates
                                         |> ul []
@@ -604,6 +602,5 @@ twilogData : Twilog -> List (Html msg)
 twilogData twilog =
     -- Show switch that toggles styled twilog or twilog raw data
     [ input [ type_ "checkbox" ] []
-    , -- TODO: Dump twilog into pretty JSON
-      pre [ class "twilog-data" ] [ text <| Debug.toString twilog ]
+    , pre [ class "twilog-data" ] [ text (Shared.dumpTwilog twilog) ]
     ]

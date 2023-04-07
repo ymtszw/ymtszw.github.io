@@ -199,6 +199,7 @@ Tweet-like style on top of Sakura.css
 .tweet > input[type="checkbox"] + .twilog-data {
   display: none;
   white-space: pre-wrap;
+  font-family: 'Cica', Courier, 'Courier New', monospace;
 }
 .tweet > input[type="checkbox"]:checked + .twilog-data {
   display: block;
@@ -456,4 +457,13 @@ nav.twilog-archive-navigation ul li::marker {
   font-family: "Noto Sans Symbols 2", sans-serif;
   color: #999;
   letter-spacing: 5px;
+}
+nav.twilog-archive-navigation ul li.selected {
+  font-weight: bold;
+}
+nav.twilog-archive-navigation ul li.selected::after {
+  content: "◀";
+  display: inline;
+  width: 1em;
+  height: 1em;
 }

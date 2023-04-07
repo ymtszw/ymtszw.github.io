@@ -17,6 +17,7 @@ module Shared exposing
     , cmsGet
     , cmsImageDecoder
     , dailyTwilogsFromOldest
+    , dumpTwilog
     , formatPosix
     , getGitHubRepoReadme
     , githubGet
@@ -47,6 +48,7 @@ import Helper exposing (nonEmptyString)
 import Html exposing (Html)
 import Html.Attributes
 import Iso8601
+import Json.Encode
 import LinkPreview
 import List.Extra
 import Markdown
@@ -480,29 +482,9 @@ makeTwilogsJsonPath date =
     "data/" ++ Date.format "yyyy/MM/dd" date ++ "-twilogs.json"
 
 
-dailyTwilogsFromOldest : List String -> DataSource.DataSource (Dict RataDie (List Twilog))
-dailyTwilogsFromOldest paths =
+twilogDecoder : OptimizedDecoder.Decoder Twilog
+twilogDecoder =
     let
-        twilogDecoder =
-            OptimizedDecoder.succeed Twilog
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (createdAtDecoder |> OptimizedDecoder.map (Date.fromPosix jst)))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" nonEmptyString)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
-                -- Resolve replies later
-                |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
-                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
-                |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
-                |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
-                -- Make it Maybe, allow decode-failures to be ignored
-                |> OptimizedDecoder.maybe
-
         createdAtDecoder =
             OptimizedDecoder.oneOf
                 [ iso8601Decoder
@@ -599,7 +581,28 @@ dailyTwilogsFromOldest paths =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserName" nonEmptyString)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
+    in
+    OptimizedDecoder.succeed Twilog
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (createdAtDecoder |> OptimizedDecoder.map (Date.fromPosix jst)))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" nonEmptyString)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
+        -- Resolve replies later
+        |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
+        |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
+        |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
 
+
+dailyTwilogsFromOldest : List String -> DataSource.DataSource (Dict RataDie (List Twilog))
+dailyTwilogsFromOldest paths =
+    let
         toDailyDictFromNewest baseDict =
             List.foldl
                 (\maybeTwilog dict ->
@@ -628,7 +631,11 @@ dailyTwilogsFromOldest paths =
             DataSource.andThen
                 (\accDict ->
                     DataSource.File.jsonFile
-                        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map (toDailyDictFromNewest accDict) |> OptimizedDecoder.map resolveRepliesWithinDayAndSortFromOldest)
+                        -- Make it Maybe, allow decode-failures to be ignored
+                        (OptimizedDecoder.list (OptimizedDecoder.maybe twilogDecoder)
+                            |> OptimizedDecoder.map (toDailyDictFromNewest accDict)
+                            |> OptimizedDecoder.map resolveRepliesWithinDayAndSortFromOldest
+                        )
                         path
                 )
                 accDS
@@ -1003,3 +1010,85 @@ monthToPaddedNumber monStr =
         _ ->
             -- Dec
             "12"
+
+
+dumpTwilog : Twilog -> String
+dumpTwilog =
+    let
+        dumpStatusId (TwitterStatusId statusId) =
+            "TwitterStatusId " ++ statusId
+
+        dumpUserId (TwitterUserId userId) =
+            "TwitterUserId " ++ userId
+
+        maybeEncode encoder value =
+            case value of
+                Just v ->
+                    encoder v
+
+                Nothing ->
+                    Json.Encode.null
+
+        encodeTwilog twilog =
+            -- Reverse of twilogDecoder for debugging. Dump twilog into pretty-printed JSON string
+            Json.Encode.object
+                [ ( "createdAt", Json.Encode.string (formatPosix twilog.createdAt) )
+                , ( "touchedAt", Json.Encode.string (formatPosix twilog.touchedAt) )
+                , ( "createdDate", Json.Encode.string (Date.toIsoString twilog.createdDate) )
+                , ( "text", Json.Encode.string twilog.text )
+                , ( "id", Json.Encode.string (dumpStatusId twilog.id) )
+                , ( "idStr", Json.Encode.string twilog.idStr )
+                , ( "userName", Json.Encode.string twilog.userName )
+                , ( "userProfileImageUrl", Json.Encode.string twilog.userProfileImageUrl )
+                , ( "retweet", maybeEncode encodeRetweet twilog.retweet )
+                , ( "inReplyTo", maybeEncode encodeInReplyTo twilog.inReplyTo )
+                , ( "replies", Json.Encode.list encodeReply twilog.replies )
+                , ( "quote", maybeEncode encodeQuote twilog.quote )
+                , ( "entitiesTcoUrl", Json.Encode.list encodeTcoUrl twilog.entitiesTcoUrl )
+                , ( "extendedEntitiesMedia", Json.Encode.list encodeMedia twilog.extendedEntitiesMedia )
+                ]
+
+        encodeReply (Reply twilog) =
+            encodeTwilog twilog
+
+        encodeRetweet rt =
+            Json.Encode.object
+                [ ( "fullText", Json.Encode.string rt.fullText )
+                , ( "id", Json.Encode.string (dumpStatusId rt.id) )
+                , ( "userName", Json.Encode.string rt.userName )
+                , ( "userProfileImageUrl", Json.Encode.string rt.userProfileImageUrl )
+                , ( "quote", maybeEncode encodeQuote rt.quote )
+                , ( "entitiesTcoUrl", Json.Encode.list encodeTcoUrl rt.entitiesTcoUrl )
+                , ( "extendedEntitiesMedia", Json.Encode.list encodeMedia rt.extendedEntitiesMedia )
+                ]
+
+        encodeInReplyTo irt =
+            Json.Encode.object
+                [ ( "id", Json.Encode.string (dumpStatusId irt.id) )
+                , ( "userId", Json.Encode.string (dumpUserId irt.userId) )
+                ]
+
+        encodeQuote q =
+            Json.Encode.object
+                [ ( "fullText", Json.Encode.string q.fullText )
+                , ( "id", Json.Encode.string (dumpStatusId q.id) )
+                , ( "userName", Json.Encode.string q.userName )
+                , ( "userProfileImageUrl", Json.Encode.string q.userProfileImageUrl )
+                , ( "permalinkUrl", Json.Encode.string q.permalinkUrl )
+                ]
+
+        encodeTcoUrl tu =
+            Json.Encode.object
+                [ ( "url", Json.Encode.string tu.url )
+                , ( "expandedUrl", Json.Encode.string tu.expandedUrl )
+                ]
+
+        encodeMedia m =
+            Json.Encode.object
+                [ ( "url", Json.Encode.string m.url )
+                , ( "sourceUrl", Json.Encode.string m.sourceUrl )
+                , ( "type_", Json.Encode.string m.type_ )
+                , ( "expandedUrl", Json.Encode.string m.expandedUrl )
+                ]
+    in
+    encodeTwilog >> Json.Encode.encode 4
