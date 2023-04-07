@@ -175,12 +175,36 @@ Tweet-like style on top of Sakura.css
 */
 
 .tweet {
+  position: relative;
   font-size: 0.75em;
   background: #f9f9f9;
   border: 1px solid #eaeaea;
   border-radius: 5px;
   padding: 10px;
   margin: 10px 0;
+}
+
+/* raw twilog-data viewer */
+.tweet > input[type="checkbox"] {
+  position: absolute;
+  right: 0.5em;
+  top: 0.5em;
+  cursor: pointer;
+  opacity: 0.1;
+  outline: none!important;
+}
+.tweet > input[type="checkbox"]:checked {
+  opacity: 0.8;
+}
+.tweet > input[type="checkbox"] + .twilog-data {
+  display: none;
+  white-space: pre-wrap;
+}
+.tweet > input[type="checkbox"]:checked + .twilog-data {
+  display: block;
+}
+.tweet > input[type="checkbox"]:checked ~ :not(.twilog-data) {
+  display: none;
 }
 
 .thread {

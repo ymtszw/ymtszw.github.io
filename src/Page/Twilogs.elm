@@ -7,7 +7,7 @@ import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
 import Html exposing (..)
-import Html.Attributes exposing (alt, attribute, class, classList, href, src, target)
+import Html.Attributes exposing (alt, attribute, class, classList, href, src, target, type_)
 import Html.Keyed
 import LinkPreview
 import List.Extra
@@ -237,76 +237,77 @@ threadAwareTwilogs links twilog =
 aTwilog : Dict String LinkPreview.Metadata -> Twilog -> Html msg
 aTwilog links twilog =
     div [ class "tweet" ] <|
-        case twilog.retweet of
-            Just retweet ->
-                [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]
-                , a [ target "_blank", href (statusLink retweet) ]
-                    [ header []
-                        [ imgLazy [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
-                        , strong [] [ text retweet.userName ]
+        List.append (twilogData twilog) <|
+            case twilog.retweet of
+                Just retweet ->
+                    [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]
+                    , a [ target "_blank", href (statusLink retweet) ]
+                        [ header []
+                            [ imgLazy [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
+                            , strong [] [ text retweet.userName ]
+                            ]
                         ]
+                    , retweet.fullText
+                        |> removeQuoteUrl retweet.quote
+                        |> removeMediaUrls retweet.extendedEntitiesMedia
+                        |> removeMediaUrls twilog.extendedEntitiesMedia
+                        |> replaceTcoUrls retweet.entitiesTcoUrl
+                        |> replaceTcoUrls twilog.entitiesTcoUrl
+                        |> autoLinkedMarkdown
+                        |> (case retweet.extendedEntitiesMedia of
+                                [] ->
+                                    appendMediaGrid twilog
+
+                                _ ->
+                                    appendMediaGrid retweet
+                           )
+                        |> appendQuote retweet.quote
+                        -- Only show link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
+                        |> appendLinkPreviews links retweet.entitiesTcoUrl
+                        |> div [ class "body" ]
+                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                     ]
-                , retweet.fullText
-                    |> removeQuoteUrl retweet.quote
-                    |> removeMediaUrls retweet.extendedEntitiesMedia
-                    |> removeMediaUrls twilog.extendedEntitiesMedia
-                    |> replaceTcoUrls retweet.entitiesTcoUrl
-                    |> replaceTcoUrls twilog.entitiesTcoUrl
-                    |> autoLinkedMarkdown
-                    |> (case retweet.extendedEntitiesMedia of
-                            [] ->
-                                appendMediaGrid twilog
 
-                            _ ->
-                                appendMediaGrid retweet
-                       )
-                    |> appendQuote retweet.quote
-                    -- Only show link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
-                    |> appendLinkPreviews links retweet.entitiesTcoUrl
-                    |> div [ class "body" ]
-                , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
-                ]
+                Nothing ->
+                    let
+                        ( replyHeader, bodyText ) =
+                            case twilog.inReplyTo of
+                                -- メモ: ここでは他人へのリプライ（メンション）または日をまたいだセルフリプライのみが対象となる。
+                                -- 同日中のセルフリプライツリーはShared.resolveRepliesWithinDayAndSortFromOldestでrepliesに格納し、
+                                -- inReplyToをNothingに解決しているので対象とならない。
+                                Just inReplyTo ->
+                                    case ( String.startsWith "@" twilog.text, String.split " " twilog.text ) of
+                                        ( True, mention :: rest ) ->
+                                            ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text ("Replying to " ++ mention) ]
+                                            , String.join " " rest
+                                            )
 
-            Nothing ->
-                let
-                    ( replyHeader, bodyText ) =
-                        case twilog.inReplyTo of
-                            -- メモ: ここでは他人へのリプライ（メンション）または日をまたいだセルフリプライのみが対象となる。
-                            -- 同日中のセルフリプライツリーはShared.resolveRepliesWithinDayAndSortFromOldestでrepliesに格納し、
-                            -- inReplyToをNothingに解決しているので対象とならない。
-                            Just inReplyTo ->
-                                case ( String.startsWith "@" twilog.text, String.split " " twilog.text ) of
-                                    ( True, mention :: rest ) ->
-                                        ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text ("Replying to " ++ mention) ]
-                                        , String.join " " rest
-                                        )
+                                        _ ->
+                                            ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text (twilog.userName ++ " replied:") ]
+                                            , twilog.text
+                                            )
 
-                                    _ ->
-                                        ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text (twilog.userName ++ " replied:") ]
-                                        , twilog.text
-                                        )
-
-                            Nothing ->
-                                ( text "", twilog.text )
-                in
-                [ replyHeader
-                , a [ target "_blank", href (statusLink twilog) ]
-                    [ header []
-                        [ imgLazy [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
-                        , strong [] [ text twilog.userName ]
+                                Nothing ->
+                                    ( text "", twilog.text )
+                    in
+                    [ replyHeader
+                    , a [ target "_blank", href (statusLink twilog) ]
+                        [ header []
+                            [ imgLazy [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
+                            , strong [] [ text twilog.userName ]
+                            ]
                         ]
+                    , bodyText
+                        |> removeQuoteUrl twilog.quote
+                        |> removeMediaUrls twilog.extendedEntitiesMedia
+                        |> replaceTcoUrls twilog.entitiesTcoUrl
+                        |> autoLinkedMarkdown
+                        |> appendMediaGrid twilog
+                        |> appendQuote twilog.quote
+                        |> appendLinkPreviews links twilog.entitiesTcoUrl
+                        |> div [ class "body" ]
+                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                     ]
-                , bodyText
-                    |> removeQuoteUrl twilog.quote
-                    |> removeMediaUrls twilog.extendedEntitiesMedia
-                    |> replaceTcoUrls twilog.entitiesTcoUrl
-                    |> autoLinkedMarkdown
-                    |> appendMediaGrid twilog
-                    |> appendQuote twilog.quote
-                    |> appendLinkPreviews links twilog.entitiesTcoUrl
-                    |> div [ class "body" ]
-                , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
-                ]
 
 
 statusLink : { a | id : TwitterStatusId } -> String
@@ -591,3 +592,18 @@ linksByMonths maybeOpenedDate twilogArchives =
                     )
             )
         |> nav [ class "twilog-archive-navigation" ]
+
+
+
+-----------------
+-- TWILOG RAW DATA
+-----------------
+
+
+twilogData : Twilog -> List (Html msg)
+twilogData twilog =
+    -- Show switch that toggles styled twilog or twilog raw data
+    [ input [ type_ "checkbox" ] []
+    , -- TODO: Dump twilog into pretty JSON
+      pre [ class "twilog-data" ] [ text <| Debug.toString twilog ]
+    ]
