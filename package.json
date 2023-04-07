@@ -2,7 +2,7 @@
   "name": "ymtszw",
   "scripts": {
     "postinstall": "elm-tooling install && patch-package",
-    "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs",
+    "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git commit --include data/ -m \"ci: fetched recent twilogs ($(date))\"",
     "import_archived_tweets": "TZ=Asia/Tokyo node import_archived_tweets.js",
     "start": "elm-pages dev --port 10101",
     "build": "elm-pages build"
