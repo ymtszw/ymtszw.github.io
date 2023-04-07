@@ -268,19 +268,35 @@ aTwilog links twilog =
                 ]
 
             Nothing ->
-                [ case twilog.inReplyTo of
-                    Just inReplyTo ->
-                        a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text (twilog.userName ++ " replied:") ]
+                let
+                    ( replyHeader, bodyText ) =
+                        case twilog.inReplyTo of
+                            -- メモ: ここでは他人へのリプライ（メンション）または日をまたいだセルフリプライのみが対象となる。
+                            -- 同日中のセルフリプライツリーはShared.resolveRepliesWithinDayAndSortFromOldestでrepliesに格納し、
+                            -- inReplyToをNothingに解決しているので対象とならない。
+                            Just inReplyTo ->
+                                case ( String.startsWith "@" twilog.text, String.split " " twilog.text ) of
+                                    ( True, mention :: rest ) ->
+                                        ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text ("Replying to " ++ mention) ]
+                                        , String.join " " rest
+                                        )
 
-                    Nothing ->
-                        text ""
+                                    _ ->
+                                        ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text (twilog.userName ++ " replied:") ]
+                                        , twilog.text
+                                        )
+
+                            Nothing ->
+                                ( text "", twilog.text )
+                in
+                [ replyHeader
                 , a [ target "_blank", href (statusLink twilog) ]
                     [ header []
                         [ imgLazy [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
                         , strong [] [ text twilog.userName ]
                         ]
                     ]
-                , twilog.text
+                , bodyText
                     |> removeQuoteUrl twilog.quote
                     |> removeMediaUrls twilog.extendedEntitiesMedia
                     |> replaceTcoUrls twilog.entitiesTcoUrl
