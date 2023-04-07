@@ -1,0 +1,55 @@
+[
+{"CreatedAt":"Thu Aug 09 00:30:20 +0000 2018","Text":"Last Cards Match - Numberphile - YouTube https://t.co/ZMCK1kABAR\n\n急に中国の剰余定理がでてきて心拍数が上がる","StatusId":"1027351334935093248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 00:45:33 +0000 2018","Text":"github/glb-director: GitHub Load Balancer Director and supporting tooling. https://t.co/SCXnDyYeEQ","StatusId":"1027355167513968640","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 03:01:33 +0000 2018","Text":"RT @seizans: simple_schema すごくいい。ex_json_schema 使うよりコードがコンパクトかつ読みやすくなってすごく快適。","StatusId":"1027389390417362945","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"simple_schema すごくいい。ex_json_schema 使うよりコードがコンパクトかつ読みやすくなってすごく快適。","RetweetedStatusId":"1027389390417362945","RetweetedStatusUserName":"Seizan Shimazaki","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Aug 09 03:01:38 +0000 2018","Text":"いいことを聞いたぞ","StatusId":"1027389411862839296","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 03:29:42 +0000 2018","Text":"@seizans ただ見た感じ、(ExJsonSchemaとか、他の類似ライブラリもそうなんですが、)いまいちワークフローが私の理想とするところになじまない印象を受けました。可搬なschema.jsonファイルを吐き出してクライアント側のコード生成させるような使い方は想定していないのかな？","StatusId":"1027396477486694400","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 03:31:07 +0000 2018","Text":"swaggerとかJSON schemaを使うときは、個人的な理想としては(多少面倒でも)yaml/jsonでschemaファイルを書いたら、それを元に自分が使いたい言語やフレームワークのためのコードを自動生成させる、という流れにしたいと思ってる(protobufのような感じ)","StatusId":"1027396832505131009","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 03:33:32 +0000 2018","Text":"つまり言語非依存のschemaファイルを「正」とするワークフロー。\nこれを実現するためには(1)schemaの表現言語(IDL)に十分な表現力があって、(できればそれなりに書きやすくて、)(2)コード自動生成ライブラリが充実してるor少なくとも自分でやるための道具は揃ってる、というのが前提になる","StatusId":"1027397441971048449","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 03:39:55 +0000 2018","Text":"ElixirはOpenAPIの公式ライブラリとかはないけど、compile時コード生成を実現するためのtoolingが整ってるので(2)は良くて、一方(1)のためにはswagger 2.0は表現力不足であることが各所で叫ばれているためにOpenAPI 3.0を採用したいけど、そうするとクライアント側のライブラリがまだなくてウボアー","StatusId":"1027399045457690624","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 03:41:31 +0000 2018","Text":"Elmはcompile時ゴニョゴニョのためのtoolingを全く提供してないのでnodejsエコシステムから借りてこなきゃならなくて、そうするとJS書くことになって悲しい(n週間ぶりm回目)","StatusId":"1027399449738264576","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 03:47:43 +0000 2018","Text":"未だに使う機会に恵まれてないけど、そろそろprotobufかflatbufあたりを使ってみたい。\nもしくはML-likeなシンタックスでschema定義できるIDLとかどこかにないんですか","StatusId":"1027401010778492928","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 04:01:36 +0000 2018","Text":"@hartack Sylvanasの複雑性は「死者の生」を生きていながらGilneas攻略戦で「死者の死」に触れた体験からくる恐怖に根ざしていて、その後は真の死である「死者の死」を遠ざけるために一切手段を選ばない徹底的な指導者となったことで、逆に行動が単純化して見えるようになったという点にあるんだなあ","StatusId":"1027404502268239872","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 04:04:32 +0000 2018","Text":"左上の木を焼いたのはあれでしょ、同じエルフのくせにあいつらだけworld treeの恩寵で不死なのが気に入らないからだよ。\nなんなら多分右上のsunwell温泉に浸かってるエルフのことも内心嫌いだと思うよ。\nその意味では普通に生きて死ぬorcとか牛のほうがまだ親近感覚えてるんじゃないかと予想","StatusId":"1027405242172727296","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 04:08:24 +0000 2018","Text":"@hartack まあこれはだいぶ適当な私の理解なのでもっとちゃんとした動機づけがあるのかもしれないけどよく知らないです。\nとはいえ根底にあるのは↓でまちがいない\nhttps://t.co/Mcw40NvUQh","StatusId":"1027406213040893952","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 04:13:12 +0000 2018","Text":"@hartack Horde Silverpine Forest Questlineは普通に良くできているので、Cata後世界の中ではおすすめエリアの上位に入ると噂されておる","StatusId":"1027407422535553024","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 04:18:16 +0000 2018","Text":"同期としては非常にそれっぽいプロジェクトを見つけたけど、WIPだった\n\n&gt; Language-agnostic schemas based on Haskell's type system.\n\nseagreen/plate: Experiment only, don't actually use.\nhttps://t.co/rDZe71XgxQ","StatusId":"1027408699407589376","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 04:19:41 +0000 2018","Text":"@hartack Undeadですね。Worgen初期クエは壁の向こう側なのでSylvanasはあんまり出てこない。クエスト好きにはそれなりに有名。","StatusId":"1027409052534333440","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 04:27:49 +0000 2018","Text":"HackerNewsのスレッド読んでつながったけど、この文脈でdhall-langが出てくるわけね。はっはーって感じ\n\ndhall-lang/dhall-lang: A configuration language guaranteed to terminate\nhttps://t.co/99EjxXbsLs","StatusId":"1027411102886285312","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 04:57:07 +0000 2018","Text":"dhall-langに俄然興味が湧いてきた","StatusId":"1027418473301868544","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 05:55:57 +0000 2018","Text":"@hartack @Quantren Sylvanas「ArthusからVal'kyrを払い下げてもらったから、生きてるやつは生きればいいし、死んだら死んだでVal'kyrパワーでみんな一緒にForsakenになれるし、生きてても死んでてもみんな一緒や！ For the Horde！！！」","StatusId":"1027433282357489664","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 05:58:56 +0000 2018","Text":"@hartack @Quantren Sylvanas「Val'kyrもっといればもっと便利やな。おうねーちゃんVal'kyrうちんとこに卸してくれや」\nGenn「そうはさせんぞー」(ランタンガシャー\n\nhttps://t.co/NecRS1CdyI","StatusId":"1027434030197698560","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 06:03:26 +0000 2018","Text":"さらにいうとVal'kyrの中には普通のUndeadしか作れない低級なやつと、SylvanasとかNathanos，Death Knightみたいな強力なやつを作れるし、マジで死んだUndeadを(自分を犠牲にして)再度復活させられる上級職がいて、上級Val'kyrは数が限られてるから使い切っちゃうとまずい","StatusId":"1027435162009661440","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 06:07:44 +0000 2018","Text":"@hartack @Quantren あれ実際クエスト一通りやっててもほとんど説明らしい説明なかった気がする","StatusId":"1027436246178525184","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 06:14:59 +0000 2018","Text":"それでいくとプレイヤーDeath Knight (Deathlord)も4 Horsemenを立ち上げたりできるから実質Val'kyr相当のパワーが有る。こいつらはLKの落とし子の中で特別出来のいいヤツで、かついろいろあって現LKのBolvarから追加でパワーを授かってるし、まあ筋は通るな","StatusId":"1027438071568982016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 06:25:12 +0000 2018","Text":"@hartack @Quantren そこが実はSilverpineのクエストが効いてくるところで、そこの内容＋Val'kyrに対するSylvの執着を知っていると、Stormheimでの行動の意味がわかるようになっている。狙ったかどうかは別として、結果的にそういう伏線効果が得られたのもあってSilverpineクエストの評価が高いんだと思ってる","StatusId":"1027440639846182912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 06:27:52 +0000 2018","Text":"Cata以降のrevampedクエストはそんなわけで一通り回る価値はあるんだけど、Garrosh関連についてはあんまりうまく昇華できなかったよなーっていう悲しさ。Stonetalon Mountainsのクエストとか皆さんやりましたか","StatusId":"1027441313153609728","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 06:45:46 +0000 2018","Text":"@dakfan 小説のWar Crimesとか結構内容重要だったような覚え","StatusId":"1027445818129698818","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 09 07:20:22 +0000 2018","Text":"dhallそこそこ遊べそうである https://t.co/IKZKq4SNKP","StatusId":"1027454523189547008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/IKZKq4SNKP","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DkJAaGRU0AAUI7H.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1027454523189547008/photo/1","Retweet":"FALSE"}
+]

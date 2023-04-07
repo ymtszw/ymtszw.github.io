@@ -1,0 +1,29 @@
+[
+{"CreatedAt":"Sun Jan 28 15:17:53 +0000 2018","Text":"アチーブ2週目。CovenとAggramarはどうにか成功したけどスターダストクルセイダーズは上手くいかなかった。来週再トライ\nhttps://t.co/Yh0qeH0RTb\n#ut_wow","StatusId":"957633839345512448","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 01:31:41 +0000 2018","Text":"人の作業を背後からのぞくと新しい知識がふえる - デイリーポータルZ https://t.co/ofzxcsWEoz\n\nいいと思うんだけど、それとは関係なくデリポのHTMLの拡張子が3文字htmで時代を感じた","StatusId":"957788304102928386","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 02:53:33 +0000 2018","Text":"RT @tjmlab: 店員さん「ウイルス対策何使われてます？」\nわい「Windows defenderです」\n店員さん「あ～それは全裸にパンツ履いてるだけですね～」\nわい「」","StatusId":"957808905836359680","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"店員さん「ウイルス対策何使われてます？」\nわい「Windows defenderです」\n店員さん「あ～それは全裸にパンツ履いてるだけですね～」\nわい「」","RetweetedStatusId":"957808905836359680","RetweetedStatusUserName":"部品（橋本環奈）","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Jan 29 08:11:48 +0000 2018","Text":"@phocaenidae 最近はほとんどYouTubeですね","StatusId":"957888997572751360","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 08:41:36 +0000 2018","Text":"hidenをsparkleshareで自動syncさせようかなーと思ったけど、いまいち融通がきかない感じだったのでやめた","StatusId":"957896497558728704","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 08:42:54 +0000 2018","Text":"というかsparkleshareそこそこ便利だとは思っていたけど全然流行ってはいないよなーと思ってtrend見てみたら案の定下り坂。普通にみんなDropbox使ってるんだろうな。git backendってのはいい考えだとは思うんだけど\n\nhttps://t.co/96Wj1l3JRg","StatusId":"957896823099744256","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 08:47:39 +0000 2018","Text":"ついったにelm-jp scrapboxのリンク貼ってくれ！！","StatusId":"957898020065914880","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 09:50:56 +0000 2018","Text":"@miyamo_madoka 私はいつも[/ymtszw/ymtszw.icon]と書いて自分のプロジェクトのプロフィール引っ張ってきてます。","StatusId":"957913945473400832","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 09:58:57 +0000 2018","Text":"@ababupdownba 一つの関数の中で何か複雑なことをやろうとしていて、かつlet inとかで内部変数や関数を置いてるなら、道を見失わないように書くのは悪くないと思います。\nコンパイル通った後に消していいとも思いますが。","StatusId":"957915965131448320","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 09:59:58 +0000 2018","Text":"業務時間中だがelm-jpに開発環境関連のページをごそっとダンプしたぞ\n\nhttps://t.co/34QeOLVlv9","StatusId":"957916220304506880","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 10:02:38 +0000 2018","Text":"@ababupdownba 「型注釈」の解釈が一致してないかも。私ただ「型を書く」という意味で書いちゃってる","StatusId":"957916890646523904","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 10:07:41 +0000 2018","Text":"@ababupdownba これだとそもそも値にインラインで型注釈付ける必要ないんでは？まあそもそもElmだとつけられないですが。","StatusId":"957918159419334656","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 10:21:23 +0000 2018","Text":"@ababupdownba それならあんましいらなそうですね","StatusId":"957921609712418817","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jan 29 13:02:38 +0000 2018","Text":"これは俺はElixirの布教に寄与できたと見ていいんでないか","StatusId":"957962189662384128","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

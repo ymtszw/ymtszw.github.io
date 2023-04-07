@@ -8,7 +8,7 @@
  */
 
 window = { YTD: { tweets: {} } };
-const { mkdir, writeFile } = require("fs").promises;
+const { mkdir, writeFile } = require("fs/promises");
 
 // require archived tweets js file
 require(process.argv[2]);
@@ -93,28 +93,37 @@ function destructivelyResolveRetweet(simplified, tweet) {
 // console.log("Example 20000:", simplifiedTweets[20000]);
 
 // 1. Group simplifiedTweets by year-month of CreatedAt
-const groupedByYearMonth = simplifiedTweets.reduce((acc, tweet) => {
+const groupedByYearMonthDay = simplifiedTweets.reduce((acc, tweet) => {
   // TZ env var must be set. See package.json
   const ca = new Date(tweet.CreatedAt);
-  const yearMonth =
-    ca.getFullYear() + "-" + (ca.getMonth() + 1).toString().padStart(2, "0");
-  if (!acc[yearMonth]) {
-    acc[yearMonth] = [];
+  const yearMonthDay = [
+    ca.getFullYear(),
+    (ca.getMonth() + 1).toString().padStart(2, "0"),
+    ca.getDate().toString().padStart(2, "0"),
+  ].join("-");
+  if (!acc[yearMonthDay]) {
+    acc[yearMonthDay] = [];
   }
-  acc[yearMonth].push(tweet);
+  acc[yearMonthDay].push(tweet);
   return acc;
 }, {});
 
 // 2. Dump them into data/<year>/<month>/twilogs.json
 // (Note: each twilogs.json does not have to be perfectly sorted, since decoder on Elm side will take care of that)
-Object.entries(groupedByYearMonth).forEach(async ([yearMonth, twilogs]) => {
-  const [year, month] = yearMonth.split("-");
-  const dir = `data/${year}/${month}`;
-  const file = `${dir}/twilogs.json`;
-  await mkdir(dir, { recursive: true });
-  const data = twilogs.map((twilog) => JSON.stringify(twilog)).join("\n,\n");
-  return writeFile(file, "[\n" + data + "\n]\n");
-});
+Object.entries(groupedByYearMonthDay).forEach(
+  async ([yearMonthDay, twilogs]) => {
+    const [year, month, day] = yearMonthDay.split("-");
+    const dir = `data/${year}/${month}`;
+    const file = `${dir}/${day}-twilogs.json`;
+    await mkdir(dir, { recursive: true });
+    const data = twilogs
+      .sort((a, b) => a.StatusId.localeCompare(b.StatusId))
+      .map((twilog) => JSON.stringify(twilog))
+      .join("\n,\n");
+    console.log("Writing:", file);
+    return writeFile(file, "[\n" + data + "\n]\n");
+  }
+);
 
 /*
 

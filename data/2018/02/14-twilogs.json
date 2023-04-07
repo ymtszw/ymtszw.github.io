@@ -1,0 +1,23 @@
+[
+{"CreatedAt":"Tue Feb 13 16:46:30 +0000 2018","Text":"Answer:Is there a way for one SSH config file to include another one? https://t.co/yfIppOLbNE\n\nこの機能、なにげに待望な気がする。~/.ssh/config.*を手動連結するスクリプトはいらなくなる","StatusId":"963454344564686848","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 13 16:49:36 +0000 2018","Text":"mergeされたのは2016/08か","StatusId":"963455125636268032","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 14 05:24:59 +0000 2018","Text":"言わんとすることはわからんけど（？！）、今時の高校生諸君の家には下手すりゃパソコンはないし、あってもmacである確率は低そうだからTerminalはないし、従ってvimもなさそう（bash on windowsを開ける頭がある人は本の主張の対象ではなさそう）","StatusId":"963645224076697600","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 14 10:16:51 +0000 2018","Text":"offscreen image loadingを減らすためにelm-lang/windowを導入して要素数を減らす。。。？","StatusId":"963718674539401216","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 14 10:19:24 +0000 2018","Text":"つまりresizeにsubscribeし、初期化時はwindow sizeをtaskで取得して判定。。。？\nなかなかこだわりではあるけどめんどいぞ。","StatusId":"963719314036596736","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 14 10:22:33 +0000 2018","Text":"travisCIのメールが遅配してて丸一日遅れくらいで届いた","StatusId":"963720108437684225","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 14 13:25:44 +0000 2018","Text":"結局、初期化時はflagsでwindow sizeを注入、それ以外はresizeにsubscribeして画面サイズの閾値で表示要素の数を増減させるところまでやってしまった。。。ほとんどauditのためだけに時間使ってしまったよ。\nflagsからwindowSize初期値を注入するアイデアはこの辺の議論と共通\nhttps://t.co/8D0GhGHaUY","StatusId":"963766209287135234","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 14 13:46:29 +0000 2018","Text":"@bicycle_panda 坂を転がり落ちるようにデレに向かっている","StatusId":"963771431732457472","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 14 13:48:24 +0000 2018","Text":"@dakfan 知ってるぜ。昔scourge って奴らがいてな。","StatusId":"963771912563257345","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 14 13:49:04 +0000 2018","Text":"RT @okasanman: ホットリンク、企業が炎上を疑似体験できる 『1時間だけ炎上防災訓練』を無償提供　炎上を擬似的に発生させ、企業の経営者や担当者が実際に対応を行う様子を評価(笑　\nhttps://t.co/CWtaFI9DLN","StatusId":"963772078661943302","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ホットリンク、企業が炎上を疑似体験できる 『1時間だけ炎上防災訓練』を無償提供　炎上を擬似的に発生させ、企業の経営者や担当者が実際に対応を行う様子を評価(笑　\nhttps://t.co/CWtaFI9DLN","RetweetedStatusId":"963772078661943302","RetweetedStatusUserName":"岡三マン","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Wed Feb 14 13:52:37 +0000 2018","Text":"@bicycle_panda 止まるんじゃねえぞって思ってるよ","StatusId":"963772972673593344","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

@@ -1,0 +1,27 @@
+[
+{"CreatedAt":"Tue Aug 07 23:52:24 +0000 2018","Text":"@ababupdownba @Lugendre 後者","StatusId":"1026979400540012544","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 01:28:53 +0000 2018","Text":"相変わらずこの件詰めてるけど、「普段は先頭に(時系列的に)新しい要素を追加していくが、無限スクロールに対応して、末尾に古い要素を足せる必要もある」という要求に最もスマートに対応できるデータ構造ってなんだろう\n\nFeed UIに関する一考 - ymtszw\nhttps://t.co/RJQJ9bXNeU","StatusId":"1027003682414456832","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 01:42:32 +0000 2018","Text":"ベンチをそのまま受け取るとバランスいいのはArrayなんだよな。。。普段はpushして末尾に新しいものを追加、view関数ではfoldrで末尾から読み取ってDOM構築、スクロール時にはappendで先頭に古いものを追加？\nただ、Keyedを使うには結局その後Listへの変換が。。\n\nPushAndCons\nhttps://t.co/V1IjXmIMIk","StatusId":"1027007116098195457","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 02:43:04 +0000 2018","Text":"“曖昧な情報で初学者を惑わせるくらいなら最初から発信しないでほしい。” https://t.co/ErwyleDjHh\n\n影響力ある諸兄は大変ですな。","StatusId":"1027022353685872640","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 03:31:42 +0000 2018","Text":"RT @sogitani_baigie: 私のような人見知りマンは、一見で飲み屋に入った時、仲の良い常連で盛り上がっていると疎外感を感じて二度と行かなくなる。これってコミュニティ運営でも起こりえて、あまりにも仲良しで「できあがってる感」が出てしまうと、新しく入ってくる人を自然と…","StatusId":"1027034589351407616","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"私のような人見知りマンは、一見で飲み屋に入った時、仲の良い常連で盛り上がっていると疎外感を感じて二度と行かなくなる。これってコミュニティ運営でも起こりえて、あまりにも仲良しで「できあがってる感」が出てしまうと、新しく入ってくる人を自然と…","RetweetedStatusId":"1027034589351407616","RetweetedStatusUserName":"sogitani / baigie inc.","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Wed Aug 08 06:14:29 +0000 2018","Text":"呪詛","StatusId":"1027075558029451264","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 07:08:33 +0000 2018","Text":"&gt; 「あの試合で、お前らもこれぐらい打ってくれりゃあ勝っていたのに……」。５打席連続敬遠の明徳義塾戦を引き合いに出し、当時６番を打っていた私を見て、ポツリと言った。\n\nhttps://t.co/uy4olv8ArL\n\nド畜生か","StatusId":"1027089164800413701","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 08:32:44 +0000 2018","Text":"RT @miyamo_madoka: 最近はElmに使えるStorybookを作ってます。toB?向けな管理画面みたいなの作りたいって感じてます\n\n転職希望～\n\nhttps://t.co/ErDh9wgqHw","StatusId":"1027110347558121472","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"最近はElmに使えるStorybookを作ってます。toB?向けな管理画面みたいなの作りたいって感じてます\n\n転職希望～\n\nhttps://t.co/ErDh9wgqHw","RetweetedStatusId":"1027110347558121472","RetweetedStatusUserName":"みやも","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Wed Aug 08 10:29:05 +0000 2018","Text":"邪神ちゃん、原作で人間界の国民健康保険払ってた。。。斬新である","StatusId":"1027139630758391809","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 10:34:00 +0000 2018","Text":"ぶっ壊された像 https://t.co/nWeTnVYi1w","StatusId":"1027140864521297920","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/nWeTnVYi1w","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DkEjLC4U4AAgO83.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1027140864521297920/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 11:00:12 +0000 2018","Text":"知将Jaina、新spec: 幽霊船Mageをお披露目。伝統芸Mass Teleportも飛び出す大サービス","StatusId":"1027147458113982465","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 11:06:52 +0000 2018","Text":"TirisfalにもWQあればよかったのに","StatusId":"1027149136464728064","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 08 11:44:45 +0000 2018","Text":"Azerite Talentでこれ呼べるようにしてくれ https://t.co/lFMv01xcPL","StatusId":"1027158672961495040","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/lFMv01xcPL","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DkEzPL7U8AEgTlG.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1027158672961495040/photo/1","Retweet":"FALSE"}
+]

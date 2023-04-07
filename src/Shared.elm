@@ -11,23 +11,27 @@ module Shared exposing
     , SharedMsg(..)
     , TcoUrl
     , Twilog
+    , TwilogArchiveMetadata
     , TwitterStatusId(..)
     , TwitterUserId(..)
     , cmsGet
     , cmsImageDecoder
     , dailyTwilogsFromOldest
+    , dumpTwilog
     , formatPosix
     , getGitHubRepoReadme
     , githubGet
     , iso8601Decoder
     , makeSeoImageFromCmsImage
     , makeTitle
+    , makeTwilogsJsonPath
     , ogpHeaderImageUrl
     , posixToYmd
     , publicCmsArticles
     , publicOriginalRepos
     , seoBase
     , template
+    , twilogArchives
     , unixOrigin
     )
 
@@ -35,6 +39,7 @@ import Base64
 import Browser.Navigation
 import DataSource
 import DataSource.File
+import DataSource.Glob
 import DataSource.Http
 import Date
 import Dict exposing (Dict)
@@ -43,6 +48,7 @@ import Helper exposing (nonEmptyString)
 import Html exposing (Html)
 import Html.Attributes
 import Iso8601
+import Json.Encode
 import LinkPreview
 import List.Extra
 import Markdown
@@ -84,7 +90,7 @@ type alias Data =
     , cmsArticles : List CmsArticleMetadata
     , zennArticles : List ZennArticleMetadata
     , qiitaArticles : List QiitaArticleMetadata
-    , dailyTwilogs : Dict RataDie (List Twilog)
+    , twilogArchives : List TwilogArchiveMetadata
     , externalCss : String
     }
 
@@ -232,7 +238,7 @@ data =
         publicCmsArticles
         publicZennArticles
         publicQiitaArticles
-        dailyTwilogsFromOldest
+        twilogArchives
         (DataSource.map2 (++) normalizeCss classlessCss)
 
 
@@ -371,6 +377,7 @@ type alias Twilog =
     , createdDate : Date.Date
     , text : String
     , id : TwitterStatusId
+    , idStr : String
     , userName : String
     , userProfileImageUrl : String
     , retweet : Maybe Retweet
@@ -434,27 +441,50 @@ type TwitterUserId
     = TwitterUserId String
 
 
-dailyTwilogsFromOldest : DataSource.DataSource (Dict RataDie (List Twilog))
-dailyTwilogsFromOldest =
-    let
-        twilogDecoder =
-            OptimizedDecoder.succeed Twilog
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (createdAtDecoder |> OptimizedDecoder.map (Date.fromPosix jst)))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
-                -- Resolve replies later
-                |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
-                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
-                |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
-                |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
-                |> OptimizedDecoder.maybe
+type alias TwilogArchiveMetadata =
+    { date : Date.Date
+    , isoDate : String
+    , rataDie : RataDie
+    , path : String
+    }
 
+
+twilogArchives : DataSource.DataSource (List TwilogArchiveMetadata)
+twilogArchives =
+    DataSource.Glob.succeed makeTwilogArchiveMetadata
+        |> DataSource.Glob.match (DataSource.Glob.literal "data/")
+        |> DataSource.Glob.capture DataSource.Glob.int
+        |> DataSource.Glob.match (DataSource.Glob.literal "/")
+        |> DataSource.Glob.capture DataSource.Glob.int
+        |> DataSource.Glob.match (DataSource.Glob.literal "/")
+        |> DataSource.Glob.capture DataSource.Glob.int
+        |> DataSource.Glob.match (DataSource.Glob.literal "-twilogs.json")
+        |> DataSource.Glob.toDataSource
+        -- Make newest first
+        |> DataSource.map (List.sortBy .rataDie >> List.reverse)
+
+
+makeTwilogArchiveMetadata : Int -> Int -> Int -> TwilogArchiveMetadata
+makeTwilogArchiveMetadata year month day =
+    let
+        date =
+            Date.fromCalendarDate year (Date.numberToMonth month) day
+    in
+    { date = date
+    , isoDate = Date.toIsoString date
+    , rataDie = Date.toRataDie date
+    , path = makeTwilogsJsonPath date
+    }
+
+
+makeTwilogsJsonPath : Date.Date -> String
+makeTwilogsJsonPath date =
+    "data/" ++ Date.format "yyyy/MM/dd" date ++ "-twilogs.json"
+
+
+twilogDecoder : OptimizedDecoder.Decoder Twilog
+twilogDecoder =
+    let
         createdAtDecoder =
             OptimizedDecoder.oneOf
                 [ iso8601Decoder
@@ -551,8 +581,29 @@ dailyTwilogsFromOldest =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserName" nonEmptyString)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
+    in
+    OptimizedDecoder.succeed Twilog
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (createdAtDecoder |> OptimizedDecoder.map (Date.fromPosix jst)))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" nonEmptyString)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
+        -- Resolve replies later
+        |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
+        |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
+        |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
 
-        toDailyDict =
+
+dailyTwilogsFromOldest : List String -> DataSource.DataSource (Dict RataDie (List Twilog))
+dailyTwilogsFromOldest paths =
+    let
+        toDailyDictFromNewest baseDict =
             List.foldl
                 (\maybeTwilog dict ->
                     case maybeTwilog of
@@ -561,7 +612,9 @@ dailyTwilogsFromOldest =
                                 (\dailySortedTwilogs ->
                                     case dailySortedTwilogs of
                                         Just twilogs ->
-                                            Just (List.sortBy (.createdAt >> Time.posixToMillis) (twilog :: twilogs))
+                                            -- コミット済みJSON由来のtwilogは古い順、かつArchive/Spreadsheetをマージ済み
+                                            -- foldlで古い順からtraverseし、ここで到着順にconsしているので、最終的に結果は新しい順になる
+                                            Just (twilog :: twilogs)
 
                                         Nothing ->
                                             Just [ twilog ]
@@ -571,16 +624,28 @@ dailyTwilogsFromOldest =
                         Nothing ->
                             dict
                 )
-                Dict.empty
+                baseDict
     in
-    -- TODO: merge archived twilogs.json files
-    DataSource.File.jsonFile
-        (OptimizedDecoder.list twilogDecoder |> OptimizedDecoder.map toDailyDict |> OptimizedDecoder.map resolveRepliesWithinDay)
-        "twilogs.json"
+    List.foldl
+        (\path accDS ->
+            DataSource.andThen
+                (\accDict ->
+                    DataSource.File.jsonFile
+                        -- Make it Maybe, allow decode-failures to be ignored
+                        (OptimizedDecoder.list (OptimizedDecoder.maybe twilogDecoder)
+                            |> OptimizedDecoder.map (toDailyDictFromNewest accDict)
+                            |> OptimizedDecoder.map resolveRepliesWithinDayAndSortFromOldest
+                        )
+                        path
+                )
+                accDS
+        )
+        (DataSource.succeed Dict.empty)
+        paths
 
 
-resolveRepliesWithinDay : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
-resolveRepliesWithinDay =
+resolveRepliesWithinDayAndSortFromOldest : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
+resolveRepliesWithinDayAndSortFromOldest =
     let
         -- Assume twilogsOfDay is newest-first.
         -- Here we traverse the list so that reply tweets are brought under `.replies` field of the tweet (within the same day) they replied to.
@@ -589,9 +654,11 @@ resolveRepliesWithinDay =
         resolveHelp acc twilogsOfDay =
             case twilogsOfDay of
                 [] ->
+                    -- Finally sort acc list again with touchedAt, but stays mostly oldest-first
                     List.sortBy (.touchedAt >> Time.posixToMillis) acc
 
                 twilog :: olderTwilogs ->
+                    -- With this recursion acc list eventually becomes oldest-first
                     case Maybe.andThen (\inReplyTo -> List.Extra.findIndex (\olderTwilog -> olderTwilog.id == inReplyTo.id) olderTwilogs) twilog.inReplyTo of
                         Just index ->
                             let
@@ -607,8 +674,7 @@ resolveRepliesWithinDay =
             -- Reverse to newsest-first
             List.sortBy (\(Reply twilog) -> Time.posixToMillis twilog.touchedAt) >> List.reverse
     in
-    -- Reverse the list so that the latest twilog is at the head
-    Dict.map (\_ twilogs -> twilogs |> List.reverse |> resolveHelp [])
+    Dict.map (\_ twilogs -> resolveHelp [] twilogs)
 
 
 maxTime : Time.Posix -> Time.Posix -> Time.Posix
@@ -944,3 +1010,85 @@ monthToPaddedNumber monStr =
         _ ->
             -- Dec
             "12"
+
+
+dumpTwilog : Twilog -> String
+dumpTwilog =
+    let
+        dumpStatusId (TwitterStatusId statusId) =
+            "TwitterStatusId " ++ statusId
+
+        dumpUserId (TwitterUserId userId) =
+            "TwitterUserId " ++ userId
+
+        maybeEncode encoder value =
+            case value of
+                Just v ->
+                    encoder v
+
+                Nothing ->
+                    Json.Encode.null
+
+        encodeTwilog twilog =
+            -- Reverse of twilogDecoder for debugging. Dump twilog into pretty-printed JSON string
+            Json.Encode.object
+                [ ( "createdAt", Json.Encode.string (formatPosix twilog.createdAt) )
+                , ( "touchedAt", Json.Encode.string (formatPosix twilog.touchedAt) )
+                , ( "createdDate", Json.Encode.string (Date.toIsoString twilog.createdDate) )
+                , ( "text", Json.Encode.string twilog.text )
+                , ( "id", Json.Encode.string (dumpStatusId twilog.id) )
+                , ( "idStr", Json.Encode.string twilog.idStr )
+                , ( "userName", Json.Encode.string twilog.userName )
+                , ( "userProfileImageUrl", Json.Encode.string twilog.userProfileImageUrl )
+                , ( "retweet", maybeEncode encodeRetweet twilog.retweet )
+                , ( "inReplyTo", maybeEncode encodeInReplyTo twilog.inReplyTo )
+                , ( "replies", Json.Encode.list encodeReply twilog.replies )
+                , ( "quote", maybeEncode encodeQuote twilog.quote )
+                , ( "entitiesTcoUrl", Json.Encode.list encodeTcoUrl twilog.entitiesTcoUrl )
+                , ( "extendedEntitiesMedia", Json.Encode.list encodeMedia twilog.extendedEntitiesMedia )
+                ]
+
+        encodeReply (Reply twilog) =
+            encodeTwilog twilog
+
+        encodeRetweet rt =
+            Json.Encode.object
+                [ ( "fullText", Json.Encode.string rt.fullText )
+                , ( "id", Json.Encode.string (dumpStatusId rt.id) )
+                , ( "userName", Json.Encode.string rt.userName )
+                , ( "userProfileImageUrl", Json.Encode.string rt.userProfileImageUrl )
+                , ( "quote", maybeEncode encodeQuote rt.quote )
+                , ( "entitiesTcoUrl", Json.Encode.list encodeTcoUrl rt.entitiesTcoUrl )
+                , ( "extendedEntitiesMedia", Json.Encode.list encodeMedia rt.extendedEntitiesMedia )
+                ]
+
+        encodeInReplyTo irt =
+            Json.Encode.object
+                [ ( "id", Json.Encode.string (dumpStatusId irt.id) )
+                , ( "userId", Json.Encode.string (dumpUserId irt.userId) )
+                ]
+
+        encodeQuote q =
+            Json.Encode.object
+                [ ( "fullText", Json.Encode.string q.fullText )
+                , ( "id", Json.Encode.string (dumpStatusId q.id) )
+                , ( "userName", Json.Encode.string q.userName )
+                , ( "userProfileImageUrl", Json.Encode.string q.userProfileImageUrl )
+                , ( "permalinkUrl", Json.Encode.string q.permalinkUrl )
+                ]
+
+        encodeTcoUrl tu =
+            Json.Encode.object
+                [ ( "url", Json.Encode.string tu.url )
+                , ( "expandedUrl", Json.Encode.string tu.expandedUrl )
+                ]
+
+        encodeMedia m =
+            Json.Encode.object
+                [ ( "url", Json.Encode.string m.url )
+                , ( "sourceUrl", Json.Encode.string m.sourceUrl )
+                , ( "type_", Json.Encode.string m.type_ )
+                , ( "expandedUrl", Json.Encode.string m.expandedUrl )
+                ]
+    in
+    encodeTwilog >> Json.Encode.encode 4

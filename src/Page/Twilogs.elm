@@ -1,4 +1,4 @@
-module Page.Twilogs exposing (Data, Model, Msg, linksByMonths, listUrlsForPreviewBulk, listUrlsForPreviewSingle, page, showTwilogsUpToDays, twilogDailySection, twilogsOfTheDay)
+module Page.Twilogs exposing (Data, Model, Msg, linksByMonths, listUrlsForPreviewBulk, listUrlsForPreviewSingle, page, twilogDailySection, twilogsOfTheDay)
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
@@ -7,7 +7,8 @@ import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
 import Html exposing (..)
-import Html.Attributes exposing (alt, attribute, class, classList, href, src, target)
+import Html.Attributes exposing (alt, attribute, class, classList, href, src, target, type_)
+import Html.Keyed
 import LinkPreview
 import List.Extra
 import Markdown
@@ -47,12 +48,23 @@ page =
 
 
 type alias Data =
-    ()
+    { recentDailyTwilogs : Dict RataDie (List Twilog) }
 
 
 data : DataSource Data
 data =
-    DataSource.succeed ()
+    Shared.twilogArchives
+        |> DataSource.andThen
+            (\archives ->
+                List.take daysToPeek archives
+                    |> List.map .path
+                    |> Shared.dailyTwilogsFromOldest
+                    |> DataSource.map Data
+            )
+
+
+daysToPeek =
+    5
 
 
 update :
@@ -68,17 +80,13 @@ update _ _ shared static msg model =
         InitiateLinkPreviewPopulation ->
             ( model
             , Cmd.none
-            , static.sharedData.dailyTwilogs
-                |> Dict.keys
-                |> List.reverse
-                |> List.take daysToPeek
-                |> listUrlsForPreviewBulk shared static
+            , listUrlsForPreviewBulk shared static.data.recentDailyTwilogs
             )
 
 
-listUrlsForPreviewBulk : Shared.Model -> StaticPayload templateData routeParams -> List RataDie -> Maybe Shared.Msg
-listUrlsForPreviewBulk { links } { sharedData } rataDiesToPeek =
-    case listUrlsForPreviewBulkHelp links rataDiesToPeek sharedData.dailyTwilogs of
+listUrlsForPreviewBulk : Shared.Model -> Dict RataDie (List Twilog) -> Maybe Shared.Msg
+listUrlsForPreviewBulk { links } recentDailyTwilogs =
+    case listUrlsForPreviewBulkHelp links recentDailyTwilogs of
         [] ->
             Nothing
 
@@ -86,15 +94,13 @@ listUrlsForPreviewBulk { links } { sharedData } rataDiesToPeek =
             Just (Shared.SharedMsg (Shared.Req_LinkPreview urls))
 
 
-listUrlsForPreviewBulkHelp : Dict String LinkPreview.Metadata -> List RataDie -> Dict RataDie (List Twilog) -> List String
-listUrlsForPreviewBulkHelp links rataDies dailyTwilogsFromOldest =
-    rataDies
-        |> List.concatMap
-            (\rataDie ->
-                Dict.get rataDie dailyTwilogsFromOldest
-                    |> Maybe.withDefault []
-                    |> listUrlsForPreviewSingleHelp links
-            )
+listUrlsForPreviewBulkHelp : Dict String LinkPreview.Metadata -> Dict RataDie (List Twilog) -> List String
+listUrlsForPreviewBulkHelp links recentDailyTwilogsFromOldest =
+    Dict.values recentDailyTwilogsFromOldest
+        |> List.concat
+        -- Make it newest first
+        |> List.reverse
+        |> listUrlsForPreviewSingleHelp links
         |> List.Extra.unique
 
 
@@ -174,28 +180,15 @@ view _ shared _ static =
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（予定）
 """
         ]
-            ++ showTwilogsUpToDays daysToPeek shared static.sharedData.dailyTwilogs
-            ++ [ linksByMonths Nothing static.sharedData.dailyTwilogs ]
+            ++ showRecentTwilogs shared static.data.recentDailyTwilogs
+            ++ [ linksByMonths Nothing static.sharedData.twilogArchives ]
     }
 
 
-daysToPeek =
-    10
-
-
-showTwilogsUpToDays : Int -> Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
-showTwilogsUpToDays days shared dailyTwilogs =
-    dailyTwilogs
-        |> Dict.foldr
-            (\rataDie twilogs acc ->
-                if List.length acc < days then
-                    twilogDailySection shared rataDie twilogs :: acc
-
-                else
-                    acc
-            )
-            []
-        |> List.reverse
+showRecentTwilogs : Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
+showRecentTwilogs shared recentDailyTwilogs =
+    -- foldl to traverse from the oldest
+    Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared rataDie twilogs :: acc) [] recentDailyTwilogs
 
 
 twilogDailySection : Shared.Model -> RataDie -> List Twilog -> Html msg
@@ -216,87 +209,105 @@ twilogsOfTheDay shared twilogs =
         -- Order reversed in index page; newest first
         |> List.reverse
         |> List.map (threadAwareTwilogs shared.links)
-        |> div []
+        |> Html.Keyed.node "div" []
 
 
-threadAwareTwilogs : Dict String LinkPreview.Metadata -> Twilog -> Html msg
+threadAwareTwilogs : Dict String LinkPreview.Metadata -> Twilog -> ( String, Html msg )
 threadAwareTwilogs links twilog =
-    case twilog.replies of
-        [] ->
-            aTwilog links twilog
+    Tuple.pair twilog.idStr <|
+        case twilog.replies of
+            [] ->
+                aTwilog links twilog
 
-        threads ->
-            let
-                recursivelyRenderThreadedTwilogs (Reply twilogInThread) =
-                    [ div [ class "reply" ] <|
-                        case twilogInThread.replies of
-                            [] ->
-                                [ aTwilog links twilogInThread ]
+            threads ->
+                let
+                    recursivelyRenderThreadedTwilogs (Reply twilogInThread) =
+                        [ div [ class "reply" ] <|
+                            case twilogInThread.replies of
+                                [] ->
+                                    [ aTwilog links twilogInThread ]
 
-                            more ->
-                                aTwilog links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
-                    ]
-            in
-            div [ class "thread" ] <| aTwilog links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
+                                more ->
+                                    aTwilog links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
+                        ]
+                in
+                div [ class "thread" ] <| aTwilog links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
 
 
 aTwilog : Dict String LinkPreview.Metadata -> Twilog -> Html msg
 aTwilog links twilog =
     div [ class "tweet" ] <|
-        case twilog.retweet of
-            Just retweet ->
-                [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]
-                , a [ target "_blank", href (statusLink retweet) ]
-                    [ header []
-                        [ imgLazy [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
-                        , strong [] [ text retweet.userName ]
+        List.append (twilogData twilog) <|
+            case twilog.retweet of
+                Just retweet ->
+                    [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]
+                    , a [ target "_blank", href (statusLink retweet) ]
+                        [ header []
+                            [ imgLazy [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
+                            , strong [] [ text retweet.userName ]
+                            ]
                         ]
+                    , retweet.fullText
+                        |> removeQuoteUrl retweet.quote
+                        |> removeMediaUrls retweet.extendedEntitiesMedia
+                        |> removeMediaUrls twilog.extendedEntitiesMedia
+                        |> replaceTcoUrls retweet.entitiesTcoUrl
+                        |> replaceTcoUrls twilog.entitiesTcoUrl
+                        |> autoLinkedMarkdown
+                        |> (case retweet.extendedEntitiesMedia of
+                                [] ->
+                                    appendMediaGrid twilog
+
+                                _ ->
+                                    appendMediaGrid retweet
+                           )
+                        |> appendQuote retweet.quote
+                        -- Only show link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
+                        |> appendLinkPreviews links retweet.entitiesTcoUrl
+                        |> div [ class "body" ]
+                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                     ]
-                , retweet.fullText
-                    |> removeQuoteUrl retweet.quote
-                    |> removeMediaUrls retweet.extendedEntitiesMedia
-                    |> removeMediaUrls twilog.extendedEntitiesMedia
-                    |> replaceTcoUrls retweet.entitiesTcoUrl
-                    |> replaceTcoUrls twilog.entitiesTcoUrl
-                    |> autoLinkedMarkdown
-                    |> (case retweet.extendedEntitiesMedia of
-                            [] ->
-                                appendMediaGrid twilog
 
-                            _ ->
-                                appendMediaGrid retweet
-                       )
-                    |> appendQuote retweet.quote
-                    -- Only show link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
-                    |> appendLinkPreviews links retweet.entitiesTcoUrl
-                    |> div [ class "body" ]
-                , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
-                ]
+                Nothing ->
+                    let
+                        ( replyHeader, bodyText ) =
+                            case twilog.inReplyTo of
+                                -- メモ: ここでは他人へのリプライ（メンション）または日をまたいだセルフリプライのみが対象となる。
+                                -- 同日中のセルフリプライツリーはShared.resolveRepliesWithinDayAndSortFromOldestでrepliesに格納し、
+                                -- inReplyToをNothingに解決しているので対象とならない。
+                                Just inReplyTo ->
+                                    case ( String.startsWith "@" twilog.text, String.split " " twilog.text ) of
+                                        ( True, mention :: rest ) ->
+                                            ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text ("Replying to " ++ mention) ]
+                                            , String.join " " rest
+                                            )
 
-            Nothing ->
-                [ case twilog.inReplyTo of
-                    Just inReplyTo ->
-                        a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text (twilog.userName ++ " replied:") ]
+                                        _ ->
+                                            ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text (twilog.userName ++ " replied:") ]
+                                            , twilog.text
+                                            )
 
-                    Nothing ->
-                        text ""
-                , a [ target "_blank", href (statusLink twilog) ]
-                    [ header []
-                        [ imgLazy [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
-                        , strong [] [ text twilog.userName ]
+                                Nothing ->
+                                    ( text "", twilog.text )
+                    in
+                    [ replyHeader
+                    , a [ target "_blank", href (statusLink twilog) ]
+                        [ header []
+                            [ imgLazy [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
+                            , strong [] [ text twilog.userName ]
+                            ]
                         ]
+                    , bodyText
+                        |> removeQuoteUrl twilog.quote
+                        |> removeMediaUrls twilog.extendedEntitiesMedia
+                        |> replaceTcoUrls twilog.entitiesTcoUrl
+                        |> autoLinkedMarkdown
+                        |> appendMediaGrid twilog
+                        |> appendQuote twilog.quote
+                        |> appendLinkPreviews links twilog.entitiesTcoUrl
+                        |> div [ class "body" ]
+                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                     ]
-                , twilog.text
-                    |> removeQuoteUrl twilog.quote
-                    |> removeMediaUrls twilog.extendedEntitiesMedia
-                    |> replaceTcoUrls twilog.entitiesTcoUrl
-                    |> autoLinkedMarkdown
-                    |> appendMediaGrid twilog
-                    |> appendQuote twilog.quote
-                    |> appendLinkPreviews links twilog.entitiesTcoUrl
-                    |> div [ class "body" ]
-                , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
-                ]
 
 
 statusLink : { a | id : TwitterStatusId } -> String
@@ -492,74 +503,104 @@ appendMediaGrid status htmls =
             htmls ++ [ div [ class "media-grid" ] <| List.map aMedia nonEmpty ]
 
 
-linksByMonths : Maybe Date -> Dict RataDie twilogs -> Html msg
-linksByMonths maybeOpenedDate dailyTwilogsFromOldest =
+linksByMonths : Maybe Date -> List Shared.TwilogArchiveMetadata -> Html msg
+linksByMonths maybeOpenedDate twilogArchives =
     let
         datesGroupedByYearMonthFromNewest =
-            Dict.keys dailyTwilogsFromOldest
+            twilogArchives
                 -- Traverse from oldest
-                |> List.foldl
-                    (\rataDie acc ->
-                        let
-                            date =
-                                Date.fromRataDie rataDie
-
-                            yearMonth =
-                                ( Date.year date, Date.monthNumber date )
-                        in
-                        Dict.update yearMonth
-                            (\maybeDates ->
-                                case maybeDates of
+                |> List.foldr
+                    (\{ date } acc ->
+                        Dict.update (Date.year date)
+                            (\maybeMonths ->
+                                case maybeMonths of
                                     Nothing ->
-                                        Just [ date ]
+                                        Just (Dict.singleton (Date.monthNumber date) [ date ])
 
-                                    Just dates ->
-                                        -- Cons from oldest to newest
-                                        Just (date :: dates)
+                                    Just months ->
+                                        Just
+                                            (Dict.update (Date.monthNumber date)
+                                                (\maybeDates ->
+                                                    case maybeDates of
+                                                        Nothing ->
+                                                            Just [ date ]
+
+                                                        Just dates ->
+                                                            -- Cons from oldest to newest
+                                                            Just (date :: dates)
+                                                )
+                                                months
+                                            )
                             )
                             acc
                     )
                     Dict.empty
-                -- Here Dict -> List conversion makes the resulting list oldest-first again
+                -- Here Dict -> List conversion makes the resulting list oldest-first
+                |> Dict.map (\_ v -> v |> Dict.toList |> List.reverse)
                 |> Dict.toList
                 |> List.reverse
 
-        openedYearMonth =
+        ( openedYear, openedMonth ) =
             case maybeOpenedDate of
                 Nothing ->
                     case datesGroupedByYearMonthFromNewest of
-                        [] ->
-                            ( 2023, 4 )
+                        ( year, ( month, _ ) :: _ ) :: _ ->
+                            ( year, month )
 
-                        ( yearMonth, _ ) :: _ ->
-                            yearMonth
+                        _ ->
+                            ( 2023, 4 )
 
                 Just date ->
                     ( Date.year date, Date.monthNumber date )
     in
     datesGroupedByYearMonthFromNewest
         |> List.map
-            (\( ( year, monthNum ), dates ) ->
+            (\( year, months ) ->
                 details
-                    [ if ( year, monthNum ) == openedYearMonth then
+                    [ if year == openedYear then
                         attribute "open" ""
 
                       else
                         classList []
                     ]
-                    [ summary [] [ text <| String.fromInt year ++ "/" ++ String.padLeft 2 '0' (String.fromInt monthNum) ]
-                    , dates
-                        |> List.map
-                            (\date ->
-                                li []
-                                    [ if Just date == maybeOpenedDate then
-                                        text <| Date.format "yyyy/MM/dd (E)" date ++ " ◀"
+                    (summary [] [ text (String.fromInt year ++ "年") ]
+                        :: List.map
+                            (\( monthNum, dates ) ->
+                                details
+                                    [ if ( year, monthNum ) == ( openedYear, openedMonth ) then
+                                        attribute "open" ""
 
                                       else
-                                        Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ]
+                                        classList []
+                                    ]
+                                    [ summary [] [ text (String.fromInt monthNum ++ "月") ]
+                                    , List.map
+                                        (\date ->
+                                            if Just date == maybeOpenedDate then
+                                                li [ class "selected" ] [ text <| Date.format "yyyy/MM/dd (E)" date ]
+
+                                            else
+                                                li [] [ Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
+                                        )
+                                        dates
+                                        |> ul []
                                     ]
                             )
-                        |> ul []
-                    ]
+                            months
+                    )
             )
         |> nav [ class "twilog-archive-navigation" ]
+
+
+
+-----------------
+-- TWILOG RAW DATA
+-----------------
+
+
+twilogData : Twilog -> List (Html msg)
+twilogData twilog =
+    -- Show switch that toggles styled twilog or twilog raw data
+    [ input [ type_ "checkbox" ] []
+    , pre [ class "twilog-data" ] [ text (Shared.dumpTwilog twilog) ]
+    ]

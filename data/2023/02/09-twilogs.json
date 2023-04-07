@@ -1,0 +1,5 @@
+[
+{"CreatedAt":"Thu Feb 09 11:41:36 +0000 2023","Text":"RT @__kokumoto: Cloudflare社が、自社クラウド上で完結するActivityPub・Mastodon互換サーバのWildebeestをOSSで公開。依存性の大部分は無料枠でも使用可能だが、Imagesプラン、及びサーバ負荷によってはWorkers Unbo…","StatusId":"1623648305774473217","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Cloudflare社が、自社クラウド上で完結するActivityPub・Mastodon互換サーバのWildebeestをOSSで公開。依存性の大部分は無料枠でも使用可能だが、Imagesプラン、及びサーバ負荷によってはWorkers Unbo…","RetweetedStatusId":"1623648305774473217","RetweetedStatusUserName":"kokumօtօ","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Feb 09 13:29:51 +0000 2023","Text":"ElmLS &amp; elm-language-client-vscodeで、推論された型注釈を適用するcode actionが動かない場合、VSCodeの個人settings.jsonから古いElmLS/Elm関連の設定値を一旦全部削除すると直るかも。なんか書き方によっては悪さする","StatusId":"1623675546407440384","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

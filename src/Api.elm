@@ -2,11 +2,9 @@ module Api exposing (routes)
 
 import ApiRoute
 import DataSource exposing (DataSource)
-import Dict
 import Html exposing (Html)
 import Iso8601
 import Page.Articles.ArticleId_
-import Page.Twilogs.Day_
 import Pages
 import Route exposing (Route(..))
 import Rss
@@ -104,7 +102,11 @@ sitemap :
 sitemap entriesSource =
     ApiRoute.succeed
         (entriesSource
-            |> DataSource.map (Sitemap.build { siteUrl = Site.config.canonicalUrl })
+            |> DataSource.map
+                (\entries ->
+                    """<?xml version="1.0" encoding="UTF-8"?>
+""" ++ Sitemap.build { siteUrl = Site.config.canonicalUrl } entries
+                )
             |> DataSource.map ApiRoute.Response
         )
         |> ApiRoute.literal "sitemap.xml"
@@ -147,31 +149,19 @@ makeSitemapEntries allRoutesSource =
                         |> Just
 
                 Twilogs ->
-                    Shared.dailyTwilogsFromOldest
+                    Shared.twilogArchives
                         |> DataSource.andThen
-                            (\dailyTwilogsFromOldest ->
-                                dailyTwilogsFromOldest
-                                    |> Dict.values
-                                    |> List.reverse
+                            (\twilogArchives ->
+                                twilogArchives
                                     |> List.head
-                                    |> Maybe.andThen List.head
-                                    |> Maybe.map (\latestTwilog -> Iso8601.fromTime latestTwilog.createdAt)
+                                    |> Maybe.map .isoDate
                                     |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
                                     |> routeSource
                             )
                         |> Just
 
                 Twilogs__Day_ routeParam ->
-                    Page.Twilogs.Day_.page.data routeParam
-                        |> DataSource.andThen
-                            (\data ->
-                                data.twilogs
-                                    |> List.head
-                                    |> Maybe.map (\latestTwilog -> Iso8601.fromTime latestTwilog.createdAt)
-                                    |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
-                                    |> routeSource
-                            )
-                        |> Just
+                    Just <| routeSource routeParam.day
 
                 Index ->
                     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt

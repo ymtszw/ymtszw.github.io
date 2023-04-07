@@ -3,7 +3,7 @@ module Page.Twilogs.Day_ exposing (Data, Model, Msg, page)
 import Browser.Navigation
 import DataSource exposing (DataSource)
 import Date
-import Dict exposing (Dict)
+import Dict
 import Head
 import Head.Seo as Seo
 import Html exposing (Html, nav, strong, text)
@@ -33,8 +33,6 @@ type alias RouteParams =
 type alias Data =
     { rataDie : RataDie
     , twilogs : List Twilog
-    , nextRataDie : Maybe RataDie
-    , prevRataDie : Maybe RataDie
     }
 
 
@@ -55,86 +53,24 @@ page =
 
 routes : DataSource (List RouteParams)
 routes =
-    DataSource.map (Dict.keys >> List.map (toRouteString >> RouteParams)) Shared.dailyTwilogsFromOldest
-
-
-toRouteString rataDie =
-    -- Convert integer rataDie to hyphenated date string
-    Date.toIsoString (Date.fromRataDie rataDie)
+    DataSource.map (List.map (.isoDate >> RouteParams)) Shared.twilogArchives
 
 
 data : RouteParams -> DataSource Data
 data routeParams =
-    Shared.dailyTwilogsFromOldest
+    Date.fromIsoString routeParams.day
+        |> DataSource.fromResult
         |> DataSource.andThen
-            (\dailyTwilogsFromOldest ->
-                fromRouteString routeParams.day
-                    |> DataSource.fromResult
-                    |> DataSource.andThen
-                        (\rataDie ->
-                            case Dict.get rataDie dailyTwilogsFromOldest of
-                                Just twilogs ->
-                                    DataSource.succeed
-                                        { rataDie = rataDie
-                                        , twilogs = twilogs
-                                        , nextRataDie = findNextRataDie rataDie dailyTwilogsFromOldest
-                                        , prevRataDie = findPrevRataDie rataDie dailyTwilogsFromOldest
-                                        }
-
-                                Nothing ->
-                                    DataSource.fail "No twilogs for this day"
+            (\date ->
+                Shared.dailyTwilogsFromOldest [ Shared.makeTwilogsJsonPath date ]
+                    |> DataSource.map
+                        (\dailyTwilogs ->
+                            -- In this page dailyTwilogs contain only one day
+                            Dict.get (Date.toRataDie date) dailyTwilogs
+                                |> Maybe.withDefault []
+                                |> Data (Date.toRataDie date)
                         )
             )
-
-
-fromRouteString : String -> Result String RataDie
-fromRouteString day =
-    -- Convert hyphenated date string to integer rataDie
-    Result.map Date.toRataDie (Date.fromIsoString day)
-
-
-findNextRataDie : RataDie -> Dict RataDie (List Twilog) -> Maybe RataDie
-findNextRataDie today dailyTwilogsFromOldest =
-    case Dict.keys dailyTwilogsFromOldest of
-        (oldestRatadie :: _) as possibleDays ->
-            if today < oldestRatadie then
-                -- Enter into range from oldest
-                Just oldestRatadie
-
-            else
-                case List.Extra.dropWhile (\d -> d <= today) possibleDays of
-                    nearestNextRatadie :: _ ->
-                        Just nearestNextRatadie
-
-                    [] ->
-                        -- Today is the latest
-                        Nothing
-
-        [] ->
-            -- Usually won't happen
-            Nothing
-
-
-findPrevRataDie : RataDie -> Dict RataDie (List Twilog) -> Maybe RataDie
-findPrevRataDie today dailyTwilogsFromOldest =
-    case List.reverse (Dict.keys dailyTwilogsFromOldest) of
-        (latestRatadie :: _) as possibleDays ->
-            if today > latestRatadie then
-                -- Enter into range from latest
-                Just latestRatadie
-
-            else
-                case List.Extra.dropWhile (\d -> d >= today) possibleDays of
-                    nearestPrevRatadie :: _ ->
-                        Just nearestPrevRatadie
-
-                    [] ->
-                        -- Today is the oldest
-                        Nothing
-
-        [] ->
-            -- Usually won't happen
-            Nothing
 
 
 update :
@@ -182,26 +118,70 @@ view _ shared _ static =
     { title = static.routeParams.day ++ "のTwilog"
     , body =
         [ -- show navigation links to previous and next days
-          prevNextNavigation static.data
+          prevNextNavigation static.data static.sharedData.twilogArchives
         , Page.Twilogs.twilogDailySection shared static.data.rataDie static.data.twilogs
-        , prevNextNavigation static.data
-        , Page.Twilogs.linksByMonths (Just (Date.fromRataDie static.data.rataDie)) static.sharedData.dailyTwilogs
+        , prevNextNavigation static.data static.sharedData.twilogArchives
+        , Page.Twilogs.linksByMonths (Just (Date.fromRataDie static.data.rataDie)) static.sharedData.twilogArchives
         ]
     }
 
 
-prevNextNavigation : Data -> Html msg
-prevNextNavigation data_ =
+prevNextNavigation : Data -> List Shared.TwilogArchiveMetadata -> Html msg
+prevNextNavigation { rataDie } twilogArchives =
     let
         toLink maybeRataDie child =
             case maybeRataDie of
-                Just rataDie ->
-                    Route.link (Route.Twilogs__Day_ { day = Date.toIsoString (Date.fromRataDie rataDie) }) [] [ strong [] [ child ] ]
+                Just rataDie_ ->
+                    Route.link (Route.Twilogs__Day_ { day = Date.toIsoString (Date.fromRataDie rataDie_) }) [] [ strong [] [ child ] ]
 
                 Nothing ->
                     child
     in
     nav [ class "prev-next-navigation" ]
-        [ toLink data_.prevRataDie <| text "← 前"
-        , toLink data_.nextRataDie <| text "次 →"
+        [ toLink (findPrevRataDie rataDie twilogArchives) <| text "← 前"
+        , toLink (findNextRataDie rataDie twilogArchives) <| text "次 →"
         ]
+
+
+findNextRataDie : RataDie -> List Shared.TwilogArchiveMetadata -> Maybe RataDie
+findNextRataDie today twilogArchives =
+    case List.reverse twilogArchives of
+        (oldestArchive :: _) as reversedArchives ->
+            if today < oldestArchive.rataDie then
+                -- Enter into range from oldest
+                Just oldestArchive.rataDie
+
+            else
+                case List.Extra.dropWhile (\a -> a.rataDie <= today) reversedArchives of
+                    nearestNextArchive :: _ ->
+                        Just nearestNextArchive.rataDie
+
+                    [] ->
+                        -- Today is the latest
+                        Nothing
+
+        [] ->
+            -- Usually won't happen
+            Nothing
+
+
+findPrevRataDie : RataDie -> List Shared.TwilogArchiveMetadata -> Maybe RataDie
+findPrevRataDie today twilogArchives =
+    case twilogArchives of
+        latestArchive :: _ ->
+            if today > latestArchive.rataDie then
+                -- Enter into range from latest
+                Just latestArchive.rataDie
+
+            else
+                case List.Extra.dropWhile (\a -> a.rataDie >= today) twilogArchives of
+                    nearestPrevArchive :: _ ->
+                        Just nearestPrevArchive.rataDie
+
+                    [] ->
+                        -- Today is the oldest
+                        Nothing
+
+        [] ->
+            -- Usually won't happen
+            Nothing

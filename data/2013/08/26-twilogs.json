@@ -1,0 +1,29 @@
+[
+{"CreatedAt":"Sun Aug 25 15:15:52 +0000 2013","Text":"58でたわ。艦これ卒業できるな","StatusId":"371652152956956675","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 15:38:02 +0000 2013","Text":"@kameo1048 あれsnareが効かない敵にはimmuられる気がするけど1回試してみたらがいいかもね","StatusId":"371657730601144320","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 16:05:23 +0000 2013","Text":"p2開始後スムースに接続出来てるパターンだと基本的に接続（ボスにdebuff付加）後少なくとも6秒強はchainが来ない。1回、接続時にまごついたパターンがあったんだけど、その時は接続後2秒強ですぐchainが来てる","StatusId":"371664610811592704","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 16:07:56 +0000 2013","Text":"p2開始（\"North Conduit has burned out and causes ...\"メッセージ）後から計測するとどのパターンも少なくとも16秒強はchainが来ない。接続のタイミングによらず大抵の場合約17秒時点でchainが来ている感じ","StatusId":"371665254263947264","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 16:10:44 +0000 2013","Text":"一度yoshin3に東で早足tauntしてもらって最速で接続するのを試してみたいな。p2開始直後に柱スキル使用までの最低猶予時間が約15秒ほど設けられているような感触があって、それが検証できる。","StatusId":"371665957929775104","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 16:17:46 +0000 2013","Text":"この15秒猶予があると仮定すると、大抵の場合においてchainと最初のballがほぼ同期するというのも頷ける。ballは接続関係なし独自CDで、chainのほうが猶予時間で前から抑えられているんであればだいたいぴったりになるから（1stBallはp2開始後15秒）","StatusId":"371667728664244224","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 16:18:34 +0000 2013","Text":"てかDBMのタイマーにあるFirst Conduit CDってのがまさにこれのこと指してる気がしてきた。となるとこれ見てReflectで普通に安定か","StatusId":"371667931744067585","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 16:26:42 +0000 2013","Text":"うん、lua見たら書いてあった。p2開始後は14秒の猶予時間あり。先に接続してもこの14秒タイマーが過ぎるまでは必ず待つ。過ぎてから接続した場合は即cast。ただしp1.5から持ち越しのstaticとかぶった場合は後回しになることもあるがせいぜいgcd程度のズレ。","StatusId":"371669977599705088","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 16:31:24 +0000 2013","Text":"てかDBMのlua素晴らしいな、結構細かいtacの機微がコメントにちゃんとメモられてる。これ見ればいろいろ検証しなくて済むな。さすがElitistJerks","StatusId":"371671158812196864","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Aug 25 18:51:49 +0000 2013","Text":"4chanに拡張版タイトルが商標登録されるたびに釣りかマジか微妙な「リーク情報」を投下する職人がいるらしく、そいつがまたなんか投下したとごく一部で話題","StatusId":"371706495890505728","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 26 08:40:12 +0000 2013","Text":"@kusunoki666 ブコフにそこそこある","StatusId":"371914965868752897","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 26 10:26:31 +0000 2013","Text":"@mochiprinko 「旅立ちの時」が好き。ほかをあんまり見たことがないけど","StatusId":"371941721111683072","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 26 13:55:30 +0000 2013","Text":"@xxxrintanxxx 会話読んでて「あっこいつムカつくわ」と思ったらそこから先Vote動議連打ですわ","StatusId":"371994316039663617","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Aug 26 14:03:24 +0000 2013","Text":"IoGで骨ファームという暇つぶしがあることを思い出したぞ","StatusId":"371996303598698499","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

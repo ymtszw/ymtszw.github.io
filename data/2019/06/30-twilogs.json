@@ -1,0 +1,19 @@
+[
+{"CreatedAt":"Sun Jun 30 00:38:25 +0000 2019","Text":"RT @tnacigam: “なるべく切れない回線のつくりかた（物理） - Qiita” https://t.co/MSIUr0PiiK","StatusId":"1145129425601568769","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"“なるべく切れない回線のつくりかた（物理） - Qiita” https://t.co/MSIUr0PiiK","RetweetedStatusId":"1145129425601568769","RetweetedStatusUserName":"まじかんと","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Jun 30 03:12:41 +0000 2019","Text":"ゆくで #tokyoex","StatusId":"1145168247446093824","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Jun 30 03:48:08 +0000 2019","Text":"@ohrdev @hayabusa333 すみませんが13:15着くらいになりそうです.\n発表内容は ‘“mix release” released’です！ #tokyoex","StatusId":"1145177168902672384","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Jun 30 04:55:11 +0000 2019","Text":"今日は '\"mix release\" reelased' というタイトルでちょっと時間多めに頂いて喋らせて頂きました！\nhttps://t.co/QXNtCEh4Ot\n\nErlangElixirFestのLT内容も、再放送させて頂きました。\nhttps://t.co/2T11Z3NO89\n#tokyoex","StatusId":"1145194045490122754","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Jun 30 04:55:41 +0000 2019","Text":"あと、昔書いたasdfのススメです\n\n【言語バージョン管理】asdf使おう(erlang/elixir, node, etc...) - Qiita\nhttps://t.co/5IpkRdgZUt\n#tokyoex","StatusId":"1145194170794987520","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Jun 30 04:59:54 +0000 2019","Text":"Ueberauthの何が良いかって名前がいい\n#tokyoex","StatusId":"1145195232859807744","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Jun 30 05:12:50 +0000 2019","Text":"Phoenix LiveViewはPoC向け感強いとは感じる。面白いんだけど\n#tokyoex","StatusId":"1145198483999264768","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Jun 30 05:16:38 +0000 2019","Text":"俺たちはすぐにChrome dev consoleを開いてしまう\n#tokyoex","StatusId":"1145199442351419392","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Jun 30 05:28:50 +0000 2019","Text":"LiveView、クライアント側に差分更新magicが仕込まれてると勘違いしてたんだけど、よく見るとサーバ側にdiff trackingがあるって書いてあるな\nhttps://t.co/sfNw9mOnFf\n#tokyoex","StatusId":"1145202512242151425","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

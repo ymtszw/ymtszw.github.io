@@ -1,0 +1,43 @@
+[
+{"CreatedAt":"Thu Sep 20 15:24:20 +0000 2018","Text":"今気づいたけどInboxって無茶苦茶メモリ使うな","StatusId":"1042796608109174784","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Sep 20 16:35:05 +0000 2018","Text":"Discord最新版でdevToolを開くと https://t.co/kHGonx4ILO","StatusId":"1042814413361696768","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/kHGonx4ILO","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DnjSLeAUYAAGiAK.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1042814413361696768/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Sep 20 16:36:21 +0000 2018","Text":"これやってるWebアプリ最近増えたからライブラリあると思ってるんだけど、具体名がわからない","StatusId":"1042814733718417408","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Sep 20 18:17:53 +0000 2018","Text":"ElmでWebsocketのイベントハンドラをコンポーネントとして書けるような抽象化をしているんだけど、ものの見事にErlangのgen_serverのセマンティクスがフィットした。Erlang/Elixirはやっといて損がない https://t.co/hfW2kPubCr","StatusId":"1042840282411069440","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/hfW2kPubCr","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DnjpdsDU0AA8zWn.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1042840282411069440/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Sep 20 23:04:51 +0000 2018","Text":"Chromeって最新版でactiveでないタブの帯域を絞るようになったんだっけ？\nYouTubeをBGMとして流しっぱにしてるタブを裏に回していたら、帯域が絞られたのか急に音質まで悪くなった。画質悪くなるのはどうでもいいから絞るのもわかるんだけど、音質に影響が出るほど絞られるとBGM用途には不向きだ","StatusId":"1042912502730743808","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Sep 20 23:59:20 +0000 2018","Text":"久しぶりにアクティブにするとたいてい低画質モードになってるのは間違いないんだけど、音質が悪くなるケースは必ず起こるわけじゃないっぽく、再生してる動画にもよるのかもしれない","StatusId":"1042926214640353281","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 00:26:03 +0000 2018","Text":"俺は絶対にEitherをあいざーと読むマン","StatusId":"1042932934699769856","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 00:46:13 +0000 2018","Text":"Discordのwebsocketがだいぶ思っていたのと違っていてうーん","StatusId":"1042938011724406784","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 01:42:01 +0000 2018","Text":"@kazu0kazu 対象のタブが別ウィンドウのトップにある状態ならアクティブとみなされてthrottleされない気はします。経験上","StatusId":"1042952052568055808","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 01:45:32 +0000 2018","Text":"JWTというか、ステートレスセッション管理のシンプルさ、セッションDBを用意しなくてもよくなるのではないかという希望に惹かれるんじゃないかな。それはそれで理解できるし、自分もやりそう。\nそしてセッション単位/ユーザ単位のrevokeとかが要件に入ってくると実際は不足してくるのもわかる","StatusId":"1042952939399045120","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 06:00:34 +0000 2018","Text":"[2018] 個人でも使える！おすすめAPI一覧 - Qiita https://t.co/g6NpVhescG\n\nいいまとめなんだけど、個人的に苦労したことがあり、それでいて変わらず興味は持っているAmazon Product Advertising APIが2行で流されていた。PAAPIは未だに闇か、、","StatusId":"1043017121972670465","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 06:06:01 +0000 2018","Text":"RT @s01: 共同作業してるGitレポジトリへの操作、機能のレベルによって免許制敷くべきだと思うの","StatusId":"1043018491379367937","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"共同作業してるGitレポジトリへの操作、機能のレベルによって免許制敷くべきだと思うの","RetweetedStatusId":"1043018491379367937","RetweetedStatusUserName":"sylph01","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Sep 21 06:06:55 +0000 2018","Text":"RT @s01: ちゃんと理解してない限りrebaseとかrevertとかすんなっていうことを言いたい","StatusId":"1043018719134269440","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ちゃんと理解してない限りrebaseとかrevertとかすんなっていうことを言いたい","RetweetedStatusId":"1043018719134269440","RetweetedStatusUserName":"sylph01","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Sep 21 06:07:33 +0000 2018","Text":"一方で、やらかしドリブン学習っていう側面もあると思うんですよね。まあある程度守られた環境が前提になりますが。","StatusId":"1043018878966624256","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 06:08:00 +0000 2018","Text":"やらかして\n骨身にしみる\nGitかな","StatusId":"1043018990006587392","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 07:09:27 +0000 2018","Text":"RT @yutopp: web compiler, web linker, web loaderみたいな名前でツールチェイン揃ったら個人的に直感的になるので頼む","StatusId":"1043034456662061057","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"web compiler, web linker, web loaderみたいな名前でツールチェイン揃ったら個人的に直感的になるので頼む","RetweetedStatusId":"1043034456662061057","RetweetedStatusUserName":"☃","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Sep 21 09:42:38 +0000 2018","Text":"@hamashio いかんでしょ","StatusId":"1043073003888697344","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 09:48:52 +0000 2018","Text":"@hamashio といって、multiplicativeに効果が乗るtrait をみんなnerfしていったらどれもadditive似たり寄ったりになって、全体的につまらんことになりそうな未来が見える。となるとローテやプレイフィールが変わる(けど強さ的には大体横並び)traitを考え出さなきゃならなくて開発コスト上がる。塞がった","StatusId":"1043074573019668480","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 09:52:50 +0000 2018","Text":"@hamashio 修正されていくとは思うけど、ほんと今拡張のilvlスケーリング周りはケチつきすぎでちょっとひどい","StatusId":"1043075573730357249","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 11:36:59 +0000 2018","Text":"Elm入門者向けハンズオン vol2 に参加を申し込みました！ https://t.co/r3jsM1l6ld #elm_tokyo","StatusId":"1043101783516540931","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Sep 21 12:15:59 +0000 2018","Text":"自分のやってないゲームを押し付け合うのはやめるんだ","StatusId":"1043111598926180352","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

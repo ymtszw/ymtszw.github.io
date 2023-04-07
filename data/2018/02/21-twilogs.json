@@ -1,0 +1,37 @@
+[
+{"CreatedAt":"Tue Feb 20 15:14:48 +0000 2018","Text":"RT @Marcus_Sellars: Diablo 3 is in development for the Nintendo Switch and should be out early 2019. They are wanting to implement Local pl…","StatusId":"965967983972573184","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Diablo 3 is in development for the Nintendo Switch and should be out early 2019. They are wanting to implement Local pl…","RetweetedStatusId":"965967983972573184","RetweetedStatusUserName":"Marcus Sellars","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Tue Feb 20 15:18:35 +0000 2018","Text":"公園にスイッチ持ってって和田でウォホホーイとかやってたら","StatusId":"965968935647567872","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 20 16:32:38 +0000 2018","Text":"@dakfan 身近に潜む壺を割るとランダムでオレンジや緑の柱が立つんですね","StatusId":"965987568276787200","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Feb 20 16:34:50 +0000 2018","Text":"スケキン前で壺割ってたの、もう何年前になるんだろう","StatusId":"965988125120987137","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 06:33:21 +0000 2018","Text":"Elmでの関数命名の参考にするためにhoogleで型検索するのはありがち","StatusId":"966199143084457985","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 06:52:07 +0000 2018","Text":"RT @myuon_myon: ブログ記事に品質を求める人たちで集まって査読グループを作り「この記事は〇〇チームにより査読されています」バッチを用意したらいいんでない？","StatusId":"966203866286034946","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ブログ記事に品質を求める人たちで集まって査読グループを作り「この記事は〇〇チームにより査読されています」バッチを用意したらいいんでない？","RetweetedStatusId":"966203866286034946","RetweetedStatusUserName":"みょん","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Wed Feb 21 06:55:31 +0000 2018","Text":"最近はWoWの攻略記事も、icy veinsとかwowheadだとトップギルドやtheorycrafterのapprovalを受けてますって明記するようになってきたし、オンライン記事のauthenticityを担保・主張するために査読のようなシステムを導入することは普通に有り得る方向性だと思われる","StatusId":"966204719688552453","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 07:01:10 +0000 2018","Text":"そういえばBitBucket Pipelinesを使ってみたけど普通に便利だった。まあCircle/TravisCIでいいじゃん説はあるけど","StatusId":"966206142778048513","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 07:39:20 +0000 2018","Text":"@mapi 価格見てなかったけど無料プランだと月50分までか。。。急に微妙に見えてきた","StatusId":"966215747662888960","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 07:54:24 +0000 2018","Text":"Elmは、\n・導入コスト: ゼロ (amortized;フレームワークがわかりやすいしコンパイラも親切、文法の不慣れさをも相殺する)\n・メンテコスト: ゼロ (コンパイラが不可能な変更は拒絶する。壊せないものは壊れないからメンテフリー)\n・心理コスト: ゼロ (amortized; 導入後の幸福によって相殺される)","StatusId":"966219540836204544","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 07:54:49 +0000 2018","Text":"サンドイッチマン理論で訴求していけ","StatusId":"966219646226477057","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 08:00:26 +0000 2018","Text":"ReasonMLは不用意にJSのシンタックスに寄せてしまったのが個人的にはすごく心配で、見かけの導入障壁が下げられてる（ほんとにそうか？）分、後に不幸を招きそうな予感がしているのであまり流行ってほしくはないんだけど、FBが結構ガッツリ推進してるから危惧している","StatusId":"966221059404918784","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 08:01:33 +0000 2018","Text":"サンドウィッチマン理論っていうか、伊達ちゃん理論だな","StatusId":"966221340209332224","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 09:59:33 +0000 2018","Text":"lodashの古いバージョンだと_.isFunctionがAsyncFunctionに対してfalseを返して爆発する","StatusId":"966251034916962305","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 11:18:51 +0000 2018","Text":"@ttokutake1 なんか普通に快調な上にバッテリーもamps airより体感40%くらい長持ちだし、音質も高音域がamps airよりいいし、お金払ったほうが良い気がしてきたんですが。\nただしwifi干渉は確かにあるかもしれない。社内で使ってたらスマホのwifi途切れがちになったことがあった。でも必ず起こるわけでもないです","StatusId":"966270990106832897","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 12:22:43 +0000 2018","Text":"https://t.co/GdtDo5zH7Gいいな、使おうかな","StatusId":"966287066181992448","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 12:45:36 +0000 2018","Text":"BitBucket PipelinesもGitLab CIも、Jenkinsでいう${git_previous_successful_commit}を取る機能はまだなかった。でもGitLabはissueがあった。\nhttps://t.co/r6C6ktG0n7","StatusId":"966292824172851200","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Feb 21 13:53:12 +0000 2018","Text":"bashのifの中に入れなくて20分ぐらい無駄にしたけど、これは俺が悪いんじゃなくてgrepとdiffとでexit status逆なのが悪いんだよ","StatusId":"966309834298544129","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

@@ -1,0 +1,21 @@
+[
+{"CreatedAt":"Mon Jul 02 05:32:05 +0000 2018","Text":"RT @MikeQuindazzi: This #AR System Helps You Line Up The Perfect Pool Shot &gt;&gt; via @MikeQuindazzi &gt;&gt; #IoT #AugmentedReality #VirtualReality…","StatusId":"1013656536260857856","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"This #AR System Helps You Line Up The Perfect Pool Shot &gt;&gt; via @MikeQuindazzi &gt;&gt; #IoT #AugmentedReality #VirtualReality…","RetweetedStatusId":"1013656536260857856","RetweetedStatusUserName":"Mike Quindazzi","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Jul 02 11:43:07 +0000 2018","Text":"@jinjor @ababupdownba 噛み砕くと、この問題ですかね(Haskellですが)\n\nhaskell - Test if a value matches a constructor - Stack Overflow\nhttps://t.co/lLPhfqRK1x\n\n提案されてる回答の中では、「値構築子の値表現: Constr」と、toConstr関数をhttps://t.co/Cx8wocFzPuで導入するアプローチが一番直観的に思える","StatusId":"1013749907402862593","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jul 02 13:09:54 +0000 2018","Text":"最初の方の話完全に忘れてるからはねバド読み返すか","StatusId":"1013771747823267840","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jul 02 13:15:04 +0000 2018","Text":"RT @igrigorik: best practices for `localhost` TLS certificates: https://t.co/kMz1Yqw5GK — great tips, courtesy of @letsencrypt.","StatusId":"1013773047046606849","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"best practices for `localhost` TLS certificates: https://t.co/kMz1Yqw5GK — great tips, courtesy of @letsencrypt.","RetweetedStatusId":"1013773047046606849","RetweetedStatusUserName":"Ilya Grigorik","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Jul 02 13:19:27 +0000 2018","Text":"@jinjor @ababupdownba 2番めの回答とか複雑だから、こんなレスが付く\n\n&gt; Is your brain available as a download?\nhttps://t.co/CcMfRPVItm","StatusId":"1013774151222345729","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jul 02 13:21:02 +0000 2018","Text":"結局の所Elmにはmacro/template機構はないんで、verbosity下げる努力をそもそもしようがないケースが多い","StatusId":"1013774551258288130","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jul 02 13:23:42 +0000 2018","Text":"@miyamo_madoka ヒカリエ突っ切って裏口から出る→大通りに出る→歩道橋渡る、のような気がします","StatusId":"1013775222720172034","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jul 02 13:28:20 +0000 2018","Text":"@ababupdownba @jinjor macroなしじゃあ自動生成はできないんじゃないかなあ。愚直に値構築子の文字列表現を吐き出す関数を用意するしか思いつかない。\nあるtagged unionについて、値構築子を列挙するビルトイン機能がないのも関連するpain point","StatusId":"1013776389063901185","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Jul 02 13:34:15 +0000 2018","Text":"RT @mzp: 茅場町モバイルアプリもくもく会 #1に参加を申し込みました！ https://t.co/LsqNur9peZ #nrstudy","StatusId":"1013777875936337920","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"茅場町モバイルアプリもくもく会 #1に参加を申し込みました！ https://t.co/LsqNur9peZ #nrstudy","RetweetedStatusId":"1013777875936337920","RetweetedStatusUserName":"mzp","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Jul 02 13:34:37 +0000 2018","Text":"茅場町珍しいな","StatusId":"1013777967279820800","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

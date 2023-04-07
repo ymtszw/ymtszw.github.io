@@ -1,0 +1,31 @@
+[
+{"CreatedAt":"Tue Oct 30 16:16:43 +0000 2018","Text":"fish shellユーザ存外多い気がしてきた。","StatusId":"1057305306022068225","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 30 18:16:14 +0000 2018","Text":"text inputフィールドで、全体的に何かもっさりしているだけでなく、キーをホールドして連続入力状態にするとmodel更新が行われず(少なくともviewが更新されず)、キーを離して初めてそれまでの入力が反映される、というバグに遭ってる #elm","StatusId":"1057335383220924416","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 30 18:20:57 +0000 2018","Text":"雑にDebug.log挟んでみたら、Msgはガンガン発火しているけど、viewの更新が間に合ってないっぽい？ そんなに重い処理してないんだけどな","StatusId":"1057336569881747456","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 30 18:30:02 +0000 2018","Text":"@jinjor 重くなる可能性がありそうな箇所をコメントアウトするという天才的なデバッグ手法により、どうやら例の「脱Modelする・しない」問題が原因っぽいとわかった。入力内容が反映されるべき場所はごく一部なんだけど、脱Modelしてない関数内なので周辺の無関係なDOMまで差分チェックされてるっぽい","StatusId":"1057338857845215232","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 30 18:38:55 +0000 2018","Text":"@jinjor Discordでちょっと話したやつで、必要が生じるまでviewの関数の深くまでModel全体を引き回すんだけど、ってやつです。今まさにLazy使おうとして絞り込みに苦しんでいる","StatusId":"1057341090833940480","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 30 18:47:42 +0000 2018","Text":"@jinjor とはいえ、現状だとそれほど広範囲の状態依存がなかったので、地道に絞り込んでlazy適用したら想定通り解消しました。今後が不安だが。。。","StatusId":"1057343304096858112","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 30 18:59:24 +0000 2018","Text":"@jinjor 今やってるコードに特有の話だと、--debug通らなくなってしまったので自作Loggerを噛ましていて、それが多少パフォーマンスに影響してるはずなのが切り分けを面倒にしていた。deploy時は機能まるごとなくなるようにはしていたけど、deploy先でも入力遅延あっておかしいなと。。","StatusId":"1057346245520289792","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 30 19:54:37 +0000 2018","Text":"IBM releases Elm-powered app - Show and Tell - Elm Discourse https://t.co/1hl72cYyMm\n\nIBMが信じるElmを信じろ","StatusId":"1057360144567160833","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Oct 30 19:55:35 +0000 2018","Text":"IBMとMicrosoftとRakutenが信じるElmを信じろ","StatusId":"1057360387115347968","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Oct 31 00:54:47 +0000 2018","Text":"もう11days agoだけどelm/browser 1.0.1がでていた。いくつかパッチが入っている","StatusId":"1057435681968992256","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Oct 31 00:56:46 +0000 2018","Text":"requestAnimationFrame周りの挙動が良くなった気がする？ consoleにviolation warningが出なくなったように見える","StatusId":"1057436179304337410","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Oct 31 09:42:28 +0000 2018","Text":"Big Fat View.elmファイルで頑張ってたけど、importがエディタbufferの下端に達したので渋々ファイル分割した","StatusId":"1057568478016679936","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Oct 31 10:51:09 +0000 2018","Text":"するとなんとファイル分割前後で急激にrenderingが遅くなったぞ。。。Recalculating styleでやたら時間がかかる","StatusId":"1057585763640995842","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Oct 31 11:21:28 +0000 2018","Text":"単純に表示要素が増えると遅くなる、という要因もあるのは確認したが、だとしてもファイル分割で変わるのはわからん。なんなんだ","StatusId":"1057593393310654464","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Oct 31 12:46:18 +0000 2018","Text":"ファイル分割すると急に問題が顕在化する理由は全くわからなかった、けどそれなりにでかいLish-ish componentでKeyedにしてなかった部分をKeyedにしたらそれなりに解消したようである。。。","StatusId":"1057614739897909248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

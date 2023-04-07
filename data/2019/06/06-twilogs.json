@@ -1,0 +1,45 @@
+[
+{"CreatedAt":"Wed Jun 05 15:14:23 +0000 2019","Text":"Windows版Atomのkeybind, 擬似的にmacOS上で使うときと似たようなkeybindになるよう細かく替えたことで結構生産性上がってたんだけど、VSCodeに移行するにはこれも持っていかないといけないな。。。","StatusId":"1136290172608188417","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 15:17:08 +0000 2019","Text":"久々にWin上でVSCode起動してみて気づいた良いところ\n\n- 最新版だと見た目結構かっこよくなってる\n- Integrated Terminal、Powerline fontがちゃんと使えるので意外とこれも見た目いい","StatusId":"1136290867562475520","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 16:14:45 +0000 2019","Text":"追加\n\n- Keybindingの変更が対話的に行える","StatusId":"1136305364721442816","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 16:16:31 +0000 2019","Text":"VSCode上でElmLSはそこそこ動くが、まだまだでもある。でもよくなってきているのは間違いないな","StatusId":"1136305811762757632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 16:27:50 +0000 2019","Text":"現状Project ManagerくらいしかExtension入れてないのもあるけど、動作はかなり軽い。ところでこれ1インスタンスしか開けない？ Project Managerで切り替えると前開いてたやつが消えるんだが","StatusId":"1136308660295032834","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 16:30:17 +0000 2019","Text":"設定で複数起動はできた","StatusId":"1136309277063229441","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 16:35:40 +0000 2019","Text":"うーん、VSCode移行の機運高まってきたな。やるしかないか","StatusId":"1136310631819169793","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 16:42:39 +0000 2019","Text":"VSCodeに移行する、という問題と、Windows上でもVSCodeをつかってmac上と同様に開発できるようにする、という問題が同時にあって、そこかうっとい","StatusId":"1136312387449966592","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 17:39:16 +0000 2019","Text":"- Win側はErlang/Elixir両方公式インストーラ+手動でPATHセット\n- WSL側はubuntu環境でたいがい要求されるパッケをいくつかapt installしてからasdf install\n- VSCode自体はWin側から起動してElixirLS追加\n\nこれでautocomp有効化、fishからサーバ起動してWin上のブラウザで動作確認、までできた","StatusId":"1136326633953013760","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 17:39:52 +0000 2019","Text":"存外普通に行けそうである。あとはひたすらキーバインド移植だ。。。","StatusId":"1136326784520138752","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 18:41:47 +0000 2019","Text":"ElixirサーバにElmフロントだと、API定義からコード自動生成するツールチェーンがどちらも揃ってるのがGraphQLになる。RESTを準備しないといけない要件があるわけでもないからこの機会に使うか","StatusId":"1136342367512932353","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jun 05 22:03:32 +0000 2019","Text":"横浜の公共交通はガバガバ","StatusId":"1136393139541823488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jun 06 04:05:37 +0000 2019","Text":"RT @fushiroyama: Android界の第一人者Jake Wharton氏がTwitterのプロフィールに\n「発言は個人のものであり所属会社とは無関係です。Inboxがサービス終了することに不満を言いまくってたら会社にこれを書かされました。」\nって書いてあんの趣深い…","StatusId":"1136484262910185472","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Android界の第一人者Jake Wharton氏がTwitterのプロフィールに\n「発言は個人のものであり所属会社とは無関係です。Inboxがサービス終了することに不満を言いまくってたら会社にこれを書かされました。」\nって書いてあんの趣深い…","RetweetedStatusId":"1136484262910185472","RetweetedStatusUserName":"父","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Jun 06 04:47:51 +0000 2019","Text":"VSCodeの単語選択アルゴ,Atomと微妙に違うんだな。ドットは単語区切り、アンスコは単語構成文字、という方式だったんだけど、VSCodeは記号はすべて単語区切り、CamelCase/camelCaseの区切りを認識するようになっている","StatusId":"1136494891544879104","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jun 06 05:32:32 +0000 2019","Text":"RT @diescake: だいぶできてきた定期 https://t.co/a6snNPRhJf","StatusId":"1136506136947879942","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/a6snNPRhJf","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/D8WsudIUEAEWHpl.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/diescake/status/1136504403559534592/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"だいぶできてきた定期 https://t.co/a6snNPRhJf","RetweetedStatusId":"1136506136947879942","RetweetedStatusUserName":"diescake","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Jun 06 06:19:25 +0000 2019","Text":"部屋を片付けたら冷房の効きが良くなって寒い","StatusId":"1136517931918012416","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jun 06 11:52:18 +0000 2019","Text":"RT @y_taka_23: 本日は https://t.co/6hYlnNK88H で Elm のアーキテクチャについてお話ししました。\n\n以前 We Are JavaScripters! で発表した内容を元にしています。今回削ったコードも載せてあるので、よければ元資料でご覧…","StatusId":"1136601705347346432","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"本日は https://t.co/6hYlnNK88H で Elm のアーキテクチャについてお話ししました。\n\n以前 We Are JavaScripters! で発表した内容を元にしています。今回削ったコードも載せてあるので、よければ元資料でご覧…","RetweetedStatusId":"1136601705347346432","RetweetedStatusUserName":"チェシャ猫","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Jun 06 11:52:35 +0000 2019","Text":"Would you like a cup of TEA?","StatusId":"1136601775954309121","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jun 06 12:00:58 +0000 2019","Text":"Warriorsここに来てこのけが人ラッシュはきっついなあ。でもこれで勝ってこそ伝説になるって気もする #NBAFinals","StatusId":"1136603887962546176","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jun 06 13:27:27 +0000 2019","Text":"@ttokit765 壁美人で壁に4Kモニタ掛けるの、結構おすすめ","StatusId":"1136625650511441920","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jun 06 14:14:20 +0000 2019","Text":"@ttokit765 窓美人が必要だったか","StatusId":"1136637449378025473","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jun 06 14:55:18 +0000 2019","Text":"VSCodeのElixirLS, まあまあちゃんと使えるんだけどたまに補完の効かないmoduleがあるのはなんだ","StatusId":"1136647758960402432","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

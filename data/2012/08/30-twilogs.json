@@ -1,0 +1,13 @@
+[
+{"CreatedAt":"Wed Aug 29 18:36:28 +0000 2012","Text":"釣竿無しで釣りできるようになったのは嬉しいけどmacro的にめんどい","StatusId":"240880615430422528","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 29 18:47:15 +0000 2012","Text":"これmoonkinでマウントできるようになったのはマジで新仕様なのか","StatusId":"240883328440492032","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 30 05:09:37 +0000 2012","Text":"Defendx2が取れたのに！ All-StarもOverly Defensiveも取れなかった！ pugでBGアチーブやるのは難しいなあ","StatusId":"241039952899612673","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 30 05:17:28 +0000 2012","Text":"PowerAuraが予告通りガラっと変わっちゃったけど、併せて種類ごと（Root,Silenceとか）に分けてCC系Debuffに反応してくれたトリガーが廃止されてしまった。元々このトリガーは対応するAPIみたいなものがあったわけじゃなく、内部にリストが用意されていただけらしい","StatusId":"241041928613924865","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 30 05:24:16 +0000 2012","Text":"だもんで、リストを更新して新Ver向けに対応させる作業はされてないっぽい。一応カスタムトリガーを自作するオプションはあるけど、難しそうだったのでWeakAuraに切り替えてみた。WAにも旧PAにあった機能そのままのものはなかったけど、まあ何とか設定できた","StatusId":"241043640623955968","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 30 05:28:52 +0000 2012","Text":"ツールチップの中に「その手のDebuffなら大抵こう書かれてる」語句（\"Stunned\"とか）があるかないか判定するというトリガーをたくさん作る、大変ダルい作業だった。例外的なスキル（Hexとか）は仕方ないのでリストアップした。結局半日かかった","StatusId":"241044794984501248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

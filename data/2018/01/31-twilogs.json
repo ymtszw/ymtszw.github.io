@@ -1,0 +1,17 @@
+[
+{"CreatedAt":"Tue Jan 30 18:00:08 +0000 2018","Text":"BfAのプレオーダーもう来そうだな","StatusId":"958399442779951105","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 08:20:40 +0000 2018","Text":"帰ったらpre-purchaseせねば","StatusId":"958616003092537344","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 09:47:06 +0000 2018","Text":"elm-analyseでlintするパッケージを書いてもいいかな、と思ったけど、linter-elm-makeでもそこそこunused検出とかできるし、別にいい気がしてきた","StatusId":"958637756330070017","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 10:40:20 +0000 2018","Text":"でもやっぱり欲しくなってきた。。。","StatusId":"958651152119218176","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 14:09:44 +0000 2018","Text":"作っちゃったんだよねぇ〜\nhttps://t.co/GPw1Cmf6oQ","StatusId":"958703848750702593","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 14:11:06 +0000 2018","Text":"https://t.co/utAdXlG3ql","StatusId":"958704192884846592","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/utAdXlG3ql","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/tweet_video_thumb/DU4AXnAU8AA5KLN.jpg","ExtendedEntitiesMediaTypes":"animated_gif","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/958704192884846592/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 14:13:07 +0000 2018","Text":"あまりまともなコードではないが、一応意図したとおりに動くものにはなった。\nelm-analyse自体がそこまで高速なツールじゃないから工夫しないと結構負荷が高まるだろうな（ファイル単位じゃなくてプロジェクト単位で検査するツールだし）\nまあおいおいいじろう","StatusId":"958704703977615360","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 14:13:39 +0000 2018","Text":"退勤処理してからひたすらJSとの格闘で疲れた","StatusId":"958704837918564352","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

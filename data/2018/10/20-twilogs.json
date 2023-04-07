@@ -1,0 +1,23 @@
+[
+{"CreatedAt":"Fri Oct 19 15:43:47 +0000 2018","Text":"elm-verify-examplesは上がっていた。\nelm-analyseはしばらく止まっている。\n\nそういえばコンパイラの持ってる型推論結果などの情報を外部ツールから取得できるAPIを提供したいという話があった。これのあるなしでツール開発の前提が大幅に変わるよなって\nhttps://t.co/36XHIv9ukk","StatusId":"1053310752797249536","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Oct 19 15:44:37 +0000 2018","Text":"Tweetdeck最新版、ようやくlink summaryを出すようになって、いろいろ賑やかになった","StatusId":"1053310963657502720","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 20 01:40:15 +0000 2018","Text":"RT @fushiroyama: これは持論だけど、エンジニアがどれだけ頑張ろうと事業が伸びない限り賃金は上がらないのでとにかく伸びまくってる会社はそれだけで魅力的ですね。そういう会社が「貢献したらしただけ報酬やるで」っていうと説得力がある。","StatusId":"1053460858594967553","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"これは持論だけど、エンジニアがどれだけ頑張ろうと事業が伸びない限り賃金は上がらないのでとにかく伸びまくってる会社はそれだけで魅力的ですね。そういう会社が「貢献したらしただけ報酬やるで」っていうと説得力がある。","RetweetedStatusId":"1053460858594967553","RetweetedStatusUserName":"父","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sat Oct 20 02:49:10 +0000 2018","Text":"装備に関する報酬体系を、現在の重RNG方式から少しポイント方式に戻そうという揺り戻しが8.1であって、 @Asmongold とかの最近の主張に乗った形になってる(「何でもかんでもRNGにするのをやめろ、プレーヤーの制御領域を増やせ」)。当然過去の拡張同様RNGとのハイブリッドにはなる。","StatusId":"1053478200909516801","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 20 02:52:21 +0000 2018","Text":"「プレーヤー自身が制御できるようにする」「自分の選択が意味を持つように感じられる」というのは表現の難しい主題だけど、この文脈では英語だと Agency という単語で表されて、最近のWoWの議論で結構よく出てくる。日本語にするなら「主体性」。曰く最近のWoWは agency が欠けてるとよく言われている","StatusId":"1053479003527344128","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 20 02:55:16 +0000 2018","Text":"ゲームでもサービスでも、主体性の設計って難しいというのはすごく感じる。システム側からの「お仕着せ」に感じられてしまう状況になると人は離れるが、かと言って何でもかんでも自由自由でも離れる。適度な自由度・主体性と、全体としての整合性が必要で、しかも必ずしも「実益を伴わなくても良い」","StatusId":"1053479737518055424","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 20 02:57:18 +0000 2018","Text":"「実益を伴わなくてもよい」というのは、主体性があると「感じられれば」いいのであって、実際に全て個人が能動的にあらゆる決定を下し合理的に動くことが前提となっていなくても良い、というくらいのニュアンス。この例だとTalent treeの話がWoWならちょうどいい","StatusId":"1053480248434601985","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 20 03:00:44 +0000 2018","Text":"昔のTalent treeは必ずしも全ての選択肢がバランス取れてなかったし、死にtalentもかなりあったが、「頻繁に・レベルアップごとに選択肢が提示される」「志向・状況によって組み替えて遊ぶ余地がある」「思わぬ組み合わせが強くなったりと、『創発』の余地がある」など、主体性を覚えさせるものだった","StatusId":"1053481112016539648","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 20 03:09:38 +0000 2018","Text":"研究・コミュニティ・ツールが発達したってのも背景要因としてはあるけど、いろんな領域で「最適解」への落ち込みがすごく速く、構成要素が増えた割に物事が「単純化」している。システムとして、複雑さ・奥深さを内包するのでなく排除する方向性になってしまった。これを巻き戻すのは容易でない","StatusId":"1053483349723906048","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 20 08:42:17 +0000 2018","Text":"RT @mizchi: FRPは Elm が Obesrvable 的な Signal 捨てて Reducer になり redux でそのコンセプトが受け入れられた段階で一つの時代が終わった感がある","StatusId":"1053567064823066626","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"FRPは Elm が Obesrvable 的な Signal 捨てて Reducer になり redux でそのコンセプトが受け入れられた段階で一つの時代が終わった感がある","RetweetedStatusId":"1053567064823066626","RetweetedStatusUserName":"mizchi","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sat Oct 20 10:00:53 +0000 2018","Text":"Twitch ClientもElectronだった","StatusId":"1053586844674215936","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

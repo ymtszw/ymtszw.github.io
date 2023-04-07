@@ -1,0 +1,15 @@
+[
+{"CreatedAt":"Fri Apr 20 17:07:48 +0000 2012","Text":"BattleTagフレンドはRealIDと同じで相互承認必要。アカ設定ページのRealID項目をそのまま継承してるっぽいので、「フレンドのフレンドに自分の名前を公開する」のチェックを外してない人は見られちゃう。","StatusId":"193385491884814337","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Apr 20 17:13:11 +0000 2012","Text":"さらに問題なのが、RealIDフレンドとBattleTagフレンドがWoW上だと現状一緒くたに表示されていること。そのせいで「RealIDフレンドのBattleTagフレンド」にもRealIDネーム=アカウント登録名≒本名が見られてしまうということが起こる。","StatusId":"193386844178759680","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Apr 20 17:15:32 +0000 2012","Text":"フレンドのフレンドを参照する機能はSNSでは普通にあるものだから別にいいんだけど、あくまでゲーマーとしての人格とオフの人格を分けておきたい人は、RealIDとBattleTag導入時に注意","StatusId":"193387434938085376","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Apr 20 17:21:44 +0000 2012","Text":"RT @akisaya_mkd: @gada_twt ごめんなさい、私、実は女子高生でした。","StatusId":"193388996775264256","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"@gada_twt ごめんなさい、私、実は女子高生でした。","RetweetedStatusId":"193388996775264256","RetweetedStatusUserName":"akisaya yarinaka","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Fri Apr 20 17:59:22 +0000 2012","Text":"ちなみに現状WoW側にはBattleTagフレ追加機能がまだない。ただD3Beta経由で追加しておけばWoW内でも反映されて、RealIDフレで使える諸機能（鯖間group組んでBG/DFQueとか）がBattleTagフレとできる。","StatusId":"193398465823379456","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Apr 21 03:39:27 +0000 2012","Text":"虫マウントを出すまでCataは終われないと思ってはいるんだけどもうArchyやり始めるためにすごい決意が必要になってきてしまったわ","StatusId":"193544452009230336","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Apr 21 06:30:47 +0000 2012","Text":"@kameo1048 チャットに出る名前はメルアド指定リクエストでRealID交換しない限りBattleTagだよ。ただ問題なのはBattleTag機能が未整理のWoW経由でフレンドのフレンドにRealIDネームが見えたりフレリク飛ばせちゃったりすることだよ","StatusId":"193587568674217984","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

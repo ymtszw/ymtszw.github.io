@@ -1,0 +1,15 @@
+[
+{"CreatedAt":"Wed Jan 31 15:30:12 +0000 2018","Text":"とりあえずBfAは買った。","StatusId":"958724102222594049","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 16:54:18 +0000 2018","Text":"次はどこへ行こうか https://t.co/DxODlDfBNz","StatusId":"958745263543222272","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/DxODlDfBNz","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DU4lsu2UQAAthtA.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/958745263543222272/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 17:28:55 +0000 2018","Text":"金ドラかVEに種族変更しようかと思ったけど、まだカスタマイズオプションが物足りなかったのでやめ。Racialと、タトゥーあるのはちょっといいけどね","StatusId":"958753977935413248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jan 31 17:39:04 +0000 2018","Text":"BfAの推奨スペックがGeForce GTX 960 or laterになってる\n俺の750tiはもはや化石","StatusId":"958756533143142400","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Feb 01 14:28:37 +0000 2018","Text":"RT @miyamo_madoka: apm install ymtszw/language-elm\nしてる","StatusId":"959070988552978434","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"apm install ymtszw/language-elm\nしてる","RetweetedStatusId":"959070988552978434","RetweetedStatusUserName":"みやも","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Feb 01 14:30:21 +0000 2018","Text":"language-elmに残ってるelm-oracle連携部分のコード削除しちゃおうかな。あれはもうメンテされてないし、Elmjutsuがあればいい","StatusId":"959071425297448960","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Feb 01 14:38:27 +0000 2018","Text":"linter-elm-makeとlinter-elm-analyseを同時にonTheFlyで回すのは流石に負荷もあるし画面がごっちゃになるし後者はまだバグがいっぱいあるので保存時実行にしたら多少は落ち着いた動きになった","StatusId":"959073465717280769","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

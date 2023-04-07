@@ -1,0 +1,45 @@
+[
+{"CreatedAt":"Sat Jul 23 01:11:44 +0000 2016","Text":"今日友だちと話して様子を聞いたんだけど、ポケGOのpop頻度って周辺のプレイヤー数に比例するMMO方式なのかな。過疎都市にhearth置いてる人はハンデですな","StatusId":"756658020151595008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 11:13:36 +0000 2016","Text":"Floating Combat Text(敵キャラの周りにふわふわ出るやつ)をつけたり消したりするオプション項目が何故か廃止されて、消したい人が消せなかったり、付けたい人がなにかのAddonで消えちゃったりしたとき戻せなかったりする","StatusId":"756809482894577665","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 11:14:08 +0000 2016","Text":"/console floatingCombatTextCombatHealing 1\n/console floatingCombatTextCombatDamage 1\n\nでonにできる。0にすればoff","StatusId":"756809619964506112","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 11:32:09 +0000 2016","Text":"Druidのツールキットはだいぶ整理されて扱いやすくなった印象ある","StatusId":"756814152312598528","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 11:33:36 +0000 2016","Text":"BalanceAffiのKinFormになってるとき、攻撃力がAgi依存なのかInt依存なのか。Kinになっても他の装備のAgiがIntに切り替わるわけじゃないから、武器だけIntStaffに変えても焼け石に水だし、Agi依存だと信じたい","StatusId":"756814517590368258","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 11:34:53 +0000 2016","Text":"結構火力出るからAgi依存な気がするな。Questでも結構良さげだけど、いまだと熊AEでQuestも楽になったから使わんか","StatusId":"756814841076035584","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 11:47:59 +0000 2016","Text":"大発詰める駆逐艦が増えてローテできるようになり、4-5/5-5を休止した結果、今回は結構資源に余裕ができてきた","StatusId":"756818137715122177","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 11:49:34 +0000 2016","Text":"熊のサイドステップ時のアニメーションが自然になった気がするけど、これはしばらく前からだっけ","StatusId":"756818536488579072","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 12:02:08 +0000 2016","Text":"Travel Formになるとき梟の啼き声がするようになったけど、それは違うんじゃないか。。？","StatusId":"756821698578571265","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 12:04:11 +0000 2016","Text":"They have the ability to transform into storm crows and fly over the field of battle\n\nhttps://t.co/2nGR9CwTF2","StatusId":"756822215371350016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 12:04:35 +0000 2016","Text":"Storm Crowって具体的に何なんだろうな。カラスベースでいいんだろうか","StatusId":"756822314449199108","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 12:05:07 +0000 2016","Text":"Trollはコウモリなので迷わなくていいですね","StatusId":"756822449870675968","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 12:06:50 +0000 2016","Text":"Quan3に教えてもらったけど熊も猫も二刀流できるのはArtifact限定らしい","StatusId":"756822879971401728","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 12:33:03 +0000 2016","Text":"Kin/Travel/Human formはアクションバーが切り替わらないんだな","StatusId":"756829478362329088","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 12:51:15 +0000 2016","Text":"どうみてもネックウォーマーなMailをみつけた https://t.co/wG0vBqjHtX","StatusId":"756834059104301056","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/wG0vBqjHtX","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/CoDQkAVVIAEnXY5.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/756834059104301056/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 12:58:37 +0000 2016","Text":"Garrisonの池で呼べるレアモブ(召喚アイテムがたまに釣れる)が全員Lootになってるらしくて、40manRaidで海亀マウントを手に入れるまで全員で釣りし続けるというグループがいくつも立っている","StatusId":"756835910486851584","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 13:14:06 +0000 2016","Text":"Nerz時代にShamの装備そこそこ集めてたはずんなんだけど、ログインして読み込んでみたらVengefulくらいしかまともに集めていなかったという","StatusId":"756839807121186816","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 13:24:57 +0000 2016","Text":"HoTのIncomingHealが取れなくなったかな。SUFで表示されない。Direct Heal分は表示されている","StatusId":"756842537772421121","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 13:27:36 +0000 2016","Text":"EnhはFire NovaがなくなってBig PackのAEが弱くなってしまった気がする。Crash Lightiningは所詮フラットダメージだけどNovaは掛け算でダメージ増えてたからな","StatusId":"756843204192854016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 14:04:24 +0000 2016","Text":"Hyjal RaidのMobのpopと移動がすげー速くなってファームしやすくなっている","StatusId":"756852469196390400","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 14:09:17 +0000 2016","Text":"でもGargoyleがうざいのは変わっていなかった","StatusId":"756853696604938244","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Jul 23 14:44:19 +0000 2016","Text":"EnhはFire EleとAscendがなくなってバースト色がうすれてAuto Attack重視のLK時代みたいな感じに","StatusId":"756862512155336705","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

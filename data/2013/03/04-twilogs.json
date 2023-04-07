@@ -1,0 +1,5 @@
+[
+{"CreatedAt":"Mon Mar 04 11:23:31 +0000 2013","Text":"WeakAurasでもAPI EditMacroが使えるのでPLAYER_TALENT_UPDATEかPLAYER_TALENT_UPDATEイベントを拾うことでtalentを変えた時に自動でマクロを書き換えられることがわかった","StatusId":"308538188601905152","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Mar 04 11:27:25 +0000 2013","Text":"もう1個のイベントはLEARNED_SPELL_IN_TAB","StatusId":"308539173378342912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

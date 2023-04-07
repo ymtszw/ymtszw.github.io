@@ -1,0 +1,23 @@
+[
+{"CreatedAt":"Mon Nov 19 17:12:12 +0000 2018","Text":"今日の知見としては、何らかの条件で一発だけアニメーションさせたい場合(点滅とか、フォーカス表示とか)、条件となる状態を用意 =&gt; 状態が活性ならCSS animation =&gt; onanimationendでMsgを飛ばして状態を倒す、でかなり簡単かつ綺麗にできる。DOMがabruptに消えてeventが飛ばないことがない前提なら。","StatusId":"1064567026423803904","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Nov 20 01:26:08 +0000 2018","Text":"ギョーカイでは10年後の話をすると鬼が笑う","StatusId":"1064691327416250370","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Nov 20 10:04:38 +0000 2018","Text":"@MaditusTweet 数がすげえ雑だ","StatusId":"1064821813807538177","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Nov 20 10:45:27 +0000 2018","Text":"武蔵とつく駅が多いのでトレーディングカードにしました :: デイリーポータルZ https://t.co/2Jcq2v7tsZ","StatusId":"1064832087352467459","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Nov 20 11:09:38 +0000 2018","Text":"RT @fladdict: 面白い。口調は辛めだけど、万人に役立つこと語ってる感。 Reading... 堀江貴文さんが語る「みんな『お金』のことを勘違いしていないか？」（堀江 貴文） | マネー現代 | 講談社（1/5） https://t.co/jHezSGgDoj","StatusId":"1064838172641656832","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"面白い。口調は辛めだけど、万人に役立つこと語ってる感。 Reading... 堀江貴文さんが語る「みんな『お金』のことを勘違いしていないか？」（堀江 貴文） | マネー現代 | 講談社（1/5） https://t.co/jHezSGgDoj","RetweetedStatusId":"1064838172641656832","RetweetedStatusUserName":"深津 貴之 / THE GUILD / note.com","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Tue Nov 20 11:11:39 +0000 2018","Text":"@miyamo_madoka 9.8やぞ","StatusId":"1064838679632392197","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Nov 20 11:36:06 +0000 2018","Text":"prettier-atomが最新版prettier使うようになったぜーってbumpしたらいきなりバグっているぜ","StatusId":"1064844830109401088","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Nov 20 11:48:02 +0000 2018","Text":"寒くね？\nで見たら外気温9℃か","StatusId":"1064847836599054336","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Nov 20 12:51:21 +0000 2018","Text":"色合い結構好きだ\npriestmoonsaber.jpg (970×570) https://t.co/tivp5OFroj","StatusId":"1064863767421304832","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Nov 20 12:55:10 +0000 2018","Text":"いいなこのまとめ https://t.co/Aw7eedAuQP","StatusId":"1064864730810994691","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Nov 20 12:55:17 +0000 2018","Text":"RT @mizchi: “Rendering Performance | Web Fundamentals - Google Developers” https://t.co/TwnfTC3JjO","StatusId":"1064864758858280960","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"“Rendering Performance | Web Fundamentals - Google Developers” https://t.co/TwnfTC3JjO","RetweetedStatusId":"1064864758858280960","RetweetedStatusUserName":"mizchi","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+]

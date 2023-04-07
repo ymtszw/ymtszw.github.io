@@ -1,0 +1,11 @@
+[
+{"CreatedAt":"Sun Mar 25 15:07:27 +0000 2018","Text":"今のところcomparableしかkeyに使えないElmのDictを幽霊型で拡張して使うアイデア - ymtszw - Scrapbox https://t.co/Tap1wsXhTi\n\n思いついたので。","StatusId":"977924931324297221","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Mar 25 17:00:13 +0000 2018","Text":"とりあえずこれを使って、メインのリソースのIDをすべてStringからvalue typeにリファクタした。\n見事に一つバグ（というかソースコメントの間違い）を検出することに成功した","StatusId":"977953312606642176","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Mar 26 09:57:27 +0000 2018","Text":"結局 PWA は来るの？来ないの？: Tender Surrender https://t.co/ZVuMCaEM9o\n\n&gt; すでにあるウェブサイトに徐々に PWA の機能を増やしていくやり方こそ PWA の真骨頂であり、「プログレッシブ」の名前はそこにも由来しています。\n\n学び〜〜","StatusId":"978209308247711745","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Mar 26 11:01:49 +0000 2018","Text":"Googleのglobalbatch APIがdeprecateするから移行しろメールが来た","StatusId":"978225502899990529","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Mar 26 14:06:15 +0000 2018","Text":"自転車部品メーカー「シマノ」工場で火災 #SmartNews  https://t.co/vXHCmErh7e","StatusId":"978271919450423296","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

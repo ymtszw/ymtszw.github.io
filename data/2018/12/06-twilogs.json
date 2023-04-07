@@ -1,0 +1,23 @@
+[
+{"CreatedAt":"Wed Dec 05 16:14:20 +0000 2018","Text":"Magnet Polarity Switch - Marble Machine X #60 - YouTube https://t.co/hXri9PyH5T\n\nBOOM!!","StatusId":"1070350670857818112","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Dec 05 16:41:11 +0000 2018","Text":"Elmのrecord update syntaxのレシーバ, { m | hoge = True }のmには、関数内で何らか束縛された変数しか置けないと思いこんでいたのだが、一昨日くらいに定数関数（0引数関数）も置けることを知り、いろいろとイディオムの幅が広がった","StatusId":"1070357427697070080","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Dec 05 16:46:13 +0000 2018","Text":"例えばあるrecord typeを定義していろんなケースで引数や戻り値として利用している場合に、「ほとんどデフォルト値なんだけど、一部だけ調整したrecord」がほしいことがよくある。このとき、デフォルト値でpopulateしたrecordを返す定数関数を用意しておいて、必要な部分だけ変えて使う、とできる","StatusId":"1070358692166397952","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Dec 05 16:55:48 +0000 2018","Text":"命名は大事だ https://t.co/WSLJvioykd","StatusId":"1070361103299883008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/WSLJvioykd","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DtqvvXLVYAADVne.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1070361103299883008/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Dec 05 17:08:56 +0000 2018","Text":"Edgeくん、window.originに未対応で無事死亡","StatusId":"1070364412345647104","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Dec 05 17:11:24 +0000 2018","Text":"window.location.originがあってよかった","StatusId":"1070365029038321664","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Dec 05 17:47:44 +0000 2018","Text":"Octiconのtrashcanって、びっみょーに右に寄ってるんだな。縮小すると顕著にわかる","StatusId":"1070374172734513152","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Dec 05 20:26:10 +0000 2018","Text":"DiscordのCreate Message API, multipart/form-dataで文字コンテンツとファイルアップロードを同時に受け付けられるんだけど、ものすごく正直というか、素性の良いAPIで使いやすく、しかもアップロードされたファイルは自前クラウドストレージに保管され、CDN経由で配布される。夢の世界","StatusId":"1070414045159673856","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Dec 05 20:28:09 +0000 2018","Text":"Twitterはcreate tweet APIとupload media APIが分かれていて、しかもupload media APIはメタデータ生成→実体アップロード→アップロード完了通知の3段階APIになっており、ホゲえ","StatusId":"1070414544525119488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Dec 05 20:30:42 +0000 2018","Text":"まあファイルアップロードAPIにおける3段階構成には見覚えがあるので、実装意図は理解できるし利用方法も腑に落ちるのだが","StatusId":"1070415185880342529","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Dec 06 14:05:15 +0000 2018","Text":"RT @HMA04: https://t.co/BUzhHkMZ1I","StatusId":"1070680572819718146","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/BUzhHkMZ1I","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DtvQ-KZU8AEQwKR.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/HMA04/status/1070679107426377729/photo/1","Retweet":"TRUE","RetweetedStatusFullText":"https://t.co/BUzhHkMZ1I","RetweetedStatusId":"1070680572819718146","RetweetedStatusUserName":"HMA-04","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+]

@@ -1,0 +1,41 @@
+[
+{"CreatedAt":"Sun Nov 18 16:14:04 +0000 2018","Text":"確かにCSS opacityも高速っぽいが、elm-uiのalpha関数を経由して適用すると遅くなるので、どうやらおとといの↓の件はDOMの量と複雑性に起因してstyleのparseと適用判定で時間がかかってしまっているらしい\nhttps://t.co/6cSmGdLHHz\n\n対象要素に直接styleプロパティでねじ込めば速い","StatusId":"1064190008095985665","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 16:16:48 +0000 2018","Text":"RT @phocaenidae: 思うに、新しいプロジェクトの始まりって大事で、本格稼働する前に整備しておくと後々とても楽になるんだけども、\n大体別プロジェクトの終盤とクロスするので優先度が下がり、\n前プロジェクトが終わり一段落モードになっていると、いつの間にかなんかやばくね？…","StatusId":"1064190694854557697","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"思うに、新しいプロジェクトの始まりって大事で、本格稼働する前に整備しておくと後々とても楽になるんだけども、\n大体別プロジェクトの終盤とクロスするので優先度が下がり、\n前プロジェクトが終わり一段落モードになっていると、いつの間にかなんかやばくね？…","RetweetedStatusId":"1064190694854557697","RetweetedStatusUserName":"phocaenidae","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Sun Nov 18 16:20:44 +0000 2018","Text":"てか一昨日のこのページすごい重要な情報でしょ。CSSでanimateさせたいときもそうだし、animateさせるわけじゃないけど複雑なSPA内でパフォーマンス低下なしに何か一時スタイルを適用したいときにも非常に役に立つ。\n\nHigh Performance Animations - HTML5 Rocks https://t.co/4BLid1i4jg","StatusId":"1064191688422252544","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 16:43:22 +0000 2018","Text":"Flex rowでlayoutしているかなり複雑大規模な横方向columnリストがあって、これをそこそこのパフォーマンスでrender及び並び替え可能にするために結構苦労したわけだが、これもまさかflexboxを捨てて自前計算＋CSS transform: translateベースにしたほうが高速動作するとかあるかな。。。","StatusId":"1064197382580002817","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 16:45:12 +0000 2018","Text":"でもlayoutよりもrecalculate styleに時間かかってるから(並び替え時)、まだどこかにボトルネックが潜んでそうである","StatusId":"1064197843563343872","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 16:55:20 +0000 2018","Text":"@phocaenidae Elmなどではtagged union type, algebraic data typeと呼ばれる場合分け可能でパターンマッチ時に網羅性チェックが働く型を導入します。Discriminated Unionsってのがtypescriptの対応概念らしい\nhttps://t.co/ahJbjeQyr4","StatusId":"1064200393553367040","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 16:57:51 +0000 2018","Text":"Windowsで画面の領域を10秒前後キャプチャしてGIFなどにするの、一番手軽にできるソフトは何なんだろう。MacだとGIPHY Captureが猛烈に手軽で便利なんだがwin版がねえ","StatusId":"1064201026507431936","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 17:01:22 +0000 2018","Text":"ScreenToGif - Record your screen, edit and save as a Gif or video https://t.co/eEat2RTQtN\n\n試してみよう","StatusId":"1064201912302501888","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 17:09:26 +0000 2018","Text":"結構良かった","StatusId":"1064203940676349952","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 17:11:05 +0000 2018","Text":"現状。もっとサクサクにしてえけどcolumn数が多いときつい https://t.co/cUDoeiXQQs","StatusId":"1064204359313965056","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/cUDoeiXQQs","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/tweet_video_thumb/DsTQM6bU8AA7xEZ.jpg","ExtendedEntitiesMediaTypes":"animated_gif","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1064204359313965056/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 17:12:53 +0000 2018","Text":"@phocaenidae kind文字列でマッチしてましたね。たしかに微妙に思った。","StatusId":"1064204810000322560","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 18 20:24:21 +0000 2018","Text":"RT @todesking: 海外からDDoS攻撃してくるカメラをシャットダウンしてしまうのは不正アクセスなのか?自首してみたが返答がない!そして泥沼のDDoSへ - ncaq https://t.co/99hSzZcKaf","StatusId":"1064252995473367040","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"海外からDDoS攻撃してくるカメラをシャットダウンしてしまうのは不正アクセスなのか?自首してみたが返答がない!そして泥沼のDDoSへ - ncaq https://t.co/99hSzZcKaf","RetweetedStatusId":"1064252995473367040","RetweetedStatusUserName":"トデス子'\\","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Nov 19 05:56:59 +0000 2018","Text":"Google翻訳の英→和訳の精度向上が凄まじくて、自分で書いた英文を和訳してみると、同じ文を自分で日本語で書く場合よりもわかりやすいと思えることがある","StatusId":"1064397102589988864","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Nov 19 08:20:48 +0000 2018","Text":"HTML5 DnD, 予想通りFirefoxでは動いていなかった。めんどくせえ","StatusId":"1064433297202196481","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Nov 19 09:36:52 +0000 2018","Text":"Boolはcomparableじゃないぞ","StatusId":"1064452436809592832","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Nov 19 09:42:19 +0000 2018","Text":"ElmのList.sortはstableとは限らない(ブラウザのArray.prototype.sortの実装依存)ぞ","StatusId":"1064453808980279296","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Nov 19 10:03:10 +0000 2018","Text":"Taming huge collections of DOM nodes – codeburst https://t.co/wfFt9b3Stj","StatusId":"1064459058239787008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Nov 19 10:14:07 +0000 2018","Text":"これもいい記事だ。ほぼ自分の今の状況に合致しているし、やった試行錯誤も概ね共通している(生JSには降りてないけれども","StatusId":"1064461812232384513","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Nov 19 11:14:14 +0000 2018","Text":"これと同等のことをElmでやれたらいいが、流石に努力が過ぎる。少なくともelm-ui 2.0.0は待ちたい\n\nhttps://t.co/sGbHabgRr3","StatusId":"1064476941816745985","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Nov 19 11:16:53 +0000 2018","Text":"今熱いのはこっちらしい\nhttps://t.co/cT6QyFIGIf","StatusId":"1064477609499623425","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

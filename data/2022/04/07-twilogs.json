@@ -1,0 +1,17 @@
+[
+{"CreatedAt":"Wed Apr 06 15:48:29 +0000 2022","Text":"Wargamingがロシア・ベラルーシから撤退。ミンスクのスタジオも閉鎖に https://t.co/tKaOV2ryNv","StatusId":"1511732586217095172","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Apr 06 18:09:29 +0000 2022","Text":"nonce - HTML: HyperText Markup Language | MDN https://t.co/F24JLAOiiK \n\nなるほどな、style tagも対象って言うけど、言われてみりゃ確かにURL getを仕込めるしな","StatusId":"1511768066572828672","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Apr 06 18:16:23 +0000 2022","Text":"でもこれ必ずしもurl()が問題じゃなくて、単純にinline styleを差し込んでくる外部スクリプトの侵入をポリシーで弾く機構なのかな","StatusId":"1511769802976919552","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Apr 07 13:09:53 +0000 2022","Text":"RT @nkowne63: ゆる募質問：github actionsってpushした人がmaintenance以上の権限じゃないと無理？（writeで動いてなさそうだった）","StatusId":"1512055059252604933","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ゆる募質問：github actionsってpushした人がmaintenance以上の権限じゃないと無理？（writeで動いてなさそうだった）","RetweetedStatusId":"1512055059252604933","RetweetedStatusUserName":"ノーン","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Apr 07 13:10:02 +0000 2022","Text":"なんか設定できた気がするな","StatusId":"1512055098540580869","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Apr 07 13:23:54 +0000 2022","Text":"@nkowne63 forkからのPRでworkflowを起動するか否かみたいな設定はあったと思うんで、その周辺とかに無ければないかも\n\nあとは単純に設定yamlの問題など","StatusId":"1512058585718485004","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Apr 07 14:41:04 +0000 2022","Text":"RT @murajidash: 北海道って日本国内では馬鹿にされる事多いですが、ロシアからすれば極東ロシア全体を合わせたよりも工業も農業も各種高度インフラも整ってる土地になるんで、そりゃあ欲しいだろうとは思います","StatusId":"1512078006839230467","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"北海道って日本国内では馬鹿にされる事多いですが、ロシアからすれば極東ロシア全体を合わせたよりも工業も農業も各種高度インフラも整ってる土地になるんで、そりゃあ欲しいだろうとは思います","RetweetedStatusId":"1512078006839230467","RetweetedStatusUserName":"ＭＵＲＡＪＩ","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Thu Apr 07 14:41:05 +0000 2022","Text":"RT @murajidash: この呟きに対する反応は「北海道は馬鹿になんかされてない」のが多くて、これにどうコメントしてもツッコミ受けるのが確定で怖いです","StatusId":"1512078012220551172","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"この呟きに対する反応は「北海道は馬鹿になんかされてない」のが多くて、これにどうコメントしてもツッコミ受けるのが確定で怖いです","RetweetedStatusId":"1512078012220551172","RetweetedStatusUserName":"ＭＵＲＡＪＩ","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+]

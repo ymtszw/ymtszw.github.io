@@ -1,0 +1,21 @@
+[
+{"CreatedAt":"Sun Oct 28 16:08:44 +0000 2018","Text":"今週はPure Elm markdown parserの実力をためそう。多少遅いのは間違いないけど一通りカスタマイズするためのAPIは提供されている\nhttps://t.co/MzTAMz838d","StatusId":"1056578522322395137","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 28 16:09:11 +0000 2018","Text":"同じ人が作っているPure Elm syntax hightliterもある\nhttps://t.co/WuOToomEd7","StatusId":"1056578635904167941","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 28 18:55:16 +0000 2018","Text":"利用状況によって、同種のものが2つ以上出現することになるかもしれない(1個も出現しないこともある)、というコンポーネント群があった。→","StatusId":"1056620433179471872","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 28 18:55:32 +0000 2018","Text":"2つ以上登場したらuniqueIDを付与する前提で、\n\ntype CompState\n  = AState A.State\n  | BState B.State\ntype alias CompRegistry =\n  Dict String ComponentState\nと辞書で状態を束ねていた。","StatusId":"1056620496513466368","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 28 18:55:50 +0000 2018","Text":"が、進めていくとどうも2個以上持てるやつが本当に出てきたらそのタイプだけ子状態をDictなどにしたほうがいい、と気づく。","StatusId":"1056620574695337986","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Oct 28 18:55:58 +0000 2018","Text":"すると親Dictを、\ntype alias CompRegistry =\n  { compA : Maybe A.State\n  , compB : Maybe B.State\n  }\nのような「既知のキーしかないことがcompile時に保証される辞書」としてのrecordに書き換えられた。custom typeの皮も一枚省略できる。\nもうちょっと早く気づきたかった。。","StatusId":"1056620608492982272","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Oct 29 06:50:28 +0000 2018","Text":"Elmのプログラム、落ちる先は単なるJSなので、高周期のtimerで都度処理をしたり、高速で要素が追加されるListをrenderしたりすると当然重くなる(ユーザ入力の処理遅延が如実に感じられるくらいになる)。節度を持って回避すればいいんだけど、遊びたがりなのでWebWorker使えないかとか考え出してしまう","StatusId":"1056800419098198016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Oct 29 07:35:54 +0000 2018","Text":"@arowM_ evancz相当若いから逆の可能性も","StatusId":"1056811850992517121","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Oct 29 10:34:57 +0000 2018","Text":"RT @EzoeRyou: これ、書いているときは気が付かなかったが、きれいなリーナスの文面はYOUを使っていない。以前なら\"You did...\"などとなっていたところが\"new driver did...\" となっている。\nhttps://t.co/K0h6SNj2NT","StatusId":"1056856909670625280","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"これ、書いているときは気が付かなかったが、きれいなリーナスの文面はYOUを使っていない。以前なら\"You did...\"などとなっていたところが\"new driver did...\" となっている。\nhttps://t.co/K0h6SNj2NT","RetweetedStatusId":"1056856909670625280","RetweetedStatusUserName":"江添亮@左足首靭帯負傷中","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+,
+{"CreatedAt":"Mon Oct 29 12:43:05 +0000 2018","Text":"@hamashio Gratz","StatusId":"1056889154489921536","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

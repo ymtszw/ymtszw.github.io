@@ -1,0 +1,5 @@
+[
+{"CreatedAt":"Tue Jun 02 12:02:55 +0000 2015","Text":"inboxはスマホなら悪くない。Gmailがプッシュで届くのもいい。でもデスクトップでは微妙。","StatusId":"605706156271505409","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jun 02 12:05:15 +0000 2015","Text":"まだNotificationにデフォルトで対応してないし、新しい「完了」機能が内部的には「受信トレイ」ラベルを剥がす形で実装されてる（あるいはその状態をinbox側で読み替えてる）ので、受信トレイ開きっぱだった旧Gmailに戻るとあるはずのメールがすぐ見えなかったりする","StatusId":"605706742945574912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]
