@@ -10,6 +10,8 @@
         "direct": {
             "danfishgold/base64-bytes": "1.1.0",
             "danyx23/elm-mimetype": "4.0.1",
+            "dillonkearns/elm-bcp47-language-tag": "1.0.1",
+            "dillonkearns/elm-date-or-date-time": "2.0.0",
             "dillonkearns/elm-markdown": "7.0.1",
             "dillonkearns/elm-pages-v3-beta": "17.0.1",
             "dillonkearns/elm-rss": "2.0.3",
@@ -36,9 +38,7 @@
             "Chadtech/elm-bool-extra": "2.4.2",
             "avh4/elm-color": "1.0.0",
             "billstclair/elm-xml-eeue56": "2.1.0",
-            "dillonkearns/elm-bcp47-language-tag": "1.0.1",
             "dillonkearns/elm-cli-options-parser": "3.2.0",
-            "dillonkearns/elm-date-or-date-time": "2.0.0",
             "dmy/elm-imf-date-time": "1.0.1",
             "elm/file": "1.0.5",
             "elm/random": "1.0.0",

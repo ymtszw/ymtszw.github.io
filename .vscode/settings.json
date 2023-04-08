@@ -2,5 +2,6 @@
   "search.exclude": {
     "data/": true,
     "html-parser/": true
-  }
+  },
+  "elmLS.elmPath": "node_modules/.bin/lamdera"
 }
