@@ -278,6 +278,7 @@ cmsGet url decoder =
             )
 
 
+publicCmsArticles : BackendTask FatalError (List CmsArticleMetadata)
 publicCmsArticles =
     let
         articleMetadataDecoder =

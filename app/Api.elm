@@ -5,6 +5,8 @@ import BackendTask exposing (BackendTask)
 import FatalError exposing (FatalError)
 import Html exposing (Html)
 import Iso8601
+import LanguageTag
+import LanguageTag.Language
 import MimeType
 import Pages
 import Pages.Manifest as Manifest
@@ -12,6 +14,7 @@ import Pages.Url
 import Route exposing (Route(..))
 import Route.Articles.ArticleId_
 import Rss
+import Shared
 import Site
 import Sitemap
 import Time
@@ -21,7 +24,7 @@ routes :
     BackendTask FatalError (List Route)
     -> (Maybe { indent : Int, newLines : Bool } -> Html Never -> String)
     -> List (ApiRoute ApiRoute.Response)
-routes getStaticRoutes htmlToString =
+routes getStaticRoutes _ =
     [ rss
         { siteTagline = Site.tagline
         , siteUrl = Site.config.canonicalUrl
@@ -33,6 +36,8 @@ routes getStaticRoutes htmlToString =
     , sitemap <|
         makeSitemapEntries <|
             getStaticRoutes
+    , Manifest.generator Site.canonicalUrl <|
+        BackendTask.succeed manifest
     ]
 
 
@@ -66,25 +71,17 @@ rss options itemsSource =
 
 
 type alias BuiltArticle =
-    ( Route, Route.Articles.ArticleId_.Data )
+    ( Route, Route.Articles.ArticleId_.CmsArticle )
 
 
 makeArticleRssItem : BuiltArticle -> Rss.Item
-makeArticleRssItem ( route, data ) =
-    -- TODO: Fix this
-    -- { title = data.article.title
-    -- , description = data.article.body.excerpt
-    { title = ""
-    , description = ""
-    , url =
-        route
-            |> Route.routeToPath
-            |> String.join "/"
+makeArticleRssItem ( route, article ) =
+    { title = article.title
+    , description = article.body.excerpt
+    , url = Route.toString route
     , categories = []
     , author = "ymtszw (Yu Matsuzawa)"
-
-    -- , pubDate = Rss.DateTime data.article.publishedAt
-    , pubDate = Rss.DateTime Pages.builtAt
+    , pubDate = Rss.DateTime article.publishedAt
     , content = Nothing
     , contentEncoded = Nothing
     , enclosure = Nothing
@@ -95,12 +92,11 @@ builtArticles : BackendTask FatalError (List BuiltArticle)
 builtArticles =
     let
         build routeParam =
-            -- TODO: Fix this
-            -- Route.Articles.ArticleId_.route.data routeParam
-            BackendTask.succeed {}
+            Route.Articles.ArticleId_.data routeParam
+                |> BackendTask.map .article
                 |> BackendTask.map (Tuple.pair (Route.Articles__ArticleId_ routeParam))
     in
-    Route.Articles.ArticleId_.route.staticRoutes
+    Route.Articles.ArticleId_.pages
         |> BackendTask.map (List.map build)
         |> BackendTask.resolve
 
@@ -137,41 +133,36 @@ makeSitemapEntries getStaticRoutes =
                     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
 
                 Articles ->
-                    -- TODO: Fix this
-                    -- Shared.publicCmsArticles
-                    --     |> BackendTask.andThen
-                    --         (\articles ->
-                    --             articles
-                    --                 |> List.head
-                    --                 |> Maybe.map (.revisedAt >> Iso8601.fromTime)
-                    --                 |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
-                    --                 |> routeSource
-                    --         )
-                    --     |> Just
-                    Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
+                    Shared.publicCmsArticles
+                        |> BackendTask.andThen
+                            (\articles ->
+                                articles
+                                    |> List.head
+                                    |> Maybe.map (.revisedAt >> Iso8601.fromTime)
+                                    |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
+                                    |> routeSource
+                            )
+                        |> Just
 
                 Articles__Draft ->
                     Nothing
 
                 Articles__ArticleId_ routeParam ->
-                    -- TODO: Fix this
-                    -- Route.Articles.ArticleId_.route.data routeParam
-                    --     |> BackendTask.andThen (\data -> routeSource (Iso8601.fromTime data.article.revisedAt))
-                    Nothing
+                    Route.Articles.ArticleId_.data routeParam
+                        |> BackendTask.andThen (\data -> routeSource (Iso8601.fromTime data.article.revisedAt))
+                        |> Just
 
                 Twilogs ->
-                    -- TODO: Fix this
-                    -- Shared.twilogArchives
-                    --     |> BackendTask.andThen
-                    --         (\twilogArchives ->
-                    --             twilogArchives
-                    --                 |> List.head
-                    --                 |> Maybe.map .isoDate
-                    --                 |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
-                    --                 |> routeSource
-                    --         )
-                    --     |> Just
-                    Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
+                    Shared.twilogArchives
+                        |> BackendTask.andThen
+                            (\twilogArchives ->
+                                twilogArchives
+                                    |> List.head
+                                    |> Maybe.map .isoDate
+                                    |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
+                                    |> routeSource
+                            )
+                        |> Just
 
                 Twilogs__Day_ routeParam ->
                     Just <| routeSource routeParam.day
@@ -191,10 +182,12 @@ manifest =
         , description = Site.tagline
         , startUrl = Route.Index |> Route.toPath
         , icons =
-            [ { src = Pages.Url.external "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4a220ee277a54bd4a7cf59a2c423b096/header1500x500.jpg?fit=crop&h=200&w=200"
-              , sizes = [ ( 200, 200 ) ]
-              , mimeType = Just MimeType.Jpeg
+            [ { src = Pages.Url.external "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4bbee72905cf4e5fa4a55d9de0d9593b/icon-square.png?w=144&h=144"
+              , sizes = [ ( 144, 144 ) ]
+              , mimeType = Just MimeType.Png
               , purposes = [ Manifest.IconPurposeAny ]
               }
             ]
         }
+        |> Manifest.withShortName "ymtszw"
+        |> Manifest.withLang (LanguageTag.build LanguageTag.emptySubtags LanguageTag.Language.ja)
