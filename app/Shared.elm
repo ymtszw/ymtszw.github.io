@@ -19,7 +19,6 @@ module Shared exposing
     , dailyTwilogsFromOldest
     , dumpTwilog
     , formatPosix
-    , getGitHubRepoReadme
     , githubGet
     , iso8601Decoder
     , makeSeoImageFromCmsImage
@@ -40,7 +39,6 @@ import BackendTask.Env
 import BackendTask.File
 import BackendTask.Glob
 import BackendTask.Http
-import Base64
 import Date
 import Dict exposing (Dict)
 import Effect exposing (Effect)
@@ -223,6 +221,7 @@ data =
         twilogArchives
 
 
+githubGet : String -> Json.Decode.Decoder a -> BackendTask FatalError a
 githubGet url decoder =
     BackendTask.Env.expect "GITHUB_TOKEN"
         |> BackendTask.allowFatal
@@ -258,18 +257,6 @@ publicOriginalRepos =
                             Nothing
                     )
                 )
-        )
-
-
-getGitHubRepoReadme repo =
-    githubGet ("https://api.github.com/repos/ymtszw/" ++ repo ++ "/contents/README.md")
-        (Json.Decode.oneOf
-            [ Json.Decode.field "message" Markdown.decoder
-            , Json.Decode.field "content" Json.Decode.string
-                |> Json.Decode.map (String.replace "\n" "")
-                |> Json.Decode.andThen (Base64.toString >> Result.fromMaybe "Base64 Error!" >> Json.Decode.Extra.fromResult)
-                |> Json.Decode.andThen (Json.Decode.decodeString Markdown.decoder >> Result.mapError Json.Decode.errorToString >> Json.Decode.Extra.fromResult)
-            ]
         )
 
 

@@ -1,22 +1,28 @@
-module Route.About exposing (ActionData, Data, Model, Msg, RouteParams, route)
+module Route.About exposing
+    ( ActionData
+    , Data
+    , Model
+    , Msg
+    , RouteParams
+    , route
+    )
 
-{-| 
-@docs Model, Msg, RouteParams, route, Data, ActionData
--}
-
-
-import BackendTask
-import Effect
-import ErrorPage
-import FatalError
+import BackendTask exposing (BackendTask)
+import BackendTask.File
+import Base64
+import Dict
+import FatalError exposing (FatalError)
 import Head
-import Html
+import Head.Seo as Seo
+import Html exposing (..)
+import Html.Attributes exposing (href, target)
+import Json.Decode
+import Json.Decode.Extra
+import Markdown
+import Markdown.Block
 import PagesMsg
-import Path
 import RouteBuilder
-import Server.Request
-import Server.Response
-import Shared
+import Shared exposing (seoBase)
 import View
 
 
@@ -24,81 +30,82 @@ type alias Model =
     {}
 
 
-type Msg
-    = NoOp
+type alias Msg =
+    ()
 
 
 type alias RouteParams =
     {}
 
 
-route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
-route =
-    RouteBuilder.serverRender { data = data, action = action, head = head }
-        |> RouteBuilder.buildWithLocalState
-            { view = view
-            , init = init
-            , update = update
-            , subscriptions = subscriptions
-            }
-
-
-init :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> ( Model, Effect.Effect Msg )
-init app shared =
-    ( {}, Effect.none )
-
-
-update :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> Msg
-    -> Model
-    -> ( Model, Effect.Effect Msg )
-update app shared msg model =
-    case msg of
-        NoOp ->
-            ( model, Effect.none )
-
-
-subscriptions : RouteParams -> Path.Path -> Shared.Model -> Model -> Sub Msg
-subscriptions routeParams path shared model =
-    Sub.none
-
-
 type alias Data =
-    {}
+    { readme : List Markdown.Block.Block
+    , bio : List Markdown.Block.Block
+    }
 
 
 type alias ActionData =
     {}
 
 
-data :
-    RouteParams
-    -> Server.Request.Parser (BackendTask.BackendTask FatalError.FatalError (Server.Response.Response Data ErrorPage.ErrorPage))
-data routeParams =
-    Server.Request.succeed (BackendTask.succeed (Server.Response.render {}))
+route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
+route =
+    RouteBuilder.single
+        { head = head
+        , data = data
+        }
+        |> RouteBuilder.buildNoState { view = view }
+
+
+data : BackendTask FatalError Data
+data =
+    let
+        readme =
+            BackendTask.File.bodyWithoutFrontmatter "README.md"
+                |> BackendTask.allowFatal
+                |> BackendTask.andThen
+                    (Markdown.parse
+                        >> BackendTask.fromResult
+                        >> BackendTask.mapError FatalError.fromString
+                    )
+
+        bio =
+            Shared.githubGet "https://api.github.com/repos/ymtszw/ymtszw/contents/README.md"
+                (Json.Decode.oneOf
+                    [ Json.Decode.field "message" (Json.Decode.map .parsed Markdown.decoder)
+                    , Json.Decode.field "content" Json.Decode.string
+                        |> Json.Decode.map (String.replace "\n" "")
+                        |> Json.Decode.andThen
+                            (Base64.toString
+                                >> Result.fromMaybe "Base64 Error!"
+                                >> Result.andThen Markdown.parse
+                                >> Json.Decode.Extra.fromResult
+                            )
+                    ]
+                )
+    in
+    BackendTask.map2 Data readme bio
 
 
 head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
-head app =
-    []
+head _ =
+    Seo.summaryLarge
+        { seoBase
+            | title = Shared.makeTitle "このサイトについて"
+            , description = "Gada / ymtszwの個人ページ。これまでに書いたものなどをリンクしていく予定。elm-pagesで作っている。"
+        }
+        |> Seo.website
 
 
 view :
     RouteBuilder.App Data ActionData RouteParams
     -> Shared.Model
-    -> Model
     -> View.View (PagesMsg.PagesMsg Msg)
-view app shared model =
-    { title = "About", body = [ Html.h2 [] [ Html.text "New Page" ] ] }
-
-
-action :
-    RouteParams
-    -> Server.Request.Parser (BackendTask.BackendTask FatalError.FatalError (Server.Response.Response ActionData ErrorPage.ErrorPage))
-action routeParams =
-    Server.Request.succeed (BackendTask.succeed (Server.Response.render {}))
+view app _ =
+    { title = "このサイトについて"
+    , body =
+        [ div [] <| Markdown.render Dict.empty app.data.readme
+        , h2 [] [ Html.text "自己紹介 ", Html.a [ href "https://github.com/ymtszw/ymtszw", target "_blank" ] [ text "(source)" ] ]
+        , div [] <| Markdown.render Dict.empty app.data.bio
+        ]
+    }
