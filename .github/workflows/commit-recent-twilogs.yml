@@ -1,0 +1,36 @@
+name: Commit Recent Twilogs
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  schedule:
+    - cron: "25 4 * * *"
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: commit-recent-twilogs
+  cancel-in-progress: false
+
+jobs:
+  commit-recent-twilogs:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          key: v1-${{ hashFiles('package-lock.json') }}-
+          restore-keys: |
+            v1-
+          path: |
+            node_modules
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - run: npm ci
+      - run: npm run fetch_recent_twilogs
+      - run: git push origin HEAD:master
