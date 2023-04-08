@@ -3,7 +3,7 @@
   "scripts": {
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
     "postinstall": "elm-tooling install && ./install_lamdera.sh",
-    "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git commit --include data/ -m \"ci: fetched recent twilogs ($(date))\"",
+    "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: fetched recent twilogs ($(date))\"",
     "import_archived_tweets": "TZ=Asia/Tokyo node import_archived_tweets.js",
     "start": "PATH=$(pwd)/bin:$PATH; elm-pages dev --port 10101",
     "build": "PATH=$(pwd)/bin:$PATH; elm-pages build"
