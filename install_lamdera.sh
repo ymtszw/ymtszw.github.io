@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if node_modules/.bin/lamdera --version &>/dev/null; then
+if bin/lamdera --version &>/dev/null; then
   # Already installed
   exit 0
 fi
@@ -26,8 +26,9 @@ LAMDERA_VERSION="1.1.0"
 
 LAMDERA_URL="https://static.lamdera.com/bin/lamdera-$LAMDERA_VERSION-$OS-$ARCH"
 
-curl "$LAMDERA_URL" -o node_modules/.bin/lamdera
-chmod a+x node_modules/.bin/lamdera
+mkdir bin
+curl "$LAMDERA_URL" -o bin/lamdera
+chmod a+x bin/lamdera
 
 cat <<EOF
 ======
@@ -38,8 +39,8 @@ cat <<EOF
  | |___ / ___ \| |  | | |_| | |___|  _ <  / ___ \\
  |_____/_/   \_\_|  |_|____/|_____|_| \_\/_/   \_\\
 
-lamdera $LAMDERA_VERSION installed to node_modules/.bin/lamdera!
-You can use this from within npm scripts.
+lamdera $LAMDERA_VERSION installed to bin/lamdera!
+You can use this from within npm scripts as long as bin/ is added to \$PATH.
 lamdera is used by elm-pages v3 as a replacement for elm compiler.
 
 See https://dashboard.lamdera.app/docs for details about lamdera.
