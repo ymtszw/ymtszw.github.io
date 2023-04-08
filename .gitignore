@@ -4,6 +4,6 @@ dist/
 .elm-pages/
 .env
 /twilogs.json
-/functions/render/
-/functions/server-render/
+functions/render
+functions/server-render
 .netlify/
