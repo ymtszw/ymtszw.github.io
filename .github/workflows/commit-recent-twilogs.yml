@@ -29,6 +29,10 @@ jobs:
         with:
           node-version: "16"
       - run: npm ci
+      - name: Setup git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - run: npm run fetch_recent_twilogs
         env:
           MY_TWILOG_CSV_URL: ${{ secrets.MY_TWILOG_CSV_URL }}
