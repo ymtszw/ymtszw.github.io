@@ -1,4 +1,10 @@
-module View exposing (View, feedLink, imgLazy, map, placeholder)
+module View exposing
+    ( View
+    , feedLink
+    , imgLazy
+    , map
+    , placeholder
+    )
 
 import Html exposing (Html)
 import Html.Attributes

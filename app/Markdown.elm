@@ -1,22 +1,40 @@
-module Markdown exposing (DecodedBody, deadEndToString, deadEndsToString, decoder, parse, render, renderWithExcerpt)
+module Markdown exposing
+    ( DecodedMarkdown
+    , deadEndToString
+    , deadEndsToString
+    , decoder
+    , parse
+    , parseAndRender
+    , render
+    )
 
 import Dict exposing (Dict)
 import Html
 import Html.Attributes
-import LinkPreview exposing (Metadata)
+import Json.Decode
+import Json.Decode.Extra
+import LinkPreview
 import Markdown.Block
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
-import OptimizedDecoder
 import Parser
 import Regex
 import View
 
 
-decoder : String -> OptimizedDecoder.Decoder (List (Html.Html msg))
-decoder input =
-    OptimizedDecoder.succeed (render input)
+type alias DecodedMarkdown =
+    { parsed : List Markdown.Block.Block
+    , excerpt : String
+    , links : List String
+    }
+
+
+decoder : Json.Decode.Decoder DecodedMarkdown
+decoder =
+    Json.Decode.string
+        |> Json.Decode.andThen (parse >> Json.Decode.Extra.fromResult)
+        |> Json.Decode.map (\nodes -> { parsed = nodes, excerpt = excerpt nodes, links = enumerateLinks nodes })
 
 
 parse : String -> Result String (List Markdown.Block.Block)
@@ -27,18 +45,23 @@ parse input =
         |> Result.mapError (deadEndsToString >> (++) "Error while parsing Markdown!\n\n")
 
 
-render : String -> List (Html.Html msg)
-render input =
+parseAndRender : Dict String LinkPreview.Metadata -> String -> List (Html.Html msg)
+parseAndRender links input =
     parse input
-        |> Result.andThen render_
+        |> Result.map (render links)
         |> defaultToErrorView input
 
 
-render_ nodes =
-    Markdown.Renderer.render htmlRenderer nodes
-        |> Result.mapError ((++) "Error while rendering Markdown!\n\n")
+render : Dict String LinkPreview.Metadata -> List Markdown.Block.Block -> List (Html.Html msg)
+render links nodes =
+    -- Markdowns can fail on parse but actually never fail on render.
+    nodes
+        |> transformWithLinkMetadata links
+        |> Markdown.Renderer.render htmlRenderer
+        |> Result.withDefault []
 
 
+defaultToErrorView : String -> Result String (List (Html.Html msg)) -> List (Html.Html msg)
 defaultToErrorView input result =
     case result of
         Ok renderred ->
@@ -55,36 +78,6 @@ renderFallback input err =
     , Html.h1 [] [ Html.text "Here's the source:" ]
     , Html.pre [] [ Html.text input ]
     ]
-
-
-type alias DecodedBody msg =
-    { html : List (Html.Html msg)
-    , excerpt : String
-    , links : List String
-    , htmlWithLinkPreview : { draft : Bool } -> Dict String Metadata -> List (Html.Html msg)
-    }
-
-
-renderWithExcerpt : String -> DecodedBody msg
-renderWithExcerpt input =
-    case parse input of
-        Ok nodes ->
-            { html = defaultToErrorView input (render_ nodes)
-            , excerpt = excerpt nodes
-            , links = enumerateLinks nodes
-            , htmlWithLinkPreview = \conf links -> transformWithLinkMetadata conf nodes links |> render_ |> defaultToErrorView input
-            }
-
-        Err err ->
-            let
-                renderred =
-                    renderFallback input err
-            in
-            { html = renderred
-            , excerpt = String.left 100 input ++ "..."
-            , links = []
-            , htmlWithLinkPreview = \_ _ -> renderred
-            }
 
 
 excerpt : List Markdown.Block.Block -> String
@@ -335,24 +328,27 @@ enumerateLinks =
         )
 
 
-transformWithLinkMetadata : { draft : Bool } -> List Markdown.Block.Block -> Dict String LinkPreview.Metadata -> List Markdown.Block.Block
-transformWithLinkMetadata { draft } nodes links =
-    List.concatMap
+
+-----------------
+-- LinkPreview Transform
+-----------------
+
+
+transformWithLinkMetadata : Dict String LinkPreview.Metadata -> List Markdown.Block.Block -> List Markdown.Block.Block
+transformWithLinkMetadata links nodes =
+    List.map
         (\block ->
             case block of
                 Markdown.Block.Paragraph [ Markdown.Block.Link bareUrl _ _ ] ->
-                    case ( Dict.get bareUrl links, draft ) of
-                        ( Just metadata, _ ) ->
-                            [ Markdown.Block.HtmlBlock <| Markdown.Block.HtmlElement "a" [ { name = "class", value = "link-preview" }, { name = "href", value = bareUrl } ] [ linkPreview metadata ] ]
+                    case Dict.get bareUrl links of
+                        Just metadata ->
+                            Markdown.Block.HtmlBlock <| Markdown.Block.HtmlElement "a" [ { name = "class", value = "link-preview" }, { name = "href", value = bareUrl } ] [ linkPreview metadata ]
 
-                        ( Nothing, True ) ->
-                            [ Markdown.Block.HtmlBlock <| Markdown.Block.HtmlElement "a" [ { name = "class", value = "link-preview" }, { name = "href", value = bareUrl } ] [ linkPreview (LinkPreview.previewMetadata bareUrl) ] ]
-
-                        ( Nothing, False ) ->
-                            [ block ]
+                        Nothing ->
+                            block
 
                 _ ->
-                    [ block ]
+                    block
         )
         nodes
 

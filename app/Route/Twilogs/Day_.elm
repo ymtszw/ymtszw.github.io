@@ -1,25 +1,32 @@
-module Page.Twilogs.Day_ exposing (Data, Model, Msg, page)
+module Route.Twilogs.Day_ exposing
+    ( ActionData
+    , Data
+    , Model
+    , Msg
+    , RouteParams
+    , route
+    )
 
-import Browser.Navigation
-import DataSource exposing (DataSource)
+import BackendTask exposing (BackendTask)
 import Date
 import Dict
+import Effect
+import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html exposing (Html, nav, strong, text)
 import Html.Attributes exposing (class)
 import List.Extra
-import Page exposing (PageWithState, StaticPayload)
-import Page.Twilogs
-import Pages.PageUrl exposing (PageUrl)
+import PagesMsg
 import Route
+import Route.Twilogs
+import RouteBuilder
 import Shared exposing (RataDie, Twilog, seoBase)
-import Task
-import View exposing (View)
+import View
 
 
 type alias Model =
-    ()
+    {}
 
 
 type Msg
@@ -36,34 +43,39 @@ type alias Data =
     }
 
 
-page : PageWithState RouteParams Data Model Msg
-page =
-    Page.prerender
+type alias ActionData =
+    {}
+
+
+route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
+route =
+    RouteBuilder.preRender
         { head = head
-        , routes = routes
+        , pages = pages
         , data = data
         }
-        |> Page.buildWithSharedState
-            { view = view
-            , init = \_ _ _ -> ( (), Task.perform (\() -> InitiateLinkPreviewPopulation) (Task.succeed ()) )
+        |> RouteBuilder.buildWithSharedState
+            { init = \_ _ -> ( {}, Effect.init InitiateLinkPreviewPopulation )
             , update = update
-            , subscriptions = \_ _ _ _ _ -> Sub.none
+            , subscriptions = \_ _ _ _ -> Sub.none
+            , view = view
             }
 
 
-routes : DataSource (List RouteParams)
-routes =
-    DataSource.map (List.map (.isoDate >> RouteParams)) Shared.twilogArchives
+pages : BackendTask FatalError (List RouteParams)
+pages =
+    BackendTask.map (List.map (.isoDate >> RouteParams)) Shared.twilogArchives
 
 
-data : RouteParams -> DataSource Data
+data : RouteParams -> BackendTask FatalError Data
 data routeParams =
     Date.fromIsoString routeParams.day
-        |> DataSource.fromResult
-        |> DataSource.andThen
+        |> BackendTask.fromResult
+        |> BackendTask.mapError FatalError.fromString
+        |> BackendTask.andThen
             (\date ->
                 Shared.dailyTwilogsFromOldest [ Shared.makeTwilogsJsonPath date ]
-                    |> DataSource.map
+                    |> BackendTask.map
                         (\dailyTwilogs ->
                             -- In this page dailyTwilogs contain only one day
                             Dict.get (Date.toRataDie date) dailyTwilogs
@@ -73,31 +85,14 @@ data routeParams =
             )
 
 
-update :
-    PageUrl
-    -> Maybe Browser.Navigation.Key
-    -> Shared.Model
-    -> StaticPayload Data RouteParams
-    -> Msg
-    -> Model
-    -> ( Model, Cmd Msg, Maybe Shared.Msg )
-update _ _ shared static msg model =
-    case msg of
-        InitiateLinkPreviewPopulation ->
-            ( model
-            , Cmd.none
-            , Page.Twilogs.listUrlsForPreviewSingle shared static.data.twilogs
-            )
-
-
 head :
-    StaticPayload Data RouteParams
+    RouteBuilder.App Data ActionData RouteParams
     -> List Head.Tag
-head static =
+head app =
     Seo.summaryLarge
         { seoBase
-            | title = Shared.makeTitle (static.routeParams.day ++ "のTwilog")
-            , description = static.routeParams.day ++ "のTwilog"
+            | title = Shared.makeTitle (app.routeParams.day ++ "のTwilog")
+            , description = app.routeParams.day ++ "のTwilog"
         }
         |> Seo.article
             { tags = []
@@ -108,20 +103,34 @@ head static =
             }
 
 
+update :
+    RouteBuilder.App Data ActionData RouteParams
+    -> Shared.Model
+    -> Msg
+    -> Model
+    -> ( Model, Effect.Effect Msg, Maybe Shared.Msg )
+update app shared msg model =
+    case msg of
+        InitiateLinkPreviewPopulation ->
+            ( model
+            , Effect.none
+            , Route.Twilogs.listUrlsForPreviewSingle shared app.data.twilogs
+            )
+
+
 view :
-    Maybe PageUrl
+    RouteBuilder.App Data ActionData RouteParams
     -> Shared.Model
     -> Model
-    -> StaticPayload Data RouteParams
-    -> View Msg
-view _ shared _ static =
-    { title = static.routeParams.day ++ "のTwilog"
+    -> View.View (PagesMsg.PagesMsg Msg)
+view app shared _ =
+    { title = app.routeParams.day ++ "のTwilog"
     , body =
         [ -- show navigation links to previous and next days
-          prevNextNavigation static.data static.sharedData.twilogArchives
-        , Page.Twilogs.twilogDailySection shared static.data.rataDie static.data.twilogs
-        , prevNextNavigation static.data static.sharedData.twilogArchives
-        , Page.Twilogs.linksByMonths (Just (Date.fromRataDie static.data.rataDie)) static.sharedData.twilogArchives
+          prevNextNavigation app.data app.sharedData.twilogArchives
+        , Route.Twilogs.twilogDailySection shared app.data.rataDie app.data.twilogs
+        , prevNextNavigation app.data app.sharedData.twilogArchives
+        , Route.Twilogs.linksByMonths (Just (Date.fromRataDie app.data.rataDie)) app.sharedData.twilogArchives
         ]
     }
 
@@ -132,7 +141,7 @@ prevNextNavigation { rataDie } twilogArchives =
         toLink maybeRataDie child =
             case maybeRataDie of
                 Just rataDie_ ->
-                    Route.link (Route.Twilogs__Day_ { day = Date.toIsoString (Date.fromRataDie rataDie_) }) [] [ strong [] [ child ] ]
+                    Route.link [] [ strong [] [ child ] ] <| Route.Twilogs__Day_ { day = Date.toIsoString (Date.fromRataDie rataDie_) }
 
                 Nothing ->
                     child

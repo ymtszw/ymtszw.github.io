@@ -1,0 +1,7 @@
+{
+  "search.exclude": {
+    "data/": true,
+    "html-parser/": true
+  },
+  "elmLS.elmPath": "bin/lamdera"
+}

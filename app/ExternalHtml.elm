@@ -1,26 +1,41 @@
-module ExternalHtml exposing (decoder, extractInlineTextFromHtml)
+module ExternalHtml exposing
+    ( decoder
+    , extractInlineTextFromHtml
+    , render
+    )
 
 import Dict exposing (Dict)
+import Html exposing (Html)
 import Html.Parser exposing (Node(..))
 import Html.Parser.Util
+import Json.Decode
 import LinkPreview
 import Markdown
-import OptimizedDecoder
 
 
-decoder : String -> OptimizedDecoder.Decoder (Markdown.DecodedBody msg)
-decoder input =
-    case Html.Parser.run input of
-        Ok nodes ->
-            OptimizedDecoder.succeed
-                { html = Html.Parser.Util.toVirtualDom nodes
-                , excerpt = extractInlineTextFromHtml nodes
-                , links = enumerateLinks nodes
-                , htmlWithLinkPreview = \conf links -> transformWithLinkMetadata conf nodes links |> Html.Parser.Util.toVirtualDom
-                }
+type alias DecodedHtml =
+    { parsed : List Html.Parser.Node
+    , excerpt : String
+    , links : List String
+    }
 
-        Err e ->
-            OptimizedDecoder.fail (Markdown.deadEndsToString e)
+
+decoder : Json.Decode.Decoder DecodedHtml
+decoder =
+    Json.Decode.string
+        |> Json.Decode.andThen
+            (\input ->
+                case Html.Parser.run input of
+                    Ok nodes ->
+                        Json.Decode.succeed
+                            { parsed = nodes
+                            , excerpt = extractInlineTextFromHtml nodes
+                            , links = enumerateLinks nodes
+                            }
+
+                    Err e ->
+                        Json.Decode.fail (Markdown.deadEndsToString e)
+            )
 
 
 extractInlineTextFromHtml : List Node -> String
@@ -101,8 +116,15 @@ splitParagraphByBr pElem acc =
             [ [ notBr ] ]
 
 
-transformWithLinkMetadata : { draft : Bool } -> List Node -> Dict String LinkPreview.Metadata -> List Node
-transformWithLinkMetadata { draft } nodes links =
+render : Dict String LinkPreview.Metadata -> List Node -> List (Html msg)
+render links nodes =
+    nodes
+        |> transformWithLinkMetadata links
+        |> Html.Parser.Util.toVirtualDom
+
+
+transformWithLinkMetadata : Dict String LinkPreview.Metadata -> List Node -> List Node
+transformWithLinkMetadata links nodes =
     List.map
         (\node ->
             case node of
@@ -113,15 +135,9 @@ transformWithLinkMetadata { draft } nodes links =
                             (\lineInParagraph ->
                                 case lineInParagraph of
                                     [ Element "a" ((( "href", bareUrl ) :: _) as linkAttrs) [ Text linkText ] ] ->
-                                        case ( bareUrl == linkText, Dict.get bareUrl links, draft ) of
-                                            ( True, Just metadata, _ ) ->
-                                                [ Element "br" [] [] -- Vertical balancing newline
-                                                , Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview metadata ]
-                                                ]
-
-                                            ( True, Nothing, True ) ->
-                                                [ Element "br" [] [] -- Vertical balancing newline
-                                                , Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview (LinkPreview.previewMetadata bareUrl) ]
+                                        case ( bareUrl == linkText, Dict.get bareUrl links ) of
+                                            ( True, Just metadata ) ->
+                                                [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview metadata ]
                                                 ]
 
                                             _ ->
@@ -135,7 +151,7 @@ transformWithLinkMetadata { draft } nodes links =
                         |> Element "p" pAttrs
 
                 _ ->
-                    node
+                    recursivelyLazifyImg node
         )
         nodes
 
@@ -164,3 +180,16 @@ linkPreview meta =
                 ]
             ]
         ]
+
+
+recursivelyLazifyImg : Node -> Node
+recursivelyLazifyImg node =
+    case node of
+        Element "img" (( "src", src ) :: attrs) children ->
+            Element "img" (( "src", src ) :: ( "loading", "lazy" ) :: attrs) children
+
+        Element tag attrs children ->
+            Element tag attrs (List.map recursivelyLazifyImg children)
+
+        _ ->
+            node

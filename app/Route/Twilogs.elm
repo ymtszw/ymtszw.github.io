@@ -1,28 +1,39 @@
-module Page.Twilogs exposing (Data, Model, Msg, linksByMonths, listUrlsForPreviewBulk, listUrlsForPreviewSingle, page, twilogDailySection, twilogsOfTheDay)
+module Route.Twilogs exposing
+    ( ActionData
+    , Data
+    , Model
+    , Msg
+    , RouteParams
+    , linksByMonths
+    , listUrlsForPreviewSingle
+    , route
+    , twilogDailySection
+    , twilogsOfTheDay
+    )
 
-import Browser.Navigation
-import DataSource exposing (DataSource)
+import BackendTask exposing (BackendTask)
 import Date exposing (Date)
 import Dict exposing (Dict)
+import Effect
+import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html exposing (..)
-import Html.Attributes exposing (alt, attribute, class, classList, href, src, target, type_)
+import Html.Attributes exposing (..)
 import Html.Keyed
 import LinkPreview
 import List.Extra
 import Markdown
-import Page exposing (PageWithState, StaticPayload)
-import Pages.PageUrl exposing (PageUrl)
+import PagesMsg
 import Regex exposing (Regex)
 import Route
+import RouteBuilder
 import Shared exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..), seoBase)
-import Task
-import View exposing (View, imgLazy)
+import View exposing (imgLazy)
 
 
 type alias Model =
-    ()
+    {}
 
 
 type Msg
@@ -33,33 +44,37 @@ type alias RouteParams =
     {}
 
 
-page : PageWithState RouteParams Data Model Msg
-page =
-    Page.single
-        { head = head
-        , data = data
-        }
-        |> Page.buildWithSharedState
-            { view = view
-            , init = \_ _ _ -> ( (), Task.perform (\() -> InitiateLinkPreviewPopulation) (Task.succeed ()) )
-            , update = update
-            , subscriptions = \_ _ _ _ _ -> Sub.none
-            }
-
-
 type alias Data =
     { recentDailyTwilogs : Dict RataDie (List Twilog) }
 
 
-data : DataSource Data
+type alias ActionData =
+    {}
+
+
+route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
+route =
+    RouteBuilder.single
+        { head = head
+        , data = data
+        }
+        |> RouteBuilder.buildWithSharedState
+            { init = \_ _ -> ( {}, Effect.init InitiateLinkPreviewPopulation )
+            , update = update
+            , subscriptions = \_ _ _ _ -> Sub.none
+            , view = view
+            }
+
+
+data : BackendTask FatalError Data
 data =
     Shared.twilogArchives
-        |> DataSource.andThen
+        |> BackendTask.andThen
             (\archives ->
                 List.take daysToPeek archives
                     |> List.map .path
                     |> Shared.dailyTwilogsFromOldest
-                    |> DataSource.map Data
+                    |> BackendTask.map Data
             )
 
 
@@ -67,20 +82,28 @@ daysToPeek =
     5
 
 
+head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
+head _ =
+    Seo.summaryLarge
+        { seoBase
+            | title = Shared.makeTitle "Twilog"
+            , description = "2023年4月から作り始めた自作Twilog。Twitterを日記化している"
+        }
+        |> Seo.website
+
+
 update :
-    PageUrl
-    -> Maybe Browser.Navigation.Key
+    RouteBuilder.App Data {} RouteParams
     -> Shared.Model
-    -> StaticPayload Data RouteParams
     -> Msg
     -> Model
-    -> ( Model, Cmd Msg, Maybe Shared.Msg )
-update _ _ shared static msg model =
+    -> ( Model, Effect.Effect Msg, Maybe Shared.Msg )
+update app shared msg model =
     case msg of
         InitiateLinkPreviewPopulation ->
             ( model
-            , Cmd.none
-            , listUrlsForPreviewBulk shared static.data.recentDailyTwilogs
+            , Effect.none
+            , listUrlsForPreviewBulk shared app.data.recentDailyTwilogs
             )
 
 
@@ -149,29 +172,16 @@ listUrlsForPreviewFromReplies links replies =
     listUrlsForPreviewSingleHelp links (List.map (\(Reply twilog) -> twilog) replies)
 
 
-head :
-    StaticPayload Data RouteParams
-    -> List Head.Tag
-head _ =
-    Seo.summaryLarge
-        { seoBase
-            | title = Shared.makeTitle "Twilog"
-            , description = "2023年4月から作り始めた自作Twilog。Twitterを日記化している"
-        }
-        |> Seo.website
-
-
 view :
-    Maybe PageUrl
+    RouteBuilder.App Data ActionData RouteParams
     -> Shared.Model
     -> Model
-    -> StaticPayload Data RouteParams
-    -> View Msg
-view _ shared _ static =
+    -> View.View (PagesMsg.PagesMsg Msg)
+view app shared _ =
     { title = "Twilog"
     , body =
         [ h1 [] [ text "Twilog" ]
-        , div [] <| Markdown.render """
+        , div [] <| Markdown.parseAndRender Dict.empty """
 2023年に、Twitter APIの大幅値上げ（無料枠縮小）で[Twilogが新規データを記録できなくなる](https://twitter.com/ropross/status/1641353674046992385)ようなのだが、
 そのタイミングで遅ればせながらTwilogがどういうサービスか知り、Twitterを自動で日記化するという便利さに気づいたので自作し始めたページ。仕組み：
 
@@ -180,8 +190,8 @@ view _ shared _ static =
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（予定）
 """
         ]
-            ++ showRecentTwilogs shared static.data.recentDailyTwilogs
-            ++ [ linksByMonths Nothing static.sharedData.twilogArchives ]
+            ++ showRecentTwilogs shared app.data.recentDailyTwilogs
+            ++ [ linksByMonths Nothing app.sharedData.twilogArchives ]
     }
 
 
@@ -198,7 +208,7 @@ twilogDailySection shared rataDie twilogs =
             Date.fromRataDie rataDie
     in
     section []
-        [ h3 [] [ Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
+        [ h3 [] [ Route.link [] [ text (Date.format "yyyy/MM/dd (E)" date) ] <| Route.Twilogs__Day_ { day = Date.toIsoString date } ]
         , twilogsOfTheDay shared twilogs
         ]
 
@@ -430,7 +440,7 @@ autoLinkedMarkdown : String -> List (Html msg)
 autoLinkedMarkdown rawText =
     rawText
         -- Shorten remaining t.co URLs. Another URLs, if any, will be autolinked by Markdown.render
-        |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ String.dropLeft 8 match ++ "](" ++ match ++ ")")
+        |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ makeDisplayUrl match ++ "](" ++ match ++ ")")
         |> Regex.replace mentionRegex (\{ match } -> "[@" ++ String.dropLeft 1 match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
         |> (\tcoUrlsExpandedText ->
                 Regex.find hashtagRegex tcoUrlsExpandedText
@@ -453,7 +463,13 @@ autoLinkedMarkdown rawText =
                         )
                         tcoUrlsExpandedText
            )
-        |> Markdown.render
+        -- 最終的に、各種処理されたtweet由来のテキストをMarkdownとして解釈している。
+        -- Markdownリンクとして加工された文中のURLやハッシュタグをサクッとHtmlリンクにできる。
+        -- 副作用として、本来Markdownと意識されていないTweetがMarkdownとして描画されてしまう。
+        -- ここで`links : Dict String LinkPreview.Metadata`を引いてくればruntime link-previewもできるが、
+        -- Tweet表示ではinlineで表示するよりappendLinkPreviewsの方に含めたほうがいい。
+        -- TODO: そのうち「リンクだけをHTML化するrenderer」を用意して使い分けたほうがよりTweetらしくなるかも
+        |> Markdown.parseAndRender Dict.empty
 
 
 tcoUrlInTweetRegex : Regex
@@ -580,7 +596,7 @@ linksByMonths maybeOpenedDate twilogArchives =
                                                 li [ class "selected" ] [ text <| Date.format "yyyy/MM/dd (E)" date ]
 
                                             else
-                                                li [] [ Route.link (Route.Twilogs__Day_ { day = Date.toIsoString date }) [] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
+                                                li [] [ Route.link [] [ text (Date.format "yyyy/MM/dd (E)" date) ] <| Route.Twilogs__Day_ { day = Date.toIsoString date } ]
                                         )
                                         dates
                                         |> ul []
