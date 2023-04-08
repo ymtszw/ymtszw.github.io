@@ -1,22 +1,22 @@
-module Route.Articles exposing (ActionData, Data, Model, Msg, RouteParams, route)
+module Route.Articles exposing
+    ( ActionData
+    , Data
+    , Model
+    , Msg
+    , RouteParams
+    , cmsArticlePreview
+    , route
+    )
 
-{-| 
-@docs Model, Msg, RouteParams, route, Data, ActionData
--}
-
-
-import BackendTask
-import Effect
-import ErrorPage
-import FatalError
+import BackendTask exposing (BackendTask)
 import Head
-import Html
+import Head.Seo as Seo
+import Html exposing (div, h1, p, text)
+import Html.Attributes
 import PagesMsg
-import Path
+import Route
 import RouteBuilder
-import Server.Request
-import Server.Response
-import Shared
+import Shared exposing (seoBase)
 import View
 
 
@@ -24,48 +24,12 @@ type alias Model =
     {}
 
 
-type Msg
-    = NoOp
+type alias Msg =
+    ()
 
 
 type alias RouteParams =
     {}
-
-
-route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
-route =
-    RouteBuilder.serverRender { data = data, action = action, head = head }
-        |> RouteBuilder.buildWithLocalState
-            { view = view
-            , init = init
-            , update = update
-            , subscriptions = subscriptions
-            }
-
-
-init :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> ( Model, Effect.Effect Msg )
-init app shared =
-    ( {}, Effect.none )
-
-
-update :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> Msg
-    -> Model
-    -> ( Model, Effect.Effect Msg )
-update app shared msg model =
-    case msg of
-        NoOp ->
-            ( model, Effect.none )
-
-
-subscriptions : RouteParams -> Path.Path -> Shared.Model -> Model -> Sub Msg
-subscriptions routeParams path shared model =
-    Sub.none
 
 
 type alias Data =
@@ -76,29 +40,64 @@ type alias ActionData =
     {}
 
 
-data :
-    RouteParams
-    -> Server.Request.Parser (BackendTask.BackendTask FatalError.FatalError (Server.Response.Response Data ErrorPage.ErrorPage))
-data routeParams =
-    Server.Request.succeed (BackendTask.succeed (Server.Response.render {}))
+route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
+route =
+    RouteBuilder.single
+        { head = head
+        , data = data
+        }
+        |> RouteBuilder.buildNoState { view = view }
+
+
+data : BackendTask err Data
+data =
+    BackendTask.succeed {}
 
 
 head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
-head app =
-    []
+head _ =
+    Seo.summaryLarge
+        { seoBase
+            | title = Shared.makeTitle "記事"
+            , description = "（主に）技術記事たち。なんとなく、個人の活動に属する記事がこっちにあることが多い"
+        }
+        |> Seo.website
 
 
 view :
     RouteBuilder.App Data ActionData RouteParams
     -> Shared.Model
-    -> Model
     -> View.View (PagesMsg.PagesMsg Msg)
-view app shared model =
-    { title = "Articles", body = [ Html.h2 [] [ Html.text "New Page" ] ] }
+view app _ =
+    { title = "記事"
+    , body =
+        [ h1 [] [ text "記事", View.feedLink "/articles/feed.xml" ]
+        , p [] [ text "外部の技術記事プラットフォーム以外で書いた、自前CMSなどで管理している（主に）技術記事たち。なんとなく、個人の活動に属する記事がこっちにあることが多い。運用をやめた別ブログの記事やイベントの登壇資料なども良さげなのはサルベージしていく。" ]
+        , app.sharedData.cmsArticles
+            |> List.map cmsArticlePreview
+            |> div []
+        ]
+    }
 
 
-action :
-    RouteParams
-    -> Server.Request.Parser (BackendTask.BackendTask FatalError.FatalError (Server.Response.Response ActionData ErrorPage.ErrorPage))
-action routeParams =
-    Server.Request.succeed (BackendTask.succeed (Server.Response.render {}))
+cmsArticlePreview : Shared.CmsArticleMetadata -> Html.Html msg
+cmsArticlePreview meta =
+    Route.Articles__ArticleId_ { articleId = meta.contentId }
+        |> Route.link [ Html.Attributes.class "link-preview" ]
+            [ Html.blockquote [] <|
+                [ Html.table [] <|
+                    [ Html.tr [] <|
+                        [ Html.td [] <|
+                            [ Html.strong [] [ Html.text meta.title ]
+                            , Html.p [] [ Html.text ("[" ++ Shared.posixToYmd meta.publishedAt ++ "]") ]
+                            ]
+                        , case meta.image of
+                            Just cmsImage ->
+                                Html.td [] [ View.imgLazy [ Html.Attributes.src (cmsImage.url ++ "?h=150"), Html.Attributes.alt "Article Header Image", Html.Attributes.height 150 ] [] ]
+
+                            Nothing ->
+                                Html.text ""
+                        ]
+                    ]
+                ]
+            ]
