@@ -1,24 +1,35 @@
-module Route.Twilogs exposing (Model, Msg, RouteParams, route, Data, ActionData)
+module Route.Twilogs exposing
+    ( ActionData
+    , Data
+    , Model
+    , Msg
+    , RouteParams
+    , linksByMonths
+    , listUrlsForPreviewSingle
+    , route
+    , twilogDailySection
+    , twilogsOfTheDay
+    )
 
-{-|
-
-@docs Model, Msg, RouteParams, route, Data, ActionData
-
--}
-
-import BackendTask
+import BackendTask exposing (BackendTask)
+import Date exposing (Date)
+import Dict exposing (Dict)
 import Effect
-import ErrorPage
-import FatalError
+import FatalError exposing (FatalError)
 import Head
-import Html
+import Head.Seo as Seo
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Keyed
+import LinkPreview
+import List.Extra
+import Markdown
 import PagesMsg
-import Path
+import Regex exposing (Regex)
+import Route
 import RouteBuilder
-import Server.Request
-import Server.Response
-import Shared
-import View
+import Shared exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..), seoBase)
+import View exposing (imgLazy)
 
 
 type alias Model =
@@ -26,67 +37,139 @@ type alias Model =
 
 
 type Msg
-    = NoOp
+    = InitiateLinkPreviewPopulation
 
 
 type alias RouteParams =
     {}
 
 
-route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
-route =
-    RouteBuilder.serverRender { data = data, action = action, head = head }
-        |> RouteBuilder.buildWithLocalState
-            { view = view
-            , init = init
-            , update = update
-            , subscriptions = subscriptions
-            }
-
-
-init :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> ( Model, Effect.Effect Msg )
-init app shared =
-    ( {}, Effect.none )
-
-
-update :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> Msg
-    -> Model
-    -> ( Model, Effect.Effect Msg )
-update app shared msg model =
-    case msg of
-        NoOp ->
-            ( model, Effect.none )
-
-
-subscriptions : RouteParams -> Path.Path -> Shared.Model -> Model -> Sub Msg
-subscriptions routeParams path shared model =
-    Sub.none
-
-
 type alias Data =
-    {}
+    { recentDailyTwilogs : Dict RataDie (List Twilog) }
 
 
 type alias ActionData =
     {}
 
 
-data :
-    RouteParams
-    -> Server.Request.Parser (BackendTask.BackendTask FatalError.FatalError (Server.Response.Response Data ErrorPage.ErrorPage))
-data routeParams =
-    Server.Request.succeed (BackendTask.succeed (Server.Response.render {}))
+route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
+route =
+    RouteBuilder.single
+        { head = head
+        , data = data
+        }
+        |> RouteBuilder.buildWithSharedState
+            { init = \_ _ -> ( {}, Effect.init InitiateLinkPreviewPopulation )
+            , update = update
+            , subscriptions = \_ _ _ _ -> Sub.none
+            , view = view
+            }
+
+
+data : BackendTask FatalError Data
+data =
+    Shared.twilogArchives
+        |> BackendTask.andThen
+            (\archives ->
+                List.take daysToPeek archives
+                    |> List.map .path
+                    |> Shared.dailyTwilogsFromOldest
+                    |> BackendTask.map Data
+            )
+
+
+daysToPeek =
+    5
 
 
 head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
-head app =
-    []
+head _ =
+    Seo.summaryLarge
+        { seoBase
+            | title = Shared.makeTitle "Twilog"
+            , description = "2023年4月から作り始めた自作Twilog。Twitterを日記化している"
+        }
+        |> Seo.website
+
+
+update :
+    RouteBuilder.App Data {} RouteParams
+    -> Shared.Model
+    -> Msg
+    -> Model
+    -> ( Model, Effect.Effect Msg, Maybe Shared.Msg )
+update app shared msg model =
+    case msg of
+        InitiateLinkPreviewPopulation ->
+            ( model
+            , Effect.none
+            , listUrlsForPreviewBulk shared app.data.recentDailyTwilogs
+            )
+
+
+listUrlsForPreviewBulk : Shared.Model -> Dict RataDie (List Twilog) -> Maybe Shared.Msg
+listUrlsForPreviewBulk { links } recentDailyTwilogs =
+    case listUrlsForPreviewBulkHelp links recentDailyTwilogs of
+        [] ->
+            Nothing
+
+        urls ->
+            Just (Shared.SharedMsg (Shared.Req_LinkPreview urls))
+
+
+listUrlsForPreviewBulkHelp : Dict String LinkPreview.Metadata -> Dict RataDie (List Twilog) -> List String
+listUrlsForPreviewBulkHelp links recentDailyTwilogsFromOldest =
+    Dict.values recentDailyTwilogsFromOldest
+        |> List.concat
+        -- Make it newest first
+        |> List.reverse
+        |> listUrlsForPreviewSingleHelp links
+        |> List.Extra.unique
+
+
+listUrlsForPreviewSingle : Shared.Model -> List Twilog -> Maybe Shared.Msg
+listUrlsForPreviewSingle { links } twilogs =
+    case listUrlsForPreviewSingleHelp links twilogs of
+        [] ->
+            Nothing
+
+        urls ->
+            Just (Shared.SharedMsg (Shared.Req_LinkPreview urls))
+
+
+listUrlsForPreviewSingleHelp : Dict String LinkPreview.Metadata -> List Twilog -> List String
+listUrlsForPreviewSingleHelp links twilogs =
+    twilogs
+        |> List.concatMap
+            (\twilog ->
+                let
+                    urlsFromReplies =
+                        listUrlsForPreviewFromReplies links twilog.replies
+                in
+                -- TODO: Also list t.co URLs from twilog.text and twilog.retweet.fullText, if they do not have corresponding expandedUrls
+                (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
+                    |> List.filterMap
+                        (\tcoUrl ->
+                            -- list not-yet previewed URLs
+                            case Dict.get tcoUrl.expandedUrl links of
+                                Just _ ->
+                                    Nothing
+
+                                Nothing ->
+                                    -- Do not list twitter-internal URLs since they are likely quote/reply permalinks
+                                    if String.startsWith "https://twitter.com" tcoUrl.expandedUrl then
+                                        Nothing
+
+                                    else
+                                        Just tcoUrl.expandedUrl
+                        )
+                    |> List.append urlsFromReplies
+            )
+        |> List.Extra.unique
+
+
+listUrlsForPreviewFromReplies links replies =
+    listUrlsForPreviewSingleHelp links (List.map (\(Reply twilog) -> twilog) replies)
 
 
 view :
@@ -94,12 +177,446 @@ view :
     -> Shared.Model
     -> Model
     -> View.View (PagesMsg.PagesMsg Msg)
-view app shared model =
-    { title = "Twilogs", body = [ Html.h2 [] [ Html.text "New Page" ] ] }
+view app shared _ =
+    { title = "Twilog"
+    , body =
+        [ h1 [] [ text "Twilog" ]
+        , div [] <| Markdown.parseAndRender Dict.empty """
+2023年に、Twitter APIの大幅値上げ（無料枠縮小）で[Twilogが新規データを記録できなくなる](https://twitter.com/ropross/status/1641353674046992385)ようなのだが、
+そのタイミングで遅ればせながらTwilogがどういうサービスか知り、Twitterを自動で日記化するという便利さに気づいたので自作し始めたページ。仕組み：
+
+- Zapierを起点としてうまいことTweetを継続的に蓄積
+- それを自前でTwilogっぽくwebページ化（サイトはデイリービルド）
+- Twitter公式機能で取得したアーカイブから過去ページも追って作成（予定）
+"""
+        ]
+            ++ showRecentTwilogs shared app.data.recentDailyTwilogs
+            ++ [ linksByMonths Nothing app.sharedData.twilogArchives ]
+    }
 
 
-action :
-    RouteParams
-    -> Server.Request.Parser (BackendTask.BackendTask FatalError.FatalError (Server.Response.Response ActionData ErrorPage.ErrorPage))
-action routeParams =
-    Server.Request.succeed (BackendTask.succeed (Server.Response.render {}))
+showRecentTwilogs : Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
+showRecentTwilogs shared recentDailyTwilogs =
+    -- foldl to traverse from the oldest
+    Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared rataDie twilogs :: acc) [] recentDailyTwilogs
+
+
+twilogDailySection : Shared.Model -> RataDie -> List Twilog -> Html msg
+twilogDailySection shared rataDie twilogs =
+    let
+        date =
+            Date.fromRataDie rataDie
+    in
+    section []
+        [ h3 [] [ Route.link [] [ text (Date.format "yyyy/MM/dd (E)" date) ] <| Route.Twilogs__Day_ { day = Date.toIsoString date } ]
+        , twilogsOfTheDay shared twilogs
+        ]
+
+
+twilogsOfTheDay : Shared.Model -> List Twilog -> Html msg
+twilogsOfTheDay shared twilogs =
+    twilogs
+        -- Order reversed in index page; newest first
+        |> List.reverse
+        |> List.map (threadAwareTwilogs shared.links)
+        |> Html.Keyed.node "div" []
+
+
+threadAwareTwilogs : Dict String LinkPreview.Metadata -> Twilog -> ( String, Html msg )
+threadAwareTwilogs links twilog =
+    Tuple.pair twilog.idStr <|
+        case twilog.replies of
+            [] ->
+                aTwilog links twilog
+
+            threads ->
+                let
+                    recursivelyRenderThreadedTwilogs (Reply twilogInThread) =
+                        [ div [ class "reply" ] <|
+                            case twilogInThread.replies of
+                                [] ->
+                                    [ aTwilog links twilogInThread ]
+
+                                more ->
+                                    aTwilog links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
+                        ]
+                in
+                div [ class "thread" ] <| aTwilog links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
+
+
+aTwilog : Dict String LinkPreview.Metadata -> Twilog -> Html msg
+aTwilog links twilog =
+    div [ class "tweet" ] <|
+        List.append (twilogData twilog) <|
+            case twilog.retweet of
+                Just retweet ->
+                    [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]
+                    , a [ target "_blank", href (statusLink retweet) ]
+                        [ header []
+                            [ imgLazy [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
+                            , strong [] [ text retweet.userName ]
+                            ]
+                        ]
+                    , retweet.fullText
+                        |> removeQuoteUrl retweet.quote
+                        |> removeMediaUrls retweet.extendedEntitiesMedia
+                        |> removeMediaUrls twilog.extendedEntitiesMedia
+                        |> replaceTcoUrls retweet.entitiesTcoUrl
+                        |> replaceTcoUrls twilog.entitiesTcoUrl
+                        |> autoLinkedMarkdown
+                        |> (case retweet.extendedEntitiesMedia of
+                                [] ->
+                                    appendMediaGrid twilog
+
+                                _ ->
+                                    appendMediaGrid retweet
+                           )
+                        |> appendQuote retweet.quote
+                        -- Only show link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
+                        |> appendLinkPreviews links retweet.entitiesTcoUrl
+                        |> div [ class "body" ]
+                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
+                    ]
+
+                Nothing ->
+                    let
+                        ( replyHeader, bodyText ) =
+                            case twilog.inReplyTo of
+                                -- メモ: ここでは他人へのリプライ（メンション）または日をまたいだセルフリプライのみが対象となる。
+                                -- 同日中のセルフリプライツリーはShared.resolveRepliesWithinDayAndSortFromOldestでrepliesに格納し、
+                                -- inReplyToをNothingに解決しているので対象とならない。
+                                Just inReplyTo ->
+                                    case ( String.startsWith "@" twilog.text, String.split " " twilog.text ) of
+                                        ( True, mention :: rest ) ->
+                                            ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text ("Replying to " ++ mention) ]
+                                            , String.join " " rest
+                                            )
+
+                                        _ ->
+                                            ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text (twilog.userName ++ " replied:") ]
+                                            , twilog.text
+                                            )
+
+                                Nothing ->
+                                    ( text "", twilog.text )
+                    in
+                    [ replyHeader
+                    , a [ target "_blank", href (statusLink twilog) ]
+                        [ header []
+                            [ imgLazy [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
+                            , strong [] [ text twilog.userName ]
+                            ]
+                        ]
+                    , bodyText
+                        |> removeQuoteUrl twilog.quote
+                        |> removeMediaUrls twilog.extendedEntitiesMedia
+                        |> replaceTcoUrls twilog.entitiesTcoUrl
+                        |> autoLinkedMarkdown
+                        |> appendMediaGrid twilog
+                        |> appendQuote twilog.quote
+                        |> appendLinkPreviews links twilog.entitiesTcoUrl
+                        |> div [ class "body" ]
+                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
+                    ]
+
+
+statusLink : { a | id : TwitterStatusId } -> String
+statusLink { id } =
+    let
+        (TwitterStatusId idStr) =
+            id
+    in
+    "https://twitter.com/_/status/" ++ idStr
+
+
+removeQuoteUrl : Maybe Quote -> String -> String
+removeQuoteUrl maybeQuote rawText =
+    case maybeQuote of
+        Just quote ->
+            String.replace quote.permalinkUrl "" rawText
+
+        Nothing ->
+            rawText
+
+
+removeMediaUrls : List Media -> String -> String
+removeMediaUrls media rawText =
+    List.foldl (\{ url } -> String.replace url "") rawText media
+
+
+replaceTcoUrls : List TcoUrl -> String -> String
+replaceTcoUrls tcoUrls rawText =
+    List.foldl
+        (\{ url, expandedUrl } acc ->
+            if Regex.contains tcoUrlInTweetRegex expandedUrl then
+                -- NoOp, since if the url is expanded to another t.co URL, it will be caught again in autoLinkedMarkdown.
+                acc
+
+            else
+                String.replace url ("[" ++ makeDisplayUrl expandedUrl ++ "](" ++ expandedUrl ++ ")") acc
+        )
+        rawText
+        tcoUrls
+
+
+makeDisplayUrl : String -> String
+makeDisplayUrl rawUrl =
+    if String.length rawUrl > 40 then
+        (rawUrl
+            |> String.left 40
+            |> String.replace "https://" ""
+            |> String.replace "http://" ""
+        )
+            ++ "..."
+
+    else
+        rawUrl
+            |> String.replace "https://" ""
+            |> String.replace "http://" ""
+
+
+appendQuote : Maybe Quote -> List (Html msg) -> List (Html msg)
+appendQuote maybeQuote htmls =
+    case maybeQuote of
+        Just quote ->
+            htmls
+                ++ [ div [ class "tweet" ]
+                        [ a [ target "_blank", href (statusLink quote) ]
+                            [ header []
+                                [ imgLazy [ alt ("Avatar of " ++ quote.userName), src quote.userProfileImageUrl ] []
+                                , strong [] [ text quote.userName ]
+                                ]
+                            ]
+                        , div [ class "body" ] (autoLinkedMarkdown quote.fullText)
+                        ]
+                   ]
+
+        Nothing ->
+            htmls
+
+
+appendLinkPreviews : Dict String LinkPreview.Metadata -> List TcoUrl -> List (Html msg) -> List (Html msg)
+appendLinkPreviews links entitiesTcoUrl htmls =
+    let
+        linkPreviews =
+            entitiesTcoUrl
+                |> List.Extra.uniqueBy .expandedUrl
+                |> List.filterMap (\{ expandedUrl } -> Dict.get expandedUrl links)
+    in
+    if List.isEmpty linkPreviews then
+        htmls
+
+    else
+        htmls
+            ++ [ div [ class "link-previews" ]
+                    (List.map
+                        (\{ title, description, imageUrl, canonicalUrl } ->
+                            a [ target "_blank", href canonicalUrl ]
+                                [ div [ class "link-preview" ]
+                                    [ case imageUrl of
+                                        Just imageUrl_ ->
+                                            imgLazy [ src imageUrl_ ] []
+
+                                        Nothing ->
+                                            text ""
+                                    , div []
+                                        [ header [] [ strong [] [ text title ] ]
+                                        , case description of
+                                            Just description_ ->
+                                                p [] [ text description_ ]
+
+                                            Nothing ->
+                                                text ""
+                                        ]
+                                    ]
+                                ]
+                        )
+                        linkPreviews
+                    )
+               ]
+
+
+autoLinkedMarkdown : String -> List (Html msg)
+autoLinkedMarkdown rawText =
+    rawText
+        -- Shorten remaining t.co URLs. Another URLs, if any, will be autolinked by Markdown.render
+        |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ String.dropLeft 8 match ++ "](" ++ match ++ ")")
+        |> Regex.replace mentionRegex (\{ match } -> "[@" ++ String.dropLeft 1 match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
+        |> (\tcoUrlsExpandedText ->
+                Regex.find hashtagRegex tcoUrlsExpandedText
+                    |> List.foldl
+                        (\{ match } accText ->
+                            let
+                                -- hashtagっぽいmatchが、Markdownリンクの内部にないことを確認する
+                                -- これがないと、`[#foo](https://example.com)`や`[foo](https://example.com#foo)`のようなすでにここまでで整形されたテキストに含まれるhashtagらしき文字列が、
+                                -- `[[#foo](https://example.com)](https://twitter.com/hashtag/foo)`と二重にリンク化されてしまう
+                                hashInMarkdownLinkPattern =
+                                    Maybe.withDefault Regex.never (Regex.fromString ("(\\[[^\\]]*?" ++ match ++ "[^\\]]*?\\]\\(|\\]\\([^\\]]*?" ++ match ++ "[^\\]]*?\\))"))
+                            in
+                            -- 同じhashtagが複数Regex.findでマッチし、foldで同じ内容の`match`がマッチした分繰り返し評価されるパターンについてもここでスルーできる
+                            -- String.replaceは最初の評価時に一発でaccText内の同じmatchをすべて置換してしまうため、結果として求める形が得られる
+                            if Regex.contains hashInMarkdownLinkPattern accText then
+                                accText
+
+                            else
+                                String.replace match ("[#" ++ String.dropLeft 1 match ++ "](https://twitter.com/hashtag/" ++ String.dropLeft 1 match ++ ")") accText
+                        )
+                        tcoUrlsExpandedText
+           )
+        -- 最終的に、各種処理されたtweet由来のテキストをMarkdownとして解釈している。
+        -- Markdownリンクとして加工された文中のURLやハッシュタグをサクッとHtmlリンクにできる。
+        -- 副作用として、本来Markdownと意識されていないTweetがMarkdownとして描画されてしまう。
+        -- ここで`links : Dict String LinkPreview.Metadata`を引いてくればruntime link-previewもできるが、
+        -- Tweet表示ではinlineで表示するよりappendLinkPreviewsの方に含めたほうがいい。
+        -- TODO: そのうち「リンクだけをHTML化するrenderer」を用意して使い分けたほうがよりTweetらしくなるかも
+        |> Markdown.parseAndRender Dict.empty
+
+
+tcoUrlInTweetRegex : Regex
+tcoUrlInTweetRegex =
+    Maybe.withDefault Regex.never (Regex.fromString "https?://t.co/[a-zA-Z0-9]+")
+
+
+mentionRegex : Regex
+mentionRegex =
+    -- 厳密にはURLはカンマを含むことができるので、`https://...,@mention`のようなURLがあると誤認識する。が、制限事項とする
+    -- 少なくともauthority partに@を含む認証可能URL（URL内に@を含むパターンとして第一にありがちなやつ）などはカンマが先行しないはず
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)@[a-zA-Z0-9_]+")
+
+
+hashtagRegex : Regex
+hashtagRegex =
+    -- 厳密にはURLはカンマを含むことができるので、`https://...?foo,bar,#hashtag`のようなURLがあると誤認識する。が、制限事項とする
+    -- このRegexはdeny-list方式で、hashtagに使用できない文字列をひたすら列挙している。ASCII記号としては`_`以外すべての記号を除外。
+    -- その他、Unicodeの記号系文字列も可能な範囲で弾いている
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)(#|＃)[^\\s!-/:-@\\[-\\^`{-~＠＃「」（）…]+")
+
+
+appendMediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
+appendMediaGrid status htmls =
+    case status.extendedEntitiesMedia of
+        [] ->
+            htmls
+
+        nonEmpty ->
+            let
+                -- Show media based on type: "photo" | "video" | "animated_gif"
+                aMedia media =
+                    case media.type_ of
+                        "photo" ->
+                            a [ target "_blank", href media.expandedUrl ] [ imgLazy [ src media.sourceUrl ] [] ]
+
+                        "video" ->
+                            -- Looks like expanded_url is a thumbnail in simple Media object
+                            a [ target "_blank", href media.expandedUrl ] [ figure [ class "video-thumbnail" ] [ imgLazy [ src media.sourceUrl ] [] ] ]
+
+                        "animated_gif" ->
+                            a [ target "_blank", href media.expandedUrl ] [ imgLazy [ src media.sourceUrl ] [] ]
+
+                        _ ->
+                            text ""
+            in
+            htmls ++ [ div [ class "media-grid" ] <| List.map aMedia nonEmpty ]
+
+
+linksByMonths : Maybe Date -> List Shared.TwilogArchiveMetadata -> Html msg
+linksByMonths maybeOpenedDate twilogArchives =
+    let
+        datesGroupedByYearMonthFromNewest =
+            twilogArchives
+                -- Traverse from oldest
+                |> List.foldr
+                    (\{ date } acc ->
+                        Dict.update (Date.year date)
+                            (\maybeMonths ->
+                                case maybeMonths of
+                                    Nothing ->
+                                        Just (Dict.singleton (Date.monthNumber date) [ date ])
+
+                                    Just months ->
+                                        Just
+                                            (Dict.update (Date.monthNumber date)
+                                                (\maybeDates ->
+                                                    case maybeDates of
+                                                        Nothing ->
+                                                            Just [ date ]
+
+                                                        Just dates ->
+                                                            -- Cons from oldest to newest
+                                                            Just (date :: dates)
+                                                )
+                                                months
+                                            )
+                            )
+                            acc
+                    )
+                    Dict.empty
+                -- Here Dict -> List conversion makes the resulting list oldest-first
+                |> Dict.map (\_ v -> v |> Dict.toList |> List.reverse)
+                |> Dict.toList
+                |> List.reverse
+
+        ( openedYear, openedMonth ) =
+            case maybeOpenedDate of
+                Nothing ->
+                    case datesGroupedByYearMonthFromNewest of
+                        ( year, ( month, _ ) :: _ ) :: _ ->
+                            ( year, month )
+
+                        _ ->
+                            ( 2023, 4 )
+
+                Just date ->
+                    ( Date.year date, Date.monthNumber date )
+    in
+    datesGroupedByYearMonthFromNewest
+        |> List.map
+            (\( year, months ) ->
+                details
+                    [ if year == openedYear then
+                        attribute "open" ""
+
+                      else
+                        classList []
+                    ]
+                    (summary [] [ text (String.fromInt year ++ "年") ]
+                        :: List.map
+                            (\( monthNum, dates ) ->
+                                details
+                                    [ if ( year, monthNum ) == ( openedYear, openedMonth ) then
+                                        attribute "open" ""
+
+                                      else
+                                        classList []
+                                    ]
+                                    [ summary [] [ text (String.fromInt monthNum ++ "月") ]
+                                    , List.map
+                                        (\date ->
+                                            if Just date == maybeOpenedDate then
+                                                li [ class "selected" ] [ text <| Date.format "yyyy/MM/dd (E)" date ]
+
+                                            else
+                                                li [] [ Route.link [] [ text (Date.format "yyyy/MM/dd (E)" date) ] <| Route.Twilogs__Day_ { day = Date.toIsoString date } ]
+                                        )
+                                        dates
+                                        |> ul []
+                                    ]
+                            )
+                            months
+                    )
+            )
+        |> nav [ class "twilog-archive-navigation" ]
+
+
+
+-----------------
+-- TWILOG RAW DATA
+-----------------
+
+
+twilogData : Twilog -> List (Html msg)
+twilogData twilog =
+    -- Show switch that toggles styled twilog or twilog raw data
+    [ input [ type_ "checkbox" ] []
+    , pre [ class "twilog-data" ] [ text (Shared.dumpTwilog twilog) ]
+    ]
