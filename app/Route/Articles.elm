@@ -9,6 +9,7 @@ module Route.Articles exposing
     )
 
 import BackendTask exposing (BackendTask)
+import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html exposing (div, h1, p, text)
@@ -16,7 +17,7 @@ import Html.Attributes
 import PagesMsg
 import Route
 import RouteBuilder
-import Shared exposing (seoBase)
+import Shared exposing (CmsArticleMetadata, seoBase)
 import View
 
 
@@ -33,7 +34,8 @@ type alias RouteParams =
 
 
 type alias Data =
-    {}
+    { cmsArticles : List CmsArticleMetadata
+    }
 
 
 type alias ActionData =
@@ -49,9 +51,9 @@ route =
         |> RouteBuilder.buildNoState { view = view }
 
 
-data : BackendTask err Data
+data : BackendTask FatalError Data
 data =
-    BackendTask.succeed {}
+    BackendTask.map Data Shared.publicCmsArticles
 
 
 head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
@@ -73,7 +75,7 @@ view app _ =
     , body =
         [ h1 [] [ text "記事", View.feedLink "/articles/feed.xml" ]
         , p [] [ text "外部の技術記事プラットフォーム以外で書いた、自前CMSなどで管理している（主に）技術記事たち。なんとなく、個人の活動に属する記事がこっちにあることが多い。運用をやめた別ブログの記事やイベントの登壇資料なども良さげなのはサルベージしていく。" ]
-        , app.sharedData.cmsArticles
+        , app.data.cmsArticles
             |> List.map cmsArticlePreview
             |> div []
         ]

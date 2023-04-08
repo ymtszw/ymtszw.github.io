@@ -440,7 +440,7 @@ autoLinkedMarkdown : String -> List (Html msg)
 autoLinkedMarkdown rawText =
     rawText
         -- Shorten remaining t.co URLs. Another URLs, if any, will be autolinked by Markdown.render
-        |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ String.dropLeft 8 match ++ "](" ++ match ++ ")")
+        |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ makeDisplayUrl match ++ "](" ++ match ++ ")")
         |> Regex.replace mentionRegex (\{ match } -> "[@" ++ String.dropLeft 1 match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
         |> (\tcoUrlsExpandedText ->
                 Regex.find hashtagRegex tcoUrlsExpandedText

@@ -27,7 +27,6 @@ module Shared exposing
     , ogpHeaderImageUrl
     , posixToYmd
     , publicCmsArticles
-    , publicOriginalRepos
     , seoBase
     , template
     , twilogArchives
@@ -90,11 +89,7 @@ type Msg
 
 
 type alias Data =
-    { repos : List String
-    , cmsArticles : List CmsArticleMetadata
-    , zennArticles : List ZennArticleMetadata
-    , qiitaArticles : List QiitaArticleMetadata
-    , twilogArchives : List TwilogArchiveMetadata
+    { twilogArchives : List TwilogArchiveMetadata
     }
 
 
@@ -108,26 +103,6 @@ type alias CmsArticleMetadata =
     , revisedAt : Time.Posix
     , title : String
     , image : Maybe CmsImage
-    }
-
-
-type alias ZennArticleMetadata =
-    { url : String
-    , bodyUpdatedAt : Time.Posix
-    , publishedAt : Time.Posix
-    , title : String
-    , likedCount : Int
-    , articleType : String
-    }
-
-
-type alias QiitaArticleMetadata =
-    { url : String
-    , createdAt : Time.Posix
-    , updatedAt : Time.Posix
-    , title : String
-    , likesCount : Int
-    , tags : List String
     }
 
 
@@ -213,12 +188,7 @@ subscriptions _ _ =
 
 data : BackendTask FatalError Data
 data =
-    BackendTask.map5 Data
-        publicOriginalRepos
-        publicCmsArticles
-        publicZennArticles
-        publicQiitaArticles
-        twilogArchives
+    BackendTask.map Data twilogArchives
 
 
 githubGet : String -> Json.Decode.Decoder a -> BackendTask FatalError a
@@ -238,26 +208,6 @@ githubGet url decoder =
                     (BackendTask.Http.expectJson decoder)
                     |> BackendTask.allowFatal
             )
-
-
-publicOriginalRepos =
-    githubGet "https://api.github.com/users/ymtszw/repos?per_page=100&direction=desc&sort=created"
-        (Json.Decode.list
-            (Json.Decode.map2 Tuple.pair
-                (Json.Decode.field "fork" (Json.Decode.map not Json.Decode.bool))
-                (Json.Decode.field "name" Json.Decode.string)
-            )
-            |> Json.Decode.map
-                (List.filterMap
-                    (\( fork, name ) ->
-                        if fork then
-                            Just name
-
-                        else
-                            Nothing
-                    )
-                )
-        )
 
 
 cmsGet url decoder =
@@ -304,44 +254,6 @@ cmsImageDecoder =
 iso8601Decoder : Json.Decode.Decoder Time.Posix
 iso8601Decoder =
     Json.Decode.andThen (Iso8601.toTime >> Result.mapError Markdown.deadEndsToString >> Json.Decode.Extra.fromResult) Json.Decode.string
-
-
-publicZennArticles =
-    let
-        baseUrl =
-            "https://zenn.dev/ymtszw/articles/"
-
-        articleMetadataDecoder =
-            Json.Decode.succeed ZennArticleMetadata
-                |> Json.Decode.Extra.andMap (Json.Decode.field "slug" (Json.Decode.map ((++) baseUrl) Json.Decode.string))
-                |> Json.Decode.Extra.andMap
-                    (Json.Decode.oneOf
-                        [ Json.Decode.field "body_updated_at" iso8601Decoder
-                        , Json.Decode.field "published_at" iso8601Decoder
-                        ]
-                    )
-                |> Json.Decode.Extra.andMap (Json.Decode.field "published_at" iso8601Decoder)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "title" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "liked_count" Json.Decode.int)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "article_type" Json.Decode.string)
-    in
-    cmsGet "https://zenn.dev/api/articles?username=ymtszw&count=500&order=latest"
-        (Json.Decode.field "articles" (Json.Decode.list articleMetadataDecoder))
-
-
-publicQiitaArticles =
-    let
-        articleMetadataDecoder =
-            Json.Decode.succeed QiitaArticleMetadata
-                |> Json.Decode.Extra.andMap (Json.Decode.field "url" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "created_at" iso8601Decoder)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "updated_at" iso8601Decoder)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "title" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "likes_count" Json.Decode.int)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "tags" (Json.Decode.list (Json.Decode.field "name" Json.Decode.string)))
-    in
-    cmsGet "https://qiita.com/api/v2/users/ymtszw/items?per_page=100"
-        (Json.Decode.list articleMetadataDecoder)
 
 
 type alias Twilog =
@@ -748,7 +660,7 @@ view :
     -> (Msg -> msg)
     -> View msg
     -> { body : List (Html msg), title : String }
-view sharedData page _ _ pageView =
+view _ page _ _ pageView =
     { title = makeTitle pageView.title
     , body =
         [ Html.header []
@@ -766,10 +678,8 @@ view sharedData page _ _ pageView =
                                         Route.Articles ->
                                             [ Html.text "記事" ]
 
-                                        Route.Articles__ArticleId_ { articleId } ->
-                                            [ Route.link [] [ Html.text "記事" ] Route.Articles
-                                            , Html.text (cmsArticleShortTitle articleId sharedData.cmsArticles)
-                                            ]
+                                        Route.Articles__ArticleId_ _ ->
+                                            [ Route.link [] [ Html.text "記事" ] Route.Articles ]
 
                                         Route.Articles__Draft ->
                                             [ Html.text "記事（下書き）" ]
