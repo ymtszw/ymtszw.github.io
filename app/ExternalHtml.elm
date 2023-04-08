@@ -1,26 +1,35 @@
-module ExternalHtml exposing (decoder, extractInlineTextFromHtml)
+module ExternalHtml exposing
+    ( decoder
+    , extractInlineTextFromHtml
+    , render
+    )
 
 import Dict exposing (Dict)
+import Html exposing (Html)
 import Html.Parser exposing (Node(..))
 import Html.Parser.Util
 import Json.Decode
 import LinkPreview
 import Markdown
+import View exposing (HtmlOrMarkdown(..))
 
 
-decoder : String -> Json.Decode.Decoder (Markdown.DecodedBody msg)
-decoder input =
-    case Html.Parser.run input of
-        Ok nodes ->
-            Json.Decode.succeed
-                { html = Html.Parser.Util.toVirtualDom nodes
-                , excerpt = extractInlineTextFromHtml nodes
-                , links = enumerateLinks nodes
-                , htmlWithLinkPreview = \conf links -> transformWithLinkMetadata conf nodes links |> Html.Parser.Util.toVirtualDom
-                }
+decoder : Json.Decode.Decoder View.ExternalView
+decoder =
+    Json.Decode.string
+        |> Json.Decode.andThen
+            (\input ->
+                case Html.Parser.run input of
+                    Ok nodes ->
+                        Json.Decode.succeed
+                            { parsed = Html nodes
+                            , excerpt = extractInlineTextFromHtml nodes
+                            , links = enumerateLinks nodes
+                            }
 
-        Err e ->
-            Json.Decode.fail (Markdown.deadEndsToString e)
+                    Err e ->
+                        Json.Decode.fail (Markdown.deadEndsToString e)
+            )
 
 
 extractInlineTextFromHtml : List Node -> String
@@ -101,8 +110,15 @@ splitParagraphByBr pElem acc =
             [ [ notBr ] ]
 
 
-transformWithLinkMetadata : { draft : Bool } -> List Node -> Dict String LinkPreview.Metadata -> List Node
-transformWithLinkMetadata { draft } nodes links =
+render : Dict String LinkPreview.Metadata -> List Node -> List (Html msg)
+render links nodes =
+    nodes
+        |> transformWithLinkMetadata links
+        |> Html.Parser.Util.toVirtualDom
+
+
+transformWithLinkMetadata : Dict String LinkPreview.Metadata -> List Node -> List Node
+transformWithLinkMetadata links nodes =
     List.map
         (\node ->
             case node of
@@ -113,15 +129,9 @@ transformWithLinkMetadata { draft } nodes links =
                             (\lineInParagraph ->
                                 case lineInParagraph of
                                     [ Element "a" ((( "href", bareUrl ) :: _) as linkAttrs) [ Text linkText ] ] ->
-                                        case ( bareUrl == linkText, Dict.get bareUrl links, draft ) of
-                                            ( True, Just metadata, _ ) ->
-                                                [ Element "br" [] [] -- Vertical balancing newline
-                                                , Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview metadata ]
-                                                ]
-
-                                            ( True, Nothing, True ) ->
-                                                [ Element "br" [] [] -- Vertical balancing newline
-                                                , Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview (LinkPreview.previewMetadata bareUrl) ]
+                                        case ( bareUrl == linkText, Dict.get bareUrl links ) of
+                                            ( True, Just metadata ) ->
+                                                [ Element "a" (( "class", "link-preview" ) :: linkAttrs) [ linkPreview metadata ]
                                                 ]
 
                                             _ ->
