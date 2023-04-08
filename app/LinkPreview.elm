@@ -51,11 +51,13 @@ linkPreviewDescription =
     """... Descrption is loading (may fail. If failed, it will be omitted on published build.) ..."""
 
 
+collectMetadataOnBuild : List String -> BackendTask FatalError (Dict String Metadata)
 collectMetadataOnBuild links =
     links
         |> List.map getMetadataOnBuild
         |> BackendTask.combine
         |> BackendTask.map Dict.fromList
+        |> BackendTask.allowFatal
 
 
 getMetadataOnBuild url =

@@ -41,7 +41,6 @@ import BackendTask.File
 import BackendTask.Glob
 import BackendTask.Http
 import Base64
-import Browser.Navigation
 import Date
 import Dict exposing (Dict)
 import Effect exposing (Effect)
@@ -54,6 +53,8 @@ import Iso8601
 import Json.Decode
 import Json.Decode.Extra
 import Json.Encode
+import LanguageTag.Country
+import LanguageTag.Language
 import LinkPreview
 import List.Extra
 import Markdown
@@ -263,12 +264,12 @@ publicOriginalRepos =
 getGitHubRepoReadme repo =
     githubGet ("https://api.github.com/repos/ymtszw/" ++ repo ++ "/contents/README.md")
         (Json.Decode.oneOf
-            [ Json.Decode.field "content" Json.Decode.string
+            [ Json.Decode.field "message" Markdown.decoder
+            , Json.Decode.field "content" Json.Decode.string
                 |> Json.Decode.map (String.replace "\n" "")
                 |> Json.Decode.andThen (Base64.toString >> Result.fromMaybe "Base64 Error!" >> Json.Decode.Extra.fromResult)
-            , Json.Decode.field "message" Json.Decode.string
+                |> Json.Decode.andThen (Json.Decode.decodeString Markdown.decoder >> Result.mapError Json.Decode.errorToString >> Json.Decode.Extra.fromResult)
             ]
-            |> Json.Decode.andThen Markdown.decoder
         )
 
 
@@ -433,6 +434,7 @@ type alias TwilogArchiveMetadata =
     }
 
 
+twilogArchives : BackendTask FatalError (List TwilogArchiveMetadata)
 twilogArchives =
     BackendTask.Glob.succeed makeTwilogArchiveMetadata
         |> BackendTask.Glob.match (BackendTask.Glob.literal "data/")
@@ -583,6 +585,7 @@ twilogDecoder =
         |> Json.Decode.Extra.andMap extendedEntitiesMediaDecoder
 
 
+dailyTwilogsFromOldest : List String -> BackendTask FatalError (Dict RataDie (List Twilog))
 dailyTwilogsFromOldest paths =
     let
         toDailyDictFromNewest baseDict =
@@ -624,6 +627,7 @@ dailyTwilogsFromOldest paths =
         )
         (BackendTask.succeed Dict.empty)
         paths
+        |> BackendTask.allowFatal
 
 
 resolveRepliesWithinDayAndSortFromOldest : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
@@ -718,14 +722,6 @@ commaSeparatedUrls =
             )
 
 
-seoBase :
-    { canonicalUrlOverride : Maybe String
-    , siteName : String
-    , image : Head.Seo.Image
-    , description : String
-    , title : String
-    , locale : Maybe String
-    }
 seoBase =
     { canonicalUrlOverride = Nothing
     , siteName = Site.title
@@ -736,7 +732,7 @@ seoBase =
         , mimeType = Just (Image Jpeg)
         }
     , description = Site.tagline
-    , locale = Just "ja_JP"
+    , locale = Just ( LanguageTag.Language.ja, LanguageTag.Country.jp )
     , title = Site.title
     }
 

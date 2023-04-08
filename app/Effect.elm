@@ -1,16 +1,20 @@
-module Effect exposing (Effect(..), batch, fromCmd, map, none, perform)
-
-{-|
-
-@docs Effect, batch, fromCmd, map, none, perform
-
--}
+module Effect exposing
+    ( Effect(..)
+    , batch
+    , fromCmd
+    , init
+    , map
+    , none
+    , perform
+    , wait
+    )
 
 import Browser.Navigation
 import Form.FormData exposing (FormData)
 import Http
-import Json.Decode as Decode
 import Pages.Fetcher
+import Process
+import Task
 import Url exposing (Url)
 
 
@@ -19,6 +23,8 @@ type Effect msg
     = None
     | Cmd (Cmd msg)
     | Batch (List (Effect msg))
+    | Init msg
+    | Wait Float msg
     | SetField { formId : String, name : String, value : String }
     | FetchRouteData
         { data : Maybe FormData
@@ -29,13 +35,6 @@ type Effect msg
         , toMsg : Result Http.Error Url -> msg
         }
     | SubmitFetcher (Pages.Fetcher.Fetcher msg)
-
-
-{-| -}
-type alias RequestInfo =
-    { contentType : String
-    , body : String
-    }
 
 
 {-| -}
@@ -56,6 +55,16 @@ fromCmd =
     Cmd
 
 
+init : msg -> Effect msg
+init =
+    Init
+
+
+wait : Float -> msg -> Effect msg
+wait =
+    Wait
+
+
 {-| -}
 map : (a -> b) -> Effect a -> Effect b
 map fn effect =
@@ -68,6 +77,12 @@ map fn effect =
 
         Batch list ->
             Batch (List.map (map fn) list)
+
+        Init msg ->
+            Init (fn msg)
+
+        Wait ms msg ->
+            Wait ms (fn msg)
 
         FetchRouteData fetchInfo ->
             FetchRouteData
@@ -111,7 +126,7 @@ perform :
     }
     -> Effect pageMsg
     -> Cmd msg
-perform ({ fromPageMsg, key } as helpers) effect =
+perform ({ fromPageMsg } as helpers) effect =
     case effect of
         None ->
             Cmd.none
@@ -124,6 +139,14 @@ perform ({ fromPageMsg, key } as helpers) effect =
 
         Batch list ->
             Cmd.batch (List.map (perform helpers) list)
+
+        Init msg ->
+            Task.perform fromPageMsg (Task.succeed msg)
+
+        Wait ms msg ->
+            Process.sleep ms
+                |> Task.andThen (\_ -> Task.succeed msg)
+                |> Task.perform fromPageMsg
 
         FetchRouteData fetchInfo ->
             helpers.fetchRouteData
