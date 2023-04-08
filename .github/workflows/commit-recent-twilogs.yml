@@ -1,9 +1,6 @@
 name: Commit Recent Twilogs
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
   schedule:
     - cron: "25 4 * * *"
