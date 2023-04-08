@@ -11,10 +11,16 @@ import Html.Parser.Util
 import Json.Decode
 import LinkPreview
 import Markdown
-import View exposing (HtmlOrMarkdown(..))
 
 
-decoder : Json.Decode.Decoder View.ExternalView
+type alias DecodedHtml =
+    { parsed : List Html.Parser.Node
+    , excerpt : String
+    , links : List String
+    }
+
+
+decoder : Json.Decode.Decoder DecodedHtml
 decoder =
     Json.Decode.string
         |> Json.Decode.andThen
@@ -22,7 +28,7 @@ decoder =
                 case Html.Parser.run input of
                     Ok nodes ->
                         Json.Decode.succeed
-                            { parsed = Html nodes
+                            { parsed = nodes
                             , excerpt = extractInlineTextFromHtml nodes
                             , links = enumerateLinks nodes
                             }
@@ -145,7 +151,7 @@ transformWithLinkMetadata links nodes =
                         |> Element "p" pAttrs
 
                 _ ->
-                    node
+                    recursivelyLazifyImg node
         )
         nodes
 
@@ -174,3 +180,16 @@ linkPreview meta =
                 ]
             ]
         ]
+
+
+recursivelyLazifyImg : Node -> Node
+recursivelyLazifyImg node =
+    case node of
+        Element "img" (( "src", src ) :: attrs) children ->
+            Element "img" (( "src", src ) :: ( "loading", "lazy" ) :: attrs) children
+
+        Element tag attrs children ->
+            Element tag attrs (List.map recursivelyLazifyImg children)
+
+        _ ->
+            node

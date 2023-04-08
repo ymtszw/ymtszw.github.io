@@ -1,7 +1,5 @@
 module View exposing
-    ( ExternalView
-    , HtmlOrMarkdown(..)
-    , View
+    ( View
     , feedLink
     , imgLazy
     , map
@@ -10,26 +8,12 @@ module View exposing
 
 import Html exposing (Html)
 import Html.Attributes
-import Html.Parser
-import Markdown.Block
 
 
 type alias View msg =
     { title : String
     , body : List (Html msg)
     }
-
-
-type alias ExternalView =
-    { parsed : HtmlOrMarkdown
-    , excerpt : String
-    , links : List String
-    }
-
-
-type HtmlOrMarkdown
-    = Html (List Html.Parser.Node)
-    | Markdown (List Markdown.Block.Block)
 
 
 map : (msg1 -> msg2) -> View msg1 -> View msg2

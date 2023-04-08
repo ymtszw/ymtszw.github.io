@@ -17,11 +17,11 @@ import Http
 import Iso8601
 import Json.Decode
 import PagesMsg
-import Route.Articles.ArticleId_ exposing (cmsArticleBodyDecoder, renderArticle)
+import Route.Articles.ArticleId_ exposing (ExternalView, HtmlOrMarkdown(..), cmsArticleBodyDecoder, renderArticle)
 import RouteBuilder
 import Shared exposing (unixOrigin)
 import Time
-import View exposing (ExternalView, HtmlOrMarkdown(..))
+import View
 
 
 type alias Model =

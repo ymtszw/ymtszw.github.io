@@ -1,5 +1,6 @@
 module Markdown exposing
-    ( deadEndToString
+    ( DecodedMarkdown
+    , deadEndToString
     , deadEndsToString
     , decoder
     , parse
@@ -19,14 +20,21 @@ import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
 import Parser
 import Regex
-import View exposing (HtmlOrMarkdown(..))
+import View
 
 
-decoder : Json.Decode.Decoder View.ExternalView
+type alias DecodedMarkdown =
+    { parsed : List Markdown.Block.Block
+    , excerpt : String
+    , links : List String
+    }
+
+
+decoder : Json.Decode.Decoder DecodedMarkdown
 decoder =
     Json.Decode.string
         |> Json.Decode.andThen (parse >> Json.Decode.Extra.fromResult)
-        |> Json.Decode.map (\nodes -> { parsed = Markdown nodes, excerpt = excerpt nodes, links = enumerateLinks nodes })
+        |> Json.Decode.map (\nodes -> { parsed = nodes, excerpt = excerpt nodes, links = enumerateLinks nodes })
 
 
 parse : String -> Result String (List Markdown.Block.Block)

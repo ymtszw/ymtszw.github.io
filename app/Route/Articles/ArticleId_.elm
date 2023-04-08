@@ -2,6 +2,8 @@ module Route.Articles.ArticleId_ exposing
     ( ActionData
     , CmsArticle
     , Data
+    , ExternalView
+    , HtmlOrMarkdown(..)
     , Model
     , Msg
     , RouteParams
@@ -21,17 +23,19 @@ import Head
 import Head.Seo as Seo
 import Html
 import Html.Attributes
+import Html.Parser
 import Json.Decode
 import Json.Decode.Extra
 import LinkPreview
 import List.Extra
 import Markdown
+import Markdown.Block
 import PagesMsg
 import Route
 import RouteBuilder
 import Shared exposing (CmsArticleMetadata, seoBase)
 import Time
-import View exposing (ExternalView, HtmlOrMarkdown(..))
+import View
 
 
 type alias Model =
@@ -63,6 +67,18 @@ type alias CmsArticle =
     , body : ExternalView
     , type_ : String
     }
+
+
+type alias ExternalView =
+    { parsed : HtmlOrMarkdown
+    , excerpt : String
+    , links : List String
+    }
+
+
+type HtmlOrMarkdown
+    = Html (List Html.Parser.Node)
+    | Markdown (List Markdown.Block.Block)
 
 
 type alias ActionData =
@@ -120,12 +136,19 @@ data routeParams =
 
 cmsArticleBodyDecoder : (ExternalView -> String -> a) -> Json.Decode.Decoder a
 cmsArticleBodyDecoder cont =
+    let
+        mapFromExternalHtml { parsed, excerpt, links } =
+            ExternalView (Html parsed) excerpt links
+
+        mapFromMarkdown { parsed, excerpt, links } =
+            ExternalView (Markdown parsed) excerpt links
+    in
     Json.Decode.oneOf
         [ Json.Decode.succeed cont
-            |> Json.Decode.Extra.andMap (Json.Decode.field "html" ExternalHtml.decoder)
+            |> Json.Decode.Extra.andMap (Json.Decode.field "html" (Json.Decode.map mapFromExternalHtml ExternalHtml.decoder))
             |> Json.Decode.Extra.andMap (Json.Decode.succeed "html")
         , Json.Decode.succeed cont
-            |> Json.Decode.Extra.andMap (Json.Decode.field "markdown" Markdown.decoder)
+            |> Json.Decode.Extra.andMap (Json.Decode.field "markdown" (Json.Decode.map mapFromMarkdown Markdown.decoder))
             |> Json.Decode.Extra.andMap (Json.Decode.succeed "markdown")
         ]
 
