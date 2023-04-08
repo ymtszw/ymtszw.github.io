@@ -1,4 +1,4 @@
-module LinkPreview exposing (Metadata, collectMetadataOnBuild, getMetadataOnBuild, getMetadataOnDemand, previewMetadata)
+module LinkPreview exposing (Metadata, collectMetadataOnBuild, getMetadataOnBuild, getMetadataOnDemand)
 
 {-| LinkPreview API module.
 -}
@@ -32,23 +32,6 @@ type alias Metadata =
     , -- Defaults to requested URL
       canonicalUrl : String
     }
-
-
-previewMetadata : String -> Metadata
-previewMetadata url =
-    { title = linkPreviewTitle
-    , description = Just linkPreviewDescription
-    , canonicalUrl = url
-    , imageUrl = Just "https://via.placeholder.com/640x480"
-    }
-
-
-linkPreviewTitle =
-    "... Title is loading ..."
-
-
-linkPreviewDescription =
-    """... Descrption is loading (may fail. If failed, it will be omitted on published build.) ..."""
 
 
 collectMetadataOnBuild : List String -> BackendTask FatalError (Dict String Metadata)
@@ -90,6 +73,7 @@ linkPreviewDecoder requestUrl =
                             _ ->
                                 canonicalUrl
                 in
+                -- If upstream requestUrl returned status >= 400, link-preview service returns error, failing this decoder
                 Json.Decode.succeed Metadata
                     -- Treat HTML without title (such as "301 moved permanently" page) as empty.
                     |> Json.Decode.Extra.andMap (Json.Decode.field "title" nonEmptyString)
