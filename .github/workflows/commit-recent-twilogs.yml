@@ -34,7 +34,10 @@ jobs:
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-      - run: npm run fetch_recent_twilogs
+      - name: Fetch, commit and push if anything new
+        run: |
+          if npm run fetch_recent_twilogs; then
+            git push origin HEAD:master
+          fi
         env:
           MY_TWILOG_CSV_URL: ${{ secrets.MY_TWILOG_CSV_URL }}
-      - run: git push origin HEAD:master
