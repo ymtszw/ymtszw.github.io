@@ -512,18 +512,21 @@ appendMediaGrid status htmls =
 
         nonEmpty ->
             let
+                (TwitterStatusId idStr) =
+                    status.id
+
                 -- Show media based on type: "photo" | "video" | "animated_gif"
                 aMedia media =
                     case media.type_ of
                         "photo" ->
-                            a [ target "_blank", href media.expandedUrl ] [ imgLazy [ src media.sourceUrl ] [] ]
+                            a [ target "_blank", href media.expandedUrl ] [ imgLazy [ src media.sourceUrl, alt ("Attached photo of status id: " ++ idStr) ] [] ]
 
                         "video" ->
                             -- Looks like expanded_url is a thumbnail in simple Media object
-                            a [ target "_blank", href media.expandedUrl ] [ figure [ class "video-thumbnail" ] [ imgLazy [ src media.sourceUrl ] [] ] ]
+                            a [ target "_blank", href media.expandedUrl ] [ figure [ class "video-thumbnail" ] [ imgLazy [ src media.sourceUrl, alt ("Thumbnail of attached video of status id: " ++ idStr) ] [] ] ]
 
                         "animated_gif" ->
-                            a [ target "_blank", href media.expandedUrl ] [ imgLazy [ src media.sourceUrl ] [] ]
+                            a [ target "_blank", href media.expandedUrl ] [ imgLazy [ src media.sourceUrl, alt ("Animated GIF attached to status id: " ++ idStr) ] [] ]
 
                         _ ->
                             text ""
