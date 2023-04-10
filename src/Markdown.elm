@@ -266,7 +266,7 @@ htmlRenderer =
             Markdown.Html.oneOf
                 [ Markdown.Html.tag "img"
                     (\src _ ->
-                        View.imgLazy [ Html.Attributes.src src ] []
+                        View.imgLazy [ Html.Attributes.src src, Html.Attributes.alt "Image in Markdown text" ] []
                     )
                     |> Markdown.Html.withAttribute "src"
                 , -- src-less anchor

@@ -427,7 +427,7 @@ appendLinkPreviews links entitiesTcoUrl htmls =
                                 [ div [ class "link-preview" ]
                                     [ case imageUrl of
                                         Just imageUrl_ ->
-                                            imgLazy [ src imageUrl_ ] []
+                                            imgLazy [ src imageUrl_, alt "Preview image of the website" ] []
 
                                         Nothing ->
                                             text ""
