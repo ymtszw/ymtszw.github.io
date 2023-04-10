@@ -1,0 +1,24 @@
+diff --git a/node_modules/elm-pages/generator/src/build.js b/node_modules/elm-pages/generator/src/build.js
+index fd394a8..cf70fca 100755
+--- a/node_modules/elm-pages/generator/src/build.js
++++ b/node_modules/elm-pages/generator/src/build.js
+@@ -240,7 +240,6 @@ function runElmMake(elmEntrypointPath, outputPath, cwd) {
+         elmEntrypointPath,
+         "--output",
+         outputPath,
+-        "--debug",
+         "--report",
+         "json",
+       ],
+diff --git a/node_modules/elm-pages/generator/src/compile-elm.js b/node_modules/elm-pages/generator/src/compile-elm.js
+index 8ae2ff7..09a3ead 100644
+--- a/node_modules/elm-pages/generator/src/compile-elm.js
++++ b/node_modules/elm-pages/generator/src/compile-elm.js
+@@ -58,7 +58,6 @@ async function runElm(elmEntrypointPath, outputPath, cwd) {
+         elmEntrypointPath,
+         "--output",
+         outputPath,
+-        "--debug",
+         "--report",
+         "json",
+       ],

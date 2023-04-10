@@ -1,18 +1,12 @@
-module Api exposing (manifest, routes)
+module Api exposing (routes)
 
 import ApiRoute exposing (ApiRoute)
-import BackendTask exposing (BackendTask)
-import FatalError exposing (FatalError)
+import DataSource exposing (DataSource)
 import Html exposing (Html)
 import Iso8601
-import LanguageTag
-import LanguageTag.Language
-import MimeType
+import Page.Articles.ArticleId_
 import Pages
-import Pages.Manifest as Manifest
-import Pages.Url
 import Route exposing (Route(..))
-import Route.Articles.ArticleId_
 import Rss
 import Shared
 import Site
@@ -21,8 +15,8 @@ import Time
 
 
 routes :
-    BackendTask FatalError (List Route)
-    -> (Maybe { indent : Int, newLines : Bool } -> Html Never -> String)
+    DataSource (List Route)
+    -> (Html Never -> String)
     -> List (ApiRoute ApiRoute.Response)
 routes getStaticRoutes _ =
     [ rss
@@ -32,12 +26,10 @@ routes getStaticRoutes _ =
         , builtAt = Pages.builtAt
         , indexPage = []
         }
-        (BackendTask.map (List.map makeArticleRssItem) builtArticles)
+        (DataSource.map (List.map makeArticleRssItem) builtArticles)
     , sitemap <|
         makeSitemapEntries <|
             getStaticRoutes
-    , Manifest.generator Site.canonicalUrl <|
-        BackendTask.succeed manifest
     ]
 
 
@@ -48,12 +40,12 @@ rss :
     , builtAt : Time.Posix
     , indexPage : List String
     }
-    -> BackendTask FatalError (List Rss.Item)
+    -> DataSource (List Rss.Item)
     -> ApiRoute.ApiRoute ApiRoute.Response
 rss options itemsSource =
     ApiRoute.succeed
         (itemsSource
-            |> BackendTask.map
+            |> DataSource.map
                 (\items ->
                     Rss.generate
                         { title = options.title
@@ -64,6 +56,7 @@ rss options itemsSource =
                         , items = items
                         , siteUrl = options.siteUrl
                         }
+                        |> ApiRoute.Response
                 )
         )
         |> ApiRoute.literal "articles/feed.xml"
@@ -71,14 +64,14 @@ rss options itemsSource =
 
 
 type alias BuiltArticle =
-    ( Route, Route.Articles.ArticleId_.CmsArticle )
+    ( Route, Page.Articles.ArticleId_.CmsArticle )
 
 
 makeArticleRssItem : BuiltArticle -> Rss.Item
 makeArticleRssItem ( route, article ) =
     { title = article.title
     , description = article.body.excerpt
-    , url = Route.toString route
+    , url = String.join "/" (Route.routeToPath route)
     , categories = []
     , author = "ymtszw (Yu Matsuzawa)"
     , pubDate = Rss.DateTime article.publishedAt
@@ -88,28 +81,28 @@ makeArticleRssItem ( route, article ) =
     }
 
 
-builtArticles : BackendTask FatalError (List BuiltArticle)
+builtArticles : DataSource (List BuiltArticle)
 builtArticles =
     let
         build routeParam =
-            Route.Articles.ArticleId_.data routeParam
-                |> BackendTask.map .article
-                |> BackendTask.map (Tuple.pair (Route.Articles__ArticleId_ routeParam))
+            Page.Articles.ArticleId_.data routeParam
+                |> DataSource.map .article
+                |> DataSource.map (Tuple.pair (Route.Articles__ArticleId_ routeParam))
     in
-    Route.Articles.ArticleId_.pages
-        |> BackendTask.map (List.map build)
-        |> BackendTask.resolve
+    Page.Articles.ArticleId_.routes
+        |> DataSource.map (List.map build)
+        |> DataSource.resolve
 
 
 sitemap :
-    BackendTask FatalError (List Sitemap.Entry)
+    DataSource (List Sitemap.Entry)
     -> ApiRoute.ApiRoute ApiRoute.Response
 sitemap entriesSource =
     ApiRoute.succeed
         (entriesSource
-            |> BackendTask.map
+            |> DataSource.map
                 (\entries ->
-                    """<?xml version="1.0" encoding="UTF-8"?>
+                    ApiRoute.Response <| """<?xml version="1.0" encoding="UTF-8"?>
 """ ++ Sitemap.build { siteUrl = Site.config.canonicalUrl } entries
                 )
         )
@@ -117,13 +110,13 @@ sitemap entriesSource =
         |> ApiRoute.single
 
 
-makeSitemapEntries : BackendTask FatalError (List Route) -> BackendTask FatalError (List Sitemap.Entry)
+makeSitemapEntries : DataSource (List Route) -> DataSource (List Sitemap.Entry)
 makeSitemapEntries getStaticRoutes =
     let
         build route =
             let
                 routeSource lastMod =
-                    BackendTask.succeed
+                    DataSource.succeed
                         { path = String.join "/" (Route.routeToPath route)
                         , lastMod = Just lastMod
                         }
@@ -134,7 +127,7 @@ makeSitemapEntries getStaticRoutes =
 
                 Articles ->
                     Shared.publicCmsArticles
-                        |> BackendTask.andThen
+                        |> DataSource.andThen
                             (\articles ->
                                 articles
                                     |> List.head
@@ -148,46 +141,28 @@ makeSitemapEntries getStaticRoutes =
                     Nothing
 
                 Articles__ArticleId_ routeParam ->
-                    Route.Articles.ArticleId_.data routeParam
-                        |> BackendTask.andThen (\data -> routeSource (Iso8601.fromTime data.article.revisedAt))
+                    Page.Articles.ArticleId_.data routeParam
+                        |> DataSource.andThen (\data -> routeSource (Iso8601.fromTime data.article.revisedAt))
                         |> Just
 
                 Twilogs ->
                     Shared.twilogArchives
-                        |> BackendTask.andThen
+                        |> DataSource.andThen
                             (\twilogArchives ->
                                 twilogArchives
                                     |> List.head
-                                    |> Maybe.map .isoDate
+                                    |> Maybe.map (\yearMonth -> yearMonth ++ "-01")
                                     |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
                                     |> routeSource
                             )
                         |> Just
 
-                Twilogs__Day_ routeParam ->
-                    Just <| routeSource routeParam.day
+                Twilogs__YearMonth_ routeParam ->
+                    Just <| routeSource routeParam.yearMonth
 
                 Index ->
                     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
     in
     getStaticRoutes
-        |> BackendTask.map (List.filterMap build)
-        |> BackendTask.resolve
-
-
-manifest : Manifest.Config
-manifest =
-    Manifest.init
-        { name = Site.title
-        , description = Site.tagline
-        , startUrl = Route.Index |> Route.toPath
-        , icons =
-            [ { src = Pages.Url.external "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4bbee72905cf4e5fa4a55d9de0d9593b/icon-square.png?w=144&h=144"
-              , sizes = [ ( 144, 144 ) ]
-              , mimeType = Just MimeType.Png
-              , purposes = [ Manifest.IconPurposeAny ]
-              }
-            ]
-        }
-        |> Manifest.withShortName "ymtszw"
-        |> Manifest.withLang (LanguageTag.build LanguageTag.emptySubtags LanguageTag.Language.ja)
+        |> DataSource.map (List.filterMap build)
+        |> DataSource.resolve

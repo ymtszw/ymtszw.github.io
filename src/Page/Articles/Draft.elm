@@ -1,24 +1,26 @@
-module Route.Articles.Draft exposing
+module Page.Articles.Draft exposing
     ( ActionData
     , Data
     , Model
     , Msg
     , RouteParams
-    , route
+    , page
     )
 
-import BackendTask exposing (BackendTask)
+import Browser.Navigation
+import DataSource exposing (DataSource)
 import Dict
-import Effect
-import FatalError exposing (FatalError)
 import Head
+import Helper
 import Html
 import Http
 import Iso8601
 import Json.Decode
-import PagesMsg
-import Route.Articles.ArticleId_ exposing (ExternalView, HtmlOrMarkdown(..), cmsArticleBodyDecoder, renderArticle)
-import RouteBuilder
+import OptimizedDecoder
+import Page
+import Page.Articles.ArticleId_ exposing (ExternalView, HtmlOrMarkdown(..), cmsArticleBodyDecoder, renderArticle)
+import Pages.PageUrl
+import QueryParams
 import Shared exposing (unixOrigin)
 import Time
 import View
@@ -60,55 +62,55 @@ type alias ActionData =
     {}
 
 
-route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
-route =
-    RouteBuilder.single
+page =
+    Page.single
         { head = head
         , data = data
         }
-        |> RouteBuilder.buildWithSharedState
+        |> Page.buildWithSharedState
             { init = init
             , update = update
-            , subscriptions = \_ _ _ _ -> Sub.none
+            , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
             }
 
 
-data : BackendTask FatalError Data
+data : DataSource Data
 data =
-    BackendTask.succeed {}
+    DataSource.succeed {}
 
 
-head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
+head : Page.StaticPayload Data RouteParams -> List Head.Tag
 head _ =
     [ Head.metaName "robots" (Head.raw "noindex,nofollow,noarchive,nocache") ]
 
 
-init :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> ( Model, Effect.Effect Msg )
-init app _ =
+init : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data RouteParams -> ( Model, Cmd Msg )
+init maybeUrl _ _ =
     let
         withPageUrl fun =
-            Maybe.map .query app.url
-                |> Maybe.andThen getContentIdAndDraftKey
+            Maybe.andThen .query maybeUrl
+                |> Maybe.andThen
+                    (\query ->
+                        QueryParams.parse getContentIdAndDraftKey query
+                            |> Result.toMaybe
+                    )
                 |> Maybe.map fun
-                |> Maybe.withDefault ( empty, Effect.none )
+                |> Maybe.withDefault ( empty, Cmd.none )
 
-        getContentIdAndDraftKey query =
-            Maybe.map3 DraftKeys
-                (singleString "contentId" query)
-                (singleString "draftKey" query)
-                (singleString "microCmsApiKey" query)
+        getContentIdAndDraftKey =
+            QueryParams.succeed DraftKeys
+                |> andMap (QueryParams.string "contentId")
+                |> andMap (QueryParams.string "draftKey")
+                |> andMap (QueryParams.string "microCmsApiKey")
 
-        singleString key =
-            Dict.get key >> Maybe.andThen List.head
+        andMap =
+            QueryParams.map2 (|>)
     in
     withPageUrl <|
         \keys ->
             ( { empty | keys = keys, polling = True }
-            , Effect.init Req_Draft
+            , Helper.initMsg Req_Draft
             )
 
 
@@ -132,13 +134,8 @@ type Msg
     | Res_Draft (Result Http.Error DraftContents)
 
 
-update :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> Msg
-    -> Model
-    -> ( Model, Effect.Effect Msg, Maybe Shared.Msg )
-update _ shared msg m =
+update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
+update _ _ shared _ msg m =
     case msg of
         Req_Draft ->
             ( m, getDraft m.keys, Nothing )
@@ -146,10 +143,10 @@ update _ shared msg m =
         Res_Draft (Ok contents) ->
             ( { m | contents = contents }
             , if m.polling then
-                Effect.wait (pollingIntervalSeconds * 1000) Req_Draft
+                Helper.waitMsg (pollingIntervalSeconds * 1000) Req_Draft
 
               else
-                Effect.none
+                Cmd.none
             , case List.filter (\newLink -> not (List.member newLink (Dict.keys shared.links))) contents.body.links of
                 [] ->
                     Nothing
@@ -159,14 +156,14 @@ update _ shared msg m =
             )
 
         Res_Draft (Err _) ->
-            ( { m | polling = False }, Effect.none, Nothing )
+            ( { m | polling = False }, Cmd.none, Nothing )
 
 
 pollingIntervalSeconds =
     3
 
 
-getDraft : DraftKeys -> Effect.Effect Msg
+getDraft : DraftKeys -> Cmd Msg
 getDraft keys =
     Http.request
         { method = "GET"
@@ -174,10 +171,9 @@ getDraft keys =
         , headers = [ Http.header "X-MICROCMS-API-KEY" keys.microCmsApiKey ]
         , body = Http.emptyBody
         , expect = Http.expectJson Res_Draft draftDecoder
-        , timeout = Just 10000
+        , timeout = Just 5000
         , tracker = Nothing
         }
-        |> Effect.fromCmd
 
 
 draftDecoder : Json.Decode.Decoder DraftContents
@@ -190,16 +186,12 @@ draftDecoder =
         |> andMap (Json.Decode.field "createdAt" Iso8601.decoder)
         |> andMap (Json.Decode.field "updatedAt" Iso8601.decoder)
         |> andMap (Json.Decode.field "title" Json.Decode.string)
-        |> andMap (Json.Decode.maybe (Json.Decode.field "image" Shared.cmsImageDecoder))
-        |> Json.Decode.andThen cmsArticleBodyDecoder
+        |> andMap (Json.Decode.maybe (Json.Decode.field "image" (OptimizedDecoder.decoder Shared.cmsImageDecoder)))
+        |> Json.Decode.andThen (\cont -> OptimizedDecoder.decoder (cmsArticleBodyDecoder cont))
 
 
-view :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> Model
-    -> View.View (PagesMsg.PagesMsg Msg)
-view _ shared m =
+view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
+view _ shared m _ =
     { title = "記事（下書き）"
     , body =
         [ if m.polling then

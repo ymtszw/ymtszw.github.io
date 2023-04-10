@@ -8,9 +8,9 @@ import Dict exposing (Dict)
 import Html exposing (Html)
 import Html.Parser exposing (Node(..))
 import Html.Parser.Util
-import Json.Decode
 import LinkPreview
 import Markdown
+import OptimizedDecoder
 
 
 type alias DecodedHtml =
@@ -20,21 +20,21 @@ type alias DecodedHtml =
     }
 
 
-decoder : Json.Decode.Decoder DecodedHtml
+decoder : OptimizedDecoder.Decoder DecodedHtml
 decoder =
-    Json.Decode.string
-        |> Json.Decode.andThen
+    OptimizedDecoder.string
+        |> OptimizedDecoder.andThen
             (\input ->
                 case Html.Parser.run input of
                     Ok nodes ->
-                        Json.Decode.succeed
+                        OptimizedDecoder.succeed
                             { parsed = nodes
                             , excerpt = extractInlineTextFromHtml nodes
                             , links = enumerateLinks nodes
                             }
 
                     Err e ->
-                        Json.Decode.fail (Markdown.deadEndsToString e)
+                        OptimizedDecoder.fail (Markdown.deadEndsToString e)
             )
 
 

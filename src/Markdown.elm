@@ -11,13 +11,12 @@ module Markdown exposing
 import Dict exposing (Dict)
 import Html
 import Html.Attributes
-import Json.Decode
-import Json.Decode.Extra
 import LinkPreview
 import Markdown.Block
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
+import OptimizedDecoder
 import Parser
 import Regex
 import View
@@ -30,11 +29,11 @@ type alias DecodedMarkdown =
     }
 
 
-decoder : Json.Decode.Decoder DecodedMarkdown
+decoder : OptimizedDecoder.Decoder DecodedMarkdown
 decoder =
-    Json.Decode.string
-        |> Json.Decode.andThen (parse >> Json.Decode.Extra.fromResult)
-        |> Json.Decode.map (\nodes -> { parsed = nodes, excerpt = excerpt nodes, links = enumerateLinks nodes })
+    OptimizedDecoder.string
+        |> OptimizedDecoder.andThen (parse >> OptimizedDecoder.fromResult)
+        |> OptimizedDecoder.map (\nodes -> { parsed = nodes, excerpt = excerpt nodes, links = enumerateLinks nodes })
 
 
 parse : String -> Result String (List Markdown.Block.Block)

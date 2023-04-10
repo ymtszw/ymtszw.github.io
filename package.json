@@ -2,23 +2,19 @@
   "name": "ymtszw",
   "scripts": {
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
-    "postinstall": "elm-tooling install && ./install_lamdera.sh",
+    "postinstall": "elm-tooling install && patch-package",
     "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: fetched recent twilogs ($(date))\"",
     "import_archived_tweets": "TZ=Asia/Tokyo node import_archived_tweets.js",
-    "start": "PATH=$(pwd)/bin:$PATH; elm-pages dev --port 10101",
-    "build": "PATH=$(pwd)/bin:$PATH; elm-pages build"
+    "start": "elm-pages dev --port 10101",
+    "build": "SECONDS=0; elm-pages build && echo \"Build took ${SECONDS}s.\""
   },
   "devDependencies": {
     "csvtojson": "^2.0",
-    "elm-codegen": "^0.3.0",
-    "elm-optimize-level-2": "^0.3.5",
-    "elm-pages": "^3.0.0-beta.33",
-    "elm-review": "^2.8.5",
-    "elm-tooling": "^1.12.0",
+    "elm-optimize-level-2": "^0.2",
+    "elm-pages": "^2.1",
+    "elm-review": "^2.9",
+    "elm-tooling": "^1.4",
     "node-fetch": "^3.3.1",
-    "vite": "^4.2.1"
-  },
-  "dependencies": {
-    "@netlify/functions": "^1.4.0"
+    "patch-package": "^6.5"
   }
 }

@@ -11,7 +11,7 @@ module Shared exposing
     , SharedMsg(..)
     , TcoUrl
     , Twilog
-    , TwilogArchiveMetadata
+    , TwilogArchiveYearMonth
     , TwitterStatusId(..)
     , TwitterUserId(..)
     , cmsGet
@@ -24,6 +24,7 @@ module Shared exposing
     , makeSeoImageFromCmsImage
     , makeTitle
     , makeTwilogsJsonPath
+    , miscGet
     , ogpHeaderImageUrl
     , posixToYmd
     , publicCmsArticles
@@ -33,39 +34,32 @@ module Shared exposing
     , unixOrigin
     )
 
-import BackendTask exposing (BackendTask)
-import BackendTask.Env
-import BackendTask.File
-import BackendTask.Glob
-import BackendTask.Http
+import DataSource exposing (DataSource)
+import DataSource.File
+import DataSource.Glob
+import DataSource.Http
 import Date
 import Dict exposing (Dict)
-import Effect exposing (Effect)
-import FatalError exposing (FatalError)
 import Head.Seo
 import Helper exposing (nonEmptyString)
-import Html exposing (Html)
+import Html
 import Html.Attributes
 import Iso8601
-import Json.Decode
-import Json.Decode.Extra
 import Json.Encode
-import LanguageTag.Country
-import LanguageTag.Language
 import LinkPreview
 import List.Extra
 import Markdown
 import MimeType exposing (MimeImage(..), MimeType(..))
-import Pages.Flags
-import Pages.PageUrl exposing (PageUrl)
+import OptimizedDecoder
+import Pages.Secrets
 import Pages.Url
 import Path exposing (Path)
-import Route exposing (Route)
+import Route
 import SharedTemplate exposing (SharedTemplate)
 import Site
 import Task
 import Time exposing (Month(..))
-import View exposing (View)
+import View
 
 
 template : SharedTemplate Msg Model Data msg
@@ -74,7 +68,7 @@ template =
     , update = update
     , view = view
     , data = data
-    , subscriptions = subscriptions
+    , subscriptions = \_ _ -> Sub.none
     , onPageChange = Just OnPageChange
     }
 
@@ -89,7 +83,7 @@ type Msg
 
 
 type alias Data =
-    { twilogArchives : List TwilogArchiveMetadata
+    { twilogArchives : List TwilogArchiveYearMonth
     }
 
 
@@ -120,35 +114,21 @@ type SharedMsg
 
 
 type alias Model =
-    { showMobileMenu : Bool
-    , links : Dict String LinkPreview.Metadata
+    { links : Dict String LinkPreview.Metadata
     }
 
 
-init :
-    Pages.Flags.Flags
-    ->
-        Maybe
-            { path :
-                { path : Path
-                , query : Maybe String
-                , fragment : Maybe String
-                }
-            , metadata : route
-            , pageUrl : Maybe PageUrl
-            }
-    -> ( Model, Effect Msg )
-init _ _ =
-    ( { showMobileMenu = False, links = Dict.empty }
-    , Effect.none
+init _ _ _ =
+    ( { links = Dict.empty }
+    , Cmd.none
     )
 
 
-update : Msg -> Model -> ( Model, Effect Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnPageChange _ ->
-            ( { model | showMobileMenu = False }, Effect.none )
+            ( model, Cmd.none )
 
         SharedMsg (Req_LinkPreview (url :: urls)) ->
             ( model, requestLinkPreviewSequentially urls url )
@@ -162,98 +142,90 @@ update msg model =
                     model
             , case remainingUrls of
                 [] ->
-                    Effect.none
+                    Cmd.none
 
                 url :: urls ->
                     requestLinkPreviewSequentially urls url
             )
 
         SharedMsg _ ->
-            ( model, Effect.none )
+            ( model, Cmd.none )
 
 
-requestLinkPreviewSequentially : List String -> String -> Effect Msg
+requestLinkPreviewSequentially : List String -> String -> Cmd Msg
 requestLinkPreviewSequentially urls url =
     url
         |> LinkPreview.getMetadataOnDemand
         |> Task.attempt (Res_LinkPreview urls)
         |> Cmd.map SharedMsg
-        |> Effect.fromCmd
 
 
-subscriptions : Path -> Model -> Sub Msg
-subscriptions _ _ =
-    Sub.none
-
-
-data : BackendTask FatalError Data
+data : DataSource Data
 data =
-    BackendTask.map Data twilogArchives
+    DataSource.map Data twilogArchives
 
 
-githubGet : String -> Json.Decode.Decoder a -> BackendTask FatalError a
+githubGet : String -> OptimizedDecoder.Decoder a -> DataSource a
 githubGet url decoder =
-    BackendTask.Env.expect "GITHUB_TOKEN"
-        |> BackendTask.allowFatal
-        |> BackendTask.andThen
-            (\githubToken ->
-                BackendTask.Http.request
+    DataSource.Http.request
+        (Pages.Secrets.with "GITHUB_TOKEN" <|
+            Pages.Secrets.succeed <|
+                \githubToken ->
                     { url = url
                     , method = "GET"
                     , headers = [ ( "Authorization", "token " ++ githubToken ) ]
-                    , body = BackendTask.Http.emptyBody
-                    , retries = Nothing
-                    , timeoutInMs = Just 3000
+                    , body = DataSource.Http.emptyBody
                     }
-                    (BackendTask.Http.expectJson decoder)
-                    |> BackendTask.allowFatal
-            )
+        )
+        decoder
 
 
+cmsGet : String -> OptimizedDecoder.Decoder a -> DataSource a
 cmsGet url decoder =
-    BackendTask.Env.expect "MICROCMS_API_KEY"
-        |> BackendTask.allowFatal
-        |> BackendTask.andThen
-            (\microCmsApiKey ->
-                BackendTask.Http.request
+    DataSource.Http.request
+        (Pages.Secrets.with "MICROCMS_API_KEY" <|
+            Pages.Secrets.succeed <|
+                \microCmsApiKey ->
                     { url = url
                     , method = "GET"
                     , headers = [ ( "X-MICROCMS-API-KEY", microCmsApiKey ) ]
-                    , body = BackendTask.Http.emptyBody
-                    , retries = Nothing
-                    , timeoutInMs = Just 2000
+                    , body = DataSource.Http.emptyBody
                     }
-                    (BackendTask.Http.expectJson decoder)
-                    |> BackendTask.allowFatal
-            )
+        )
+        decoder
 
 
-publicCmsArticles : BackendTask FatalError (List CmsArticleMetadata)
+miscGet : String -> OptimizedDecoder.Decoder a -> DataSource a
+miscGet url decoder =
+    DataSource.Http.get (Pages.Secrets.succeed url) decoder
+
+
+publicCmsArticles : DataSource (List CmsArticleMetadata)
 publicCmsArticles =
     let
         articleMetadataDecoder =
-            Json.Decode.succeed CmsArticleMetadata
-                |> Json.Decode.Extra.andMap (Json.Decode.field "id" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "publishedAt" iso8601Decoder)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "revisedAt" iso8601Decoder)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "title" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.maybe (Json.Decode.field "image" cmsImageDecoder))
+            OptimizedDecoder.succeed CmsArticleMetadata
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "id" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
     in
     cmsGet "https://ymtszw.microcms.io/api/v1/articles?limit=10000&orders=-publishedAt&fields=id,title,image,publishedAt,revisedAt"
-        (Json.Decode.field "contents" (Json.Decode.list articleMetadataDecoder))
+        (OptimizedDecoder.field "contents" (OptimizedDecoder.list articleMetadataDecoder))
 
 
-cmsImageDecoder : Json.Decode.Decoder CmsImage
+cmsImageDecoder : OptimizedDecoder.Decoder CmsImage
 cmsImageDecoder =
-    Json.Decode.succeed CmsImage
-        |> Json.Decode.Extra.andMap (Json.Decode.field "url" Json.Decode.string)
-        |> Json.Decode.Extra.andMap (Json.Decode.field "height" Json.Decode.int)
-        |> Json.Decode.Extra.andMap (Json.Decode.field "width" Json.Decode.int)
+    OptimizedDecoder.succeed CmsImage
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "url" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "height" OptimizedDecoder.int)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "width" OptimizedDecoder.int)
 
 
-iso8601Decoder : Json.Decode.Decoder Time.Posix
+iso8601Decoder : OptimizedDecoder.Decoder Time.Posix
 iso8601Decoder =
-    Json.Decode.andThen (Iso8601.toTime >> Result.mapError Markdown.deadEndsToString >> Json.Decode.Extra.fromResult) Json.Decode.string
+    OptimizedDecoder.andThen (Iso8601.toTime >> Result.mapError Markdown.deadEndsToString >> OptimizedDecoder.fromResult) OptimizedDecoder.string
 
 
 type alias Twilog =
@@ -326,166 +298,149 @@ type TwitterUserId
     = TwitterUserId String
 
 
-type alias TwilogArchiveMetadata =
-    { date : Date.Date
-    , isoDate : String
-    , rataDie : RataDie
-    , path : String
-    }
+type alias TwilogArchiveYearMonth =
+    String
 
 
-twilogArchives : BackendTask FatalError (List TwilogArchiveMetadata)
+twilogArchives : DataSource (List TwilogArchiveYearMonth)
 twilogArchives =
-    BackendTask.Glob.succeed makeTwilogArchiveMetadata
-        |> BackendTask.Glob.match (BackendTask.Glob.literal "data/")
-        |> BackendTask.Glob.capture BackendTask.Glob.int
-        |> BackendTask.Glob.match (BackendTask.Glob.literal "/")
-        |> BackendTask.Glob.capture BackendTask.Glob.int
-        |> BackendTask.Glob.match (BackendTask.Glob.literal "/")
-        |> BackendTask.Glob.capture BackendTask.Glob.int
-        |> BackendTask.Glob.match (BackendTask.Glob.literal "-twilogs.json")
-        |> BackendTask.Glob.toBackendTask
+    DataSource.Glob.succeed (\year month -> year ++ "-" ++ month)
+        |> DataSource.Glob.match (DataSource.Glob.literal "data/")
+        |> DataSource.Glob.capture DataSource.Glob.wildcard
+        |> DataSource.Glob.match (DataSource.Glob.literal "/")
+        |> DataSource.Glob.capture DataSource.Glob.wildcard
+        |> DataSource.Glob.match (DataSource.Glob.literal "/")
+        |> DataSource.Glob.match DataSource.Glob.wildcard
+        |> DataSource.Glob.match (DataSource.Glob.literal "-twilogs.json")
+        |> DataSource.Glob.toDataSource
         -- Make newest first
-        |> BackendTask.map (List.sortBy .rataDie >> List.reverse)
+        |> DataSource.map (List.Extra.unique >> List.sort >> List.reverse)
 
 
-makeTwilogArchiveMetadata : Int -> Int -> Int -> TwilogArchiveMetadata
-makeTwilogArchiveMetadata year month day =
-    let
-        date =
-            Date.fromCalendarDate year (Date.numberToMonth month) day
-    in
-    { date = date
-    , isoDate = Date.toIsoString date
-    , rataDie = Date.toRataDie date
-    , path = makeTwilogsJsonPath date
-    }
+makeTwilogsJsonPath : String -> String
+makeTwilogsJsonPath dateString =
+    "data/" ++ String.replace "-" "/" dateString ++ "-twilogs.json"
 
 
-makeTwilogsJsonPath : Date.Date -> String
-makeTwilogsJsonPath date =
-    "data/" ++ Date.format "yyyy/MM/dd" date ++ "-twilogs.json"
-
-
-twilogDecoder : Json.Decode.Decoder Twilog
+twilogDecoder : OptimizedDecoder.Decoder Twilog
 twilogDecoder =
     let
         createdAtDecoder =
-            Json.Decode.oneOf
+            OptimizedDecoder.oneOf
                 [ iso8601Decoder
                 , -- Decode date time string formatted with "ddd MMM DD HH:mm:ss Z YYYY" (originates from Twitter API)
-                  Json.Decode.andThen
+                  OptimizedDecoder.andThen
                     (\str ->
                         case String.split " " str of
                             [ _, mon, paddedDay, paddedHourMinSec, zone, year ] ->
                                 Iso8601.toTime (year ++ "-" ++ monthToPaddedNumber mon ++ "-" ++ paddedDay ++ "T" ++ paddedHourMinSec ++ zone)
                                     |> Result.mapError Markdown.deadEndsToString
-                                    |> Json.Decode.Extra.fromResult
+                                    |> OptimizedDecoder.fromResult
 
                             _ ->
-                                Json.Decode.fail ("Failed to parse date: " ++ str)
+                                OptimizedDecoder.fail ("Failed to parse date: " ++ str)
                     )
-                    Json.Decode.string
+                    OptimizedDecoder.string
                 ]
 
         retweetDecoder =
-            Json.Decode.field "Retweet" boolString
-                |> Json.Decode.andThen
+            OptimizedDecoder.field "Retweet" boolString
+                |> OptimizedDecoder.andThen
                     (\isRetweet ->
                         if isRetweet then
-                            Json.Decode.succeed Retweet
-                                |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusFullText" Json.Decode.string)
-                                |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusId" (Json.Decode.map TwitterStatusId nonEmptyString))
-                                |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusUserName" nonEmptyString)
-                                |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusUserProfileImageUrl" Json.Decode.string)
-                                |> Json.Decode.Extra.andMap (Json.Decode.maybe retweetQuoteDecoder)
-                                |> Json.Decode.Extra.andMap retweetEntitiesTcoUrlDecoder
-                                |> Json.Decode.Extra.andMap retweetExtendedEntitiesMediaDecoder
+                            OptimizedDecoder.succeed Retweet
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusFullText" OptimizedDecoder.string)
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" nonEmptyString)
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserProfileImageUrl" OptimizedDecoder.string)
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetQuoteDecoder)
+                                |> OptimizedDecoder.andMap retweetEntitiesTcoUrlDecoder
+                                |> OptimizedDecoder.andMap retweetExtendedEntitiesMediaDecoder
 
                         else
-                            Json.Decode.fail "Not a retweet"
+                            OptimizedDecoder.fail "Not a retweet"
                     )
 
         inReplyToDecoder =
-            Json.Decode.succeed InReplyTo
-                |> Json.Decode.Extra.andMap (Json.Decode.field "InReplyToStatusId" (Json.Decode.map TwitterStatusId nonEmptyString))
-                |> Json.Decode.Extra.andMap (Json.Decode.field "InReplyToUserId" (Json.Decode.map TwitterUserId nonEmptyString))
+            OptimizedDecoder.succeed InReplyTo
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToUserId" (OptimizedDecoder.map TwitterUserId nonEmptyString))
 
         quoteDecoder =
-            Json.Decode.succeed Quote
-                |> Json.Decode.Extra.andMap (Json.Decode.field "QuotedStatusFullText" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "QuotedStatusId" (Json.Decode.map TwitterStatusId nonEmptyString))
-                |> Json.Decode.Extra.andMap (Json.Decode.field "QuotedStatusUserName" nonEmptyString)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "QuotedStatusUserProfileImageUrl" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "QuotedStatusPermalinkUrl" nonEmptyString)
+            OptimizedDecoder.succeed Quote
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusFullText" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserName" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
 
         entitiesTcoUrlDecoder =
-            Json.Decode.oneOf
-                [ Json.Decode.succeed (List.map2 TcoUrl)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "EntitiesUrlsUrls" commaSeparatedList)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "EntitiesUrlsExpandedUrls" commaSeparatedUrls)
-                , Json.Decode.succeed []
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map2 TcoUrl)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsExpandedUrls" commaSeparatedUrls)
+                , OptimizedDecoder.succeed []
                 ]
 
         extendedEntitiesMediaDecoder =
-            Json.Decode.oneOf
-                [ Json.Decode.succeed (List.map4 Media)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "ExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
-                , Json.Decode.succeed (List.map3 (\url sourceUrl type_ -> Media url sourceUrl type_ sourceUrl))
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
-                , Json.Decode.succeed []
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map4 Media)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
+                , OptimizedDecoder.succeed (List.map3 (\url sourceUrl type_ -> Media url sourceUrl type_ sourceUrl))
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
+                , OptimizedDecoder.succeed []
                 ]
 
         retweetEntitiesTcoUrlDecoder =
-            Json.Decode.oneOf
-                [ Json.Decode.succeed (List.map2 TcoUrl)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusEntitiesUrlsUrls" commaSeparatedList)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusEntitiesUrlsExpandedUrls" commaSeparatedUrls)
-                , Json.Decode.succeed []
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map2 TcoUrl)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsExpandedUrls" commaSeparatedUrls)
+                , OptimizedDecoder.succeed []
                 ]
 
         retweetExtendedEntitiesMediaDecoder =
-            Json.Decode.oneOf
-                [ Json.Decode.succeed (List.map4 Media)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusExtendedEntitiesMediaUrls" commaSeparatedList)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusExtendedEntitiesMediaTypes" commaSeparatedList)
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
-                , Json.Decode.succeed []
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map4 Media)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaTypes" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
+                , OptimizedDecoder.succeed []
                 ]
 
         retweetQuoteDecoder =
-            Json.Decode.succeed Quote
-                |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusQuotedStatusFullText" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusQuotedStatusId" (Json.Decode.map TwitterStatusId nonEmptyString))
-                |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusQuotedStatusUserName" nonEmptyString)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "RetweetedStatusQuotedStatusUserProfileImageUrl" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "QuotedStatusPermalinkUrl" nonEmptyString)
+            OptimizedDecoder.succeed Quote
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusFullText" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserName" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
     in
-    Json.Decode.succeed Twilog
-        |> Json.Decode.Extra.andMap (Json.Decode.field "CreatedAt" createdAtDecoder)
-        |> Json.Decode.Extra.andMap (Json.Decode.field "CreatedAt" createdAtDecoder)
-        |> Json.Decode.Extra.andMap (Json.Decode.field "CreatedAt" (createdAtDecoder |> Json.Decode.map (Date.fromPosix jst)))
-        |> Json.Decode.Extra.andMap (Json.Decode.field "Text" Json.Decode.string)
-        |> Json.Decode.Extra.andMap (Json.Decode.field "StatusId" (Json.Decode.map TwitterStatusId nonEmptyString))
-        |> Json.Decode.Extra.andMap (Json.Decode.field "StatusId" nonEmptyString)
-        |> Json.Decode.Extra.andMap (Json.Decode.field "UserName" nonEmptyString)
-        |> Json.Decode.Extra.andMap (Json.Decode.field "UserProfileImageUrl" Json.Decode.string)
-        |> Json.Decode.Extra.andMap (Json.Decode.maybe retweetDecoder)
-        |> Json.Decode.Extra.andMap (Json.Decode.maybe inReplyToDecoder)
+    OptimizedDecoder.succeed Twilog
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (createdAtDecoder |> OptimizedDecoder.map (Date.fromPosix jst)))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" nonEmptyString)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
         -- Resolve replies later
-        |> Json.Decode.Extra.andMap (Json.Decode.succeed [])
-        |> Json.Decode.Extra.andMap (Json.Decode.maybe quoteDecoder)
-        |> Json.Decode.Extra.andMap entitiesTcoUrlDecoder
-        |> Json.Decode.Extra.andMap extendedEntitiesMediaDecoder
+        |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
+        |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
+        |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
 
 
-dailyTwilogsFromOldest : List String -> BackendTask FatalError (Dict RataDie (List Twilog))
+dailyTwilogsFromOldest : List String -> DataSource (Dict RataDie (List Twilog))
 dailyTwilogsFromOldest paths =
     let
         toDailyDictFromNewest baseDict =
@@ -513,21 +468,20 @@ dailyTwilogsFromOldest paths =
     in
     List.foldl
         (\path accDS ->
-            BackendTask.andThen
+            DataSource.andThen
                 (\accDict ->
-                    BackendTask.File.jsonFile
+                    DataSource.File.jsonFile
                         -- Make it Maybe, allow decode-failures to be ignored
-                        (Json.Decode.list (Json.Decode.maybe twilogDecoder)
-                            |> Json.Decode.map (toDailyDictFromNewest accDict)
-                            |> Json.Decode.map resolveRepliesWithinDayAndSortFromOldest
+                        (OptimizedDecoder.list (OptimizedDecoder.maybe twilogDecoder)
+                            |> OptimizedDecoder.map (toDailyDictFromNewest accDict)
+                            |> OptimizedDecoder.map resolveRepliesWithinDayAndSortFromOldest
                         )
                         path
                 )
                 accDS
         )
-        (BackendTask.succeed Dict.empty)
+        (DataSource.succeed Dict.empty)
         paths
-        |> BackendTask.allowFatal
 
 
 resolveRepliesWithinDayAndSortFromOldest : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
@@ -573,26 +527,26 @@ maxTime t1 t2 =
 
 
 boolString =
-    Json.Decode.string
-        |> Json.Decode.andThen
+    OptimizedDecoder.string
+        |> OptimizedDecoder.andThen
             (\s ->
                 case s of
                     "TRUE" ->
-                        Json.Decode.succeed True
+                        OptimizedDecoder.succeed True
 
                     _ ->
-                        Json.Decode.succeed False
+                        OptimizedDecoder.succeed False
             )
 
 
 commaSeparatedList =
     nonEmptyString
-        |> Json.Decode.andThen (\s -> Json.Decode.succeed (String.split "," s))
+        |> OptimizedDecoder.andThen (\s -> OptimizedDecoder.succeed (String.split "," s))
 
 
 commaSeparatedUrls =
     nonEmptyString
-        |> Json.Decode.andThen
+        |> OptimizedDecoder.andThen
             (\s ->
                 let
                     -- Since URLs MAY contain commas, we need special handling
@@ -618,10 +572,18 @@ commaSeparatedUrls =
                 in
                 String.split "," s
                     |> normalize []
-                    |> Json.Decode.succeed
+                    |> OptimizedDecoder.succeed
             )
 
 
+seoBase :
+    { canonicalUrlOverride : Maybe String
+    , siteName : String
+    , image : Head.Seo.Image
+    , description : String
+    , title : String
+    , locale : Maybe String
+    }
 seoBase =
     { canonicalUrlOverride = Nothing
     , siteName = Site.title
@@ -629,10 +591,10 @@ seoBase =
         { url = Pages.Url.external <| ogpHeaderImageUrl ++ "?w=900&h=300"
         , alt = "Mt. Asama Header Image"
         , dimensions = Just { width = 900, height = 300 }
-        , mimeType = Just (Image Jpeg)
+        , mimeType = Just "image/jpeg"
         }
     , description = Site.tagline
-    , locale = Just ( LanguageTag.Language.ja, LanguageTag.Country.jp )
+    , locale = Just "ja_JP"
     , title = Site.title
     }
 
@@ -650,87 +612,63 @@ makeSeoImageFromCmsImage cmsImage =
     }
 
 
-view :
-    Data
-    ->
-        { path : Path
-        , route : Maybe Route
-        }
-    -> Model
-    -> (Msg -> msg)
-    -> View msg
-    -> { body : List (Html msg), title : String }
 view _ page _ _ pageView =
     { title = makeTitle pageView.title
     , body =
-        [ Html.header []
-            [ Html.nav [] <|
-                List.intersperse (Html.text " / ") <|
-                    List.concatMap (\kids -> List.map (\kid -> Html.strong [] [ kid ]) kids)
-                        [ [ Route.link [] [ Html.text "Index" ] Route.Index ]
-                        , page.route
-                            |> Maybe.map
-                                (\route ->
-                                    case route of
-                                        Route.About ->
-                                            [ Html.text "このサイトについて" ]
+        Html.div []
+            [ Html.header []
+                [ Html.nav [] <|
+                    List.intersperse (Html.text " / ") <|
+                        List.concatMap (\kids -> List.map (\kid -> Html.strong [] [ kid ]) kids)
+                            [ [ Route.link Route.Index [] [ Html.text "Index" ] ]
+                            , page.route
+                                |> Maybe.map
+                                    (\route ->
+                                        case route of
+                                            Route.About ->
+                                                [ Html.text "このサイトについて" ]
 
-                                        Route.Articles ->
-                                            [ Html.text "記事" ]
+                                            Route.Articles ->
+                                                [ Html.text "記事" ]
 
-                                        Route.Articles__ArticleId_ _ ->
-                                            [ Route.link [] [ Html.text "記事" ] Route.Articles ]
+                                            Route.Articles__ArticleId_ _ ->
+                                                [ Route.link Route.Articles [] [ Html.text "記事" ] ]
 
-                                        Route.Articles__Draft ->
-                                            [ Html.text "記事（下書き）" ]
+                                            Route.Articles__Draft ->
+                                                [ Html.text "記事（下書き）" ]
 
-                                        Route.Twilogs ->
-                                            [ Html.text "Twilog" ]
+                                            Route.Twilogs ->
+                                                [ Html.text "Twilog" ]
 
-                                        Route.Twilogs__Day_ { day } ->
-                                            [ Route.link [] [ Html.text "Twilog" ] Route.Twilogs
-                                            , Html.text day
-                                            ]
+                                            Route.Twilogs__YearMonth_ { yearMonth } ->
+                                                [ Route.link Route.Twilogs [] [ Html.text "Twilog" ]
+                                                , Html.text yearMonth
+                                                ]
 
-                                        Route.Index ->
-                                            []
-                                )
-                            |> Maybe.withDefault []
-                        ]
-            , sitemap
-            , Html.nav [ Html.Attributes.class "meta" ]
-                [ siteBuildStatus
-                , twitterLink
+                                            Route.Index ->
+                                                []
+                                    )
+                                |> Maybe.withDefault []
+                            ]
+                , sitemap
+                , Html.nav [ Html.Attributes.class "meta" ]
+                    [ siteBuildStatus
+                    , twitterLink
+                    ]
+                ]
+            , Html.hr [] []
+            , Html.main_ [] pageView.body
+            , Html.hr [] []
+            , Html.footer []
+                [ Html.text "© Yu Matsuzawa (ymtszw, Gada), 2022 "
+                , sitemap
+                , Html.nav [ Html.Attributes.class "meta" ]
+                    [ siteBuildStatus
+                    , twitterLink
+                    ]
                 ]
             ]
-        , Html.hr [] []
-        , Html.main_ [] pageView.body
-        , Html.hr [] []
-        , Html.footer []
-            [ Html.text "© Yu Matsuzawa (ymtszw, Gada), 2022 "
-            , sitemap
-            , Html.nav [ Html.Attributes.class "meta" ]
-                [ siteBuildStatus
-                , twitterLink
-                ]
-            ]
-        ]
     }
-
-
-cmsArticleShortTitle : String -> List CmsArticleMetadata -> String
-cmsArticleShortTitle articleId cmsArticles =
-    cmsArticles
-        |> List.Extra.find (\cmsArticle -> cmsArticle.contentId == articleId)
-        |> Maybe.map
-            (\cmsArticle ->
-                if String.length cmsArticle.title > 40 then
-                    String.left 40 cmsArticle.title ++ "..."
-
-                else
-                    cmsArticle.title
-            )
-        |> Maybe.withDefault articleId
 
 
 siteBuildStatus =
@@ -758,9 +696,9 @@ sitemap =
     Html.nav [] <|
         List.intersperse (Html.text " | ")
             [ Html.text ""
-            , Route.link [] [ Html.text "このサイトについて" ] Route.About
-            , Route.link [] [ Html.text "Twilog" ] Route.Twilogs
-            , Route.link [] [ Html.text "記事" ] Route.Articles
+            , Route.link Route.About [] [ Html.text "このサイトについて" ]
+            , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
+            , Route.link Route.Articles [] [ Html.text "記事" ]
             , Html.text ""
             ]
 

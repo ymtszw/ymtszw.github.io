@@ -1,34 +1,32 @@
-module Route.Index exposing
-    ( ActionData
-    , Data
+module Page.Index exposing
+    ( Data
     , Model
     , Msg
     , RouteParams
-    , route
+    , page
     )
 
-import BackendTask exposing (BackendTask)
+import Browser.Navigation
+import DataSource exposing (DataSource)
 import Dict
-import Effect
-import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
+import Helper
 import Html
 import Html.Attributes
-import Json.Decode
-import Json.Decode.Extra
-import PagesMsg
+import OptimizedDecoder
+import Page
+import Page.Articles
+import Page.Twilogs
+import Pages.PageUrl
 import Route
-import Route.Articles
-import Route.Twilogs
-import RouteBuilder
 import Shared exposing (CmsArticleMetadata, RataDie, Twilog, iso8601Decoder, publicCmsArticles, seoBase)
 import Time
 import View
 
 
 type alias Model =
-    {}
+    ()
 
 
 type Msg
@@ -69,61 +67,60 @@ type alias QiitaArticleMetadata =
     }
 
 
-type alias ActionData =
-    {}
-
-
-route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
-route =
-    RouteBuilder.single
+page =
+    Page.single
         { head = head
         , data = data
         }
-        |> RouteBuilder.buildWithSharedState
-            { init = \_ _ -> ( {}, Effect.init InitiateLinkPreviewPopulation )
+        |> Page.buildWithSharedState
+            { init = \_ _ _ -> ( (), Helper.initMsg InitiateLinkPreviewPopulation )
             , update = update
-            , subscriptions = \_ _ _ _ -> Sub.none
+            , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
             }
 
 
-data : BackendTask FatalError Data
+data : DataSource Data
 data =
-    BackendTask.map4 Data
+    DataSource.map4 Data
         publicOriginalRepos
         publicCmsArticles
         publicZennArticles
         publicQiitaArticles
-        |> BackendTask.andThen
+        |> DataSource.andThen
             (\cont ->
-                Shared.twilogArchives
-                    |> BackendTask.andThen
-                        (\twilogArchives ->
-                            case twilogArchives of
-                                latestArchive :: _ ->
-                                    Shared.dailyTwilogsFromOldest [ latestArchive.path ]
-                                        |> BackendTask.map
+                Page.Twilogs.getRecentDays 1
+                    |> DataSource.andThen
+                        (\latestArchive ->
+                            case latestArchive of
+                                latestArchive_ :: _ ->
+                                    Shared.dailyTwilogsFromOldest [ Shared.makeTwilogsJsonPath latestArchive_ ]
+                                        |> DataSource.map
                                             (\dailyTwilogs ->
                                                 -- In this page dailyTwilogs contain only one day
-                                                Dict.get latestArchive.rataDie dailyTwilogs
-                                                    |> Maybe.withDefault []
-                                                    |> cont latestArchive.rataDie
+                                                case Dict.toList dailyTwilogs of
+                                                    [ ( rataDie, twilogs ) ] ->
+                                                        cont rataDie twilogs
+
+                                                    _ ->
+                                                        -- Should not happen
+                                                        cont 1 []
                                             )
 
                                 [] ->
-                                    BackendTask.fail (FatalError.fromString "No twilogs; Should not happen")
+                                    DataSource.fail "No twilogs; Should not happen"
                         )
             )
 
 
 publicOriginalRepos =
     Shared.githubGet "https://api.github.com/users/ymtszw/repos?per_page=100&direction=desc&sort=created"
-        (Json.Decode.list
-            (Json.Decode.map2 Tuple.pair
-                (Json.Decode.field "fork" (Json.Decode.map not Json.Decode.bool))
-                (Json.Decode.field "name" Json.Decode.string)
+        (OptimizedDecoder.list
+            (OptimizedDecoder.map2 Tuple.pair
+                (OptimizedDecoder.field "fork" (OptimizedDecoder.map not OptimizedDecoder.bool))
+                (OptimizedDecoder.field "name" OptimizedDecoder.string)
             )
-            |> Json.Decode.map
+            |> OptimizedDecoder.map
                 (List.filterMap
                     (\( fork, name ) ->
                         if fork then
@@ -142,79 +139,70 @@ publicZennArticles =
             "https://zenn.dev/ymtszw/articles/"
 
         articleMetadataDecoder =
-            Json.Decode.succeed ZennArticleMetadata
-                |> Json.Decode.Extra.andMap (Json.Decode.field "slug" (Json.Decode.map ((++) baseUrl) Json.Decode.string))
-                |> Json.Decode.Extra.andMap
-                    (Json.Decode.oneOf
-                        [ Json.Decode.field "body_updated_at" iso8601Decoder
-                        , Json.Decode.field "published_at" iso8601Decoder
+            OptimizedDecoder.succeed ZennArticleMetadata
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "slug" (OptimizedDecoder.map ((++) baseUrl) OptimizedDecoder.string))
+                |> OptimizedDecoder.andMap
+                    (OptimizedDecoder.oneOf
+                        [ OptimizedDecoder.field "body_updated_at" iso8601Decoder
+                        , OptimizedDecoder.field "published_at" iso8601Decoder
                         ]
                     )
-                |> Json.Decode.Extra.andMap (Json.Decode.field "published_at" iso8601Decoder)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "title" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "liked_count" Json.Decode.int)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "article_type" Json.Decode.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "published_at" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "liked_count" OptimizedDecoder.int)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "article_type" OptimizedDecoder.string)
     in
-    Shared.cmsGet "https://zenn.dev/api/articles?username=ymtszw&count=500&order=latest"
-        (Json.Decode.field "articles" (Json.Decode.list articleMetadataDecoder))
+    Shared.miscGet "https://zenn.dev/api/articles?username=ymtszw&count=500&order=latest"
+        (OptimizedDecoder.field "articles" (OptimizedDecoder.list articleMetadataDecoder))
 
 
 publicQiitaArticles =
     let
         articleMetadataDecoder =
-            Json.Decode.succeed QiitaArticleMetadata
-                |> Json.Decode.Extra.andMap (Json.Decode.field "url" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "created_at" iso8601Decoder)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "updated_at" iso8601Decoder)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "title" Json.Decode.string)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "likes_count" Json.Decode.int)
-                |> Json.Decode.Extra.andMap (Json.Decode.field "tags" (Json.Decode.list (Json.Decode.field "name" Json.Decode.string)))
+            OptimizedDecoder.succeed QiitaArticleMetadata
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "url" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "created_at" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "updated_at" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "likes_count" OptimizedDecoder.int)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "tags" (OptimizedDecoder.list (OptimizedDecoder.field "name" OptimizedDecoder.string)))
     in
-    Shared.cmsGet "https://qiita.com/api/v2/users/ymtszw/items?per_page=100"
-        (Json.Decode.list articleMetadataDecoder)
+    Shared.miscGet "https://qiita.com/api/v2/users/ymtszw/items?per_page=100"
+        (OptimizedDecoder.list articleMetadataDecoder)
 
 
-head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
+head : Page.StaticPayload Data RouteParams -> List Head.Tag
 head _ =
     Seo.summaryLarge seoBase
         |> Seo.website
 
 
-update :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> Msg
-    -> Model
-    -> ( Model, Effect.Effect Msg, Maybe Shared.Msg )
-update app shared msg model =
+update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
+update _ _ shared app msg model =
     case msg of
         InitiateLinkPreviewPopulation ->
             ( model
-            , Effect.none
-            , Route.Twilogs.listUrlsForPreviewSingle shared app.data.twilogs
+            , Cmd.none
+            , Page.Twilogs.listUrlsForPreviewSingle shared app.data.twilogs
             )
 
 
-view :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> Model
-    -> View.View (PagesMsg.PagesMsg Msg)
-view app shared _ =
+view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
+view _ shared _ app =
     { title = ""
     , body =
         [ Html.h1 []
             [ View.imgLazy [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             , Html.text "ymtszw's page"
             ]
-        , Html.h2 [] [ Route.link [] [ Html.text "Twilog" ] Route.Twilogs ]
+        , Html.h2 [] [ Route.link Route.Twilogs [] [ Html.text "Twilog" ] ]
         , app.data.twilogs
-            |> Route.Twilogs.twilogsOfTheDay shared
+            |> Page.Twilogs.twilogsOfTheDay shared
             |> showless "latest-twilogs"
-        , Html.h2 [] [ Route.link [] [ Html.text "記事" ] Route.Articles, View.feedLink "/articles/feed.xml" ]
+        , Html.h2 [] [ Route.link Route.Articles [] [ Html.text "記事" ], View.feedLink "/articles/feed.xml" ]
         , app.data.cmsArticles
             |> List.take 5
-            |> List.map Route.Articles.cmsArticlePreview
+            |> List.map Page.Articles.cmsArticlePreview
             |> Html.div []
             |> showless "cms-articles"
         , Html.h2 [] [ Html.text "Zenn記事", View.feedLink "https://zenn.dev/ymtszw/feed" ]

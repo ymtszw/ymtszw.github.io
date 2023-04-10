@@ -1,39 +1,43 @@
-module Route.Twilogs exposing
-    ( ActionData
-    , Data
+module Page.Twilogs exposing
+    ( Data
     , Model
     , Msg
     , RouteParams
+    , getRecentDays
     , linksByMonths
+    , listUrlsForPreviewBulk
     , listUrlsForPreviewSingle
-    , route
+    , page
+    , showTwilogsByDailySections
     , twilogDailySection
     , twilogsOfTheDay
     )
 
-import BackendTask exposing (BackendTask)
-import Date exposing (Date)
+import Browser.Navigation
+import DataSource exposing (DataSource)
+import DataSource.Glob
+import Date
 import Dict exposing (Dict)
-import Effect
-import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
+import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Keyed
 import LinkPreview
 import List.Extra
 import Markdown
-import PagesMsg
+import Page
+import Pages.PageUrl
+import Path
 import Regex exposing (Regex)
 import Route
-import RouteBuilder
 import Shared exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..), seoBase)
 import View exposing (imgLazy)
 
 
 type alias Model =
-    {}
+    ()
 
 
 type Msg
@@ -48,41 +52,49 @@ type alias Data =
     { recentDailyTwilogs : Dict RataDie (List Twilog) }
 
 
-type alias ActionData =
-    {}
-
-
-route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
-route =
-    RouteBuilder.single
+page =
+    Page.single
         { head = head
         , data = data
         }
-        |> RouteBuilder.buildWithSharedState
-            { init = \_ _ -> ( {}, Effect.init InitiateLinkPreviewPopulation )
+        |> Page.buildWithSharedState
+            { init = \_ _ _ -> ( (), Helper.initMsg InitiateLinkPreviewPopulation )
             , update = update
-            , subscriptions = \_ _ _ _ -> Sub.none
+            , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
             }
 
 
-data : BackendTask FatalError Data
+data : DataSource Data
 data =
-    Shared.twilogArchives
-        |> BackendTask.andThen
-            (\archives ->
-                List.take daysToPeek archives
-                    |> List.map .path
-                    |> Shared.dailyTwilogsFromOldest
-                    |> BackendTask.map Data
+    getRecentDays daysToPeek
+        |> DataSource.andThen
+            (\dateStrings ->
+                Shared.dailyTwilogsFromOldest (List.map Shared.makeTwilogsJsonPath dateStrings)
+                    |> DataSource.map Data
             )
 
 
 daysToPeek =
-    5
+    3
 
 
-head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
+getRecentDays : Int -> DataSource (List String)
+getRecentDays days =
+    DataSource.Glob.succeed (\year month day -> String.join "-" [ year, month, day ])
+        |> DataSource.Glob.match (DataSource.Glob.literal "data/")
+        |> DataSource.Glob.capture DataSource.Glob.wildcard
+        |> DataSource.Glob.match (DataSource.Glob.literal "/")
+        |> DataSource.Glob.capture DataSource.Glob.wildcard
+        |> DataSource.Glob.match (DataSource.Glob.literal "/")
+        |> DataSource.Glob.capture DataSource.Glob.wildcard
+        |> DataSource.Glob.match (DataSource.Glob.literal "-twilogs.json")
+        |> DataSource.Glob.toDataSource
+        -- Make newest first
+        |> DataSource.map (List.sort >> List.reverse >> List.take days)
+
+
+head : Page.StaticPayload Data RouteParams -> List Head.Tag
 head _ =
     Seo.summaryLarge
         { seoBase
@@ -92,17 +104,12 @@ head _ =
         |> Seo.website
 
 
-update :
-    RouteBuilder.App Data {} RouteParams
-    -> Shared.Model
-    -> Msg
-    -> Model
-    -> ( Model, Effect.Effect Msg, Maybe Shared.Msg )
-update app shared msg model =
+update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
+update _ _ shared app msg model =
     case msg of
         InitiateLinkPreviewPopulation ->
             ( model
-            , Effect.none
+            , Cmd.none
             , listUrlsForPreviewBulk shared app.data.recentDailyTwilogs
             )
 
@@ -172,12 +179,8 @@ listUrlsForPreviewFromReplies links replies =
     listUrlsForPreviewSingleHelp links (List.map (\(Reply twilog) -> twilog) replies)
 
 
-view :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> Model
-    -> View.View (PagesMsg.PagesMsg Msg)
-view app shared _ =
+view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
+view _ shared _ app =
     { title = "Twilog"
     , body =
         [ h1 [] [ text "Twilog" ]
@@ -190,13 +193,13 @@ view app shared _ =
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（予定）
 """
         ]
-            ++ showRecentTwilogs shared app.data.recentDailyTwilogs
+            ++ showTwilogsByDailySections shared app.data.recentDailyTwilogs
             ++ [ linksByMonths Nothing app.sharedData.twilogArchives ]
     }
 
 
-showRecentTwilogs : Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
-showRecentTwilogs shared recentDailyTwilogs =
+showTwilogsByDailySections : Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
+showTwilogsByDailySections shared recentDailyTwilogs =
     -- foldl to traverse from the oldest
     Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared rataDie twilogs :: acc) [] recentDailyTwilogs
 
@@ -206,9 +209,18 @@ twilogDailySection shared rataDie twilogs =
     let
         date =
             Date.fromRataDie rataDie
+
+        yearMonth =
+            String.dropRight 3 (Date.toIsoString date)
+
+        dayId =
+            String.padLeft 2 '0' (String.fromInt (Date.day date))
+
+        linkWithDayFragment =
+            Path.toAbsolute (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth })) ++ "#" ++ dayId
     in
     section []
-        [ h3 [] [ Route.link [] [ text (Date.format "yyyy/MM/dd (E)" date) ] <| Route.Twilogs__Day_ { day = Date.toIsoString date } ]
+        [ h3 [ id dayId ] [ a [ href linkWithDayFragment ] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
         , twilogsOfTheDay shared twilogs
         ]
 
@@ -519,55 +531,56 @@ appendMediaGrid status htmls =
             htmls ++ [ div [ class "media-grid" ] <| List.map aMedia nonEmpty ]
 
 
-linksByMonths : Maybe Date -> List Shared.TwilogArchiveMetadata -> Html msg
-linksByMonths maybeOpenedDate twilogArchives =
+linksByMonths : Maybe String -> List Shared.TwilogArchiveYearMonth -> Html msg
+linksByMonths maybeOpenedYearMonth twilogArchives =
     let
         datesGroupedByYearMonthFromNewest =
             twilogArchives
                 -- Traverse from oldest
                 |> List.foldr
-                    (\{ date } acc ->
-                        Dict.update (Date.year date)
-                            (\maybeMonths ->
-                                case maybeMonths of
-                                    Nothing ->
-                                        Just (Dict.singleton (Date.monthNumber date) [ date ])
+                    (\yearMonth acc ->
+                        case String.split "-" yearMonth of
+                            [ year, month ] ->
+                                Dict.update year
+                                    (\maybeMonths ->
+                                        case maybeMonths of
+                                            Nothing ->
+                                                Just [ month ]
 
-                                    Just months ->
-                                        Just
-                                            (Dict.update (Date.monthNumber date)
-                                                (\maybeDates ->
-                                                    case maybeDates of
-                                                        Nothing ->
-                                                            Just [ date ]
+                                            Just months ->
+                                                -- Eventually newest-first list
+                                                Just (month :: months)
+                                    )
+                                    acc
 
-                                                        Just dates ->
-                                                            -- Cons from oldest to newest
-                                                            Just (date :: dates)
-                                                )
-                                                months
-                                            )
-                            )
-                            acc
+                            _ ->
+                                -- Usually not happen
+                                acc
                     )
                     Dict.empty
-                -- Here Dict -> List conversion makes the resulting list oldest-first
-                |> Dict.map (\_ v -> v |> Dict.toList |> List.reverse)
+                -- Here Dict -> List conversion makes the resulting list oldest-first; reverse it
                 |> Dict.toList
                 |> List.reverse
 
         ( openedYear, openedMonth ) =
-            case maybeOpenedDate of
+            case maybeOpenedYearMonth of
                 Nothing ->
                     case datesGroupedByYearMonthFromNewest of
-                        ( year, ( month, _ ) :: _ ) :: _ ->
+                        ( year, month :: _ ) :: _ ->
                             ( year, month )
 
                         _ ->
-                            ( 2023, 4 )
+                            -- fallback
+                            ( "2023", "04" )
 
-                Just date ->
-                    ( Date.year date, Date.monthNumber date )
+                Just yearMonth ->
+                    case String.split "-" yearMonth of
+                        [ year, month ] ->
+                            ( year, month )
+
+                        _ ->
+                            -- fallback
+                            ( "2023", "04" )
     in
     datesGroupedByYearMonthFromNewest
         |> List.map
@@ -579,31 +592,18 @@ linksByMonths maybeOpenedDate twilogArchives =
                       else
                         classList []
                     ]
-                    (summary [] [ text (String.fromInt year ++ "年") ]
-                        :: List.map
-                            (\( monthNum, dates ) ->
-                                details
-                                    [ if ( year, monthNum ) == ( openedYear, openedMonth ) then
-                                        attribute "open" ""
+                    [ summary [] [ text (year ++ "年") ]
+                    , List.map
+                        (\month ->
+                            if ( year, month ) == ( openedYear, openedMonth ) then
+                                li [ class "selected" ] [ text (year ++ "/" ++ month) ]
 
-                                      else
-                                        classList []
-                                    ]
-                                    [ summary [] [ text (String.fromInt monthNum ++ "月") ]
-                                    , List.map
-                                        (\date ->
-                                            if Just date == maybeOpenedDate then
-                                                li [ class "selected" ] [ text <| Date.format "yyyy/MM/dd (E)" date ]
-
-                                            else
-                                                li [] [ Route.link [] [ text (Date.format "yyyy/MM/dd (E)" date) ] <| Route.Twilogs__Day_ { day = Date.toIsoString date } ]
-                                        )
-                                        dates
-                                        |> ul []
-                                    ]
-                            )
-                            months
-                    )
+                            else
+                                li [] [ Route.link (Route.Twilogs__YearMonth_ { yearMonth = year ++ "-" ++ month }) [] [ text (year ++ "/" ++ month) ] ]
+                        )
+                        months
+                        |> ul []
+                    ]
             )
         |> nav [ class "twilog-archive-navigation" ]
 

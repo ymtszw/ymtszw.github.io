@@ -3,15 +3,14 @@ module LinkPreview exposing (Metadata, collectMetadataOnBuild, getMetadataOnBuil
 {-| LinkPreview API module.
 -}
 
-import BackendTask exposing (BackendTask)
-import BackendTask.Http
+import DataSource exposing (DataSource)
+import DataSource.Http
 import Dict exposing (Dict)
-import FatalError exposing (FatalError)
 import Helper exposing (nonEmptyString)
 import Html.Parser exposing (Node(..))
 import Http
-import Json.Decode
-import Json.Decode.Extra
+import OptimizedDecoder
+import Pages.Secrets
 import Task exposing (Task)
 import Url
 
@@ -34,19 +33,18 @@ type alias Metadata =
     }
 
 
-collectMetadataOnBuild : List String -> BackendTask FatalError (Dict String Metadata)
+collectMetadataOnBuild : List String -> DataSource (Dict String Metadata)
 collectMetadataOnBuild links =
     links
         |> List.map getMetadataOnBuild
-        |> BackendTask.combine
-        |> BackendTask.map Dict.fromList
-        |> BackendTask.allowFatal
+        |> DataSource.combine
+        |> DataSource.map Dict.fromList
 
 
+getMetadataOnBuild : String -> DataSource ( String, Metadata )
 getMetadataOnBuild url =
-    BackendTask.Http.getJson (linkPreviewApiEndpoint url)
-        (linkPreviewDecoder url)
-        |> BackendTask.map (Tuple.pair url)
+    DataSource.Http.get (Pages.Secrets.succeed (linkPreviewApiEndpoint url)) (linkPreviewDecoder url)
+        |> DataSource.map (Tuple.pair url)
 
 
 {-| Using personal link preview service. <https://github.com/ymtszw/link-preview>
@@ -55,10 +53,10 @@ linkPreviewApiEndpoint url =
     "https://link-preview.ymtszw.workers.dev/?q=" ++ Url.percentEncode url
 
 
-linkPreviewDecoder : String -> Json.Decode.Decoder Metadata
+linkPreviewDecoder : String -> OptimizedDecoder.Decoder Metadata
 linkPreviewDecoder requestUrl =
-    Json.Decode.field "url" Json.Decode.string
-        |> Json.Decode.andThen
+    OptimizedDecoder.field "url" OptimizedDecoder.string
+        |> OptimizedDecoder.andThen
             (\canonicalUrl ->
                 let
                     -- canonicalUrl does not include fragment, so we need to append it back from requestUrl
@@ -74,12 +72,12 @@ linkPreviewDecoder requestUrl =
                                 canonicalUrl
                 in
                 -- If upstream requestUrl returned status >= 400, link-preview service returns error, failing this decoder
-                Json.Decode.succeed Metadata
+                OptimizedDecoder.succeed Metadata
                     -- Treat HTML without title (such as "301 moved permanently" page) as empty.
-                    |> Json.Decode.Extra.andMap (Json.Decode.field "title" nonEmptyString)
-                    |> Json.Decode.Extra.andMap (Json.Decode.Extra.optionalField "description" nonEmptyString)
-                    |> Json.Decode.Extra.andMap (Json.Decode.Extra.optionalField "image" (Json.Decode.map (resolveUrl canonicalUrl) nonEmptyString))
-                    |> Json.Decode.Extra.andMap (Json.Decode.succeed canonicalUrlWithFragment)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" nonEmptyString)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "description" nonEmptyString)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "image" (OptimizedDecoder.map (resolveUrl canonicalUrl) nonEmptyString))
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.succeed canonicalUrlWithFragment)
             )
 
 
@@ -124,8 +122,8 @@ getMetadataOnDemand url =
                 \response ->
                     case response of
                         Http.GoodStatus_ _ body ->
-                            Json.Decode.decodeString (linkPreviewDecoder url) body
-                                |> Result.mapError Json.Decode.errorToString
+                            OptimizedDecoder.decodeString (linkPreviewDecoder url) body
+                                |> Result.mapError OptimizedDecoder.errorToString
 
                         _ ->
                             Err "something failed"

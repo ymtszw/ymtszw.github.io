@@ -1,37 +1,34 @@
-module Route.About exposing
-    ( ActionData
-    , Data
+module Page.About exposing
+    ( Data
     , Model
     , Msg
     , RouteParams
-    , route
+    , page
     )
 
-import BackendTask exposing (BackendTask)
-import BackendTask.File
 import Base64
+import DataSource exposing (DataSource)
+import DataSource.File
 import Dict
-import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html exposing (..)
 import Html.Attributes exposing (href, target)
-import Json.Decode
-import Json.Decode.Extra
 import Markdown
 import Markdown.Block
-import PagesMsg
-import RouteBuilder
+import OptimizedDecoder
+import Page
+import Pages.PageUrl
 import Shared exposing (seoBase)
 import View
 
 
 type alias Model =
-    {}
+    ()
 
 
 type alias Msg =
-    ()
+    Never
 
 
 type alias RouteParams =
@@ -44,50 +41,40 @@ type alias Data =
     }
 
 
-type alias ActionData =
-    {}
-
-
-route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
-route =
-    RouteBuilder.single
+page =
+    Page.single
         { head = head
         , data = data
         }
-        |> RouteBuilder.buildNoState { view = view }
+        |> Page.buildNoState { view = view }
 
 
-data : BackendTask FatalError Data
+data : DataSource Data
 data =
     let
         readme =
-            BackendTask.File.bodyWithoutFrontmatter "README.md"
-                |> BackendTask.allowFatal
-                |> BackendTask.andThen
-                    (Markdown.parse
-                        >> BackendTask.fromResult
-                        >> BackendTask.mapError FatalError.fromString
-                    )
+            DataSource.File.bodyWithoutFrontmatter "README.md"
+                |> DataSource.andThen (Markdown.parse >> DataSource.fromResult)
 
         bio =
             Shared.githubGet "https://api.github.com/repos/ymtszw/ymtszw/contents/README.md"
-                (Json.Decode.oneOf
-                    [ Json.Decode.field "message" (Json.Decode.map .parsed Markdown.decoder)
-                    , Json.Decode.field "content" Json.Decode.string
-                        |> Json.Decode.map (String.replace "\n" "")
-                        |> Json.Decode.andThen
+                (OptimizedDecoder.oneOf
+                    [ OptimizedDecoder.field "message" (OptimizedDecoder.map .parsed Markdown.decoder)
+                    , OptimizedDecoder.field "content" OptimizedDecoder.string
+                        |> OptimizedDecoder.map (String.replace "\n" "")
+                        |> OptimizedDecoder.andThen
                             (Base64.toString
                                 >> Result.fromMaybe "Base64 Error!"
                                 >> Result.andThen Markdown.parse
-                                >> Json.Decode.Extra.fromResult
+                                >> OptimizedDecoder.fromResult
                             )
                     ]
                 )
     in
-    BackendTask.map2 Data readme bio
+    DataSource.map2 Data readme bio
 
 
-head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
+head : Page.StaticPayload Data RouteParams -> List Head.Tag
 head _ =
     Seo.summaryLarge
         { seoBase
@@ -97,11 +84,8 @@ head _ =
         |> Seo.website
 
 
-view :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> View.View (PagesMsg.PagesMsg Msg)
-view app _ =
+view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data RouteParams -> View.View Msg
+view _ _ app =
     { title = "このサイトについて"
     , body =
         [ div [] <| Markdown.render Dict.empty app.data.readme

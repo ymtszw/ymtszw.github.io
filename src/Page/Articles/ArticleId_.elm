@@ -1,6 +1,5 @@
-module Route.Articles.ArticleId_ exposing
-    ( ActionData
-    , CmsArticle
+module Page.Articles.ArticleId_ exposing
+    ( CmsArticle
     , Data
     , ExternalView
     , HtmlOrMarkdown(..)
@@ -9,41 +8,39 @@ module Route.Articles.ArticleId_ exposing
     , RouteParams
     , cmsArticleBodyDecoder
     , data
-    , pages
+    , page
     , renderArticle
-    , route
+    , routes
     )
 
-import BackendTask exposing (BackendTask)
-import DateOrDateTime
+import DataSource exposing (DataSource)
 import Dict exposing (Dict)
 import ExternalHtml
-import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html
 import Html.Attributes
 import Html.Parser
-import Json.Decode
-import Json.Decode.Extra
+import Iso8601
 import LinkPreview
 import List.Extra
 import Markdown
 import Markdown.Block
-import PagesMsg
+import OptimizedDecoder
+import Page
+import Pages.PageUrl
 import Route
-import RouteBuilder
 import Shared exposing (CmsArticleMetadata, seoBase)
 import Time
 import View
 
 
 type alias Model =
-    {}
+    ()
 
 
 type alias Msg =
-    ()
+    Never
 
 
 type alias RouteParams =
@@ -81,44 +78,39 @@ type HtmlOrMarkdown
     | Markdown (List Markdown.Block.Block)
 
 
-type alias ActionData =
-    {}
-
-
-route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
-route =
-    RouteBuilder.preRender
+page =
+    Page.prerender
         { head = head
-        , pages = pages
+        , routes = routes
         , data = data
         }
-        |> RouteBuilder.buildNoState { view = view }
+        |> Page.buildNoState { view = view }
 
 
-pages : BackendTask FatalError (List RouteParams)
-pages =
-    BackendTask.map (List.map (.contentId >> RouteParams)) Shared.publicCmsArticles
+routes : DataSource (List RouteParams)
+routes =
+    DataSource.map (List.map (.contentId >> RouteParams)) Shared.publicCmsArticles
 
 
-data : RouteParams -> BackendTask FatalError Data
+data : RouteParams -> DataSource Data
 data routeParams =
     Shared.cmsGet ("https://ymtszw.microcms.io/api/v1/articles/" ++ routeParams.articleId)
-        (Json.Decode.succeed CmsArticle
-            |> Json.Decode.Extra.andMap (Json.Decode.succeed routeParams.articleId)
-            |> Json.Decode.Extra.andMap (Json.Decode.field "publishedAt" Shared.iso8601Decoder)
-            |> Json.Decode.Extra.andMap (Json.Decode.field "revisedAt" Shared.iso8601Decoder)
-            |> Json.Decode.Extra.andMap (Json.Decode.field "title" Json.Decode.string)
-            |> Json.Decode.Extra.andMap (Json.Decode.maybe (Json.Decode.field "image" Shared.cmsImageDecoder))
-            |> Json.Decode.andThen cmsArticleBodyDecoder
+        (OptimizedDecoder.succeed CmsArticle
+            |> OptimizedDecoder.andMap (OptimizedDecoder.succeed routeParams.articleId)
+            |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" Shared.iso8601Decoder)
+            |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" Shared.iso8601Decoder)
+            |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
+            |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "image" Shared.cmsImageDecoder))
+            |> OptimizedDecoder.andThen cmsArticleBodyDecoder
         )
-        |> BackendTask.andThen
+        |> DataSource.andThen
             (\currentArticle ->
                 currentArticle.body.links
                     |> LinkPreview.collectMetadataOnBuild
-                    |> BackendTask.andThen
+                    |> DataSource.andThen
                         (\links ->
                             Shared.publicCmsArticles
-                                |> BackendTask.map
+                                |> DataSource.map
                                     (\cmsArticles ->
                                         let
                                             ( next, prev ) =
@@ -134,7 +126,7 @@ data routeParams =
             )
 
 
-cmsArticleBodyDecoder : (ExternalView -> String -> a) -> Json.Decode.Decoder a
+cmsArticleBodyDecoder : (ExternalView -> String -> a) -> OptimizedDecoder.Decoder a
 cmsArticleBodyDecoder cont =
     let
         mapFromExternalHtml { parsed, excerpt, links } =
@@ -143,13 +135,13 @@ cmsArticleBodyDecoder cont =
         mapFromMarkdown { parsed, excerpt, links } =
             ExternalView (Markdown parsed) excerpt links
     in
-    Json.Decode.oneOf
-        [ Json.Decode.succeed cont
-            |> Json.Decode.Extra.andMap (Json.Decode.field "html" (Json.Decode.map mapFromExternalHtml ExternalHtml.decoder))
-            |> Json.Decode.Extra.andMap (Json.Decode.succeed "html")
-        , Json.Decode.succeed cont
-            |> Json.Decode.Extra.andMap (Json.Decode.field "markdown" (Json.Decode.map mapFromMarkdown Markdown.decoder))
-            |> Json.Decode.Extra.andMap (Json.Decode.succeed "markdown")
+    OptimizedDecoder.oneOf
+        [ OptimizedDecoder.succeed cont
+            |> OptimizedDecoder.andMap (OptimizedDecoder.field "html" (OptimizedDecoder.map mapFromExternalHtml ExternalHtml.decoder))
+            |> OptimizedDecoder.andMap (OptimizedDecoder.succeed "html")
+        , OptimizedDecoder.succeed cont
+            |> OptimizedDecoder.andMap (OptimizedDecoder.field "markdown" (OptimizedDecoder.map mapFromMarkdown Markdown.decoder))
+            |> OptimizedDecoder.andMap (OptimizedDecoder.succeed "markdown")
         ]
 
 
@@ -164,7 +156,7 @@ findNextAndPrevArticleMeta currentArticle cmsArticlesFromLatest =
             ( Nothing, List.head cmsArticlesFromLatest )
 
 
-head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
+head : Page.StaticPayload Data RouteParams -> List Head.Tag
 head app =
     Seo.summaryLarge
         { seoBase
@@ -175,17 +167,14 @@ head app =
         |> Seo.article
             { tags = []
             , section = Nothing
-            , publishedTime = Just (DateOrDateTime.DateTime app.data.article.publishedAt)
-            , modifiedTime = Just (DateOrDateTime.DateTime app.data.article.revisedAt)
+            , publishedTime = Just (Iso8601.fromTime app.data.article.publishedAt)
+            , modifiedTime = Just (Iso8601.fromTime app.data.article.revisedAt)
             , expirationTime = Nothing
             }
 
 
-view :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> View.View (PagesMsg.PagesMsg Msg)
-view app _ =
+view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data RouteParams -> View.View msg
+view _ _ app =
     { title = app.data.article.title
     , body =
         [ prevNextNavigation app.data
@@ -213,25 +202,24 @@ renderArticle :
             , image : Maybe Shared.CmsImage
             , body : ExternalView
         }
-    -> Html.Html (PagesMsg.PagesMsg msg)
+    -> Html.Html msg
 renderArticle links contents =
-    Html.map PagesMsg.fromMsg <|
-        Html.article [] <|
-            (case contents.image of
-                Just cmsImage ->
-                    [ Html.figure [] [ View.imgLazy [ Html.Attributes.src cmsImage.url, Html.Attributes.width cmsImage.width, Html.Attributes.height cmsImage.height, Html.Attributes.alt "Article Header Image" ] [] ] ]
+    Html.article [] <|
+        (case contents.image of
+            Just cmsImage ->
+                [ Html.figure [] [ View.imgLazy [ Html.Attributes.src cmsImage.url, Html.Attributes.width cmsImage.width, Html.Attributes.height cmsImage.height, Html.Attributes.alt "Article Header Image" ] [] ] ]
 
-                Nothing ->
-                    []
-            )
-                ++ Html.h1 [] [ Html.text contents.title ]
-                :: (case contents.body.parsed of
-                        Html parsed ->
-                            ExternalHtml.render links parsed
+            Nothing ->
+                []
+        )
+            ++ Html.h1 [] [ Html.text contents.title ]
+            :: (case contents.body.parsed of
+                    Html parsed ->
+                        ExternalHtml.render links parsed
 
-                        Markdown parsed ->
-                            Markdown.render links parsed
-                   )
+                    Markdown parsed ->
+                        Markdown.render links parsed
+               )
 
 
 prevNextNavigation : Data -> Html.Html msg
@@ -240,7 +228,7 @@ prevNextNavigation data_ =
         toLink maybeArticleMeta child =
             case maybeArticleMeta of
                 Just articleMeta ->
-                    Route.link [] [ Html.strong [] [ child ] ] <| Route.Articles__ArticleId_ { articleId = articleMeta.contentId }
+                    Route.link (Route.Articles__ArticleId_ { articleId = articleMeta.contentId }) [] [ Html.strong [] [ child ] ]
 
                 Nothing ->
                     child
