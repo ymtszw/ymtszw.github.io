@@ -190,7 +190,7 @@ view _ shared _ app =
 
 - Zapierを起点としてうまいことTweetを継続的に蓄積
 - それを自前でTwilogっぽくwebページ化（サイトはデイリービルド）
-- Twitter公式機能で取得したアーカイブから過去ページも追って作成（予定）
+- Twitter公式機能で取得したアーカイブから過去ページも追って作成（完成）
 """
         ]
             ++ showTwilogsByDailySections shared app.data.recentDailyTwilogs
