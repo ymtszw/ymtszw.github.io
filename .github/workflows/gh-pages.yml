@@ -29,14 +29,15 @@ jobs:
           submodules: recursive
       - uses: actions/cache@v3
         with:
-          key: v2-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
+          key: v3-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
           restore-keys: |
-            v2-${{ hashFiles('package-lock.json') }}-
-            v2-
+            v3-${{ hashFiles('package-lock.json') }}-
+            v3-
           path: |
-            node_modules
+            node_modules/
+            elm-stuff/
+            .elm-pages/
             ~/.elm
-            bin/
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
