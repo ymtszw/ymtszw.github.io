@@ -210,15 +210,22 @@ Tweet-like style on top of Sakura.css
 .tweet > input[type="checkbox"]:checked {
   opacity: 0.8;
 }
-.tweet > input[type="checkbox"] + .twilog-data {
+.tweet > input[type="checkbox"] ~ .twilog-data {
   display: none;
   white-space: pre-wrap;
   font-family: 'Cica', Courier, 'Courier New', monospace;
 }
-.tweet > input[type="checkbox"]:checked + .twilog-data {
+.tweet > input[type="checkbox"] ~ label {
+  display: none;
+}
+.tweet > input[type="checkbox"]:checked ~ .twilog-data {
   display: block;
 }
-.tweet > input[type="checkbox"]:checked ~ :not(.twilog-data) {
+.tweet > input[type="checkbox"]:checked ~ label {
+  display: block;
+  cursor: pointer;
+}
+.tweet > input[type="checkbox"]:checked ~ :not(.twilog-data):not(label) {
   display: none;
 }
 

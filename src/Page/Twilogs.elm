@@ -619,7 +619,11 @@ linksByMonths maybeOpenedYearMonth twilogArchives =
 
 twilogData : Twilog -> List (Html msg)
 twilogData twilog =
-    -- Show switch that toggles styled twilog or twilog raw data
-    [ input [ type_ "checkbox" ] []
+    let
+        checkboxId =
+            "twilog-data-checkbox-" ++ twilog.idStr
+    in
+    [ input [ type_ "checkbox", id checkboxId ] []
+    , label [ for checkboxId ] [ text "Twilog raw JSON" ]
     , pre [ class "twilog-data" ] [ text (Shared.dumpTwilog twilog) ]
     ]
