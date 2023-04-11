@@ -301,6 +301,7 @@ Tweet-like style on top of Sakura.css
 .tweet .body p {
   margin: 0;
   padding: 0;
+  word-break: break-all;
 }
 
 /* blockquote inside tweets or retweets' text body; loosely resembles Sakura's default blockquote style but deemphasized. slightly gapped */
