@@ -222,7 +222,6 @@ problemToString problem =
 preprocessMarkdown : String -> String
 preprocessMarkdown =
     convertPlainUrlToAngledUrl
-        >> convertDollarsToCode
 
 
 convertPlainUrlToAngledUrl =
@@ -232,15 +231,6 @@ convertPlainUrlToAngledUrl =
 
 plainUrlPattern =
     Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)(?<!\\]:\\s+)https?://\\S+(?=\\s|$)")
-
-
-convertDollarsToCode =
-    Regex.replace dollarsPattern <|
-        \{ match } -> "`" ++ String.dropLeft 1 (String.dropRight 1 match) ++ "`"
-
-
-dollarsPattern =
-    Maybe.withDefault Regex.never (Regex.fromString "\\$.+?\\$")
 
 
 postprocessInline : Markdown.Block.Inline -> Markdown.Block.Inline
