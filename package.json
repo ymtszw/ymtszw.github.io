@@ -4,6 +4,7 @@
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
     "postinstall": "elm-tooling install && patch-package",
     "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: fetched recent twilogs ($(date))\"",
+    "fetch_recent_twilogs:reset": "rm -f data/MY_TWILOGS_CSV_CURSOR; TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: reset recent twilogs ($(date))\"",
     "import_archived_tweets": "TZ=Asia/Tokyo node import_archived_tweets.js",
     "start": "elm-pages dev --port 10101",
     "build": "SECONDS=0; elm-pages build && echo \"Build took ${SECONDS}s.\""
