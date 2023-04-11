@@ -163,6 +163,7 @@ listUrlsForPreviewSingleHelp links twilogs =
 
                                 Nothing ->
                                     -- Do not list twitter-internal URLs since they are likely quote/reply permalinks
+                                    -- またそもそも、twitter.comのリンクはプレビューに使えるメタデータを静的にHTMLに埋め込んでいない（2023/04）
                                     if String.startsWith "https://twitter.com" tcoUrl.expandedUrl then
                                         Nothing
 
@@ -283,8 +284,15 @@ aTwilog links twilog =
                                     appendMediaGrid retweet
                            )
                         |> appendQuote retweet.quote
-                        -- Only show link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
-                        |> appendLinkPreviews links retweet.entitiesTcoUrl
+                        -- Prioritize link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
+                        |> appendLinkPreviews links
+                            (if List.length retweet.entitiesTcoUrl > 0 then
+                                retweet.entitiesTcoUrl
+
+                             else
+                                -- アーカイブツイートの場合はこちらにRTのentitiesTcoUrlが入っている
+                                twilog.entitiesTcoUrl
+                            )
                         |> div [ class "body" ]
                     , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
                     ]
