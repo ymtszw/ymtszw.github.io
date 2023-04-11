@@ -81,6 +81,10 @@ function destructivelyResolveRetweet(simplified, tweet) {
       tweet.entities?.user_mentions?.find(
         (user_mention) => user_mention.screen_name === rtUserName
       )?.name || rtUserName; // if display_name is changed, we cannot track author name
+
+    // GET users/show APIが使えればユーザーのプロフィール画像URLを取得できるが、
+    // このAPIは要認証APIのため開発者アカウントが必要。
+    // cf. https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-show
     simplified.RetweetedStatusUserProfileImageUrl = placeholderAvatarUrl;
   } else {
     simplified.Retweet = "FALSE";
