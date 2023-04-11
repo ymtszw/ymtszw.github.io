@@ -362,9 +362,19 @@ twilogDecoder =
                     )
 
         inReplyToDecoder =
-            OptimizedDecoder.succeed InReplyTo
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToUserId" (OptimizedDecoder.map TwitterUserId nonEmptyString))
+            -- アーカイブ由来のデータでは、Retweet: "TRUE"でもInReplyToが入っていることがあるので除く。
+            -- つまり両方入っていた場合はRetweetとしての表示を優先。
+            OptimizedDecoder.field "Retweet" boolString
+                |> OptimizedDecoder.andThen
+                    (\isRetweet ->
+                        if isRetweet then
+                            OptimizedDecoder.fail "Is a retweet"
+
+                        else
+                            OptimizedDecoder.succeed InReplyTo
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToUserId" (OptimizedDecoder.map TwitterUserId nonEmptyString))
+                    )
 
         quoteDecoder =
             OptimizedDecoder.succeed Quote

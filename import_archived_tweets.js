@@ -31,12 +31,24 @@ const simplifiedTweets = tweets.map((tweet) => {
     StatusId: tweet.tweet.id,
     UserName: "Gada / ymtszw",
     UserProfileImageUrl: myAvatarUrl20230405,
+    InReplyToStatusId: tweet.tweet.in_reply_to_status_id,
+    InReplyToUserId: tweet.tweet.in_reply_to_user_id,
   };
 
+  destructivelyResolveEntitiesTcoUrls(simplified, tweet.tweet);
   destructivelyResolveExtendedEntitiesMedia(simplified, tweet.tweet);
   destructivelyResolveRetweet(simplified, tweet.tweet);
   return simplified;
 });
+
+function destructivelyResolveEntitiesTcoUrls(simplified, tweet) {
+  if (tweet.entities.urls?.length > 0) {
+    simplified.EntitiesUrlsUrls =
+      tweet.entities.urls.map((url) => url.url).join(",") || "";
+    simplified.EntitiesUrlsExpandedUrls =
+      tweet.entities.urls.map((url) => url.expanded_url).join(",") || "";
+  }
+}
 
 function destructivelyResolveExtendedEntitiesMedia(simplified, tweet) {
   if (tweet.extended_entities?.media?.length > 0) {
