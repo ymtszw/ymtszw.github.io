@@ -565,31 +565,24 @@ linksByMonths maybeOpenedYearMonth twilogArchives =
                 |> Dict.toList
                 |> List.reverse
 
-        ( openedYear, openedMonth ) =
+        ( maybeOpenedYear, maybeOpenedMonth ) =
             case maybeOpenedYearMonth of
-                Nothing ->
-                    case datesGroupedByYearMonthFromNewest of
-                        ( year, month :: _ ) :: _ ->
-                            ( year, month )
-
-                        _ ->
-                            -- fallback
-                            ( "2023", "04" )
-
                 Just yearMonth ->
                     case String.split "-" yearMonth of
                         [ year, month ] ->
-                            ( year, month )
+                            ( Just year, Just month )
 
                         _ ->
-                            -- fallback
-                            ( "2023", "04" )
+                            ( Nothing, Nothing )
+
+                Nothing ->
+                    ( Nothing, Nothing )
     in
     datesGroupedByYearMonthFromNewest
         |> List.map
             (\( year, months ) ->
                 details
-                    [ if year == openedYear then
+                    [ if Just year == maybeOpenedYear then
                         attribute "open" ""
 
                       else
@@ -598,7 +591,7 @@ linksByMonths maybeOpenedYearMonth twilogArchives =
                     [ summary [] [ text (year ++ "年") ]
                     , List.map
                         (\month ->
-                            if ( year, month ) == ( openedYear, openedMonth ) then
+                            if ( Just year, Just month ) == ( maybeOpenedYear, maybeOpenedMonth ) then
                                 li [ class "selected" ] [ text (year ++ "/" ++ month) ]
 
                             else
