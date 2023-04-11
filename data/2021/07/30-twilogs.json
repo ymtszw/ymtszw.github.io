@@ -7,7 +7,7 @@
 ,
 {"CreatedAt":"Thu Jul 29 20:05:52 +0000 2021","Text":"ミステリと言う勿れ、すごくちゃんと面白いジャ～ん","StatusId":"1420838002654203907","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Thu Jul 29 22:21:43 +0000 2021","Text":"@kazachino_wow 読むかも","StatusId":"1420872189255901185","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Thu Jul 29 22:21:43 +0000 2021","Text":"@kazachino_wow 読むかも","StatusId":"1420872189255901185","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1420872067163987968","InReplyToUserId":"778050344831950848","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Fri Jul 30 02:12:19 +0000 2021","Text":"RT @mattn_jp: 数か月前、某 OSS に粗削りだが劇的な高速化が見込める pull-req が投げられたが、粗削りすぎていろいろチェックが漏れており、レビューワの指摘通りに null チェックやエラーチェックを入れていった結果、元のベンチマークよりも遅くなってしまっ…","StatusId":"1420930225156677632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"数か月前、某 OSS に粗削りだが劇的な高速化が見込める pull-req が投げられたが、粗削りすぎていろいろチェックが漏れており、レビューワの指摘通りに null チェックやエラーチェックを入れていった結果、元のベンチマークよりも遅くなってしまっ…","RetweetedStatusId":"1420930225156677632","RetweetedStatusUserName":"mattn","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
@@ -23,5 +23,5 @@
 ,
 {"CreatedAt":"Fri Jul 30 07:00:20 +0000 2021","Text":"RT @mapi: Blizzardのゲームにハラスメント/toxicに対抗する機能が無かったのは開発者がやる側だったから説ある？","StatusId":"1421002704076238849","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Blizzardのゲームにハラスメント/toxicに対抗する機能が無かったのは開発者がやる側だったから説ある？","RetweetedStatusId":"1421002704076238849","RetweetedStatusUserName":"天皇","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
-{"CreatedAt":"Fri Jul 30 07:00:45 +0000 2021","Text":"@mapi 名探偵","StatusId":"1421002807897780225","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Fri Jul 30 07:00:45 +0000 2021","Text":"@mapi 名探偵","StatusId":"1421002807897780225","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1421002545057570816","InReplyToUserId":"8243392","Retweet":"FALSE"}
 ]

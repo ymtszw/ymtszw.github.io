@@ -1,5 +1,5 @@
 [
-{"CreatedAt":"Tue Jun 04 15:38:34 +0000 2019","Text":"@cubbit2 https://t.co/x43XxAbMo0\n\n場所によってはクソ田舎、場所によってはそこそこ町中です","StatusId":"1135933872963706880","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Jun 04 15:38:34 +0000 2019","Text":"@cubbit2 https://t.co/x43XxAbMo0\n\n場所によってはクソ田舎、場所によってはそこそこ町中です","StatusId":"1135933872963706880","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1135932568262418432","InReplyToUserId":"770264552864821248","EntitiesUrlsUrls":"https://t.co/x43XxAbMo0","EntitiesUrlsExpandedUrls":"http://itnagano.naganoblog.jp/e2386699.html","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Tue Jun 04 15:41:53 +0000 2019","Text":"クレーでナダルに勝ったことないんだっけ","StatusId":"1135934705851817984","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -7,9 +7,9 @@
 ,
 {"CreatedAt":"Tue Jun 04 17:10:32 +0000 2019","Text":"ElixirのNerves, /sbin/initをerlinitで置き換えてboot後即erlang VM立ち上げるんだけど、あれみたいなことって他のプログラムでもできんのかな。vimとか。OSとかに詳しくないのでわからない","StatusId":"1135957015010787328","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Tue Jun 04 18:50:54 +0000 2019","Text":"@cubbit2 出やすいのは新幹線のある東信地方で、その中だと佐久のiitocoは1コ上の先輩がやってて結構頑張ってます。が、まあまあ町中です。東御市のhammockは北国街道海野宿のど真ん中で、ここは古街道の町並みを残してある観光地なのですげーかっこいいです。","StatusId":"1135982276846604288","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Jun 04 18:50:54 +0000 2019","Text":"@cubbit2 出やすいのは新幹線のある東信地方で、その中だと佐久のiitocoは1コ上の先輩がやってて結構頑張ってます。が、まあまあ町中です。東御市のhammockは北国街道海野宿のど真ん中で、ここは古街道の町並みを残してある観光地なのですげーかっこいいです。","StatusId":"1135982276846604288","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1135936087950413825","InReplyToUserId":"770264552864821248","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Tue Jun 04 18:53:45 +0000 2019","Text":"@cubbit2 富士見町にある森のオフィスはまあまあド田舎で、でもかっこいいスペースっぽいので行きたいとは思っている。特急あずさで隣町くらいまでいけるはずです。ここは名前のとおり長野県だけど富士山が見える町でペンション・別荘地です","StatusId":"1135982993577635840","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Jun 04 18:53:45 +0000 2019","Text":"@cubbit2 富士見町にある森のオフィスはまあまあド田舎で、でもかっこいいスペースっぽいので行きたいとは思っている。特急あずさで隣町くらいまでいけるはずです。ここは名前のとおり長野県だけど富士山が見える町でペンション・別荘地です","StatusId":"1135982993577635840","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1135982276846604288","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Wed Jun 05 09:39:09 +0000 2019","Text":"mix format, あんまり良くないと思ってたんだけど、elm-formatに慣れたあとだと意外とそうでもないな(縦方向に富豪的に幅を使うタイプのformatter)","StatusId":"1136205809078087680","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ]

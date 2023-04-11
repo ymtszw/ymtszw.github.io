@@ -3,11 +3,11 @@
 ,
 {"CreatedAt":"Sun Oct 14 07:37:43 +0000 2018","Text":"Bloodmalletのよくないところは、実質存在するとは言えないレアモブドロップTrinketの高レベルTitanforged版とかが表示上ランク上位になってノイズになってることだな。AskMrRobotはちゃんとドロップ源とかでフィルタリングできてよかったんだが","StatusId":"1051376490854547456","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sun Oct 14 07:38:36 +0000 2018","Text":"と思って調べたら普通にフィルタリングオプションあったわ","StatusId":"1051376710627680257","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sun Oct 14 07:38:36 +0000 2018","Text":"と思って調べたら普通にフィルタリングオプションあったわ","StatusId":"1051376710627680257","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1051376490854547456","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sun Oct 14 07:39:48 +0000 2018","Text":"入手可能性を鑑みてちゃんとフィルタリングしたら、普通にRaidTrinketはそこそこ上位だし、健全になった。","StatusId":"1051377013875867649","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sun Oct 14 07:39:48 +0000 2018","Text":"入手可能性を鑑みてちゃんとフィルタリングしたら、普通にRaidTrinketはそこそこ上位だし、健全になった。","StatusId":"1051377013875867649","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1051376710627680257","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sun Oct 14 07:42:19 +0000 2018","Text":"でもこれフィルターがセッションまたいで維持されないな。まあそのうち対応するだろう","StatusId":"1051377647811350528","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sun Oct 14 07:42:19 +0000 2018","Text":"でもこれフィルターがセッションまたいで維持されないな。まあそのうち対応するだろう","StatusId":"1051377647811350528","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1051377013875867649","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Sun Oct 14 10:35:04 +0000 2018","Text":"完全試合やりそう","StatusId":"1051421123575836672","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ]

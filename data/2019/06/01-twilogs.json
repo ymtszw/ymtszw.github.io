@@ -5,7 +5,7 @@
 ,
 {"CreatedAt":"Sat Jun 01 00:43:23 +0000 2019","Text":"任天堂最後か","StatusId":"1134621429477986304","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Jun 01 01:28:20 +0000 2019","Text":"クッソ気が早いけど午後のLTの資料です。\n\"Config\" in Elixir - ymtszw\nhttps://t.co/AIfSXjMVeA\n#elixirfest","StatusId":"1134632742761558016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Jun 01 01:28:20 +0000 2019","Text":"クッソ気が早いけど午後のLTの資料です。\n\"Config\" in Elixir - ymtszw\nhttps://t.co/AIfSXjMVeA\n#elixirfest","StatusId":"1134632742761558016","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/AIfSXjMVeA","EntitiesUrlsExpandedUrls":"https://docs.google.com/presentation/d/1QDykDwy_92r2KUDSCZCHbOo5d_wAgTN8BW63DS_oQjQ/edit?usp=sharing","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Sat Jun 01 02:13:11 +0000 2019","Text":"Lonestar Tシャツええな\n#elixirfest","StatusId":"1134644027318398977","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -23,11 +23,11 @@
 ,
 {"CreatedAt":"Sat Jun 01 06:58:31 +0000 2019","Text":"Plug/Phoenixのオーバーヘッドを嫌ったのかと思ったけどそんなことはなかったぜ #elixirfest","StatusId":"1134715832339091457","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Jun 01 07:07:49 +0000 2019","Text":"Nervesのソース読んでるけど、\n\n- 必須ライブラリをいくつかdepsに(https://t.co/ctzCacVMfPでできる)\n- 普通にmix project書く\n- Distilleryでreleaseに\n- 各target(デバイス/石)向けにReleaseから不要なファイルを除去(scrub)して.fwファイル作成\n\nscrubが面白いですね #elixirfest","StatusId":"1134718174039949313","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Jun 01 07:07:49 +0000 2019","Text":"Nervesのソース読んでるけど、\n\n- 必須ライブラリをいくつかdepsに(https://t.co/ctzCacVMfPでできる)\n- 普通にmix project書く\n- Distilleryでreleaseに\n- 各target(デバイス/石)向けにReleaseから不要なファイルを除去(scrub)して.fwファイル作成\n\nscrubが面白いですね #elixirfest","StatusId":"1134718174039949313","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/ctzCacVMfP","EntitiesUrlsExpandedUrls":"http://nerves.new","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Jun 01 08:17:30 +0000 2019","Text":"再掲です #elixirfest https://t.co/oPBOkAgru3","StatusId":"1134735709024075776","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Jun 01 08:17:30 +0000 2019","Text":"再掲です #elixirfest https://t.co/oPBOkAgru3","StatusId":"1134735709024075776","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/oPBOkAgru3","EntitiesUrlsExpandedUrls":"https://twitter.com/gada_twt/status/1134632742761558016","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Jun 01 08:54:09 +0000 2019","Text":"資料を早めに公開したのは猛烈に長いからだ！ (前半半分は社内向け・初学者向けだけど)\nそこそこちゃんと書いてあるのでぜひ読んでみてください。 #elixirfest https://t.co/oPBOkAgru3","StatusId":"1134744932852174849","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Jun 01 08:54:09 +0000 2019","Text":"資料を早めに公開したのは猛烈に長いからだ！ (前半半分は社内向け・初学者向けだけど)\nそこそこちゃんと書いてあるのでぜひ読んでみてください。 #elixirfest https://t.co/oPBOkAgru3","StatusId":"1134744932852174849","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/oPBOkAgru3","EntitiesUrlsExpandedUrls":"https://twitter.com/gada_twt/status/1134632742761558016","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Sat Jun 01 09:11:45 +0000 2019","Text":"任天堂くるで #elixirfest","StatusId":"1134749364948094976","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,

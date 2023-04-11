@@ -1,5 +1,5 @@
 [
-{"CreatedAt":"Wed Jul 25 00:02:51 +0000 2018","Text":"World of Warcraft: Battle for Azeroth – “Bus” - YouTube https://t.co/34asx8oAlG\n\nシンプルでいいね","StatusId":"1021908601273647105","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Wed Jul 25 00:02:51 +0000 2018","Text":"World of Warcraft: Battle for Azeroth – “Bus” - YouTube https://t.co/34asx8oAlG\n\nシンプルでいいね","StatusId":"1021908601273647105","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/34asx8oAlG","EntitiesUrlsExpandedUrls":"https://www.youtube.com/watch?v=fUAOH7ex64k","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Wed Jul 25 09:51:42 +0000 2018","Text":"ライブラリを作ろうとして、値域が存在するパラメータを型でしばりてぇなあ(=域外の入力はコンパイル時にエラーにしてえなあ)とか思っちゃう。\n#elmlang","StatusId":"1022056790706380800","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -13,7 +13,7 @@
 ,
 {"CreatedAt":"Wed Jul 25 12:08:11 +0000 2018","Text":"入力数値を特定の値域内に丸めて使うような関数を書いて(例: 0未満だったら0とする、とか)、最後に入力数値を元にする単純な計算式の結果と一致を取る、というようなことを検証するfuzzを書いた。→","StatusId":"1022091138205773825","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Wed Jul 25 12:08:49 +0000 2018","Text":"当然、丸めが発生した場合には入力数値がそのままは使用されないので値が一致せず、テストfailすることを期待したんだけど、どうやらshrinkingがうまくいかないらしく無限ループに陥っている模様。これはissueにしたい","StatusId":"1022091298679881729","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Wed Jul 25 12:08:49 +0000 2018","Text":"当然、丸めが発生した場合には入力数値がそのままは使用されないので値が一致せず、テストfailすることを期待したんだけど、どうやらshrinkingがうまくいかないらしく無限ループに陥っている模様。これはissueにしたい","StatusId":"1022091298679881729","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1022091138205773825","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Wed Jul 25 12:42:59 +0000 2018","Text":"RT @its_out_of_tune: よし決めた。Twitter社が改心する感じ無かったら年明け前に発信の場をマストドンに完全移行する。","StatusId":"1022099894633259008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"よし決めた。Twitter社が改心する感じ無かったら年明け前に発信の場をマストドンに完全移行する。","RetweetedStatusId":"1022099894633259008","RetweetedStatusUserName":"ちゅーん","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,

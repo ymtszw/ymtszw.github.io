@@ -1,5 +1,5 @@
 [
 {"CreatedAt":"Mon Feb 05 15:05:53 +0000 2018","Text":"型はロジックとイコールではないかもしれないが、データ構造とは密接に関係している。そしてデータ構造とロジックは不可分なので、つまり型とロジックもやはり不可分である","StatusId":"960529918625906688","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Mon Feb 05 17:40:20 +0000 2018","Text":"Forkして使ってるlanguage-elmから、0.17以降に対応していないelm-oracleを利用するautocomplete関連のコードをすべて除去した。何度も書いてるけど補完はelmjutsuで。\n\nhttps://t.co/vuSanpnGSJ","StatusId":"960568789338177536","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Feb 05 17:40:20 +0000 2018","Text":"Forkして使ってるlanguage-elmから、0.17以降に対応していないelm-oracleを利用するautocomplete関連のコードをすべて除去した。何度も書いてるけど補完はelmjutsuで。\n\nhttps://t.co/vuSanpnGSJ","StatusId":"960568789338177536","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/vuSanpnGSJ","EntitiesUrlsExpandedUrls":"https://github.com/ymtszw/language-elm/releases/tag/v2.0.0-ymtszw","Retweet":"FALSE"}
 ]

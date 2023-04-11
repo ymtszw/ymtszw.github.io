@@ -13,9 +13,9 @@
 ,
 {"CreatedAt":"Sat Jun 20 05:34:38 +0000 2020","Text":"カルロス・ゴーン 近況","StatusId":"1274214051711614984","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Jun 20 05:58:48 +0000 2020","Text":"日テレのAIキャッチャー、フォーク厨すぎるｗｗｗｗ : なんJ（まとめては）いかんのか？ https://t.co/m945Azatrq \n\nなにこれ、見たくなってきた","StatusId":"1274220134316429312","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Jun 20 05:58:48 +0000 2020","Text":"日テレのAIキャッチャー、フォーク厨すぎるｗｗｗｗ : なんJ（まとめては）いかんのか？ https://t.co/m945Azatrq \n\nなにこれ、見たくなってきた","StatusId":"1274220134316429312","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/m945Azatrq","EntitiesUrlsExpandedUrls":"http://blog.livedoor.jp/livejupiter2/archives/9588351.html","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Jun 20 06:03:36 +0000 2020","Text":"RT @EzoeRyou: gitのSHA-256移行にあたって\nhttps://t.co/y9SdAWpJyq","StatusId":"1274221340694700033","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"gitのSHA-256移行にあたって\nhttps://t.co/y9SdAWpJyq","RetweetedStatusId":"1274221340694700033","RetweetedStatusUserName":"江添亮@左足首靭帯負傷中","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+{"CreatedAt":"Sat Jun 20 06:03:36 +0000 2020","Text":"RT @EzoeRyou: gitのSHA-256移行にあたって\nhttps://t.co/y9SdAWpJyq","StatusId":"1274221340694700033","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/y9SdAWpJyq","EntitiesUrlsExpandedUrls":"https://lwn.net/SubscriberLink/823352/ea717c1e49390505/","Retweet":"TRUE","RetweetedStatusFullText":"gitのSHA-256移行にあたって\nhttps://t.co/y9SdAWpJyq","RetweetedStatusId":"1274221340694700033","RetweetedStatusUserName":"江添亮@左足首靭帯負傷中","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
 {"CreatedAt":"Sat Jun 20 06:04:19 +0000 2020","Text":"Gitのhashにもversion prefixみたいなのが付くようになるんだろうな","StatusId":"1274221521104326656","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -41,7 +41,7 @@
 ,
 {"CreatedAt":"Sat Jun 20 13:20:19 +0000 2020","Text":"PC版デトロイトまだ安定してないっぽいな","StatusId":"1274331247427244032","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Jun 20 14:04:40 +0000 2020","Text":"@twitte_RS このゲームって音ゲーの中ではどういう立ち位置ですか？簡単な方？気分転換的にやってる程度だけど","StatusId":"1274342405945167872","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Jun 20 14:04:40 +0000 2020","Text":"@twitte_RS このゲームって音ゲーの中ではどういう立ち位置ですか？簡単な方？気分転換的にやってる程度だけど","StatusId":"1274342405945167872","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1274342071273312257","InReplyToUserId":"119467030","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Sat Jun 20 14:11:46 +0000 2020","Text":"既製品のリアフォあるいはHHKBを改造して分割キーボード作る道筋を探っている","StatusId":"1274344195277197312","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -49,11 +49,11 @@
 ,
 {"CreatedAt":"Sat Jun 20 14:12:28 +0000 2020","Text":"や～ベェ長文帰ってきちゃった","StatusId":"1274344370037067776","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Jun 20 14:16:06 +0000 2020","Text":"@y047aka 無接点スイッチが得られるならぶっちゃけなんでもいいけど、自分の聞いた範囲では無接点スイッチは自作ようにパーツ販売はされてない","StatusId":"1274345281836863488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Jun 20 14:16:06 +0000 2020","Text":"@y047aka 無接点スイッチが得られるならぶっちゃけなんでもいいけど、自分の聞いた範囲では無接点スイッチは自作ようにパーツ販売はされてない","StatusId":"1274345281836863488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1274344856932900864","InReplyToUserId":"863176717","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Sat Jun 20 14:25:00 +0000 2020","Text":"ところでSkullgirlsは買ってみたんですがまーじでコマンド出ないっす。（コントローラ","StatusId":"1274347524069834753","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sat Jun 20 14:25:12 +0000 2020","Text":"@y047aka マジすか。URLください","StatusId":"1274347573927571458","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sat Jun 20 14:25:12 +0000 2020","Text":"@y047aka マジすか。URLください","StatusId":"1274347573927571458","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1274347475118120966","InReplyToUserId":"863176717","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Sat Jun 20 14:52:35 +0000 2020","Text":"RT @dakfan: @gada_twt 見た目に反して難しいって昔聞いた気がする。最近のはどうかわからないけどソウルキャリバーが遊び易かった記憶があるけどどうでしょう","StatusId":"1274354465865252871","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"@gada_twt 見た目に反して難しいって昔聞いた気がする。最近のはどうかわからないけどソウルキャリバーが遊び易かった記憶があるけどどうでしょう","RetweetedStatusId":"1274354465865252871","RetweetedStatusUserName":"kowamote 関西コミティア67 5/21","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ]

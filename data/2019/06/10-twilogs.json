@@ -5,7 +5,7 @@
 ,
 {"CreatedAt":"Sun Jun 09 16:35:06 +0000 2019","Text":"お凛忍具無しは時間かかるかなと思ったけど、ちょっと練習したら意外とパターン化できたし、体幹崩されたあとの追撃がぬるいボスなので、それを計画的に使ったら存外早く倒せた。\n偶然裏回りしてしまって最後は仲間になった https://t.co/0yULckq7aS","StatusId":"1137760037458178048","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/0yULckq7aS","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/D8oiuHzU0AA0AV7.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1137760037458178048/photo/1","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Sun Jun 09 17:25:19 +0000 2019","Text":"@Lugendre お主それで満足か","StatusId":"1137772676628373504","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Sun Jun 09 17:25:19 +0000 2019","Text":"@Lugendre お主それで満足か","StatusId":"1137772676628373504","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1137771631705595904","InReplyToUserId":"251047900","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Sun Jun 09 17:28:57 +0000 2019","Text":"E3のLiveがつべで宣伝されてきたからクリックしたらサミュエル・L・ジャクソンが出るとか言ってるけどなんでだ","StatusId":"1137773590634385408","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -19,13 +19,13 @@
 ,
 {"CreatedAt":"Mon Jun 10 10:28:25 +0000 2019","Text":"「そのページに来た」ことを契機になにか副作用させるのは常に onUrlChange : Url -&gt; msg で、したがってここではアプリ初期化時に init : flags -&gt; Url -&gt; Key -&gt; ( model, Cmd msg ) の中でUrlに応じた処理を実行している部分を使い回せることが多い","StatusId":"1138030147620130819","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Mon Jun 10 10:30:29 +0000 2019","Text":"onUrlRequestがじゃあ何のためにあるかってーと、\n\n- 外部サイトへのリンクを踏んだときに遷移前に警告を出す\n- 編集中のフォームがあるときに遷移前に警告を出す\n- 同一ドメイン内リンクの場合(Modelが使い回せる場合)で、現在のスクロール位置をModelに保管する\n\nとかに使う","StatusId":"1138030666929467394","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Jun 10 10:30:29 +0000 2019","Text":"onUrlRequestがじゃあ何のためにあるかってーと、\n\n- 外部サイトへのリンクを踏んだときに遷移前に警告を出す\n- 編集中のフォームがあるときに遷移前に警告を出す\n- 同一ドメイン内リンクの場合(Modelが使い回せる場合)で、現在のスクロール位置をModelに保管する\n\nとかに使う","StatusId":"1138030666929467394","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1138030147620130819","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Mon Jun 10 10:31:50 +0000 2019","Text":"この辺の勘所というか、「コアチームに想定されてる使い方」を学ぶのに今一番いいリソースは多分Elmパッケージサイトのソース\nhttps://t.co/G9kfSAAGXe","StatusId":"1138031007678861314","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Jun 10 10:31:50 +0000 2019","Text":"この辺の勘所というか、「コアチームに想定されてる使い方」を学ぶのに今一番いいリソースは多分Elmパッケージサイトのソース\nhttps://t.co/G9kfSAAGXe","StatusId":"1138031007678861314","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1138030666929467394","InReplyToUserId":"352840258","EntitiesUrlsUrls":"https://t.co/G9kfSAAGXe","EntitiesUrlsExpandedUrls":"https://github.com/elm/package.elm-lang.org/blob/master/src/frontend/Main.elm","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Mon Jun 10 10:32:41 +0000 2019","Text":"ぶっちゃけこれをパクるのが一番手っ取り早くて確実だったりする","StatusId":"1138031220879552514","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Jun 10 10:32:41 +0000 2019","Text":"ぶっちゃけこれをパクるのが一番手っ取り早くて確実だったりする","StatusId":"1138031220879552514","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1138031007678861314","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Mon Jun 10 10:41:03 +0000 2019","Text":"@ababupdownba パッケージサイトのソースが参考になる件はTwitterとかでしか話題になってなかったけど、Routing関連の2関数の使い分けは実はElm本のp.179にも載ってる","StatusId":"1138033326181105664","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Jun 10 10:41:03 +0000 2019","Text":"@ababupdownba パッケージサイトのソースが参考になる件はTwitterとかでしか話題になってなかったけど、Routing関連の2関数の使い分けは実はElm本のp.179にも載ってる","StatusId":"1138033326181105664","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1138032399940444161","InReplyToUserId":"94293281","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Mon Jun 10 10:46:55 +0000 2019","Text":"EKSだいたい理解したんだけど、ログのCloudwatch集約のためにFluentd Pod突っ込まなきゃいけないのは、なんか他にいい手段ないんですかね。。。","StatusId":"1138034803838603264","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ]

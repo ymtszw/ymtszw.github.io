@@ -3,13 +3,13 @@
 ,
 {"CreatedAt":"Wed Jun 05 15:17:08 +0000 2019","Text":"久々にWin上でVSCode起動してみて気づいた良いところ\n\n- 最新版だと見た目結構かっこよくなってる\n- Integrated Terminal、Powerline fontがちゃんと使えるので意外とこれも見た目いい","StatusId":"1136290867562475520","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Wed Jun 05 16:14:45 +0000 2019","Text":"追加\n\n- Keybindingの変更が対話的に行える","StatusId":"1136305364721442816","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Wed Jun 05 16:14:45 +0000 2019","Text":"追加\n\n- Keybindingの変更が対話的に行える","StatusId":"1136305364721442816","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1136290867562475520","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Wed Jun 05 16:16:31 +0000 2019","Text":"VSCode上でElmLSはそこそこ動くが、まだまだでもある。でもよくなってきているのは間違いないな","StatusId":"1136305811762757632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Wed Jun 05 16:27:50 +0000 2019","Text":"現状Project ManagerくらいしかExtension入れてないのもあるけど、動作はかなり軽い。ところでこれ1インスタンスしか開けない？ Project Managerで切り替えると前開いてたやつが消えるんだが","StatusId":"1136308660295032834","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Wed Jun 05 16:30:17 +0000 2019","Text":"設定で複数起動はできた","StatusId":"1136309277063229441","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Wed Jun 05 16:30:17 +0000 2019","Text":"設定で複数起動はできた","StatusId":"1136309277063229441","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1136308660295032834","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Wed Jun 05 16:35:40 +0000 2019","Text":"うーん、VSCode移行の機運高まってきたな。やるしかないか","StatusId":"1136310631819169793","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -31,15 +31,15 @@
 ,
 {"CreatedAt":"Thu Jun 06 06:19:25 +0000 2019","Text":"部屋を片付けたら冷房の効きが良くなって寒い","StatusId":"1136517931918012416","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Thu Jun 06 11:52:18 +0000 2019","Text":"RT @y_taka_23: 本日は https://t.co/6hYlnNK88H で Elm のアーキテクチャについてお話ししました。\n\n以前 We Are JavaScripters! で発表した内容を元にしています。今回削ったコードも載せてあるので、よければ元資料でご覧…","StatusId":"1136601705347346432","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"本日は https://t.co/6hYlnNK88H で Elm のアーキテクチャについてお話ししました。\n\n以前 We Are JavaScripters! で発表した内容を元にしています。今回削ったコードも載せてあるので、よければ元資料でご覧…","RetweetedStatusId":"1136601705347346432","RetweetedStatusUserName":"チェシャ猫","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
+{"CreatedAt":"Thu Jun 06 11:52:18 +0000 2019","Text":"RT @y_taka_23: 本日は https://t.co/6hYlnNK88H で Elm のアーキテクチャについてお話ししました。\n\n以前 We Are JavaScripters! で発表した内容を元にしています。今回削ったコードも載せてあるので、よければ元資料でご覧…","StatusId":"1136601705347346432","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/6hYlnNK88H","EntitiesUrlsExpandedUrls":"http://Meguro.es","Retweet":"TRUE","RetweetedStatusFullText":"本日は https://t.co/6hYlnNK88H で Elm のアーキテクチャについてお話ししました。\n\n以前 We Are JavaScripters! で発表した内容を元にしています。今回削ったコードも載せてあるので、よければ元資料でご覧…","RetweetedStatusId":"1136601705347346432","RetweetedStatusUserName":"チェシャ猫","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
 {"CreatedAt":"Thu Jun 06 11:52:35 +0000 2019","Text":"Would you like a cup of TEA?","StatusId":"1136601775954309121","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Thu Jun 06 12:00:58 +0000 2019","Text":"Warriorsここに来てこのけが人ラッシュはきっついなあ。でもこれで勝ってこそ伝説になるって気もする #NBAFinals","StatusId":"1136603887962546176","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Thu Jun 06 13:27:27 +0000 2019","Text":"@ttokit765 壁美人で壁に4Kモニタ掛けるの、結構おすすめ","StatusId":"1136625650511441920","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Thu Jun 06 13:27:27 +0000 2019","Text":"@ttokit765 壁美人で壁に4Kモニタ掛けるの、結構おすすめ","StatusId":"1136625650511441920","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1136624053064626176","InReplyToUserId":"1001064853518270470","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Thu Jun 06 14:14:20 +0000 2019","Text":"@ttokit765 窓美人が必要だったか","StatusId":"1136637449378025473","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Thu Jun 06 14:14:20 +0000 2019","Text":"@ttokit765 窓美人が必要だったか","StatusId":"1136637449378025473","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1136628803147403270","InReplyToUserId":"1001064853518270470","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Thu Jun 06 14:55:18 +0000 2019","Text":"VSCodeのElixirLS, まあまあちゃんと使えるんだけどたまに補完の効かないmoduleがあるのはなんだ","StatusId":"1136647758960402432","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ]

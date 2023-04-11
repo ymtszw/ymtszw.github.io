@@ -17,13 +17,13 @@
 ,
 {"CreatedAt":"Thu Apr 03 23:13:12 +0000 2014","Text":"とりあえずはほんとにシンプルなメッセンジャー機能って感じ。現状1対1会話のみ、ログは通話相手ごとに保存。会議モードとかギルドorクランチャットはまだない","StatusId":"451859995953352704","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Thu Apr 03 23:35:30 +0000 2014","Text":"今、金箱はバグってて（NVによって中身変動してた頃のコードが作用したままらしく、）現状本来あるべきドロップよりしょぼくなってる。hotfixでは直せないので次のパッチまで待って。 #d3jp http://t.co/AgjXpE4RcI","StatusId":"451865608292798464","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Thu Apr 03 23:35:30 +0000 2014","Text":"今、金箱はバグってて（NVによって中身変動してた頃のコードが作用したままらしく、）現状本来あるべきドロップよりしょぼくなってる。hotfixでは直せないので次のパッチまで待って。 #d3jp http://t.co/AgjXpE4RcI","StatusId":"451865608292798464","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"http://t.co/AgjXpE4RcI","EntitiesUrlsExpandedUrls":"http://us.battle.net/d3/en/forum/topic/12372087386?page=3#53","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Thu Apr 03 23:36:45 +0000 2014","Text":"あと箱ランスポットの箱は減らす。代わりにリフトのレジェ率25%上げる。","StatusId":"451865922462941184","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Fri Apr 04 01:49:23 +0000 2014","Text":"パッチノートをインターネットにポンと放り投げるだけで100万人から騒ぎ立て始めるんだから恐ろしい世界である","StatusId":"451899299471712256","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Fri Apr 04 01:50:50 +0000 2014","Text":"@Quantren クッソワロタ","StatusId":"451899663998664704","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Fri Apr 04 01:50:50 +0000 2014","Text":"@Quantren クッソワロタ","StatusId":"451899663998664704","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"451899607950192642","InReplyToUserId":"844215600","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Fri Apr 04 01:51:50 +0000 2014","Text":"このパッチノートは一度に公開されるものとしてはおそらく過去最大のものではあるまいか","StatusId":"451899917535948800","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,

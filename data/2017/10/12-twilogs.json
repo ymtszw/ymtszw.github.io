@@ -1,9 +1,9 @@
 [
 {"CreatedAt":"Wed Oct 11 15:00:23 +0000 2017","Text":"Atom pluginで、stylelintの保存時適用をしようと思ったが、linter-stylelintで--fixオプションを使うPRはまだ止まっていて、atom-stylefmtもどうも動いてないようだったので悲しむ","StatusId":"918129156050710530","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Wed Oct 11 16:16:21 +0000 2017","Text":"https://t.co/IaAaWi8pxY\n\n今日のNumberphile","StatusId":"918148275462553600","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Wed Oct 11 16:16:21 +0000 2017","Text":"https://t.co/IaAaWi8pxY\n\n今日のNumberphile","StatusId":"918148275462553600","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/IaAaWi8pxY","EntitiesUrlsExpandedUrls":"https://www.youtube.com/watch?v=9yUZTTLpDtk","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Wed Oct 11 22:22:38 +0000 2017","Text":"はねバド！（１１） (アフタヌーンコミックス)   濱田浩輔 https://t.co/KGYgontO3a @amazonJPさんから","StatusId":"918240452599431169","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Wed Oct 11 22:22:38 +0000 2017","Text":"はねバド！（１１） (アフタヌーンコミックス)   濱田浩輔 https://t.co/KGYgontO3a @amazonJPさんから","StatusId":"918240452599431169","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/KGYgontO3a","EntitiesUrlsExpandedUrls":"https://www.amazon.co.jp/dp/B075XKM4DD/ref=cm_sw_r_tw_dp_x_eMP3zb2B1MVYT","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Thu Oct 12 10:08:42 +0000 2017","Text":"落雷の影響深刻すぎ","StatusId":"918418139225849856","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -11,5 +11,5 @@
 ,
 {"CreatedAt":"Thu Oct 12 12:19:01 +0000 2017","Text":"はねバド盛り上がってるし、アニメ化しそうな気もするけど、ある頃から試合描写がピンポン並みのシロモノになってきたから作る側はキツそうである","StatusId":"918450933234769921","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Thu Oct 12 12:58:18 +0000 2017","Text":"Gul'dan Noraml Solo\nhttps://t.co/ag9F0rBDrG","StatusId":"918460819439882241","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Thu Oct 12 12:58:18 +0000 2017","Text":"Gul'dan Noraml Solo\nhttps://t.co/ag9F0rBDrG","StatusId":"918460819439882241","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/ag9F0rBDrG","EntitiesUrlsExpandedUrls":"https://www.youtube.com/watch?v=Hd1lXxXdUMY","Retweet":"FALSE"}
 ]

@@ -1,7 +1,7 @@
 [
-{"CreatedAt":"Mon Aug 20 17:18:06 +0000 2018","Text":"@elseven 敵地のFPは沿岸部の上陸基地＋ちょっと中立村って感じなので少ない\nRep上げると少し追加されるらしい","StatusId":"1031591215358070785","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Aug 20 17:18:06 +0000 2018","Text":"@elseven 敵地のFPは沿岸部の上陸基地＋ちょっと中立村って感じなので少ない\nRep上げると少し追加されるらしい","StatusId":"1031591215358070785","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1031590356561743875","InReplyToUserId":"14558715","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Mon Aug 20 17:58:35 +0000 2018","Text":"Mephisto Spotlight - YouTube https://t.co/8k4svj1JB2\n\nメフィきた","StatusId":"1031601402903031809","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Aug 20 17:58:35 +0000 2018","Text":"Mephisto Spotlight - YouTube https://t.co/8k4svj1JB2\n\nメフィきた","StatusId":"1031601402903031809","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/8k4svj1JB2","EntitiesUrlsExpandedUrls":"https://www.youtube.com/watch?time_continue=329&v=m0nt7SJKfwo","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Mon Aug 20 19:45:52 +0000 2018","Text":"邪神ちゃんやっぱドクロちゃんの正統後継者でしょ","StatusId":"1031628403382710272","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -13,5 +13,5 @@
 ,
 {"CreatedAt":"Tue Aug 21 12:28:58 +0000 2018","Text":"RT @czaplic: New version of @elmlang out today!\n\nCompiler generates small assets by default.\n\nJust add the --optimize flag!\n\nhttps://t.co/N…","StatusId":"1031880841020854277","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"New version of @elmlang out today!\n\nCompiler generates small assets by default.\n\nJust add the --optimize flag!\n\nhttps://t.co/N…","RetweetedStatusId":"1031880841020854277","RetweetedStatusUserName":"czaplic","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
-{"CreatedAt":"Tue Aug 21 12:59:03 +0000 2018","Text":"Elm 0.19がリリースされました。諸氏におかれてはこの機会にElmデビューなされますよう。\n\n公式ガイドも刷新され、かなり実用的になりました。\nIntroduction · An Introduction to Elm\nhttps://t.co/ZNmZFdYVdW","StatusId":"1031888412414885888","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Aug 21 12:59:03 +0000 2018","Text":"Elm 0.19がリリースされました。諸氏におかれてはこの機会にElmデビューなされますよう。\n\n公式ガイドも刷新され、かなり実用的になりました。\nIntroduction · An Introduction to Elm\nhttps://t.co/ZNmZFdYVdW","StatusId":"1031888412414885888","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/ZNmZFdYVdW","EntitiesUrlsExpandedUrls":"https://guide.elm-lang.org/","Retweet":"FALSE"}
 ]

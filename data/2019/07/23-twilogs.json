@@ -5,7 +5,7 @@
 ,
 {"CreatedAt":"Mon Jul 22 15:55:37 +0000 2019","Text":"monorepoのCircleCIでのビルドをうまい具合に条件によって最小化する知見を募集しております。\n単純にやるなら中間スクリプトを挟んで、git diff --stat | grep &lt;filename pattern&gt;とかで分岐するんだけど（Jenkinsではやったことある）、もっとスマートなやり方があれば","StatusId":"1153332778789982211","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Mon Jul 22 15:56:51 +0000 2019","Text":"問題はCircleCIだと確かJenkinsでいうLAST_SUCCESSFIL_COMMIT環境変数みたいなのがないんだよな","StatusId":"1153333092913778689","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Jul 22 15:56:51 +0000 2019","Text":"問題はCircleCIだと確かJenkinsでいうLAST_SUCCESSFIL_COMMIT環境変数みたいなのがないんだよな","StatusId":"1153333092913778689","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1153332778789982211","InReplyToUserId":"352840258","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Mon Jul 22 22:09:13 +0000 2019","Text":"RT @diescake: 第七女子会彷徨を読んだ。よかった。\n\n最初は AI の遺伝子をギャグテイストに振ったような緩い漫画だと思い読んでいたが、背筋が凍るような伏線や展開があったり、逆にハートフルな話もあったりして尊い。","StatusId":"1153426800187326464","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"第七女子会彷徨を読んだ。よかった。\n\n最初は AI の遺伝子をギャグテイストに振ったような緩い漫画だと思い読んでいたが、背筋が凍るような伏線や展開があったり、逆にハートフルな話もあったりして尊い。","RetweetedStatusId":"1153426800187326464","RetweetedStatusUserName":"diescake","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
@@ -13,11 +13,11 @@
 ,
 {"CreatedAt":"Mon Jul 22 23:53:49 +0000 2019","Text":"ロバキャン、僕も初めて知りました。（壁際で連撃させて、最後の一撃の踏み込み時に滑落させるやり方。ロバトーって言わない）","StatusId":"1153453124247379969","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Mon Jul 22 23:55:03 +0000 2019","Text":"https://t.co/ggw82b9bup\n\n6:50-","StatusId":"1153453434122559488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Mon Jul 22 23:55:03 +0000 2019","Text":"https://t.co/ggw82b9bup\n\n6:50-","StatusId":"1153453434122559488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1153453124247379969","InReplyToUserId":"352840258","EntitiesUrlsUrls":"https://t.co/ggw82b9bup","EntitiesUrlsExpandedUrls":"https://youtu.be/BWXKtTdfrig?t=410","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Tue Jul 23 00:31:46 +0000 2019","Text":"【ややネタバレ注意】「天気の子」を見てゼロ年代エロゲについて語りだす人々 - Togetter https://t.co/zmNFzNO0xn","StatusId":"1153462676325933056","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Jul 23 00:31:46 +0000 2019","Text":"【ややネタバレ注意】「天気の子」を見てゼロ年代エロゲについて語りだす人々 - Togetter https://t.co/zmNFzNO0xn","StatusId":"1153462676325933056","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/zmNFzNO0xn","EntitiesUrlsExpandedUrls":"https://togetter.com/li/1379288","Retweet":"FALSE"}
 ,
-{"CreatedAt":"Tue Jul 23 00:31:58 +0000 2019","Text":"PS2版天気の子を俺たちは遊んだことが有る気がしてならないんだ。 - セラミックロケッツ！ https://t.co/zpEmZ7s2bx","StatusId":"1153462726108299265","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Jul 23 00:31:58 +0000 2019","Text":"PS2版天気の子を俺たちは遊んだことが有る気がしてならないんだ。 - セラミックロケッツ！ https://t.co/zpEmZ7s2bx","StatusId":"1153462726108299265","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/zpEmZ7s2bx","EntitiesUrlsExpandedUrls":"http://cr.hatenablog.com/entry/2019/07/23/000034","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Tue Jul 23 01:16:20 +0000 2019","Text":"義務投票制（強制投票制）ってあんま議論されてない気がするけど、なんかデメリットあるんだろうか","StatusId":"1153473889772527617","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
@@ -39,11 +39,11 @@
 ,
 {"CreatedAt":"Tue Jul 23 03:24:27 +0000 2019","Text":"RT @Munasuka: ヤフーニュースを支えている人たちだ","StatusId":"1153506130078736385","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ヤフーニュースを支えている人たちだ","RetweetedStatusId":"1153506130078736385","RetweetedStatusUserName":"胸すか","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
-{"CreatedAt":"Tue Jul 23 03:24:55 +0000 2019","Text":"@feenal 決闘罪でしょっぴいて欲しい、面白いから","StatusId":"1153506249138245632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Jul 23 03:24:55 +0000 2019","Text":"@feenal 決闘罪でしょっぴいて欲しい、面白いから","StatusId":"1153506249138245632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1153504296400371712","InReplyToUserId":"61047377","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Tue Jul 23 04:15:15 +0000 2019","Text":"RT @jinjor: ところで Elm の新しいサイト、最古の情報へのリンクが増えてるのみんな気づいてる？","StatusId":"1153518914531282944","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"ところで Elm の新しいサイト、最古の情報へのリンクが増えてるのみんな気づいてる？","RetweetedStatusId":"1153518914531282944","RetweetedStatusUserName":"Yosuke Torii / ジンジャー","RetweetedStatusUserProfileImageUrl":"https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"}
 ,
-{"CreatedAt":"Tue Jul 23 04:17:12 +0000 2019","Text":"WebArchiveの偉大さがわかる。\nhttps://t.co/JdVlOD14b3\nまだだいぶHaskellっぽいね","StatusId":"1153519407282286597","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+{"CreatedAt":"Tue Jul 23 04:17:12 +0000 2019","Text":"WebArchiveの偉大さがわかる。\nhttps://t.co/JdVlOD14b3\nまだだいぶHaskellっぽいね","StatusId":"1153519407282286597","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/JdVlOD14b3","EntitiesUrlsExpandedUrls":"https://web.archive.org/web/20131001161314/http://elm-lang.org/learn/Syntax.elm","Retweet":"FALSE"}
 ,
 {"CreatedAt":"Tue Jul 23 04:47:08 +0000 2019","Text":"TIL: aws sts get-caller-identity","StatusId":"1153526937408561153","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
 ,
