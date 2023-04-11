@@ -258,7 +258,7 @@ threadAwareTwilogs links twilog =
 
 aTwilog : Dict String LinkPreview.Metadata -> Twilog -> Html msg
 aTwilog links twilog =
-    div [ class "tweet" ] <|
+    div [ class "tweet", id ("tweet-" ++ twilog.idStr) ] <|
         List.append (twilogData twilog) <|
             case twilog.retweet of
                 Just retweet ->

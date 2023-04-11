@@ -50,6 +50,11 @@ a.has-image:hover {
   border-bottom: unset;
 }
 
+*:target {
+  /* Yellow-ish highlight background on target text */
+  background-color: #fff9d7!important;
+}
+
 .link-ish {
   /* Imitate Sakura.css's link text style */
   color: #1d7484;
