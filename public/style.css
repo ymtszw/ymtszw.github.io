@@ -50,6 +50,17 @@ a.has-image:hover {
   border-bottom: unset;
 }
 
+.link-ish {
+  /* Imitate Sakura.css's link text style */
+  color: #1d7484;
+}
+a:visited > .link-ish {
+  color: #144f5a;
+}
+.link-ish:hover {
+  color: #982c61!important;
+}
+
 /* Navigation for site metadata such as build status badge and author follow link.
 No excess margins, slightly gapped, centered horizontally
 */

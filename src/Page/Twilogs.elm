@@ -300,7 +300,7 @@ aTwilog links twilog =
                                 Just inReplyTo ->
                                     case ( String.startsWith "@" twilog.text, String.split " " twilog.text ) of
                                         ( True, mention :: rest ) ->
-                                            ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text ("Replying to " ++ mention) ]
+                                            ( a [ class "reply-label", target "_blank", href (statusLink inReplyTo) ] [ text "Replying to ", strong [ class "link-ish" ] [ text mention ] ]
                                             , String.join " " rest
                                             )
 
