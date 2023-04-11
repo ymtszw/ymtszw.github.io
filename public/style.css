@@ -188,6 +188,15 @@ Tweet-like style on top of Sakura.css
 
 */
 
+.twilogs-day-header {
+  /* Sticky daily section header */
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  padding: 10px;
+  background: #f9f9f9;
+}
+
 .tweet {
   position: relative;
   font-size: 0.75em;

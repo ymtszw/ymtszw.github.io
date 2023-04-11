@@ -137,8 +137,8 @@ prevNextNavigation { yearMonth } twilogArchives =
                     child
     in
     nav [ class "prev-next-navigation" ]
-        [ toLink (findPrevYearMonth yearMonth twilogArchives) <| text "← 前"
-        , toLink (findNextYearMonth yearMonth twilogArchives) <| text "次 →"
+        [ toLink (findPrevYearMonth yearMonth twilogArchives) <| text "← 前月"
+        , toLink (findNextYearMonth yearMonth twilogArchives) <| text "次月 →"
         ]
 
 

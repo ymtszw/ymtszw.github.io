@@ -9,7 +9,6 @@ module Page.Twilogs exposing
     , listUrlsForPreviewSingle
     , page
     , showTwilogsByDailySections
-    , twilogDailySection
     , twilogsOfTheDay
     )
 
@@ -220,7 +219,7 @@ twilogDailySection shared rataDie twilogs =
             Path.toAbsolute (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth })) ++ "#" ++ dayId
     in
     section []
-        [ h3 [ id dayId ] [ a [ href linkWithDayFragment ] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
+        [ h3 [ class "twilogs-day-header", id dayId ] [ a [ href linkWithDayFragment ] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
         , twilogsOfTheDay shared twilogs
         ]
 
