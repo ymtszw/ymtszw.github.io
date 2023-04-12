@@ -62,6 +62,8 @@ async function testSearch(term) {
   const res = await index.search(term, {
     limit: 3,
     attributesToHighlight: ["Text", "QuotedStatusFullText"],
+    highlightPreTag: " **",
+    highlightPostTag: "** ",
   });
   console.log(
     "Search test",
