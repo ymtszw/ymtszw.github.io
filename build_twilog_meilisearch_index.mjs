@@ -17,6 +17,7 @@ try {
   }
 }
 
+// 変更すると全体再indexが開始される
 const updated = await index.updateSettings({
   pagination: { maxTotalHits: 30 },
   searchableAttributes: [
@@ -43,6 +44,7 @@ const updated = await index.updateSettings({
 });
 console.log("Index settings", updated);
 
+// Indexingは非同期で、裏でqueue管理される
 process.argv.slice(2).forEach(async (changedArchivePath) => {
   const json = await readFile(changedArchivePath);
   const documents = JSON.parse(json);
@@ -50,6 +52,7 @@ process.argv.slice(2).forEach(async (changedArchivePath) => {
   console.log("Indexing requested", changedArchivePath);
 });
 
+// Sanity check
 testSearch("elm");
 testSearch("東京");
 testSearch("長野");
