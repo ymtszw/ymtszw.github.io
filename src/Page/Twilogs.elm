@@ -243,7 +243,20 @@ searchBox { searchResults } =
 
             nonEmpty ->
                 nonEmpty
-                    |> List.map (aTwilog (Just "hit") Dict.empty)
+                    |> List.map
+                        (\twilog ->
+                            let
+                                permalink rendered =
+                                    a [ href pathWithFragment ] [ rendered ]
+
+                                pathWithFragment =
+                                    (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth }) |> Path.toAbsolute) ++ "#tweet-" ++ twilog.idStr
+
+                                yearMonth =
+                                    String.dropRight 3 (Date.toIsoString twilog.createdDate)
+                            in
+                            aTwilog (Just "hit") Dict.empty twilog |> permalink
+                        )
                     |> div [ class "search-results" ]
         ]
 
