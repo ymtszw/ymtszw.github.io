@@ -13,6 +13,9 @@ Symbol font
 Global
 
 */
+html, body {
+  scroll-behavior: smooth;
+}
 
 p {
   text-align: left;
