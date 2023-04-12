@@ -3,9 +3,9 @@
   "scripts": {
     "build": "SECONDS=0; elm-pages build && echo \"Build took ${SECONDS}s.\"",
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
-    "fetch_recent_twilogs:reset": "echo 0 > data/MY_TWILOGS_CSV_CURSOR; TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: reset recent twilogs ($(date))\"",
-    "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: fetched recent twilogs ($(date))\"",
-    "import_archived_tweets": "TZ=Asia/Tokyo node import_archived_tweets.js",
+    "fetch_recent_twilogs:reset": "echo 0 > data/MY_TWILOGS_CSV_CURSOR; TZ=Asia/Tokyo node script/fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: reset recent twilogs ($(date))\"",
+    "fetch_recent_twilogs": "TZ=Asia/Tokyo node script/fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: fetched recent twilogs ($(date))\"",
+    "import_archived_tweets": "TZ=Asia/Tokyo node script/import_archived_tweets.js",
     "postinstall": "elm-tooling install && patch-package",
     "start": "elm-pages dev --port 10101"
   },
