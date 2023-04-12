@@ -21,7 +21,6 @@ module Shared exposing
     , formatPosix
     , githubGet
     , iso8601Decoder
-    , jst
     , makeSeoImageFromCmsImage
     , makeTitle
     , makeTwilogsJsonPath
