@@ -1,16 +1,14 @@
-module Meilisearch exposing (HitTwilog, SearchTwilogsResult, emptyResult, searchTwilogs)
+module Meilisearch exposing (SearchTwilogsResult, emptyResult, searchTwilogs)
 
-import Date
 import Http
 import Json.Decode
 import Json.Encode
 import OptimizedDecoder
-import Shared exposing (TwitterStatusId(..))
-import Time
+import Shared exposing (Twilog, TwitterStatusId(..))
 
 
 type alias SearchTwilogsResult =
-    { formattedHits : List HitTwilog
+    { formattedHits : List Twilog
     , estimatedTotalHits : Int
     }
 
@@ -18,16 +16,6 @@ type alias SearchTwilogsResult =
 emptyResult =
     { formattedHits = []
     , estimatedTotalHits = 0
-    }
-
-
-type alias HitTwilog =
-    { id : TwitterStatusId
-    , idStr : String
-    , text : String
-    , userName : String
-    , createdAt : Time.Posix
-    , createdDate : Date.Date
     }
 
 
@@ -51,9 +39,6 @@ searchBody term =
         Json.Encode.object
             [ ( "q", Json.Encode.string term )
             , ( "limit", Json.Encode.int 10 )
-            , ( "attributesToHighlight", Json.Encode.list Json.Encode.string [ "Text", "QuotedStatusFullText" ] )
-            , ( "highlightPreTag", Json.Encode.string " **" )
-            , ( "highlightPostTag", Json.Encode.string "** " )
             ]
 
 
@@ -61,17 +46,14 @@ searchResultDecoder : Json.Decode.Decoder SearchTwilogsResult
 searchResultDecoder =
     let
         hitTwilogDecoder =
-            Json.Decode.map6 HitTwilog
-                (Json.Decode.field "StatusId" (Json.Decode.map TwitterStatusId Json.Decode.string))
-                (Json.Decode.field "StatusId" Json.Decode.string)
-                (Json.Decode.field "Text" Json.Decode.string)
-                (Json.Decode.field "UserName" Json.Decode.string)
-                (Json.Decode.field "CreatedAt" createdAtDecoder)
-                (Json.Decode.field "CreatedAt" (createdAtDecoder |> Json.Decode.map (Date.fromPosix Shared.jst)))
-
-        createdAtDecoder =
-            OptimizedDecoder.decoder Shared.createdAtDecoder
+            OptimizedDecoder.decoder Shared.twilogDecoder
     in
     Json.Decode.map2 SearchTwilogsResult
-        (Json.Decode.field "hits" (Json.Decode.list (Json.Decode.field "_formatted" hitTwilogDecoder)))
+        (Json.Decode.field "hits"
+            (Json.Decode.oneOf
+                [ Json.Decode.list (Json.Decode.field "_formatted" hitTwilogDecoder)
+                , Json.Decode.list hitTwilogDecoder
+                ]
+            )
+        )
         (Json.Decode.field "estimatedTotalHits" Json.Decode.int)

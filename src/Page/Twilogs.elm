@@ -22,6 +22,7 @@ import Head.Seo as Seo
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onInput)
 import Html.Keyed
 import LinkPreview
 import List.Extra
@@ -43,6 +44,7 @@ type alias Model =
 type Msg
     = InitiateLinkPreviewPopulation
     | Res_SearchTwilogs (Result String SearchTwilogsResult)
+    | SetSearchTerm String
 
 
 type alias RouteParams =
@@ -110,13 +112,25 @@ update _ _ shared app msg model =
     case msg of
         InitiateLinkPreviewPopulation ->
             ( model
-            , Meilisearch.searchTwilogs Res_SearchTwilogs "検索"
+            , Cmd.none
             , listUrlsForPreviewBulk shared app.data.recentDailyTwilogs
             )
 
         Res_SearchTwilogs res ->
-            ( { model | searchResults = Result.withDefault Meilisearch.emptyResult res |> Debug.log "searched" }
+            ( { model | searchResults = Result.withDefault Meilisearch.emptyResult res }
             , Cmd.none
+            , Nothing
+            )
+
+        SetSearchTerm "" ->
+            ( { model | searchResults = Meilisearch.emptyResult }
+            , Cmd.none
+            , Nothing
+            )
+
+        SetSearchTerm input ->
+            ( model
+            , Meilisearch.searchTwilogs Res_SearchTwilogs input
             , Nothing
             )
 
@@ -188,7 +202,7 @@ listUrlsForPreviewFromReplies links replies =
 
 
 view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
-view _ shared _ app =
+view _ shared m app =
     { title = "Twilog"
     , body =
         [ h1 [] [ text "Twilog" ]
@@ -200,10 +214,44 @@ view _ shared _ app =
 - それを自前でTwilogっぽくwebページ化（サイトはデイリービルド）
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（完成）
 """
+        , searchBox m
         ]
             ++ showTwilogsByDailySections shared app.data.recentDailyTwilogs
             ++ [ linksByMonths Nothing app.sharedData.twilogArchives ]
     }
+
+
+
+-----------------
+-- SEARCH BOX
+-----------------
+
+
+searchBox : { a | searchResults : SearchTwilogsResult } -> Html Msg
+searchBox { searchResults } =
+    div [ class "search" ]
+        [ label [ for "twilogs-search" ] [ text "検索" ]
+        , input
+            [ type_ "search"
+            , id "twilogs-search"
+            , onInput SetSearchTerm
+            ]
+            []
+        , case searchResults.formattedHits of
+            [] ->
+                text ""
+
+            nonEmpty ->
+                nonEmpty
+                    |> List.map (aTwilog (Just "hit") Dict.empty)
+                    |> div [ class "search-results" ]
+        ]
+
+
+
+-----------------
+-- TWILOGS
+-----------------
 
 
 showTwilogsByDailySections : Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
@@ -247,7 +295,7 @@ threadAwareTwilogs links twilog =
     Tuple.pair twilog.idStr <|
         case twilog.replies of
             [] ->
-                aTwilog links twilog
+                aTwilog Nothing links twilog
 
             threads ->
                 let
@@ -255,18 +303,18 @@ threadAwareTwilogs links twilog =
                         [ div [ class "reply" ] <|
                             case twilogInThread.replies of
                                 [] ->
-                                    [ aTwilog links twilogInThread ]
+                                    [ aTwilog Nothing links twilogInThread ]
 
                                 more ->
-                                    aTwilog links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
+                                    aTwilog Nothing links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
                         ]
                 in
-                div [ class "thread" ] <| aTwilog links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
+                div [ class "thread" ] <| aTwilog Nothing links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
 
 
-aTwilog : Dict String LinkPreview.Metadata -> Twilog -> Html msg
-aTwilog links twilog =
-    div [ class "tweet", id ("tweet-" ++ twilog.idStr) ] <|
+aTwilog : Maybe String -> Dict String LinkPreview.Metadata -> Twilog -> Html msg
+aTwilog idPrefix links twilog =
+    div [ class "tweet", id (Maybe.withDefault "tweet" idPrefix ++ "-" ++ twilog.idStr) ] <|
         List.append (twilogData twilog) <|
             case twilog.retweet of
                 Just retweet ->
@@ -515,8 +563,8 @@ hashtagRegex : Regex
 hashtagRegex =
     -- 厳密にはURLはカンマを含むことができるので、`https://...?foo,bar,#hashtag`のようなURLがあると誤認識する。が、制限事項とする
     -- このRegexはdeny-list方式で、hashtagに使用できない文字列をひたすら列挙している。ASCII記号としては`_`以外すべての記号を除外。
-    -- その他、Unicodeの記号系文字列も可能な範囲で弾いている
-    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)(#|＃)[^\\s!-/:-@\\[-\\^`{-~＠＃「」（）…]+")
+    -- その他、Unicodeの記号系文字列も可能な範囲で弾いている。先頭文字に限っては数字も除外。
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)(#|＃)[^0-9０-９\\s!-/:-@\\[-\\^`{-~＠＃「」（）…][^\\s!-/:-@\\[-\\^`{-~＠＃「」（）…]+")
 
 
 appendMediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)

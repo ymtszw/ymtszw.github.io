@@ -16,7 +16,6 @@ module Shared exposing
     , TwitterUserId(..)
     , cmsGet
     , cmsImageDecoder
-    , createdAtDecoder
     , dailyTwilogsFromOldest
     , dumpTwilog
     , formatPosix
@@ -33,6 +32,7 @@ module Shared exposing
     , seoBase
     , template
     , twilogArchives
+    , twilogDecoder
     , unixOrigin
     )
 
