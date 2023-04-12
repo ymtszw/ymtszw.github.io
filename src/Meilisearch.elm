@@ -24,13 +24,19 @@ searchTwilogs tagger term =
     Http.request
         { method = "POST"
         , url = "https://ms-302b6a5b2398-3215.sgp.meilisearch.io/indexes/ymtszw-twilogs/search"
-        , headers = [ Http.header "Authorization" "Bearer 01ee096032b6b41617b155ef5d9efec6e9a41e2de16a126cbf51a9385d12116c" ]
+        , headers = [ Http.header "Authorization" ("Bearer " ++ clientSearchKey) ]
         , body = searchBody term
         , timeout = Just 5000
         , tracker = Nothing
         , expect =
             Http.expectJson (Result.mapError (\_ -> "") >> tagger) searchResultDecoder
         }
+
+
+clientSearchKey : String
+clientSearchKey =
+    -- TODO v3ではこれをBackendTask.Env経由でビルド時に埋め込む？
+    "01ee096032b6b41617b155ef5d9efec6e9a41e2de16a126cbf51a9385d12116c"
 
 
 searchBody : String -> Http.Body
