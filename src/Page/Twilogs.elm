@@ -26,6 +26,7 @@ import Html.Keyed
 import LinkPreview
 import List.Extra
 import Markdown
+import Meilisearch exposing (SearchTwilogsResult)
 import Page
 import Pages.PageUrl
 import Path
@@ -36,11 +37,12 @@ import View exposing (imgLazy)
 
 
 type alias Model =
-    ()
+    { searchResults : SearchTwilogsResult }
 
 
 type Msg
     = InitiateLinkPreviewPopulation
+    | Res_SearchTwilogs (Result String SearchTwilogsResult)
 
 
 type alias RouteParams =
@@ -57,7 +59,7 @@ page =
         , data = data
         }
         |> Page.buildWithSharedState
-            { init = \_ _ _ -> ( (), Helper.initMsg InitiateLinkPreviewPopulation )
+            { init = \_ _ _ -> ( { searchResults = Meilisearch.emptyResult }, Helper.initMsg InitiateLinkPreviewPopulation )
             , update = update
             , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
@@ -108,8 +110,14 @@ update _ _ shared app msg model =
     case msg of
         InitiateLinkPreviewPopulation ->
             ( model
-            , Cmd.none
+            , Meilisearch.searchTwilogs Res_SearchTwilogs "検索"
             , listUrlsForPreviewBulk shared app.data.recentDailyTwilogs
+            )
+
+        Res_SearchTwilogs res ->
+            ( { model | searchResults = Result.withDefault Meilisearch.emptyResult res |> Debug.log "searched" }
+            , Cmd.none
+            , Nothing
             )
 
 

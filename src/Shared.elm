@@ -16,11 +16,13 @@ module Shared exposing
     , TwitterUserId(..)
     , cmsGet
     , cmsImageDecoder
+    , createdAtDecoder
     , dailyTwilogsFromOldest
     , dumpTwilog
     , formatPosix
     , githubGet
     , iso8601Decoder
+    , jst
     , makeSeoImageFromCmsImage
     , makeTitle
     , makeTwilogsJsonPath
@@ -325,24 +327,6 @@ makeTwilogsJsonPath dateString =
 twilogDecoder : OptimizedDecoder.Decoder Twilog
 twilogDecoder =
     let
-        createdAtDecoder =
-            OptimizedDecoder.oneOf
-                [ iso8601Decoder
-                , -- Decode date time string formatted with "ddd MMM DD HH:mm:ss Z YYYY" (originates from Twitter API)
-                  OptimizedDecoder.andThen
-                    (\str ->
-                        case String.split " " str of
-                            [ _, mon, paddedDay, paddedHourMinSec, zone, year ] ->
-                                Iso8601.toTime (year ++ "-" ++ monthToPaddedNumber mon ++ "-" ++ paddedDay ++ "T" ++ paddedHourMinSec ++ zone)
-                                    |> Result.mapError Markdown.deadEndsToString
-                                    |> OptimizedDecoder.fromResult
-
-                            _ ->
-                                OptimizedDecoder.fail ("Failed to parse date: " ++ str)
-                    )
-                    OptimizedDecoder.string
-                ]
-
         retweetDecoder =
             OptimizedDecoder.field "Retweet" boolString
                 |> OptimizedDecoder.andThen
@@ -448,6 +432,26 @@ twilogDecoder =
         |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
         |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
         |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
+
+
+createdAtDecoder : OptimizedDecoder.Decoder Time.Posix
+createdAtDecoder =
+    OptimizedDecoder.oneOf
+        [ iso8601Decoder
+        , -- Decode date time string formatted with "ddd MMM DD HH:mm:ss Z YYYY" (originates from Twitter API)
+          OptimizedDecoder.andThen
+            (\str ->
+                case String.split " " str of
+                    [ _, mon, paddedDay, paddedHourMinSec, zone, year ] ->
+                        Iso8601.toTime (year ++ "-" ++ monthToPaddedNumber mon ++ "-" ++ paddedDay ++ "T" ++ paddedHourMinSec ++ zone)
+                            |> Result.mapError Markdown.deadEndsToString
+                            |> OptimizedDecoder.fromResult
+
+                    _ ->
+                        OptimizedDecoder.fail ("Failed to parse date: " ++ str)
+            )
+            OptimizedDecoder.string
+        ]
 
 
 dailyTwilogsFromOldest : List String -> DataSource (Dict RataDie (List Twilog))
