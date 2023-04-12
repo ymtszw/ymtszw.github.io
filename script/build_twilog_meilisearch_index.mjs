@@ -1,5 +1,6 @@
 import { MeiliSearch, MeiliSearchApiError } from "meilisearch";
 import { readFile } from "fs/promises";
+import { eng, jpn } from "stopword";
 
 const indexUid = "ymtszw-twilogs";
 
@@ -21,28 +22,39 @@ try {
 const updated = await index.updateSettings({
   pagination: { maxTotalHits: 30 },
   searchableAttributes: [
+    "CreatedAt",
     "UserName",
     "Text",
+    "RetweetedStatusUserName",
+    "RetweetedStatusFullText",
     "QuotedStatusFullText",
-    "CreatedAt",
   ],
   displayedAttributes: [
     "StatusId",
+    "CreatedAt",
     "UserName",
+    "UserProfileImageUrl",
     "Text",
     "Retweet",
+    "RetweetedStatusId",
+    "RetweetedStatusFullText",
+    "RetweetedStatusUserName",
+    "RetweetedStatusUserProfileImageUrl",
     "QuotedStatusFullText",
-    "CreatedAt",
   ],
   filterableAttributes: [
+    "CreatedAt",
     "UserName",
     "Text",
-    "Retweet",
+    "RetweetedStatusUserName",
+    "RetweetedStatusFullText",
     "QuotedStatusFullText",
-    "CreatedAt",
   ],
 });
 console.log("Index settings", updated);
+
+const stopWords = [...eng, ...jpn];
+console.log("Stop words", await index.updateStopWords(stopWords));
 
 // Indexingは非同期で、裏でqueue管理される
 process.argv.slice(2).forEach(async (changedArchivePath) => {
@@ -53,10 +65,8 @@ process.argv.slice(2).forEach(async (changedArchivePath) => {
 });
 
 // Sanity check
-testSearch("elm");
-testSearch("東京");
-testSearch("長野");
-testSearch("Siiibo");
+const candidates = ["elm", "東京", "長野", "Siiibo"];
+testSearch(candidates[Math.floor(Math.random() * candidates.length)]);
 
 async function testSearch(term) {
   const res = await index.search(term, {
