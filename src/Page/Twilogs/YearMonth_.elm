@@ -6,6 +6,7 @@ module Page.Twilogs.YearMonth_ exposing
     , page
     )
 
+import Browser.Dom
 import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Glob
@@ -19,8 +20,10 @@ import List.Extra
 import Page
 import Page.Twilogs
 import Pages.PageUrl
+import Process
 import Route
 import Shared exposing (RataDie, Twilog, seoBase)
+import Task
 import View
 
 
@@ -30,6 +33,7 @@ type alias Model =
 
 type Msg
     = InitiateLinkPreviewPopulation
+    | NoOp
 
 
 type alias RouteParams =
@@ -103,13 +107,27 @@ head app =
 
 
 update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
-update _ _ shared app msg model =
+update url _ shared app msg model =
     case msg of
         InitiateLinkPreviewPopulation ->
             ( model
-            , Cmd.none
+            , case url.fragment of
+                Just id ->
+                    -- LinkPreviewの読み込みなどでlayout shiftが少しあるので、雑にちょっと待つ
+                    Process.sleep 500
+                        |> Task.andThen (\() -> Browser.Dom.getElement id)
+                        -- ヘッダー分を大雑把に加えてスクロール
+                        |> Task.andThen (\e -> Browser.Dom.setViewport 0 (e.element.y + 50))
+                        |> Task.onError (\_ -> Task.succeed ())
+                        |> Task.perform (\_ -> NoOp)
+
+                _ ->
+                    Cmd.none
             , Page.Twilogs.listUrlsForPreviewBulk shared app.data.dailyTwilogsFromOldest
             )
+
+        NoOp ->
+            ( model, Cmd.none, Nothing )
 
 
 view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg

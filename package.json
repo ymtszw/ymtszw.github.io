@@ -1,13 +1,14 @@
 {
   "name": "ymtszw",
   "scripts": {
+    "build": "SECONDS=0; elm-pages build && echo \"Build took ${SECONDS}s.\"",
+    "build_twilog_meilisearch_index": "node script/build_twilog_meilisearch_index.mjs",
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
+    "fetch_recent_twilogs:reset": "echo 0 > data/MY_TWILOGS_CSV_CURSOR; TZ=Asia/Tokyo node script/fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: reset recent twilogs ($(date))\"",
+    "fetch_recent_twilogs": "TZ=Asia/Tokyo node script/fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: fetched recent twilogs ($(date))\"",
+    "import_archived_tweets": "TZ=Asia/Tokyo node script/import_archived_tweets.js",
     "postinstall": "elm-tooling install && patch-package",
-    "fetch_recent_twilogs": "TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: fetched recent twilogs ($(date))\"",
-    "fetch_recent_twilogs:reset": "echo 0 > data/MY_TWILOGS_CSV_CURSOR; TZ=Asia/Tokyo node fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ && git commit -m \"ci: reset recent twilogs ($(date))\"",
-    "import_archived_tweets": "TZ=Asia/Tokyo node import_archived_tweets.js",
-    "start": "elm-pages dev --port 10101",
-    "build": "SECONDS=0; elm-pages build && echo \"Build took ${SECONDS}s.\""
+    "start": "elm-pages dev --port 10101"
   },
   "devDependencies": {
     "csvtojson": "^2.0",
@@ -15,7 +16,9 @@
     "elm-pages": "^2.1",
     "elm-review": "^2.9",
     "elm-tooling": "^1.4",
+    "meilisearch": "^0.32.3",
     "node-fetch": "^3.3.1",
-    "patch-package": "^6.5"
+    "patch-package": "^6.5",
+    "stopword": "^2.0.8"
   }
 }

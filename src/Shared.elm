@@ -31,6 +31,7 @@ module Shared exposing
     , seoBase
     , template
     , twilogArchives
+    , twilogDecoder
     , unixOrigin
     )
 
