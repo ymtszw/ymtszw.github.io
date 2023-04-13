@@ -264,6 +264,7 @@ searchBox { searchResults } =
                             in
                             aTwilog False Dict.empty twilog |> permalink
                         )
+                    |> List.append [ small [] [ text ("約" ++ String.fromInt searchResults.estimatedTotalHits ++ "件") ] ]
                     |> div [ class "search-results" ]
         ]
 
