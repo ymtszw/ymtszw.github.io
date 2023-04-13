@@ -22,7 +22,7 @@ import Head.Seo as Seo
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onClick, onInput)
 import Html.Keyed
 import LinkPreview
 import List.Extra
@@ -45,6 +45,7 @@ type Msg
     = InitiateLinkPreviewPopulation
     | Res_SearchTwilogs (Result String SearchTwilogsResult)
     | SetSearchTerm String
+    | JumpToHitTwilog String
 
 
 type alias RouteParams =
@@ -131,6 +132,12 @@ update _ _ shared app msg model =
         SetSearchTerm input ->
             ( model
             , Meilisearch.searchTwilogs Res_SearchTwilogs input
+            , Nothing
+            )
+
+        JumpToHitTwilog permalink ->
+            ( model
+            , Browser.Navigation.load permalink
             , Nothing
             )
 
@@ -247,7 +254,7 @@ searchBox { searchResults } =
                         (\twilog ->
                             let
                                 permalink rendered =
-                                    a [ href pathWithFragment ] [ rendered ]
+                                    div [ onClick (JumpToHitTwilog pathWithFragment) ] [ rendered ]
 
                                 pathWithFragment =
                                     (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth }) |> Path.toAbsolute) ++ "#tweet-" ++ twilog.idStr
@@ -255,7 +262,7 @@ searchBox { searchResults } =
                                 yearMonth =
                                     String.dropRight 3 (Date.toIsoString twilog.createdDate)
                             in
-                            aTwilog (Just "hit") Dict.empty twilog |> permalink
+                            aTwilog False Dict.empty twilog |> permalink
                         )
                     |> div [ class "search-results" ]
         ]
@@ -308,7 +315,7 @@ threadAwareTwilogs links twilog =
     Tuple.pair twilog.idStr <|
         case twilog.replies of
             [] ->
-                aTwilog Nothing links twilog
+                aTwilog True links twilog
 
             threads ->
                 let
@@ -316,19 +323,34 @@ threadAwareTwilogs links twilog =
                         [ div [ class "reply" ] <|
                             case twilogInThread.replies of
                                 [] ->
-                                    [ aTwilog Nothing links twilogInThread ]
+                                    [ aTwilog True links twilogInThread ]
 
                                 more ->
-                                    aTwilog Nothing links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
+                                    aTwilog True links twilogInThread :: List.concatMap recursivelyRenderThreadedTwilogs more
                         ]
                 in
-                div [ class "thread" ] <| aTwilog Nothing links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
+                div [ class "thread" ] <| aTwilog True links twilog :: List.concatMap recursivelyRenderThreadedTwilogs threads
 
 
-aTwilog : Maybe String -> Dict String LinkPreview.Metadata -> Twilog -> Html msg
-aTwilog idPrefix links twilog =
-    div [ class "tweet", id (Maybe.withDefault "tweet" idPrefix ++ "-" ++ twilog.idStr) ] <|
-        List.append (twilogData twilog) <|
+aTwilog : Bool -> Dict String LinkPreview.Metadata -> Twilog -> Html msg
+aTwilog isCanonical links twilog =
+    div
+        [ class "tweet"
+        , if isCanonical then
+            id ("tweet-" ++ twilog.idStr)
+
+          else
+            classList []
+        ]
+    <|
+        List.append
+            (if isCanonical then
+                twilogData twilog
+
+             else
+                []
+            )
+        <|
             case twilog.retweet of
                 Just retweet ->
                     [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]

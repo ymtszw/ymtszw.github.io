@@ -217,12 +217,6 @@ Tweet-like style on top of Sakura.css
 .tweet:first-child {
   margin-top: 0;
 }
-a:any-link:has(.tweet) {
-  color: unset;
-}
-a:any-link:has(.tweet):hover > .tweet {
-  background-color: #fff9d7;
-}
 
 /* raw twilog-data viewer */
 .tweet > input[type="checkbox"] {
@@ -538,9 +532,10 @@ nav.twilog-archive-navigation ul li.selected::after {
   /* Cancel margin-bottom from input above */
   margin-top: -10px;
 }
-.search-results .tweet .body strong {
+.search-results .tweet:hover {
   /* yellow */
   background-color: #fff9c4;
+  cursor: pointer;
 }
 .search-results::after {
   content: "Powered by Meilisearch";
