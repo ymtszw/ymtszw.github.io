@@ -37,7 +37,7 @@ jobs:
       - name: Fetch, commit and push if anything new
         run: |
           if npm run fetch_recent_twilogs; then
-            git diff --name-only | grep "\-twilogs.json" | npm run build_twilog_meilisearch_index
+            git diff --name-only HEAD~ | grep "\-twilogs.json" | xargs npm run build_twilog_meilisearch_index
             git push origin HEAD:master
           fi
         env:
