@@ -38,7 +38,10 @@ import View exposing (imgLazy)
 
 
 type alias Model =
-    { searchResults : SearchTwilogsResult }
+    { searchResults : SearchTwilogsResult
+    , searching : Bool
+    , searchTerm : String
+    }
 
 
 type Msg
@@ -62,7 +65,7 @@ page =
         , data = data
         }
         |> Page.buildWithSharedState
-            { init = \_ _ _ -> ( { searchResults = Meilisearch.emptyResult }, Helper.initMsg InitiateLinkPreviewPopulation )
+            { init = \_ _ _ -> ( { searchResults = Meilisearch.emptyResult, searching = False, searchTerm = "" }, Helper.initMsg InitiateLinkPreviewPopulation )
             , update = update
             , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
@@ -117,23 +120,50 @@ update _ _ shared app msg model =
             , listUrlsForPreviewBulk shared app.data.recentDailyTwilogs
             )
 
-        Res_SearchTwilogs res ->
-            ( { model | searchResults = Result.withDefault Meilisearch.emptyResult res }
-            , Cmd.none
+        Res_SearchTwilogs (Ok searchResults) ->
+            if model.searchTerm == searchResults.searchTerm then
+                ( { model | searchResults = searchResults, searching = False }
+                , Cmd.none
+                , Nothing
+                )
+
+            else
+                ( { model | searchResults = searchResults, searching = True }
+                , -- Resume backpressued
+                  Meilisearch.searchTwilogs Res_SearchTwilogs model.searchTerm
+                , Nothing
+                )
+
+        Res_SearchTwilogs (Err _) ->
+            ( { model | searching = False }
+            , -- Don't resume on error
+              Cmd.none
             , Nothing
             )
 
         SetSearchTerm "" ->
-            ( { model | searchResults = Meilisearch.emptyResult }
+            ( { model | searchResults = Meilisearch.emptyResult, searchTerm = "" }
             , Cmd.none
             , Nothing
             )
 
         SetSearchTerm input ->
-            ( model
-            , Meilisearch.searchTwilogs Res_SearchTwilogs input
-            , Nothing
-            )
+            if String.length input > 1 then
+                ( { model | searching = True, searchTerm = input }
+                , if model.searching then
+                    -- Backpressured
+                    Cmd.none
+
+                  else
+                    Meilisearch.searchTwilogs Res_SearchTwilogs input
+                , Nothing
+                )
+
+            else
+                ( { model | searchTerm = input }
+                , Cmd.none
+                , Nothing
+                )
 
         JumpToHitTwilog permalink ->
             ( model
@@ -234,10 +264,10 @@ view _ shared m app =
 -----------------
 
 
-searchBox : { a | searchResults : SearchTwilogsResult } -> Html Msg
-searchBox { searchResults } =
+searchBox : { a | searchResults : SearchTwilogsResult, searching : Bool } -> Html Msg
+searchBox { searchResults, searching } =
     div [ class "search" ]
-        [ label [ for "twilogs-search" ] [ text "検索" ]
+        [ label [ for "twilogs-search", classList [ ( "spinner", searching ) ] ] [ text "検索" ]
         , input
             [ type_ "search"
             , id "twilogs-search"

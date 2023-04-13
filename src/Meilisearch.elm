@@ -4,33 +4,55 @@ import Http
 import Json.Decode
 import Json.Encode
 import OptimizedDecoder
+import Process
 import Shared exposing (Twilog, TwitterStatusId(..))
+import Task
 
 
 type alias SearchTwilogsResult =
-    { formattedHits : List Twilog
+    { searchTerm : String
+    , formattedHits : List Twilog
     , estimatedTotalHits : Int
     }
 
 
 emptyResult =
-    { formattedHits = []
+    { searchTerm = ""
+    , formattedHits = []
     , estimatedTotalHits = 0
     }
 
 
 searchTwilogs : (Result String SearchTwilogsResult -> msg) -> String -> Cmd msg
 searchTwilogs tagger term =
-    Http.request
-        { method = "POST"
-        , url = "https://ms-302b6a5b2398-3215.sgp.meilisearch.io/indexes/ymtszw-twilogs/search"
-        , headers = [ Http.header "Authorization" ("Bearer " ++ clientSearchKey) ]
-        , body = searchBody term
-        , timeout = Just 5000
-        , tracker = Nothing
-        , expect =
-            Http.expectJson (Result.mapError (\_ -> "") >> tagger) searchResultDecoder
-        }
+    Process.sleep searchBackPressureMs
+        |> Task.andThen
+            (\() ->
+                Http.task
+                    { method = "POST"
+                    , url = "https://ms-302b6a5b2398-3215.sgp.meilisearch.io/indexes/ymtszw-twilogs/search"
+                    , headers = [ Http.header "Authorization" ("Bearer " ++ clientSearchKey) ]
+                    , body = searchBody term
+                    , timeout = Just 5000
+                    , resolver =
+                        Http.stringResolver
+                            (\resp ->
+                                case resp of
+                                    Http.GoodStatus_ _ body ->
+                                        Json.Decode.decodeString (searchResultDecoder term) body
+                                            |> Result.mapError (\_ -> "")
+
+                                    _ ->
+                                        Err ""
+                            )
+                    }
+            )
+        |> Task.attempt tagger
+
+
+searchBackPressureMs : Float
+searchBackPressureMs =
+    500
 
 
 clientSearchKey : String
@@ -48,13 +70,13 @@ searchBody term =
             ]
 
 
-searchResultDecoder : Json.Decode.Decoder SearchTwilogsResult
-searchResultDecoder =
+searchResultDecoder : String -> Json.Decode.Decoder SearchTwilogsResult
+searchResultDecoder term =
     let
         hitTwilogDecoder =
             OptimizedDecoder.decoder Shared.twilogDecoder
     in
-    Json.Decode.map2 SearchTwilogsResult
+    Json.Decode.map2 (SearchTwilogsResult term)
         (Json.Decode.field "hits"
             (Json.Decode.oneOf
                 [ Json.Decode.list (Json.Decode.field "_formatted" hitTwilogDecoder)
