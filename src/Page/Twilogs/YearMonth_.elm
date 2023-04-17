@@ -138,7 +138,7 @@ view _ shared _ app =
         prevNextNavigation app.routeParams app.sharedData.twilogArchives
             :: Page.Twilogs.showTwilogsByDailySections shared app.data.dailyTwilogsFromOldest
             ++ [ prevNextNavigation app.routeParams app.sharedData.twilogArchives
-               , Page.Twilogs.linksByMonths Nothing app.sharedData.twilogArchives
+               , Page.Twilogs.linksByMonths (Just app.routeParams.yearMonth) app.sharedData.twilogArchives
                ]
     }
 
