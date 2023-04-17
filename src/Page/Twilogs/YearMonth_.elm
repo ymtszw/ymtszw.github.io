@@ -24,16 +24,18 @@ import Process
 import Route
 import Shared exposing (RataDie, Twilog, seoBase)
 import Task
+import TwilogSearch
 import View
 
 
 type alias Model =
-    ()
+    TwilogSearch.Model
 
 
 type Msg
     = InitiateLinkPreviewPopulation
     | NoOp
+    | TwilogSearchMsg TwilogSearch.Msg
 
 
 type alias RouteParams =
@@ -52,7 +54,7 @@ page =
         , data = data
         }
         |> Page.buildWithSharedState
-            { init = \_ _ _ -> ( (), Helper.initMsg InitiateLinkPreviewPopulation )
+            { init = \_ _ _ -> ( TwilogSearch.init, Helper.initMsg InitiateLinkPreviewPopulation )
             , update = update
             , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
@@ -129,13 +131,21 @@ update url _ shared app msg model =
         NoOp ->
             ( model, Cmd.none, Nothing )
 
+        TwilogSearchMsg twMsg ->
+            let
+                ( model_, cmd ) =
+                    TwilogSearch.update twMsg model
+            in
+            ( model_, Cmd.map TwilogSearchMsg cmd, Nothing )
+
 
 view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
-view _ shared _ app =
+view _ shared m app =
     { title = app.routeParams.yearMonth ++ "のTwilog"
     , body =
         -- show navigation links to previous and next days
         prevNextNavigation app.routeParams app.sharedData.twilogArchives
+            :: TwilogSearch.searchBox TwilogSearchMsg (Page.Twilogs.aTwilog False Dict.empty) m
             :: Page.Twilogs.showTwilogsByDailySections shared app.data.dailyTwilogsFromOldest
             ++ [ prevNextNavigation app.routeParams app.sharedData.twilogArchives
                , Page.Twilogs.linksByMonths (Just app.routeParams.yearMonth) app.sharedData.twilogArchives

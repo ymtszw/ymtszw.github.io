@@ -3,6 +3,7 @@ module Page.Twilogs exposing
     , Model
     , Msg
     , RouteParams
+    , aTwilog
     , getRecentDays
     , linksByMonths
     , listUrlsForPreviewBulk

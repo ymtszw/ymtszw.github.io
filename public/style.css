@@ -82,7 +82,7 @@ nav.prev-next-navigation {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin: 0;
+  margin: 10px 0 15px;
   height: 1.5em;
 }
 
@@ -533,6 +533,7 @@ nav.twilog-archive-navigation ul li.selected::after {
 }
 .search input[type="search"] {
   width: 15em;
+  margin-bottom: 0;
   transition: all 0.3s ease-in-out;
 }
 .search:focus-within input[type="search"] {
@@ -557,8 +558,6 @@ nav.twilog-archive-navigation ul li.selected::after {
   z-index: 2;
   /* Shadow behind dropdown */
   box-shadow: 5px 5px 5px #eaeaea;
-  /* Cancel margin-bottom from input above */
-  margin-top: -10px;
 }
 .search .search-results button.jump-to-button {
   display: block;
