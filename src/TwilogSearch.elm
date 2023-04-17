@@ -11,10 +11,8 @@ import Json.Decode
 import Json.Encode
 import OptimizedDecoder
 import Path
-import Process
 import Route
 import Shared exposing (Twilog, TwitterStatusId(..))
-import Task
 
 
 type alias Model =
@@ -94,41 +92,22 @@ update msg model =
 
 debounceConfig : Debounce.Config Msg
 debounceConfig =
-    { strategy = Debounce.later 500
+    { strategy = Debounce.later 700
     , transform = DebounceMsg
     }
 
 
 searchTwilogs : (Result String SearchTwilogsResult -> msg) -> String -> Cmd msg
 searchTwilogs tagger term =
-    Process.sleep searchBackPressureMs
-        |> Task.andThen
-            (\() ->
-                Http.task
-                    { method = "POST"
-                    , url = "https://ms-302b6a5b2398-3215.sgp.meilisearch.io/indexes/ymtszw-twilogs/search"
-                    , headers = [ Http.header "Authorization" ("Bearer " ++ clientSearchKey) ]
-                    , body = searchBody term
-                    , timeout = Just 5000
-                    , resolver =
-                        Http.stringResolver
-                            (\resp ->
-                                case resp of
-                                    Http.GoodStatus_ _ body ->
-                                        Json.Decode.decodeString (searchResultDecoder term) body
-                                            |> Result.mapError (\_ -> "")
-
-                                    _ ->
-                                        Err ""
-                            )
-                    }
-            )
-        |> Task.attempt tagger
-
-
-searchBackPressureMs : Float
-searchBackPressureMs =
-    500
+    Http.request
+        { method = "POST"
+        , url = "https://ms-302b6a5b2398-3215.sgp.meilisearch.io/indexes/ymtszw-twilogs/search"
+        , headers = [ Http.header "Authorization" ("Bearer " ++ clientSearchKey) ]
+        , body = searchBody term
+        , timeout = Just 5000
+        , tracker = Nothing
+        , expect = Http.expectJson (Result.mapError (\_ -> "") >> tagger) (searchResultDecoder term)
+        }
 
 
 clientSearchKey : String
