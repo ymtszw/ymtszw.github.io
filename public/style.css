@@ -78,6 +78,15 @@ nav.meta {
   gap: 5px;
 }
 
+nav.scroll-buttons {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  right: 10px;
+  bottom: 10px;
+}
+
 nav.prev-next-navigation {
   display: flex;
   justify-content: space-between;

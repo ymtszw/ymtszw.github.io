@@ -35,6 +35,7 @@ module Shared exposing
     , unixOrigin
     )
 
+import Browser.Dom
 import DataSource exposing (DataSource)
 import DataSource.File
 import DataSource.Glob
@@ -45,6 +46,7 @@ import Head.Seo
 import Helper exposing (nonEmptyString)
 import Html
 import Html.Attributes
+import Html.Events
 import Iso8601
 import Json.Encode
 import LinkPreview
@@ -112,6 +114,8 @@ type SharedMsg
     = NoOp
     | Req_LinkPreview (List String)
     | Res_LinkPreview (List String) (Result String ( String, LinkPreview.Metadata ))
+    | ScrollToTop
+    | ScrollToBottom
 
 
 type alias Model =
@@ -147,6 +151,17 @@ update msg model =
 
                 url :: urls ->
                     requestLinkPreviewSequentially urls url
+            )
+
+        SharedMsg ScrollToTop ->
+            ( model, Browser.Dom.setViewport 0 0 |> Task.perform (always NoOp) |> Cmd.map SharedMsg )
+
+        SharedMsg ScrollToBottom ->
+            ( model
+            , Browser.Dom.getViewport
+                |> Task.andThen (\viewport -> Browser.Dom.setViewport 0 viewport.scene.height)
+                |> Task.perform (always NoOp)
+                |> Cmd.map SharedMsg
             )
 
         SharedMsg _ ->
@@ -648,7 +663,7 @@ makeSeoImageFromCmsImage cmsImage =
     }
 
 
-view _ page _ _ pageView =
+view _ page _ sharedTagger pageView =
     { title = makeTitle pageView.title
     , body =
         Html.div []
@@ -702,6 +717,7 @@ view _ page _ _ pageView =
                     [ siteBuildStatus
                     , twitterLink
                     ]
+                , Html.map (SharedMsg >> sharedTagger) scrollButtons
                 ]
             ]
     }
@@ -737,6 +753,13 @@ sitemap =
             , Route.link Route.Articles [] [ Html.text "記事" ]
             , Html.text ""
             ]
+
+
+scrollButtons =
+    Html.nav [ Html.Attributes.class "scroll-buttons" ]
+        [ Html.button [ Html.Events.onClick ScrollToTop ] [ Html.text "▲" ]
+        , Html.button [ Html.Events.onClick ScrollToBottom ] [ Html.text "▼" ]
+        ]
 
 
 
