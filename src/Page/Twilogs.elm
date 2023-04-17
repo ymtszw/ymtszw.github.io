@@ -22,33 +22,27 @@ import Head.Seo as Seo
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
 import Html.Keyed
 import LinkPreview
 import List.Extra
 import Markdown
-import Meilisearch exposing (SearchTwilogsResult)
 import Page
 import Pages.PageUrl
 import Path
 import Regex exposing (Regex)
 import Route
 import Shared exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..), seoBase)
+import TwilogSearch exposing (searchBox)
 import View exposing (imgLazy)
 
 
 type alias Model =
-    { searchResults : SearchTwilogsResult
-    , searching : Bool
-    , searchTerm : String
-    }
+    TwilogSearch.Model
 
 
 type Msg
     = InitiateLinkPreviewPopulation
-    | Res_SearchTwilogs (Result String SearchTwilogsResult)
-    | SetSearchTerm String
-    | JumpToHitTwilog String
+    | TwilogSearchMsg TwilogSearch.Msg
 
 
 type alias RouteParams =
@@ -65,7 +59,7 @@ page =
         , data = data
         }
         |> Page.buildWithSharedState
-            { init = \_ _ _ -> ( { searchResults = Meilisearch.emptyResult, searching = False, searchTerm = "" }, Helper.initMsg InitiateLinkPreviewPopulation )
+            { init = \_ _ _ -> ( TwilogSearch.init, Helper.initMsg InitiateLinkPreviewPopulation )
             , update = update
             , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
@@ -120,54 +114,13 @@ update _ _ shared app msg model =
             , listUrlsForPreviewBulk shared app.data.recentDailyTwilogs
             )
 
-        Res_SearchTwilogs (Ok searchResults) ->
-            if model.searchTerm == searchResults.searchTerm then
-                ( { model | searchResults = searchResults, searching = False }
-                , Cmd.none
-                , Nothing
-                )
-
-            else
-                ( { model | searchResults = searchResults, searching = True }
-                , -- Resume backpressued
-                  Meilisearch.searchTwilogs Res_SearchTwilogs model.searchTerm
-                , Nothing
-                )
-
-        Res_SearchTwilogs (Err _) ->
-            ( { model | searching = False }
-            , -- Don't resume on error
-              Cmd.none
-            , Nothing
-            )
-
-        SetSearchTerm "" ->
-            ( { model | searchResults = Meilisearch.emptyResult, searchTerm = "" }
-            , Cmd.none
-            , Nothing
-            )
-
-        SetSearchTerm input ->
-            if String.length input > 1 then
-                ( { model | searching = True, searchTerm = input }
-                , if model.searching then
-                    -- Backpressured
-                    Cmd.none
-
-                  else
-                    Meilisearch.searchTwilogs Res_SearchTwilogs input
-                , Nothing
-                )
-
-            else
-                ( { model | searchTerm = input }
-                , Cmd.none
-                , Nothing
-                )
-
-        JumpToHitTwilog permalink ->
-            ( model
-            , Browser.Navigation.load permalink
+        TwilogSearchMsg twMsg ->
+            let
+                ( model_, cmd ) =
+                    TwilogSearch.update twMsg model
+            in
+            ( model_
+            , Cmd.map TwilogSearchMsg cmd
             , Nothing
             )
 
@@ -252,52 +205,11 @@ view _ shared m app =
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（完成）
 - Meilisearchで検索機能提供
 """
-        , searchBox m
+        , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m
         ]
             ++ showTwilogsByDailySections shared app.data.recentDailyTwilogs
             ++ [ goToLatestMonth app.sharedData.twilogArchives, linksByMonths Nothing app.sharedData.twilogArchives ]
     }
-
-
-
------------------
--- SEARCH BOX
------------------
-
-
-searchBox : { a | searchResults : SearchTwilogsResult, searching : Bool } -> Html Msg
-searchBox { searchResults, searching } =
-    div [ class "search" ]
-        [ label [ for "twilogs-search", classList [ ( "spinner", searching ) ] ] [ text "検索" ]
-        , input
-            [ type_ "search"
-            , id "twilogs-search"
-            , onInput SetSearchTerm
-            ]
-            []
-        , case searchResults.formattedHits of
-            [] ->
-                text ""
-
-            nonEmpty ->
-                nonEmpty
-                    |> List.map
-                        (\twilog ->
-                            let
-                                permalink rendered =
-                                    button [ class "jump-to-button", onClick (JumpToHitTwilog pathWithFragment) ] [ rendered ]
-
-                                pathWithFragment =
-                                    (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth }) |> Path.toAbsolute) ++ "#tweet-" ++ twilog.idStr
-
-                                yearMonth =
-                                    String.dropRight 3 (Date.toIsoString twilog.createdDate)
-                            in
-                            aTwilog False Dict.empty twilog |> permalink
-                        )
-                    |> List.append [ small [] [ text ("約" ++ String.fromInt searchResults.estimatedTotalHits ++ "件") ] ]
-                    |> div [ class "search-results" ]
-        ]
 
 
 
