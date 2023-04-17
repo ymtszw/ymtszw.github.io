@@ -531,8 +531,19 @@ nav.twilog-archive-navigation ul li.selected::after {
     transform: rotate(360deg);
   }
 }
+.search input[type="search"] {
+  width: 15em;
+  transition: all 0.3s ease-in-out;
+}
+.search:focus-within input[type="search"] {
+  width: 100%;
+}
 /* Twilog search results dropdown */
-.search-results {
+.search .search-results {
+  display: none;
+}
+.search:focus-within .search-results {
+  display: block;
   position: absolute;
   left: 0;
   width: 95%;
@@ -549,12 +560,26 @@ nav.twilog-archive-navigation ul li.selected::after {
   /* Cancel margin-bottom from input above */
   margin-top: -10px;
 }
-.search-results .tweet:hover {
+.search .search-results button.jump-to-button {
+  display: block;
+  width: 100%;
+  padding: unset;
+  margin: unset;
+  text-align: left;
+  line-height: unset;
+  border: none;
+  background: none;
+  color: unset;
+  font-size: unset;
+  font-family: unset;
+}
+.search .search-results .tweet:hover,
+.search .search-results .jump-to-button:focus .tweet {
   /* yellow */
   background-color: #fff9c4;
   cursor: pointer;
 }
-.search-results::after {
+.search .search-results::after {
   content: "Powered by Meilisearch";
   position: relative;
   display: block;

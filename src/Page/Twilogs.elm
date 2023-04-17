@@ -285,7 +285,7 @@ searchBox { searchResults, searching } =
                         (\twilog ->
                             let
                                 permalink rendered =
-                                    div [ onClick (JumpToHitTwilog pathWithFragment) ] [ rendered ]
+                                    button [ class "jump-to-button", onClick (JumpToHitTwilog pathWithFragment) ] [ rendered ]
 
                                 pathWithFragment =
                                     (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth }) |> Path.toAbsolute) ++ "#tweet-" ++ twilog.idStr
