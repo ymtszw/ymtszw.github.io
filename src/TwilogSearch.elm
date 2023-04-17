@@ -2,6 +2,7 @@ module TwilogSearch exposing (Model, Msg, init, searchBox, update)
 
 import Browser.Navigation
 import Date
+import Debounce exposing (Debounce)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -19,7 +20,7 @@ import Task
 type alias Model =
     { searchResults : SearchTwilogsResult
     , searching : Bool
-    , searchTerm : String
+    , searchTerm : Debounce String
     }
 
 
@@ -32,7 +33,7 @@ type alias SearchTwilogsResult =
 
 init : Model
 init =
-    { searchResults = emptyResult, searching = False, searchTerm = "" }
+    { searchResults = emptyResult, searching = False, searchTerm = Debounce.init }
 
 
 emptyResult =
@@ -44,6 +45,7 @@ emptyResult =
 
 type Msg
     = SetSearchTerm String
+    | DebounceMsg Debounce.Msg
     | Res_SearchTwilogs (Result String SearchTwilogsResult)
     | JumpToHitTwilog String
 
@@ -52,48 +54,49 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SetSearchTerm "" ->
-            ( { model | searchResults = emptyResult, searchTerm = "" }
+            ( { model | searchResults = emptyResult, searchTerm = Debounce.init }
             , Cmd.none
             )
 
         SetSearchTerm input ->
-            if String.length input > 1 then
-                ( { model | searching = True, searchTerm = input }
-                , if model.searching then
-                    -- Backpressured
-                    Cmd.none
+            let
+                ( newDebounce, cmd ) =
+                    Debounce.push debounceConfig input model.searchTerm
+            in
+            ( { model | searching = True, searchTerm = newDebounce }
+            , cmd
+            )
 
-                  else
-                    searchTwilogs Res_SearchTwilogs input
-                )
-
-            else
-                ( { model | searchTerm = input }
-                , Cmd.none
-                )
+        DebounceMsg dMsg ->
+            let
+                ( newDebounce, cmd ) =
+                    Debounce.update debounceConfig (Debounce.takeLast (searchTwilogs Res_SearchTwilogs)) dMsg model.searchTerm
+            in
+            ( { model | searchTerm = newDebounce }
+            , cmd
+            )
 
         Res_SearchTwilogs (Ok searchResults) ->
-            if model.searchTerm == searchResults.searchTerm then
-                ( { model | searchResults = searchResults, searching = False }
-                , Cmd.none
-                )
-
-            else
-                ( { model | searchResults = searchResults, searching = True }
-                , -- Resume backpressued
-                  searchTwilogs Res_SearchTwilogs model.searchTerm
-                )
+            ( { model | searchResults = searchResults, searching = False }
+            , Cmd.none
+            )
 
         Res_SearchTwilogs (Err _) ->
             ( { model | searching = False }
-            , -- Don't resume on error
-              Cmd.none
+            , Cmd.none
             )
 
         JumpToHitTwilog permalink ->
             ( model
             , Browser.Navigation.load permalink
             )
+
+
+debounceConfig : Debounce.Config Msg
+debounceConfig =
+    { strategy = Debounce.later 500
+    , transform = DebounceMsg
+    }
 
 
 searchTwilogs : (Result String SearchTwilogsResult -> msg) -> String -> Cmd msg
