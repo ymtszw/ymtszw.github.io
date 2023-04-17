@@ -303,6 +303,31 @@ type alias TwilogArchiveYearMonth =
     String
 
 
+{-| The data source for the list of all twilog archives.
+
+Archive directory/file structure:
+
+    data/
+        2019/
+            01/
+                01-twilogs.json
+                02-twilogs.json
+                ...
+            02/
+                01-twilogs.json
+                ...
+            ...
+        2020/
+            01/
+                01-twilogs.json
+                ...
+            ...
+        ...
+
+This data source returns a list of year-month strings in the format of "YYYY-MM",
+sorted in descending (newest-first) order.
+
+-}
 twilogArchives : DataSource (List TwilogArchiveYearMonth)
 twilogArchives =
     DataSource.Glob.succeed (\year month -> year ++ "-" ++ month)

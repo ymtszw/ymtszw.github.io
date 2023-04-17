@@ -250,11 +250,12 @@ view _ shared m app =
 - Zapierを起点としてうまいことTweetを継続的に蓄積
 - それを自前でTwilogっぽくwebページ化（サイトはデイリービルド）
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（完成）
+- Meilisearchで検索機能提供
 """
         , searchBox m
         ]
             ++ showTwilogsByDailySections shared app.data.recentDailyTwilogs
-            ++ [ linksByMonths Nothing app.sharedData.twilogArchives ]
+            ++ [ goToLatestMonth app.sharedData.twilogArchives, linksByMonths Nothing app.sharedData.twilogArchives ]
     }
 
 
@@ -661,6 +662,26 @@ appendMediaGrid status htmls =
                             text ""
             in
             htmls ++ [ div [ class "media-grid" ] <| List.map aMedia nonEmpty ]
+
+
+
+-----------------
+-- ARCHIVE NAVIGATION
+-----------------
+
+
+goToLatestMonth : List Shared.TwilogArchiveYearMonth -> Html msg
+goToLatestMonth twilogArchives =
+    case twilogArchives of
+        [] ->
+            -- Should not happen
+            text ""
+
+        latestYearMonth :: _ ->
+            -- Similar to Page.Twilogs.YearMonth_.prevNextNavigation
+            nav [ class "prev-next-navigation" ]
+                [ Route.link (Route.Twilogs__YearMonth_ { yearMonth = latestYearMonth }) [] [ strong [] [ text "← 最新月" ] ]
+                ]
 
 
 linksByMonths : Maybe String -> List Shared.TwilogArchiveYearMonth -> Html msg
