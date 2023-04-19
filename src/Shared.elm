@@ -48,6 +48,7 @@ import Html
 import Html.Attributes
 import Html.Events
 import Iso8601
+import Json.Decode
 import Json.Encode
 import LinkPreview
 import List.Extra
@@ -835,6 +836,7 @@ lightbox lbMedia =
             , Html.Attributes.target "_blank"
             , Html.Attributes.rel "noopener noreferrer"
             , Html.Attributes.class "has-image"
+            , Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( NoOp, True ))
             ]
             [ if lbMedia.type_ == "video" || lbMedia.type_ == "animated_gif" then
                 Html.figure [ Html.Attributes.class "video-thumbnail" ]
