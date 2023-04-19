@@ -122,6 +122,7 @@ body:has(.lightbox) {
   height: 50px;
   font-size: 50px;
   line-height: 50px;
+  color: #909090;
   cursor: pointer;
 }
 .lightbox img {
