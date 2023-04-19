@@ -106,7 +106,7 @@ body:has(.lightbox) {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #00000080;
+  background: #000000b0;
   display: flex;
   justify-content: center;
   align-items: center;
