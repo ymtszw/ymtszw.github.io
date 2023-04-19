@@ -116,15 +116,24 @@ type SharedMsg
     | Res_LinkPreview (List String) (Result String ( String, LinkPreview.Metadata ))
     | ScrollToTop
     | ScrollToBottom
+    | CloseLightbox
 
 
 type alias Model =
     { links : Dict String LinkPreview.Metadata
+    , lightbox : Maybe LightboxMedia
+    }
+
+
+type alias LightboxMedia =
+    { href : String
+    , src : String
+    , type_ : String
     }
 
 
 init _ _ _ =
-    ( { links = Dict.empty }
+    ( { links = Dict.empty, lightbox = Nothing }
     , Cmd.none
     )
 
@@ -132,8 +141,13 @@ init _ _ _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        OnPageChange _ ->
-            ( model, Cmd.none )
+        OnPageChange req ->
+            case parseLightboxMedia req of
+                (Just _) as lbMedia ->
+                    ( { model | lightbox = lbMedia }, lockScrollPosition )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         SharedMsg (Req_LinkPreview (url :: urls)) ->
             ( model, requestLinkPreviewSequentially urls url )
@@ -164,8 +178,50 @@ update msg model =
                 |> Cmd.map SharedMsg
             )
 
+        SharedMsg CloseLightbox ->
+            ( { model | lightbox = Nothing }, Cmd.none )
+
         SharedMsg _ ->
             ( model, Cmd.none )
+
+
+{-| Viewportを現在と全く同じ位置に明示的にセットする
+
+URL Fragment経由でLightboxオープンの命令が来たとき、ブラウザデフォルト挙動によって、
+文書内にFragmentと合致するidをもつ要素がなかった場合は文書先頭にスクロールされてしまう。
+
+このCmdでそれを抑制する（次回描画フレームでgetViewportとsetViewportが走るので、
+ブラウザデフォルト挙動を上書きするような動作が達成できる。）
+
+-}
+lockScrollPosition : Cmd Msg
+lockScrollPosition =
+    Browser.Dom.getViewport
+        |> Task.andThen (\vp -> Browser.Dom.setViewport vp.viewport.x vp.viewport.y)
+        |> Task.perform (always NoOp)
+        |> Cmd.map SharedMsg
+
+
+parseLightboxMedia { fragment } =
+    Maybe.andThen
+        (\fr ->
+            if String.startsWith "lightbox:src(" fr then
+                case String.split "):href(" (String.dropLeft 13 fr) of
+                    [ src, rest ] ->
+                        case String.split "):type(" (String.dropRight 1 rest) of
+                            [ href, type_ ] ->
+                                Just { href = href, src = src, type_ = type_ }
+
+                            _ ->
+                                Nothing
+
+                    _ ->
+                        Nothing
+
+            else
+                Nothing
+        )
+        fragment
 
 
 requestLinkPreviewSequentially : List String -> String -> Cmd Msg
@@ -663,7 +719,7 @@ makeSeoImageFromCmsImage cmsImage =
     }
 
 
-view _ page _ sharedTagger pageView =
+view _ page shared sharedTagger pageView =
     { title = makeTitle pageView.title
     , body =
         Html.div []
@@ -719,6 +775,12 @@ view _ page _ sharedTagger pageView =
                     ]
                 , Html.map (SharedMsg >> sharedTagger) scrollButtons
                 ]
+            , case shared.lightbox of
+                Just lbMedia ->
+                    Html.map (SharedMsg >> sharedTagger) (lightbox lbMedia)
+
+                Nothing ->
+                    Html.text ""
             ]
     }
 
@@ -759,6 +821,28 @@ scrollButtons =
     Html.nav [ Html.Attributes.class "scroll-buttons" ]
         [ Html.button [ Html.Events.onClick ScrollToTop ] [ Html.text "▲" ]
         , Html.button [ Html.Events.onClick ScrollToBottom ] [ Html.text "▼" ]
+        ]
+
+
+lightbox : LightboxMedia -> Html.Html SharedMsg
+lightbox lbMedia =
+    Html.div
+        [ Html.Attributes.class "lightbox"
+        , Html.Events.onClick CloseLightbox
+        ]
+        [ Html.a
+            [ Html.Attributes.href lbMedia.href
+            , Html.Attributes.target "_blank"
+            , Html.Attributes.rel "noopener noreferrer"
+            , Html.Attributes.class "has-image"
+            ]
+            [ if lbMedia.type_ == "video" || lbMedia.type_ == "animated_gif" then
+                Html.figure [ Html.Attributes.class "video-thumbnail" ]
+                    [ View.imgLazy [ Html.Attributes.src lbMedia.src ] [] ]
+
+              else
+                View.imgLazy [ Html.Attributes.src lbMedia.src ] []
+            ]
         ]
 
 

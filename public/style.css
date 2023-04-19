@@ -95,6 +95,41 @@ nav.prev-next-navigation {
   height: 1.5em;
 }
 
+/* Lightbox image popup */
+body:has(.lightbox) {
+  overflow: hidden;
+}
+.lightbox {
+  position: fixed;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #00000080;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.lightbox::after {
+  content: "☒";
+  position: absolute;
+  display: block;
+  top: 0;
+  right: 0;
+  width: 50px;
+  height: 50px;
+  font-size: 50px;
+  line-height: 50px;
+  cursor: pointer;
+}
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+}
+
 /*
 
 Show All/Less Container
@@ -404,7 +439,7 @@ Tweet-like style on top of Sakura.css
 }
 
 /* Show video icon overlay using Noto Symbol fonts */
-.tweet .media-grid figure.video-thumbnail {
+:is(.tweet .media-grid, .lightbox) figure.video-thumbnail {
   position: relative;
   display: block;
   width: 100%;
@@ -412,7 +447,7 @@ Tweet-like style on top of Sakura.css
   margin: 0;
   padding: 0;
 }
-.tweet .media-grid figure.video-thumbnail::before {
+:is(.tweet .media-grid, .lightbox) figure.video-thumbnail::before {
   content: "▶";
   font-family: "Noto Sans Symbols 2", sans-serif;
   position: absolute;
