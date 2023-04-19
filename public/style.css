@@ -160,6 +160,7 @@ Link Preview
   max-width: 75%;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-break: break-all;
 }
 
 .link-preview table tr td:last-child {
