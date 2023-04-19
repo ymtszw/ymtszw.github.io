@@ -744,6 +744,13 @@ makeSeoImageFromCmsImage cmsImage =
     }
 
 
+view :
+    Data
+    -> { path : Path, route : Maybe Route.Route }
+    -> Model
+    -> (Msg -> mappedMsg)
+    -> View.View mappedMsg
+    -> { title : String, body : Html.Html mappedMsg }
 view _ page shared sharedTagger pageView =
     { title = makeTitle pageView.title
     , body =
