@@ -175,13 +175,7 @@ listUrlsForPreviewSingleHelp links twilogs =
                                     Nothing
 
                                 Nothing ->
-                                    -- Do not list twitter-internal URLs since they are likely quote/reply permalinks
-                                    -- またそもそも、twitter.comのリンクはプレビューに使えるメタデータを静的にHTMLに埋め込んでいない（2023/04）
-                                    if String.startsWith "https://twitter.com" tcoUrl.expandedUrl then
-                                        Nothing
-
-                                    else
-                                        Just tcoUrl.expandedUrl
+                                    Just tcoUrl.expandedUrl
                         )
                     |> List.append urlsFromReplies
             )
