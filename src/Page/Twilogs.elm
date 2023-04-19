@@ -522,32 +522,29 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
 
     else
         htmls
-            ++ [ div [ class "link-previews" ]
-                    (List.map
-                        (\{ title, description, imageUrl, canonicalUrl } ->
-                            a [ target "_blank", href canonicalUrl ]
-                                [ div [ class "link-preview" ]
-                                    [ case imageUrl of
-                                        Just imageUrl_ ->
-                                            imgLazy [ src imageUrl_, alt "Preview image of the website" ] []
+            ++ List.map
+                (\{ title, description, imageUrl, canonicalUrl } ->
+                    a [ target "_blank", href canonicalUrl ]
+                        [ div [ class "link-preview" ]
+                            [ case imageUrl of
+                                Just imageUrl_ ->
+                                    imgLazy [ src imageUrl_, alt "Preview image of the website" ] []
 
-                                        Nothing ->
-                                            text ""
-                                    , div []
-                                        [ header [] [ strong [] [ text title ] ]
-                                        , case description of
-                                            Just description_ ->
-                                                p [] [ text description_ ]
+                                Nothing ->
+                                    text ""
+                            , div []
+                                [ header [] [ strong [] [ text title ] ]
+                                , case description of
+                                    Just description_ ->
+                                        p [] [ text description_ ]
 
-                                            Nothing ->
-                                                text ""
-                                        ]
-                                    ]
+                                    Nothing ->
+                                        text ""
                                 ]
-                        )
-                        linkPreviews
-                    )
-               ]
+                            ]
+                        ]
+                )
+                linkPreviews
 
 
 tweetPermalinkRegex =
