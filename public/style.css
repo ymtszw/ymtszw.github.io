@@ -441,13 +441,13 @@ Tweet-like style on top of Sakura.css
 /* Show video icon overlay using Noto Symbol fonts */
 :is(.tweet .media-grid, .lightbox) figure.video-thumbnail {
   position: relative;
-  display: block;
+  display: flex;
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
 }
-:is(.tweet .media-grid, .lightbox) figure.video-thumbnail::before {
+:is(.tweet .media-grid, .lightbox) figure.video-thumbnail::after {
   content: "▶";
   font-family: "Noto Sans Symbols 2", sans-serif;
   position: absolute;
