@@ -70,12 +70,19 @@ linkPreviewDecoder requestUrl =
 
                             _ ->
                                 canonicalUrl
+
+                    truncate str =
+                        if String.length str > 150 then
+                            String.left 150 str ++ "…"
+
+                        else
+                            str
                 in
                 -- If upstream requestUrl returned status >= 400, link-preview service returns error, failing this decoder
                 OptimizedDecoder.succeed Metadata
                     -- Treat HTML without title (such as "301 moved permanently" page) as empty.
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" nonEmptyString)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "description" nonEmptyString)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "description" (OptimizedDecoder.map truncate nonEmptyString))
                     |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "image" (OptimizedDecoder.map (resolveUrl canonicalUrl) nonEmptyString))
                     |> OptimizedDecoder.andMap (OptimizedDecoder.succeed canonicalUrlWithFragment)
             )
