@@ -323,9 +323,12 @@ Tweet-like style on top of Sakura.css
   display: flex;
   align-items: center;
 }
+.tweet header a {
+  display: contents;
+}
 
 /* tweets or retweets' avatars, rounded squared */
-.tweet header > img:first-child {
+.tweet header img:first-child {
   width: 1.3em;
   height: 1.3em;
   border-radius: 5px;
@@ -392,7 +395,6 @@ Tweet-like style on top of Sakura.css
 
 /* tweets or retweets' timestamp */
 .tweet time {
-  display: block;
   font-size: 0.8em;
   color: #999;
   margin-bottom: 5px;

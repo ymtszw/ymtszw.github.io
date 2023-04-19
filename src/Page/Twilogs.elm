@@ -293,8 +293,8 @@ aTwilog isCanonical links twilog =
             case twilog.retweet of
                 Just retweet ->
                     [ a [ class "retweet-label", target "_blank", href (statusLink twilog) ] [ text (twilog.userName ++ " retweeted") ]
-                    , a [ target "_blank", href (statusLink retweet) ]
-                        [ header []
+                    , header []
+                        [ a [ target "_blank", href (statusLink retweet) ]
                             [ imgLazy [ alt ("Avatar of " ++ retweet.userName), src retweet.userProfileImageUrl ] []
                             , strong [] [ text retweet.userName ]
                             ]
@@ -352,8 +352,8 @@ aTwilog isCanonical links twilog =
                                     ( text "", twilog.text )
                     in
                     [ replyHeader
-                    , a [ target "_blank", href (statusLink twilog) ]
-                        [ header []
+                    , header []
+                        [ a [ target "_blank", href (statusLink twilog) ]
                             [ imgLazy [ alt ("Avatar of " ++ twilog.userName), src twilog.userProfileImageUrl ] []
                             , strong [] [ text twilog.userName ]
                             ]
@@ -454,8 +454,8 @@ appendQuote maybeQuote htmls =
         Just quote ->
             htmls
                 ++ [ div [ class "tweet" ]
-                        [ a [ target "_blank", href (statusLink quote) ]
-                            [ header []
+                        [ header []
+                            [ a [ target "_blank", href (statusLink quote) ]
                                 [ imgLazy [ alt ("Avatar of " ++ quote.userName), src quote.userProfileImageUrl ] []
                                 , strong [] [ text quote.userName ]
                                 ]
@@ -500,8 +500,8 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
                                     "https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"
                             in
                             div [ class "tweet" ]
-                                [ a [ target "_blank", href pseudoQuote.canonicalUrl ]
-                                    [ header []
+                                [ header []
+                                    [ a [ target "_blank", href pseudoQuote.canonicalUrl ]
                                         [ imgLazy [ alt ("Avatar of " ++ userName), src iconUrl ] []
                                         , strong [] [ text userName ]
                                         ]
