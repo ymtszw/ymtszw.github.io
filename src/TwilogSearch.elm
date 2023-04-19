@@ -155,6 +155,7 @@ searchBox tagger renderer { searchResults, searching } =
         , input
             [ type_ "search"
             , id "twilogs-search"
+            , placeholder "Twilog検索"
             , onInput (SetSearchTerm >> tagger)
             ]
             []
