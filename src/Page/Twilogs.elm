@@ -303,6 +303,8 @@ aTwilog isCanonical links twilog =
                         |> removeQuoteUrl retweet.quote
                         |> removeMediaUrls retweet.extendedEntitiesMedia
                         |> removeMediaUrls twilog.extendedEntitiesMedia
+                        |> removePseudoQuoteUrl retweet.entitiesTcoUrl
+                        |> removePseudoQuoteUrl twilog.entitiesTcoUrl
                         |> replaceTcoUrls retweet.entitiesTcoUrl
                         |> replaceTcoUrls twilog.entitiesTcoUrl
                         |> autoLinkedMarkdown
@@ -359,6 +361,7 @@ aTwilog isCanonical links twilog =
                     , bodyText
                         |> removeQuoteUrl twilog.quote
                         |> removeMediaUrls twilog.extendedEntitiesMedia
+                        |> removePseudoQuoteUrl twilog.entitiesTcoUrl
                         |> replaceTcoUrls twilog.entitiesTcoUrl
                         |> autoLinkedMarkdown
                         |> appendMediaGrid twilog
@@ -391,6 +394,27 @@ removeQuoteUrl maybeQuote rawText =
 removeMediaUrls : List Media -> String -> String
 removeMediaUrls media rawText =
     List.foldl (\{ url } -> String.replace url "") rawText media
+
+
+removePseudoQuoteUrl : List TcoUrl -> String -> String
+removePseudoQuoteUrl tcoUrls rawText =
+    List.foldl
+        (\{ url, expandedUrl } acc ->
+            if Regex.contains tweetPermalinkRegex expandedUrl then
+                -- 展開するとTweet permalinkになるtcoUrlは、アーカイブツイートにおけるQuoteとみなし、
+                -- appendLinkPreviewsで擬似Quoteとして表示する。該当する展開前URLがrawTextの末尾にある場合、削除する。
+                -- 末尾でなく文中に含まれる場合は原文の雰囲気を残すために削除しない。
+                if String.endsWith url acc then
+                    acc |> String.replace url "" |> String.trimRight
+
+                else
+                    acc
+
+            else
+                acc
+        )
+        rawText
+        tcoUrls
 
 
 replaceTcoUrls : List TcoUrl -> String -> String
@@ -445,12 +469,53 @@ appendQuote maybeQuote htmls =
 
 
 appendLinkPreviews : Dict String LinkPreview.Metadata -> List TcoUrl -> List (Html msg) -> List (Html msg)
-appendLinkPreviews links entitiesTcoUrl htmls =
+appendLinkPreviews links entitiesTcoUrl htmls_ =
     let
-        linkPreviews =
+        ( pseudoQuotes, linkPreviews ) =
             entitiesTcoUrl
                 |> List.Extra.uniqueBy .expandedUrl
                 |> List.filterMap (\{ expandedUrl } -> Dict.get expandedUrl links)
+                |> List.partition (\{ canonicalUrl } -> Regex.contains tweetPermalinkRegex canonicalUrl)
+
+        htmls =
+            if List.isEmpty pseudoQuotes then
+                htmls_
+
+            else
+                htmls_
+                    ++ List.map
+                        (\pseudoQuote ->
+                            -- LinkPreviewから得られる情報を元に、アーカイブツイートのQuoteを擬似的に再現している。
+                            let
+                                -- TODO LinkPreviewでauthorを返すようにすればそちらのほうが確実か
+                                userName =
+                                    String.replace "さんはTwitterを使っています" "" pseudoQuote.title
+
+                                -- TODO LinkPreviewでiconUrlを返すようにすればそちらのほうが確実か
+                                -- もしiconUrlとimageUrlが両方ある場合、imageUrlは添付画像と認識することができる
+                                iconUrl =
+                                    Maybe.withDefault placeholderAvatarUrl pseudoQuote.imageUrl
+
+                                placeholderAvatarUrl =
+                                    "https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"
+                            in
+                            div [ class "tweet" ]
+                                [ a [ target "_blank", href pseudoQuote.canonicalUrl ]
+                                    [ header []
+                                        [ imgLazy [ alt ("Avatar of " ++ userName), src iconUrl ] []
+                                        , strong [] [ text userName ]
+                                        ]
+                                    ]
+                                , pseudoQuote.description
+                                    |> Maybe.withDefault ""
+                                    -- LinkPreviewではtweet descriptionに本文が入っているが、ダブルクォートされているので解除
+                                    |> String.dropLeft 1
+                                    |> String.dropRight 1
+                                    |> autoLinkedMarkdown
+                                    |> div [ class "body" ]
+                                ]
+                        )
+                        pseudoQuotes
     in
     if List.isEmpty linkPreviews then
         htmls
@@ -483,6 +548,10 @@ appendLinkPreviews links entitiesTcoUrl htmls =
                         linkPreviews
                     )
                ]
+
+
+tweetPermalinkRegex =
+    Maybe.withDefault Regex.never (Regex.fromString "https?://twitter\\.com/[^/]+/status/.+")
 
 
 autoLinkedMarkdown : String -> List (Html msg)
@@ -530,15 +599,16 @@ mentionRegex : Regex
 mentionRegex =
     -- 厳密にはURLはカンマを含むことができるので、`https://...,@mention`のようなURLがあると誤認識する。が、制限事項とする
     -- 少なくともauthority partに@を含む認証可能URL（URL内に@を含むパターンとして第一にありがちなやつ）などはカンマが先行しないはず
-    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)@[a-zA-Z0-9_]+")
+    -- また、開きカッコなどの識別用意な記号に続くものも可能な限り対応。
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|[\\s,\\.\\(（、。])@[a-zA-Z0-9_]+")
 
 
 hashtagRegex : Regex
 hashtagRegex =
     -- 厳密にはURLはカンマを含むことができるので、`https://...?foo,bar,#hashtag`のようなURLがあると誤認識する。が、制限事項とする
     -- このRegexはdeny-list方式で、hashtagに使用できない文字列をひたすら列挙している。ASCII記号としては`_`以外すべての記号を除外。
-    -- その他、Unicodeの記号系文字列も可能な範囲で弾いている。先頭文字に限っては数字も除外。
-    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|,)(#|＃)[^0-9０-９\\s!-/:-@\\[-\\^`{-~＠＃「」（）…][^\\s!-/:-@\\[-\\^`{-~＠＃「」（）…]+")
+    -- その他、Unicodeの記号系文字列も可能な範囲で弾いている。TODO: 「数字のみからなるもの」も除外対象だが、一つのRegexだと表現しづらい
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|[\\s,\\.\\(（、。])(#|＃)[^\\s!-/:-@\\[-\\^`{-~＠＃「」（）…]+")
 
 
 appendMediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
