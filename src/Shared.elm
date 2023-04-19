@@ -454,6 +454,8 @@ twilogDecoder =
                                 |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetQuoteDecoder)
                                 |> OptimizedDecoder.andMap retweetEntitiesTcoUrlDecoder
                                 |> OptimizedDecoder.andMap retweetExtendedEntitiesMediaDecoder
+                                -- Postprocesses
+                                |> OptimizedDecoder.map removeQuoteUrlFromEntitiesTcoUrls
 
                         else
                             OptimizedDecoder.fail "Not a retweet"
@@ -529,6 +531,25 @@ twilogDecoder =
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserName" nonEmptyString)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
+
+        removeQuoteUrlFromEntitiesTcoUrls tw =
+            case tw.quote of
+                Just quote ->
+                    -- アーカイブツイートにはQuote情報がないので、TcoUrlをプレビューしてQuote表示の代替としたい。
+                    -- 一方、最近のツイートにはQuote情報があるので、TcoUrlとして含まれているQuoteのURLは除外する。
+                    { tw | entitiesTcoUrl = List.filter (\tcoUrl -> tcoUrl.url /= quote.permalinkUrl) tw.entitiesTcoUrl }
+
+                Nothing ->
+                    tw
+
+        removeRtQuoteUrlFromEntitiesTcoUrls twilog =
+            case Maybe.andThen .quote twilog.retweet of
+                Just rtQuote ->
+                    -- RetweetのQuoteのURLも、rootのTwilogのentitiesTcoUrlに含まれているので、二重に除外しなければならない
+                    { twilog | entitiesTcoUrl = List.filter (\tcoUrl -> tcoUrl.url /= rtQuote.permalinkUrl) twilog.entitiesTcoUrl }
+
+                Nothing ->
+                    twilog
     in
     OptimizedDecoder.succeed Twilog
         |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
@@ -546,6 +567,9 @@ twilogDecoder =
         |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
         |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
         |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
+        -- Postprocesses
+        |> OptimizedDecoder.map removeQuoteUrlFromEntitiesTcoUrls
+        |> OptimizedDecoder.map removeRtQuoteUrlFromEntitiesTcoUrls
 
 
 dailyTwilogsFromOldest : List String -> DataSource (Dict RataDie (List Twilog))
