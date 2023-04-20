@@ -557,27 +557,7 @@ autoLinkedMarkdown rawText =
         -- Shorten remaining t.co URLs. Another URLs, if any, will be autolinked by Markdown.render
         |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ makeDisplayUrl match ++ "](" ++ match ++ ")")
         |> Regex.replace mentionRegex (\{ match } -> "[@" ++ String.dropLeft 1 match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
-        |> (\tcoUrlsExpandedText ->
-                Regex.find hashtagRegex tcoUrlsExpandedText
-                    |> List.foldl
-                        (\{ match } accText ->
-                            let
-                                -- hashtagっぽいmatchが、Markdownリンクの内部にないことを確認する
-                                -- これがないと、`[#foo](https://example.com)`や`[foo](https://example.com#foo)`のようなすでにここまでで整形されたテキストに含まれるhashtagらしき文字列が、
-                                -- `[[#foo](https://example.com)](https://twitter.com/hashtag/foo)`と二重にリンク化されてしまう
-                                hashInMarkdownLinkPattern =
-                                    Maybe.withDefault Regex.never (Regex.fromString ("(\\[[^\\]]*?" ++ match ++ "[^\\]]*?\\]\\(|\\]\\([^\\]]*?" ++ match ++ "[^\\]]*?\\))"))
-                            in
-                            -- 同じhashtagが複数Regex.findでマッチし、foldで同じ内容の`match`がマッチした分繰り返し評価されるパターンについてもここでスルーできる
-                            -- String.replaceは最初の評価時に一発でaccText内の同じmatchをすべて置換してしまうため、結果として求める形が得られる
-                            if Regex.contains hashInMarkdownLinkPattern accText then
-                                accText
-
-                            else
-                                String.replace match ("[#" ++ String.dropLeft 1 match ++ "](https://twitter.com/hashtag/" ++ String.dropLeft 1 match ++ ")") accText
-                        )
-                        tcoUrlsExpandedText
-           )
+        |> replaceHashtags ""
         -- 最終的に、各種処理されたtweet由来のテキストをMarkdownとして解釈している。
         -- Markdownリンクとして加工された文中のURLやハッシュタグをサクッとHtmlリンクにできる。
         -- 副作用として、本来Markdownと意識されていないTweetがMarkdownとして描画されてしまう。
@@ -585,6 +565,60 @@ autoLinkedMarkdown rawText =
         -- Tweet表示ではinlineで表示するよりappendLinkPreviewsの方に含めたほうがいい。
         -- TODO: そのうち「リンクだけをHTML化するrenderer」を用意して使い分けたほうがよりTweetらしくなるかも
         |> Markdown.parseAndRender Dict.empty
+
+
+replaceHashtags : String -> String -> String
+replaceHashtags acc input =
+    -- `#tokyoex #tokyoex_livestream`のように、前方一致するhashtagが同時存在している場合、まとめて変換されないようにしたい。
+    -- 再帰関数で前方から順に処理していく。
+    case input of
+        "" ->
+            acc
+
+        rest ->
+            case Regex.findAtMost 1 hashtagRegex rest of
+                [ { match, index } ] ->
+                    let
+                        -- hashtagっぽいmatchが、Markdownリンクの内部にないことを確認する
+                        -- これがないと、`[#foo](https://example.com)`や`[foo](https://example.com#foo)`のようなすでにここまでで整形されたテキストに含まれるhashtagらしき文字列が、
+                        -- `[[#foo](https://example.com)](https://twitter.com/hashtag/foo)`と二重にリンク化されてしまう
+                        hashInMarkdownLinkPattern =
+                            Maybe.withDefault Regex.never (Regex.fromString ("(\\[[^\\]]*?" ++ match ++ "[^\\]]*?\\]\\(|\\]\\([^\\]]*?" ++ match ++ "[^\\]]*?\\))"))
+
+                        doReplace _ =
+                            let
+                                skipped =
+                                    String.left index rest
+
+                                replaced =
+                                    "[#" ++ String.dropLeft 1 match ++ "](https://twitter.com/hashtag/" ++ String.dropLeft 1 match ++ ")"
+
+                                rest_ =
+                                    String.dropLeft (String.length skipped + String.length match) rest
+                            in
+                            replaceHashtags (acc ++ skipped ++ replaced) rest_
+                    in
+                    case Regex.findAtMost 1 hashInMarkdownLinkPattern rest of
+                        [ innerMatch ] ->
+                            if innerMatch.index <= index then
+                                -- 見つかったのはMarkdownリンク内部のhashtagっぽいマッチだった。該当部分スキップ
+                                let
+                                    skipped =
+                                        String.left (index + String.length innerMatch.match) rest
+                                in
+                                replaceHashtags (acc ++ skipped) (String.dropLeft (String.length skipped) rest)
+
+                            else
+                                -- Markdownリンクが見つかったが、より後方にあった。とりあえず今のmatchについてはリンク化実行
+                                doReplace ()
+
+                        _ ->
+                            -- Markdownリンクは見つからず、裸のhashtagだけがあった。リンク化実行
+                            doReplace ()
+
+                _ ->
+                    -- findAtMostによって2件以上マッチはしないので、ここに来るのは0件のみ。即時終了
+                    acc ++ rest
 
 
 tcoUrlInTweetRegex : Regex
