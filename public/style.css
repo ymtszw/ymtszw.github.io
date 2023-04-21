@@ -413,6 +413,15 @@ Tweet-like style on top of Sakura.css
   border-bottom: 1px solid #4a4a4a;
 }
 
+a:has(> .tweet) {
+  display: contents;
+  color: unset;
+}
+a:hover > .tweet {
+  /* change background color slightly, so that user can recognize links */
+  background: #f5f5f5;
+}
+
 /* Grid container of media (photo|video|animated_gif), at-most 2x2 grid.
 */
 .tweet .media-grid {

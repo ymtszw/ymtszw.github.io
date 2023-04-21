@@ -453,14 +453,16 @@ appendQuote maybeQuote htmls =
     case maybeQuote of
         Just quote ->
             htmls
-                ++ [ div [ class "tweet" ]
-                        [ header []
-                            [ a [ target "_blank", href (statusLink quote) ]
-                                [ imgLazy [ alt ("Avatar of " ++ quote.userName), src quote.userProfileImageUrl ] []
-                                , strong [] [ text quote.userName ]
+                ++ [ a [ target "_blank", href (statusLink quote) ]
+                        [ div [ class "tweet" ]
+                            [ header []
+                                [ a [ target "_blank", href (statusLink quote) ]
+                                    [ imgLazy [ alt ("Avatar of " ++ quote.userName), src quote.userProfileImageUrl ] []
+                                    , strong [] [ text quote.userName ]
+                                    ]
                                 ]
+                            , div [ class "body" ] (autoLinkedMarkdown quote.fullText)
                             ]
-                        , div [ class "body" ] (autoLinkedMarkdown quote.fullText)
                         ]
                    ]
 
@@ -487,32 +489,31 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
                         (\pseudoQuote ->
                             -- LinkPreviewから得られる情報を元に、アーカイブツイートのQuoteを擬似的に再現している。
                             let
-                                -- TODO LinkPreviewでauthorを返すようにすればそちらのほうが確実か
                                 userName =
                                     String.replace "さんはTwitterを使っています" "" pseudoQuote.title
 
-                                -- TODO LinkPreviewでiconUrlを返すようにすればそちらのほうが確実か
-                                -- もしiconUrlとimageUrlが両方ある場合、imageUrlは添付画像と認識することができる
                                 iconUrl =
                                     Maybe.withDefault placeholderAvatarUrl pseudoQuote.imageUrl
 
                                 placeholderAvatarUrl =
                                     "https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"
                             in
-                            div [ class "tweet" ]
-                                [ header []
-                                    [ a [ target "_blank", href pseudoQuote.canonicalUrl ]
-                                        [ imgLazy [ alt ("Avatar of " ++ userName), src iconUrl ] []
-                                        , strong [] [ text userName ]
+                            a [ target "_blank", href pseudoQuote.canonicalUrl ]
+                                [ div [ class "tweet" ]
+                                    [ header []
+                                        [ a [ target "_blank", href pseudoQuote.canonicalUrl ]
+                                            [ imgLazy [ alt ("Avatar of " ++ userName), src iconUrl ] []
+                                            , strong [] [ text userName ]
+                                            ]
                                         ]
+                                    , pseudoQuote.description
+                                        |> Maybe.withDefault ""
+                                        -- LinkPreviewではtweet descriptionに本文が入っているが、ダブルクォートされているので解除
+                                        |> String.dropLeft 1
+                                        |> String.dropRight 1
+                                        |> autoLinkedMarkdown
+                                        |> div [ class "body" ]
                                     ]
-                                , pseudoQuote.description
-                                    |> Maybe.withDefault ""
-                                    -- LinkPreviewではtweet descriptionに本文が入っているが、ダブルクォートされているので解除
-                                    |> String.dropLeft 1
-                                    |> String.dropRight 1
-                                    |> autoLinkedMarkdown
-                                    |> div [ class "body" ]
                                 ]
                         )
                         pseudoQuotes
