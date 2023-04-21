@@ -9,7 +9,7 @@
 
 import fetch from "node-fetch";
 import csv from "csvtojson";
-import { mkdir, writeFile, readFile } from "fs/promises";
+import { mkdir, writeFile, readFile, readdir } from "fs/promises";
 import { existsSync } from "fs";
 
 const previousCursor = Number.parseInt(
@@ -82,3 +82,34 @@ function dumpGroupedTwilogs() {
   console.log("Cursor:", cursor);
   writeFile("data/MY_TWILOGS_CSV_CURSOR", cursor.toString());
 }
+
+// src/Generated/TwilogArchives.elm をdata/ディレクトリに存在するファイルリストから自動生成する
+const dataFiles = await readdir("data", { withFileTypes: true });
+const yearMonths = await Promise.all(
+  dataFiles.map(async (dataFile) => {
+    if (dataFile.isDirectory()) {
+      const year = dataFile.name;
+      const months = await readdir(`data/${year}`);
+      return months.map((month) => `${year}-${month}`);
+    } else {
+      return [];
+    }
+  })
+);
+const yearMonthsFromNewest = yearMonths.flat().sort().reverse();
+
+writeFile(
+  "src/Generated/TwilogArchives.elm",
+  `module Generated.TwilogArchives exposing (TwilogArchiveYearMonth, list)
+
+
+type alias TwilogArchiveYearMonth =
+    String
+
+
+list : List TwilogArchiveYearMonth
+list =
+    [ ${yearMonthsFromNewest.map((a) => `"${a}"`).join("\n    , ")}
+    ]
+`
+);
