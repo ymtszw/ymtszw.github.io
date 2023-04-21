@@ -697,7 +697,7 @@ goToLatestMonth twilogArchives =
 linksByMonths : Maybe String -> List TwilogArchiveYearMonth -> Html msg
 linksByMonths maybeOpenedYearMonth twilogArchives =
     let
-        datesGroupedByYearMonthFromNewest =
+        yearMonthsFromNewest =
             twilogArchives
                 -- Traverse from oldest
                 |> List.foldr
@@ -738,7 +738,7 @@ linksByMonths maybeOpenedYearMonth twilogArchives =
                 Nothing ->
                     ( Nothing, Nothing )
     in
-    datesGroupedByYearMonthFromNewest
+    yearMonthsFromNewest
         |> List.map
             (\( year, months ) ->
                 details

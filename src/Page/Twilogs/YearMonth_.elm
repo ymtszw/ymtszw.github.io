@@ -72,7 +72,13 @@ data routeParams =
     getAvailableDays routeParams.yearMonth
         |> DataSource.andThen
             (\dateStrings ->
-                Shared.dailyTwilogsFromOldest (List.map Shared.makeTwilogsJsonPath dateStrings)
+                dateStrings
+                    -- PERF: ここにList.takeを挟んで処理する日数を減らすと顕著にページあたり処理時間が減少する（ほぼ線形？）
+                    -- 逆に、他の共通部分等を効率化しても線形な処理時間削減が見られないので、
+                    -- Twilogページのビルド時間への寄与が大きいのはやはりページあたりdecode対象データ量が原因と言えそう。
+                    -- elm-pages v3でISR的なアプローチを適用したいとすればここ
+                    |> List.map Shared.makeTwilogsJsonPath
+                    |> Shared.dailyTwilogsFromOldest
                     |> DataSource.map Data
             )
 
