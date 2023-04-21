@@ -11,7 +11,6 @@ module Shared exposing
     , SharedMsg(..)
     , TcoUrl
     , Twilog
-    , TwilogArchiveYearMonth
     , TwitterStatusId(..)
     , TwitterUserId(..)
     , cmsGet
@@ -38,10 +37,10 @@ module Shared exposing
 import Browser.Dom
 import DataSource exposing (DataSource)
 import DataSource.File
-import DataSource.Glob
 import DataSource.Http
 import Date
 import Dict exposing (Dict)
+import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head.Seo
 import Helper exposing (nonEmptyString)
 import Html
@@ -371,48 +370,11 @@ type TwitterUserId
     = TwitterUserId String
 
 
-type alias TwilogArchiveYearMonth =
-    String
-
-
-{-| The data source for the list of all twilog archives.
-
-Archive directory/file structure:
-
-    data/
-        2019/
-            01/
-                01-twilogs.json
-                02-twilogs.json
-                ...
-            02/
-                01-twilogs.json
-                ...
-            ...
-        2020/
-            01/
-                01-twilogs.json
-                ...
-            ...
-        ...
-
-This data source returns a list of year-month strings in the format of "YYYY-MM",
-sorted in descending (newest-first) order.
-
--}
 twilogArchives : DataSource (List TwilogArchiveYearMonth)
 twilogArchives =
-    DataSource.Glob.succeed (\year month -> year ++ "-" ++ month)
-        |> DataSource.Glob.match (DataSource.Glob.literal "data/")
-        |> DataSource.Glob.capture DataSource.Glob.wildcard
-        |> DataSource.Glob.match (DataSource.Glob.literal "/")
-        |> DataSource.Glob.capture DataSource.Glob.wildcard
-        |> DataSource.Glob.match (DataSource.Glob.literal "/")
-        |> DataSource.Glob.match DataSource.Glob.wildcard
-        |> DataSource.Glob.match (DataSource.Glob.literal "-twilogs.json")
-        |> DataSource.Glob.toDataSource
-        -- Make newest first
-        |> DataSource.map (List.Extra.unique >> List.sort >> List.reverse)
+    -- PERF: このリストはsrc/Generated/TwilogsArchives.elmにハードコードされるようになった。
+    -- 予めnewest-firstにソートされている。
+    DataSource.succeed Generated.TwilogArchives.list
 
 
 makeTwilogsJsonPath : String -> String

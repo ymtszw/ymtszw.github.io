@@ -11,6 +11,7 @@ import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Glob
 import Dict exposing (Dict)
+import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
 import Head.Seo as Seo
 import Helper
@@ -153,7 +154,7 @@ view _ shared m app =
     }
 
 
-prevNextNavigation : RouteParams -> List Shared.TwilogArchiveYearMonth -> Html msg
+prevNextNavigation : RouteParams -> List TwilogArchiveYearMonth -> Html msg
 prevNextNavigation { yearMonth } twilogArchives =
     let
         toLink maybeYearMonth child =
@@ -170,7 +171,7 @@ prevNextNavigation { yearMonth } twilogArchives =
         ]
 
 
-findNextYearMonth : String -> List Shared.TwilogArchiveYearMonth -> Maybe String
+findNextYearMonth : String -> List TwilogArchiveYearMonth -> Maybe String
 findNextYearMonth yearMonth twilogArchives =
     case List.reverse twilogArchives of
         (oldestYearMonth :: _) as reversedArchives ->
@@ -192,7 +193,7 @@ findNextYearMonth yearMonth twilogArchives =
             Nothing
 
 
-findPrevYearMonth : String -> List Shared.TwilogArchiveYearMonth -> Maybe String
+findPrevYearMonth : String -> List TwilogArchiveYearMonth -> Maybe String
 findPrevYearMonth yearMonth twilogArchives =
     case twilogArchives of
         latestYearMonth :: _ ->

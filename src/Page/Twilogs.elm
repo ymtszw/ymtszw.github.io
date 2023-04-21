@@ -18,6 +18,7 @@ import DataSource exposing (DataSource)
 import DataSource.Glob
 import Date
 import Dict exposing (Dict)
+import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
 import Head.Seo as Seo
 import Helper
@@ -679,7 +680,7 @@ appendMediaGrid status htmls =
 -----------------
 
 
-goToLatestMonth : List Shared.TwilogArchiveYearMonth -> Html msg
+goToLatestMonth : List TwilogArchiveYearMonth -> Html msg
 goToLatestMonth twilogArchives =
     case twilogArchives of
         [] ->
@@ -693,7 +694,7 @@ goToLatestMonth twilogArchives =
                 ]
 
 
-linksByMonths : Maybe String -> List Shared.TwilogArchiveYearMonth -> Html msg
+linksByMonths : Maybe String -> List TwilogArchiveYearMonth -> Html msg
 linksByMonths maybeOpenedYearMonth twilogArchives =
     let
         datesGroupedByYearMonthFromNewest =
