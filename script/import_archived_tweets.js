@@ -85,8 +85,8 @@ function destructivelyResolveRetweet(simplified, tweet) {
     // GET users/show APIが使えればユーザーのプロフィール画像URLを取得できるが、
     // このAPIは要認証APIのため開発者アカウントが必要。
     // cf. https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-show
-    // CloudinaryのSocial Media Profile Pictures APIを試しに利用しているが、creditがすぐ無くなりそうな気配。
-    simplified.RetweetedStatusUserProfileImageUrl = `https://res.cloudinary.com/du9b7ybxy/image/twitter_name/h_20,w_20,d_default_twitter_avatar.jpg/${rtUserName}.jpg`;
+    // そこでLinkPreviewサービスのTwitter User Profile Image機能を利用している。
+    simplified.RetweetedStatusUserProfileImageUrl = `https://link-preview.ymtszw.workers.dev?tw-profile-icon=${rtUserName}`;
   } else {
     simplified.Retweet = "FALSE";
   }
