@@ -46,6 +46,8 @@ jobs:
           MY_TWILOG_CSV_URL: ${{ secrets.MY_TWILOG_CSV_URL }}
           MEILISEARCH_HOST: ${{ secrets.MEILISEARCH_HOST }}
           MEILISEARCH_ADMIN_KEY: ${{ secrets.MEILISEARCH_ADMIN_KEY }}
-      - name: Trigger deploy
-        if: ${{ steps.fetch.outputs.has_new_twilogs }}
-        uses: ./.github/workflows/gh-pages.yml
+    outputs:
+      has_new_twilogs: ${{ steps.fetch.outputs.has_new_twilogs }}
+  deploy:
+    if: ${{ jobs.commit-recent-twilogs.outputs.has_new_twilogs }}
+    uses: ./.github/workflows/gh-pages.yml
