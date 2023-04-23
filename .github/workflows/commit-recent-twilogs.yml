@@ -54,4 +54,6 @@ jobs:
     uses: ./.github/workflows/gh-pages.yml
     secrets: inherit
     permissions:
+      contents: read
       pages: write
+      id-token: write
