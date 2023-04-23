@@ -5,6 +5,7 @@ on:
     branches:
       - master
   workflow_call:
+  workflow_dispatch:
   repository_dispatch:
     types:
       - on-demand-build
@@ -58,4 +59,5 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/deploy-pages@v1
+      - uses: actions/deploy-pages@v2
+        id: deployment

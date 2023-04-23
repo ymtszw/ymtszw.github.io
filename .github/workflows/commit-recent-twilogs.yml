@@ -35,14 +35,17 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - name: Fetch, commit and push if anything new
+        id: fetch
         run: |
           if npm run fetch_recent_twilogs; then
             git diff --name-only HEAD~ | grep "\-twilogs.json" | xargs npm run build_twilog_meilisearch_index
             git push origin HEAD:master
+            echo "has_new_twilogs=true" >> "$GITHUB_OUTPUT"
           fi
         env:
           MY_TWILOG_CSV_URL: ${{ secrets.MY_TWILOG_CSV_URL }}
           MEILISEARCH_HOST: ${{ secrets.MEILISEARCH_HOST }}
           MEILISEARCH_ADMIN_KEY: ${{ secrets.MEILISEARCH_ADMIN_KEY }}
       - name: Trigger deploy
+        if: ${{ steps.fetch.outputs.has_new_twilogs }}
         uses: ./.github/workflows/gh-pages.yml
