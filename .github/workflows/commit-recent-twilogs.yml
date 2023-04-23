@@ -49,5 +49,6 @@ jobs:
     outputs:
       has_new_twilogs: ${{ steps.fetch.outputs.has_new_twilogs }}
   deploy:
-    if: jobs.commit-recent-twilogs.outputs.has_new_twilogs
+    needs: commit-recent-twilogs
+    if: needs.commit-recent-twilogs.outputs.has_new_twilogs
     uses: ./.github/workflows/gh-pages.yml
