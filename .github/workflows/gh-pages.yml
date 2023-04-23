@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - master
+  workflow_call:
   repository_dispatch:
     types:
       - on-demand-build
   schedule:
-    - cron: "51 4,16 * * *"
+    - cron: "51 4 * * *"
 
 permissions:
   contents: read

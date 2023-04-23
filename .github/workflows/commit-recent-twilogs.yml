@@ -44,3 +44,5 @@ jobs:
           MY_TWILOG_CSV_URL: ${{ secrets.MY_TWILOG_CSV_URL }}
           MEILISEARCH_HOST: ${{ secrets.MEILISEARCH_HOST }}
           MEILISEARCH_ADMIN_KEY: ${{ secrets.MEILISEARCH_ADMIN_KEY }}
+      - name: Trigger deploy
+        uses: ./.github/workflows/gh-pages.yml
