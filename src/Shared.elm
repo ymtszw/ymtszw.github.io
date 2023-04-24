@@ -54,6 +54,7 @@ import List.Extra
 import Markdown
 import MimeType exposing (MimeImage(..), MimeType(..))
 import OptimizedDecoder
+import Pages
 import Pages.Secrets
 import Pages.Url
 import Path exposing (Path)
@@ -766,6 +767,7 @@ view _ page shared sharedTagger pageView =
                 , Html.nav [ Html.Attributes.class "meta" ]
                     [ siteBuildStatus
                     , twitterLink
+                    , siteBuiltAt
                     ]
                 , Html.map (SharedMsg >> sharedTagger) scrollButtons
                 ]
@@ -777,6 +779,10 @@ view _ page shared sharedTagger pageView =
                     Html.text ""
             ]
     }
+
+
+siteBuiltAt =
+    Html.small [] [ Html.text (formatPosix Pages.builtAt) ]
 
 
 siteBuildStatus =

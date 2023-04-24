@@ -441,7 +441,7 @@ a:hover > .tweet {
   background-color: #eaeaea;
 }
 
-.tweet .media-grid > *:last-child:nth-child(2n + 1) {
+.tweet .media-grid > a:last-child:nth-child(2n + 1) > :is(img, figure) {
   grid-column-end: span 2;
 }
 /* Link in .media-grid must not have underline and margins */
