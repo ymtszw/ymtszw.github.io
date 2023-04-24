@@ -40,6 +40,10 @@ footer img {
   margin-bottom: unset;
 }
 
+a {
+  display: contents;
+}
+
 a[target="_blank"]:not(.link-preview):not(.has-image)::after {
   content: "🗗";
   font-family: "Noto Sans Symbols 2", sans-serif;
