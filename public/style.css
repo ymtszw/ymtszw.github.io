@@ -40,10 +40,6 @@ footer img {
   margin-bottom: unset;
 }
 
-a {
-  display: contents;
-}
-
 a[target="_blank"]:not(.link-preview):not(.has-image)::after {
   content: "🗗";
   font-family: "Noto Sans Symbols 2", sans-serif;
@@ -80,6 +76,9 @@ nav.meta {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+nav.meta > a {
+  display: contents;
 }
 
 nav.scroll-buttons {
@@ -441,7 +440,7 @@ a:hover > .tweet {
   background-color: #eaeaea;
 }
 
-.tweet .media-grid > a:last-child:nth-child(2n + 1) > :is(img, figure) {
+.tweet .media-grid > *:last-child:nth-child(2n + 1) {
   grid-column-end: span 2;
 }
 /* Link in .media-grid must not have underline and margins */
