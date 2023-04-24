@@ -123,7 +123,7 @@ getMetadataOnDemand url =
         , url = linkPreviewApiEndpoint url
         , headers = []
         , body = Http.emptyBody
-        , timeout = Just 3000
+        , timeout = Just 5000
         , resolver =
             Http.stringResolver <|
                 \response ->
