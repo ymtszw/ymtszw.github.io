@@ -114,7 +114,7 @@ data =
 
 
 publicOriginalRepos =
-    Shared.githubGet "https://api.github.com/users/ymtszw/repos?per_page=100&direction=desc&sort=created"
+    Shared.githubGet "https://api.github.com/users/ymtszw/repos?per_page=100&direction=desc&sort=pushed"
         (OptimizedDecoder.list
             (OptimizedDecoder.map2 Tuple.pair
                 (OptimizedDecoder.field "fork" (OptimizedDecoder.map not OptimizedDecoder.bool))
@@ -122,8 +122,8 @@ publicOriginalRepos =
             )
             |> OptimizedDecoder.map
                 (List.filterMap
-                    (\( fork, name ) ->
-                        if fork then
+                    (\( notFork, name ) ->
+                        if notFork then
                             Just name
 
                         else
