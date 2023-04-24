@@ -180,7 +180,7 @@ label.showless-button {
 }
 
 input[type="checkbox"].showless-toggle ~ label.showless-button::before {
-  content: "🔽 Show All";
+  content: "🔽 Show More";
   line-height: 50px;
 }
 
