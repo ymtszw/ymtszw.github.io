@@ -1,6 +1,8 @@
-module TwilogSearch exposing (Model, Msg, init, searchBox, update)
+module TwilogSearch exposing (Model, Msg, apiKey, init, searchBox, update)
 
 import Browser.Navigation
+import DataSource exposing (DataSource)
+import DataSource.Env
 import Date
 import Debounce exposing (Debounce)
 import Html exposing (..)
@@ -13,6 +15,11 @@ import OptimizedDecoder
 import Path
 import Route
 import Shared exposing (Twilog, TwitterStatusId(..))
+
+
+apiKey : DataSource String
+apiKey =
+    DataSource.Env.load "TWILOG_SEARCH_API_KEY"
 
 
 type alias Model =
