@@ -26,6 +26,7 @@ type alias Model =
     { searchResults : SearchTwilogsResult
     , searching : Bool
     , searchTerm : Debounce String
+    , searchApiKey : String
     }
 
 
@@ -36,9 +37,9 @@ type alias SearchTwilogsResult =
     }
 
 
-init : Model
-init =
-    { searchResults = emptyResult, searching = False, searchTerm = Debounce.init }
+init : String -> Model
+init clientSearchKey =
+    { searchResults = emptyResult, searching = False, searchTerm = Debounce.init, searchApiKey = clientSearchKey }
 
 
 emptyResult =
@@ -75,7 +76,7 @@ update msg model =
         DebounceMsg dMsg ->
             let
                 ( newDebounce, cmd ) =
-                    Debounce.update debounceConfig (Debounce.takeLast (searchTwilogs Res_SearchTwilogs)) dMsg model.searchTerm
+                    Debounce.update debounceConfig (Debounce.takeLast (searchTwilogs Res_SearchTwilogs model.searchApiKey)) dMsg model.searchTerm
             in
             ( { model | searchTerm = newDebounce }
             , cmd
@@ -104,8 +105,8 @@ debounceConfig =
     }
 
 
-searchTwilogs : (Result String SearchTwilogsResult -> msg) -> String -> Cmd msg
-searchTwilogs tagger term =
+searchTwilogs : (Result String SearchTwilogsResult -> msg) -> String -> String -> Cmd msg
+searchTwilogs tagger clientSearchKey term =
     Http.request
         { method = "POST"
         , url = "https://ms-302b6a5b2398-3215.sgp.meilisearch.io/indexes/ymtszw-twilogs/search"
@@ -115,12 +116,6 @@ searchTwilogs tagger term =
         , tracker = Nothing
         , expect = Http.expectJson (Result.mapError (\_ -> "") >> tagger) (searchResultDecoder term)
         }
-
-
-clientSearchKey : String
-clientSearchKey =
-    -- TODO v3ではこれをBackendTask.Env経由でビルド時に埋め込む？
-    "01ee096032b6b41617b155ef5d9efec6e9a41e2de16a126cbf51a9385d12116c"
 
 
 searchBody : String -> Http.Body

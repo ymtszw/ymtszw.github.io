@@ -52,7 +52,9 @@ type alias RouteParams =
 
 
 type alias Data =
-    { recentDailyTwilogs : Dict RataDie (List Twilog) }
+    { recentDailyTwilogs : Dict RataDie (List Twilog)
+    , searchApiKey : String
+    }
 
 
 page =
@@ -61,7 +63,7 @@ page =
         , data = data
         }
         |> Page.buildWithSharedState
-            { init = \_ _ _ -> ( TwilogSearch.init, Helper.initMsg InitiateLinkPreviewPopulation )
+            { init = \_ _ app -> ( TwilogSearch.init app.data.searchApiKey, Helper.initMsg InitiateLinkPreviewPopulation )
             , update = update
             , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
@@ -76,6 +78,7 @@ data =
                 Shared.dailyTwilogsFromOldest (List.map Shared.makeTwilogsJsonPath dateStrings)
                     |> DataSource.map Data
             )
+        |> DataSource.andMap TwilogSearch.apiKey
 
 
 daysToPeek =
