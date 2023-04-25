@@ -721,37 +721,42 @@ view _ page shared sharedTagger pageView =
             [ Html.header []
                 [ Html.nav [] <|
                     List.intersperse (Html.text " / ") <|
-                        List.concatMap (\kids -> List.map (\kid -> Html.strong [] [ kid ]) kids)
-                            [ [ Route.link Route.Index [] [ Html.text "Index" ] ]
-                            , page.route
-                                |> Maybe.map
-                                    (\route ->
-                                        case route of
-                                            Route.About ->
-                                                [ Html.text "このサイトについて" ]
+                        List.map (\kid -> Html.strong [] [ kid ]) <|
+                            case Maybe.withDefault Route.Index page.route of
+                                Route.About ->
+                                    [ Route.link Route.Index [] [ Html.text "Index" ]
+                                    , Html.text "このサイトについて"
+                                    ]
 
-                                            Route.Articles ->
-                                                [ Html.text "記事" ]
+                                Route.Articles ->
+                                    [ Route.link Route.Index [] [ Html.text "Index" ]
+                                    , Html.text "記事"
+                                    ]
 
-                                            Route.Articles__ArticleId_ _ ->
-                                                [ Route.link Route.Articles [] [ Html.text "記事" ] ]
+                                Route.Articles__ArticleId_ _ ->
+                                    [ Route.link Route.Index [] [ Html.text "Index" ]
+                                    , Route.link Route.Articles [] [ Html.text "記事" ]
+                                    ]
 
-                                            Route.Articles__Draft ->
-                                                [ Html.text "記事（下書き）" ]
+                                Route.Articles__Draft ->
+                                    [ Route.link Route.Index [] [ Html.text "Index" ]
+                                    , Html.text "記事（下書き）"
+                                    ]
 
-                                            Route.Twilogs ->
-                                                [ Html.text "Twilog" ]
+                                Route.Twilogs ->
+                                    [ Route.link Route.Index [] [ Html.text "Index" ]
+                                    , Html.text "Twilog"
+                                    ]
 
-                                            Route.Twilogs__YearMonth_ { yearMonth } ->
-                                                [ Route.link Route.Twilogs [] [ Html.text "Twilog" ]
-                                                , Html.text yearMonth
-                                                ]
+                                Route.Twilogs__YearMonth_ { yearMonth } ->
+                                    [ Route.link Route.Index [] [ Html.text "Index" ]
+                                    , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
+                                    , Html.text yearMonth
+                                    ]
 
-                                            Route.Index ->
-                                                []
-                                    )
-                                |> Maybe.withDefault []
-                            ]
+                                Route.Index ->
+                                    [ Html.text "Index"
+                                    ]
                 , sitemap
                 , Html.nav [ Html.Attributes.class "meta" ]
                     [ siteBuildStatus
