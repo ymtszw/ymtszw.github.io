@@ -9,6 +9,7 @@ module Page.Articles.Draft exposing
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
+import DataSource.Env
 import Dict
 import Head
 import Helper
@@ -36,7 +37,6 @@ type alias Model =
 type alias DraftKeys =
     { contentId : String
     , draftKey : String
-    , microCmsApiKey : String
     }
 
 
@@ -55,7 +55,7 @@ type alias RouteParams =
 
 
 type alias Data =
-    {}
+    { microCmsApiKey : String }
 
 
 type alias ActionData =
@@ -77,7 +77,8 @@ page =
 
 data : DataSource Data
 data =
-    DataSource.succeed {}
+    DataSource.Env.load "MICROCMS_API_KEY"
+        |> DataSource.map Data
 
 
 head : Page.StaticPayload Data RouteParams -> List Head.Tag
@@ -102,7 +103,6 @@ init maybeUrl _ _ =
             QueryParams.succeed DraftKeys
                 |> andMap (QueryParams.string "contentId")
                 |> andMap (QueryParams.string "draftKey")
-                |> andMap (QueryParams.string "microCmsApiKey")
 
         andMap =
             QueryParams.map2 (|>)
@@ -116,7 +116,7 @@ init maybeUrl _ _ =
 
 empty : Model
 empty =
-    { keys = { contentId = "MISSING", draftKey = "MISSING", microCmsApiKey = "MISSING" }
+    { keys = { contentId = "MISSING", draftKey = "MISSING" }
     , contents =
         { createdAt = unixOrigin
         , updatedAt = unixOrigin
@@ -135,10 +135,10 @@ type Msg
 
 
 update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
-update _ _ shared _ msg m =
+update _ _ shared app msg m =
     case msg of
         Req_Draft ->
-            ( m, getDraft m.keys, Nothing )
+            ( m, getDraft app.data.microCmsApiKey m.keys, Nothing )
 
         Res_Draft (Ok contents) ->
             ( { m | contents = contents }
@@ -163,12 +163,12 @@ pollingIntervalSeconds =
     3
 
 
-getDraft : DraftKeys -> Cmd Msg
-getDraft keys =
+getDraft : String -> DraftKeys -> Cmd Msg
+getDraft microCmsApiKey keys =
     Http.request
         { method = "GET"
         , url = "https://ymtszw.microcms.io/api/v1/articles/" ++ keys.contentId ++ "?draftKey=" ++ keys.draftKey
-        , headers = [ Http.header "X-MICROCMS-API-KEY" keys.microCmsApiKey ]
+        , headers = [ Http.header "X-MICROCMS-API-KEY" microCmsApiKey ]
         , body = Http.emptyBody
         , expect = Http.expectJson Res_Draft draftDecoder
         , timeout = Just 5000
