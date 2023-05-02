@@ -122,14 +122,7 @@ type SharedMsg
 
 type alias Model =
     { links : Dict String LinkPreview.Metadata
-    , lightbox : Maybe LightboxMedia
-    }
-
-
-type alias LightboxMedia =
-    { href : String
-    , src : String
-    , type_ : String
+    , lightbox : Maybe View.LightboxMedia
     }
 
 
@@ -143,7 +136,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnPageChange req ->
-            case parseLightboxMedia req of
+            case Maybe.andThen View.parseLightboxFragment req.fragment of
                 (Just _) as lbMedia ->
                     ( { model | lightbox = lbMedia }, lockScrollPosition )
 
@@ -201,28 +194,6 @@ lockScrollPosition =
         |> Task.andThen (\vp -> Browser.Dom.setViewport vp.viewport.x vp.viewport.y)
         |> Task.perform (always NoOp)
         |> Cmd.map SharedMsg
-
-
-parseLightboxMedia { fragment } =
-    Maybe.andThen
-        (\fr ->
-            if String.startsWith "lightbox:src(" fr then
-                case String.split "):href(" (String.dropLeft 13 fr) of
-                    [ src, rest ] ->
-                        case String.split "):type(" (String.dropRight 1 rest) of
-                            [ href, type_ ] ->
-                                Just { href = href, src = src, type_ = type_ }
-
-                            _ ->
-                                Nothing
-
-                    _ ->
-                        Nothing
-
-            else
-                Nothing
-        )
-        fragment
 
 
 requestLinkPreviewSequentially : List String -> String -> Cmd Msg
@@ -829,7 +800,7 @@ scrollButtons =
         ]
 
 
-lightbox : LightboxMedia -> Html.Html SharedMsg
+lightbox : View.LightboxMedia -> Html.Html SharedMsg
 lightbox lbMedia =
     Html.div
         [ Html.Attributes.class "lightbox"

@@ -1,9 +1,11 @@
 module View exposing
-    ( View
+    ( LightboxMedia
+    , View
     , feedLink
     , imgLazy
     , lightboxLink
     , map
+    , parseLightboxFragment
     , placeholder
     )
 
@@ -52,6 +54,32 @@ imgLazy attrs kids =
     Html.img (Html.Attributes.attribute "loading" "lazy" :: attrs) kids
 
 
-lightboxLink : { href : String, src : String, type_ : String } -> List (Html.Attribute msg) -> List (Html msg) -> Html msg
+type alias LightboxMedia =
+    { href : String
+    , src : String
+    , type_ : String
+    }
+
+
+lightboxLink : LightboxMedia -> List (Html.Attribute msg) -> List (Html msg) -> Html msg
 lightboxLink opts attrs kids =
     Html.a (Html.Attributes.href ("#lightbox:src(" ++ opts.src ++ "):href(" ++ opts.href ++ "):type(" ++ opts.type_ ++ ")") :: attrs) kids
+
+
+parseLightboxFragment : String -> Maybe LightboxMedia
+parseLightboxFragment fr =
+    if String.startsWith "lightbox:src(" fr then
+        case String.split "):href(" (String.dropLeft 13 fr) of
+            [ src, rest ] ->
+                case String.split "):type(" (String.dropRight 1 rest) of
+                    [ href, type_ ] ->
+                        Just { href = href, src = src, type_ = type_ }
+
+                    _ ->
+                        Nothing
+
+            _ ->
+                Nothing
+
+    else
+        Nothing
