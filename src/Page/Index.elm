@@ -11,7 +11,7 @@ import DataSource exposing (DataSource)
 import Dict
 import Head
 import Head.Seo as Seo
-import Helper
+import Helper exposing (iso8601Decoder)
 import Html
 import Html.Attributes
 import OptimizedDecoder
@@ -20,7 +20,7 @@ import Page.Articles
 import Page.Twilogs
 import Pages.PageUrl
 import Route
-import Shared exposing (CmsArticleMetadata, RataDie, Twilog, iso8601Decoder, publicCmsArticles, seoBase)
+import Shared exposing (CmsArticleMetadata, RataDie, Twilog, seoBase)
 import Time
 import View
 
@@ -84,7 +84,7 @@ data : DataSource Data
 data =
     DataSource.map4 Data
         publicOriginalRepos
-        publicCmsArticles
+        Shared.cmsArticles
         publicZennArticles
         publicQiitaArticles
         |> DataSource.andThen
@@ -201,6 +201,7 @@ view _ shared _ app =
             |> showless "latest-twilogs"
         , Html.h2 [] [ Route.link Route.Articles [] [ Html.text "記事" ], View.feedLink "/articles/feed.xml" ]
         , app.data.cmsArticles
+            |> List.filter .published
             |> List.take 5
             |> List.map Page.Articles.cmsArticlePreview
             |> Html.div []

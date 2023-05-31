@@ -92,6 +92,7 @@ builtArticles =
     Page.Articles.ArticleId_.routes
         |> DataSource.map (List.map build)
         |> DataSource.resolve
+        |> DataSource.map (List.filter (\( _, article ) -> article.published))
 
 
 sitemap :
@@ -126,10 +127,11 @@ makeSitemapEntries getStaticRoutes =
                     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
 
                 Articles ->
-                    Shared.publicCmsArticles
+                    Shared.cmsArticles
                         |> DataSource.andThen
                             (\articles ->
                                 articles
+                                    |> List.filter .published
                                     |> List.head
                                     |> Maybe.map (.revisedAt >> Iso8601.fromTime)
                                     |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
