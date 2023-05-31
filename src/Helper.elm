@@ -1,8 +1,15 @@
-module Helper exposing (initMsg, nonEmptyString, waitMsg)
+module Helper exposing (initMsg, iso8601Decoder, nonEmptyString, waitMsg)
 
+import Iso8601
 import OptimizedDecoder
 import Process
 import Task
+import Time
+
+
+iso8601Decoder : OptimizedDecoder.Decoder Time.Posix
+iso8601Decoder =
+    OptimizedDecoder.andThen (Iso8601.toTime >> Result.mapError (\_ -> "Invalid ISO8601 timestamp") >> OptimizedDecoder.fromResult) OptimizedDecoder.string
 
 
 nonEmptyString : OptimizedDecoder.Decoder String

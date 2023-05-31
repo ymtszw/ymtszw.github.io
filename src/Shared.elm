@@ -19,7 +19,6 @@ module Shared exposing
     , dumpTwilog
     , formatPosix
     , githubGet
-    , iso8601Decoder
     , makeSeoImageFromCmsImage
     , makeTitle
     , makeTwilogsJsonPath
@@ -265,11 +264,6 @@ cmsImageDecoder =
         |> OptimizedDecoder.andMap (OptimizedDecoder.field "url" OptimizedDecoder.string)
         |> OptimizedDecoder.andMap (OptimizedDecoder.field "height" OptimizedDecoder.int)
         |> OptimizedDecoder.andMap (OptimizedDecoder.field "width" OptimizedDecoder.int)
-
-
-iso8601Decoder : OptimizedDecoder.Decoder Time.Posix
-iso8601Decoder =
-    OptimizedDecoder.andThen (Iso8601.toTime >> Result.mapError Markdown.deadEndsToString >> OptimizedDecoder.fromResult) OptimizedDecoder.string
 
 
 type alias Twilog =
