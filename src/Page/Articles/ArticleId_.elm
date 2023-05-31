@@ -14,10 +14,12 @@ module Page.Articles.ArticleId_ exposing
     )
 
 import DataSource exposing (DataSource)
+import DataSource.File
 import Dict exposing (Dict)
 import ExternalHtml
 import Head
 import Head.Seo as Seo
+import Helper exposing (iso8601Decoder)
 import Html
 import Html.Attributes
 import Html.Parser
@@ -30,7 +32,7 @@ import OptimizedDecoder
 import Page
 import Pages.PageUrl
 import Route
-import Shared exposing (CmsArticleMetadata, seoBase)
+import Shared exposing (CmsArticleMetadata, markdownArticles, seoBase)
 import Time
 import View
 
@@ -57,6 +59,7 @@ type alias Data =
 
 type alias CmsArticle =
     { contentId : String
+    , published : Bool
     , publishedAt : Time.Posix
     , revisedAt : Time.Posix
     , title : String
@@ -89,39 +92,79 @@ page =
 
 routes : DataSource (List RouteParams)
 routes =
-    DataSource.map (List.map (.contentId >> RouteParams)) Shared.publicCmsArticles
+    Shared.cmsArticles
+        |> DataSource.map (List.map (.contentId >> RouteParams))
 
 
 data : RouteParams -> DataSource Data
 data routeParams =
+    -- XXX: ここでmarkdownの記事リストに依存しているのは若干効率が悪いが、あまり他にいい方法がなかった
+    Shared.markdownArticles
+        |> DataSource.andThen
+            (\markdownArticles ->
+                case List.Extra.find (\meta -> meta.contentId == routeParams.articleId) markdownArticles of
+                    Just matchedMeta ->
+                        markdownArticleData matchedMeta
+
+                    Nothing ->
+                        publicCmsArticleData routeParams
+            )
+
+
+markdownArticleData : Shared.CmsArticleMetadata -> DataSource Data
+markdownArticleData meta =
+    let
+        cmsArticleDecoder markdownBody =
+            OptimizedDecoder.map8 CmsArticle
+                (OptimizedDecoder.succeed meta.contentId)
+                (OptimizedDecoder.succeed meta.published)
+                (OptimizedDecoder.succeed meta.publishedAt)
+                (OptimizedDecoder.succeed meta.revisedAt)
+                (OptimizedDecoder.succeed meta.title)
+                (OptimizedDecoder.succeed meta.image)
+                (markdownBody
+                    |> Markdown.decoderInternal
+                    |> OptimizedDecoder.map mapFromMarkdown
+                )
+                (OptimizedDecoder.succeed "markdown")
+    in
+    DataSource.File.bodyWithFrontmatter cmsArticleDecoder ("articles/" ++ meta.contentId ++ ".md")
+        |> DataSource.andThen buildPageData
+
+
+publicCmsArticleData : RouteParams -> DataSource Data
+publicCmsArticleData routeParams =
     Shared.cmsGet ("https://ymtszw.microcms.io/api/v1/articles/" ++ routeParams.articleId)
         (OptimizedDecoder.succeed CmsArticle
             |> OptimizedDecoder.andMap (OptimizedDecoder.succeed routeParams.articleId)
-            |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" Shared.iso8601Decoder)
-            |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" Shared.iso8601Decoder)
+            |> OptimizedDecoder.andMap (OptimizedDecoder.succeed True)
+            |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" iso8601Decoder)
+            |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" iso8601Decoder)
             |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
             |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "image" Shared.cmsImageDecoder))
             |> OptimizedDecoder.andThen cmsArticleBodyDecoder
         )
+        |> DataSource.andThen buildPageData
+
+
+buildPageData : CmsArticle -> DataSource Data
+buildPageData currentArticle =
+    currentArticle.body.links
+        |> LinkPreview.collectMetadataOnBuild
         |> DataSource.andThen
-            (\currentArticle ->
-                currentArticle.body.links
-                    |> LinkPreview.collectMetadataOnBuild
-                    |> DataSource.andThen
-                        (\links ->
-                            Shared.publicCmsArticles
-                                |> DataSource.map
-                                    (\cmsArticles ->
-                                        let
-                                            ( next, prev ) =
-                                                findNextAndPrevArticleMeta currentArticle cmsArticles
-                                        in
-                                        { article = currentArticle
-                                        , links = links
-                                        , prevArticleMeta = prev
-                                        , nextArticleMeta = next
-                                        }
-                                    )
+            (\links ->
+                Shared.cmsArticles
+                    |> DataSource.map
+                        (\cmsArticles ->
+                            let
+                                ( next, prev ) =
+                                    findNextAndPrevArticleMeta currentArticle cmsArticles
+                            in
+                            { article = currentArticle
+                            , links = links
+                            , prevArticleMeta = prev
+                            , nextArticleMeta = next
+                            }
                         )
             )
 
@@ -131,9 +174,6 @@ cmsArticleBodyDecoder cont =
     let
         mapFromExternalHtml { parsed, excerpt, links } =
             ExternalView (Html parsed) excerpt links
-
-        mapFromMarkdown { parsed, excerpt, links } =
-            ExternalView (Markdown parsed) excerpt links
     in
     OptimizedDecoder.oneOf
         [ OptimizedDecoder.succeed cont
@@ -143,6 +183,10 @@ cmsArticleBodyDecoder cont =
             |> OptimizedDecoder.andMap (OptimizedDecoder.field "markdown" (OptimizedDecoder.map mapFromMarkdown Markdown.decoder))
             |> OptimizedDecoder.andMap (OptimizedDecoder.succeed "markdown")
         ]
+
+
+mapFromMarkdown { parsed, excerpt, links } =
+    ExternalView (Markdown parsed) excerpt links
 
 
 findNextAndPrevArticleMeta : CmsArticle -> List CmsArticleMetadata -> ( Maybe CmsArticleMetadata, Maybe CmsArticleMetadata )
@@ -180,13 +224,17 @@ view _ _ app =
         [ prevNextNavigation app.data
         , Html.header []
             [ Html.small [] <|
-                Html.text ("公開: " ++ Shared.formatPosix app.data.article.publishedAt)
-                    :: (if app.data.article.revisedAt /= app.data.article.publishedAt then
-                            [ Html.text (" (更新: " ++ Shared.formatPosix app.data.article.revisedAt ++ ")") ]
+                if app.data.article.published then
+                    Html.text ("公開: " ++ Shared.formatPosix app.data.article.publishedAt)
+                        :: (if app.data.article.revisedAt /= app.data.article.publishedAt then
+                                [ Html.text (" (更新: " ++ Shared.formatPosix app.data.article.revisedAt ++ ")") ]
 
-                        else
-                            []
-                       )
+                            else
+                                []
+                           )
+
+                else
+                    [ Html.text <| "未公開 (articles/" ++ app.data.article.contentId ++ ".md)" ]
             ]
         , renderArticle app.data.links app.data.article
         , prevNextNavigation app.data

@@ -3,6 +3,7 @@ module Markdown exposing
     , deadEndToString
     , deadEndsToString
     , decoder
+    , decoderInternal
     , parse
     , parseAndRender
     , render
@@ -32,7 +33,13 @@ type alias DecodedMarkdown =
 decoder : OptimizedDecoder.Decoder DecodedMarkdown
 decoder =
     OptimizedDecoder.string
-        |> OptimizedDecoder.andThen (parse >> OptimizedDecoder.fromResult)
+        |> OptimizedDecoder.andThen decoderInternal
+
+
+decoderInternal : String -> OptimizedDecoder.Decoder DecodedMarkdown
+decoderInternal rawBody =
+    parse rawBody
+        |> OptimizedDecoder.fromResult
         |> OptimizedDecoder.map (\nodes -> { parsed = nodes, excerpt = excerpt nodes, links = enumerateLinks nodes })
 
 
