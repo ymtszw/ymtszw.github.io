@@ -13,6 +13,7 @@ module Shared exposing
     , Twilog
     , TwitterStatusId(..)
     , TwitterUserId(..)
+    , cmsArticles
     , cmsGet
     , cmsImageDecoder
     , dailyTwilogsFromOldest
@@ -22,6 +23,7 @@ module Shared exposing
     , makeSeoImageFromCmsImage
     , makeTitle
     , makeTwilogsJsonPath
+    , markdownArticles
     , miscGet
     , ogpHeaderImageUrl
     , posixToYmd
@@ -36,12 +38,14 @@ module Shared exposing
 import Browser.Dom
 import DataSource exposing (DataSource)
 import DataSource.File
+import DataSource.File.Extra
+import DataSource.Glob
 import DataSource.Http
 import Date
 import Dict exposing (Dict)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head.Seo
-import Helper exposing (nonEmptyString)
+import Helper exposing (iso8601Decoder, nonEmptyString)
 import Html
 import Html.Attributes
 import Html.Events
@@ -96,6 +100,7 @@ type alias RataDie =
 
 type alias CmsArticleMetadata =
     { contentId : String
+    , published : Bool
     , publishedAt : Time.Posix
     , revisedAt : Time.Posix
     , title : String
@@ -243,12 +248,19 @@ miscGet url decoder =
     DataSource.Http.get (Pages.Secrets.succeed url) decoder
 
 
+cmsArticles : DataSource (List CmsArticleMetadata)
+cmsArticles =
+    DataSource.map2 (++) publicCmsArticles markdownArticles
+        |> DataSource.map (List.sortBy (.publishedAt >> Time.posixToMillis >> negate))
+
+
 publicCmsArticles : DataSource (List CmsArticleMetadata)
 publicCmsArticles =
     let
         articleMetadataDecoder =
             OptimizedDecoder.succeed CmsArticleMetadata
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "id" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.succeed True)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" iso8601Decoder)
                 |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
@@ -256,6 +268,48 @@ publicCmsArticles =
     in
     cmsGet "https://ymtszw.microcms.io/api/v1/articles?limit=10000&orders=-publishedAt&fields=id,title,image,publishedAt,revisedAt"
         (OptimizedDecoder.field "contents" (OptimizedDecoder.list articleMetadataDecoder))
+
+
+markdownArticles : DataSource (List CmsArticleMetadata)
+markdownArticles =
+    let
+        markdownMetadataDecoder =
+            OptimizedDecoder.map3 (\title publishedAt image -> { title = title, publishedAt = publishedAt, image = image })
+                (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                (OptimizedDecoder.oneOf
+                    [ OptimizedDecoder.field "publishedAt" iso8601Decoder
+                    , -- 未来の日付にfallbackして記事一覧ページに表示させないようにする
+                      OptimizedDecoder.succeed (Time.millisToPosix (Time.posixToMillis Pages.builtAt + 24 * 60 * 60 * 1000))
+                    ]
+                )
+                (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
+    in
+    DataSource.Glob.succeed Tuple.pair
+        |> DataSource.Glob.captureFilePath
+        |> DataSource.Glob.match (DataSource.Glob.literal "articles/")
+        |> DataSource.Glob.capture DataSource.Glob.wildcard
+        |> DataSource.Glob.match (DataSource.Glob.literal ".md")
+        |> DataSource.Glob.toDataSource
+        |> DataSource.andThen
+            (\files ->
+                files
+                    |> List.map
+                        (\( path, slug ) ->
+                            DataSource.map2
+                                (\stat frontmatter ->
+                                    { contentId = slug
+                                    , published = Time.posixToMillis frontmatter.publishedAt <= Time.posixToMillis Pages.builtAt
+                                    , publishedAt = frontmatter.publishedAt
+                                    , revisedAt = stat.mtime
+                                    , title = frontmatter.title
+                                    , image = frontmatter.image
+                                    }
+                                )
+                                (DataSource.File.Extra.stat path)
+                                (DataSource.File.onlyFrontmatter markdownMetadataDecoder path)
+                        )
+                    |> DataSource.combine
+            )
 
 
 cmsImageDecoder : OptimizedDecoder.Decoder CmsImage
