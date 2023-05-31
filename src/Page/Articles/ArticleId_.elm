@@ -191,13 +191,17 @@ mapFromMarkdown { parsed, excerpt, links } =
 
 findNextAndPrevArticleMeta : CmsArticle -> List CmsArticleMetadata -> ( Maybe CmsArticleMetadata, Maybe CmsArticleMetadata )
 findNextAndPrevArticleMeta currentArticle cmsArticlesFromLatest =
-    case List.Extra.splitWhen (\a -> a.contentId == currentArticle.contentId) cmsArticlesFromLatest of
+    let
+        publishedArticles =
+            List.filter .published cmsArticlesFromLatest
+    in
+    case List.Extra.splitWhen (\a -> a.contentId == currentArticle.contentId) publishedArticles of
         Just ( newer, _ :: older ) ->
             ( List.Extra.last newer, List.head older )
 
         _ ->
             -- Entry from latest, if query doesn't match'
-            ( Nothing, List.head cmsArticlesFromLatest )
+            ( Nothing, List.head publishedArticles )
 
 
 head : Page.StaticPayload Data RouteParams -> List Head.Tag
