@@ -1,0 +1,33 @@
+name: Index Kindle Books
+
+on:
+  repository_dispatch:
+    types:
+      - index-kindle-books
+  workflow_dispatch:
+
+concurrency:
+  group: index-kindle-books
+  cancel-in-progress: false
+
+jobs:
+  index-kindle-books:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          key: v1-${{ hashFiles('package-lock.json') }}-
+          restore-keys: |
+            v1-
+          path: |
+            node_modules
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - run: npm ci
+      - run: npm run build_kindle_meilisearch_index
+        env:
+          BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
+          MEILISEARCH_HOST: ${{ secrets.MEILISEARCH_HOST }}
+          MEILISEARCH_ADMIN_KEY: ${{ secrets.MEILISEARCH_ADMIN_KEY }}
