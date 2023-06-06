@@ -38,7 +38,6 @@ module Shared exposing
 import Browser.Dom
 import DataSource exposing (DataSource)
 import DataSource.File
-import DataSource.File.Extra
 import DataSource.Glob
 import DataSource.Http
 import Date
@@ -274,7 +273,16 @@ markdownArticles : DataSource (List CmsArticleMetadata)
 markdownArticles =
     let
         markdownMetadataDecoder =
-            OptimizedDecoder.map3 (\title publishedAt image -> { title = title, publishedAt = publishedAt, image = image })
+            OptimizedDecoder.map4
+                (\title publishedAt revisedAt image slug ->
+                    { contentId = slug
+                    , published = Time.posixToMillis publishedAt <= Time.posixToMillis Pages.builtAt
+                    , publishedAt = publishedAt
+                    , revisedAt = Maybe.withDefault publishedAt revisedAt
+                    , title = title
+                    , image = image
+                    }
+                )
                 (OptimizedDecoder.field "title" OptimizedDecoder.string)
                 (OptimizedDecoder.oneOf
                     [ OptimizedDecoder.field "publishedAt" iso8601Decoder
@@ -282,6 +290,7 @@ markdownArticles =
                       OptimizedDecoder.succeed (Time.millisToPosix (Time.posixToMillis Pages.builtAt + 24 * 60 * 60 * 1000))
                     ]
                 )
+                (OptimizedDecoder.maybe (OptimizedDecoder.field "revisedAt" iso8601Decoder))
                 (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
     in
     DataSource.Glob.succeed Tuple.pair
@@ -295,18 +304,8 @@ markdownArticles =
                 files
                     |> List.map
                         (\( path, slug ) ->
-                            DataSource.map2
-                                (\stat frontmatter ->
-                                    { contentId = slug
-                                    , published = Time.posixToMillis frontmatter.publishedAt <= Time.posixToMillis Pages.builtAt
-                                    , publishedAt = frontmatter.publishedAt
-                                    , revisedAt = stat.mtime
-                                    , title = frontmatter.title
-                                    , image = frontmatter.image
-                                    }
-                                )
-                                (DataSource.File.Extra.stat path)
-                                (DataSource.File.onlyFrontmatter markdownMetadataDecoder path)
+                            DataSource.File.onlyFrontmatter markdownMetadataDecoder path
+                                |> DataSource.andMap (DataSource.succeed slug)
                         )
                     |> DataSource.combine
             )
