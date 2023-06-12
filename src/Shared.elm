@@ -37,6 +37,7 @@ module Shared exposing
 
 import Browser.Dom
 import DataSource exposing (DataSource)
+import DataSource.Env
 import DataSource.File
 import DataSource.Glob
 import DataSource.Http
@@ -401,8 +402,8 @@ makeTwilogsJsonPath dateString =
     "data/" ++ String.replace "-" "/" dateString ++ "-twilogs.json"
 
 
-twilogDecoder : OptimizedDecoder.Decoder Twilog
-twilogDecoder =
+twilogDecoder : Maybe String -> OptimizedDecoder.Decoder Twilog
+twilogDecoder maybeAmazonAssociateTag =
     let
         createdAtDecoder =
             OptimizedDecoder.oneOf
@@ -469,7 +470,7 @@ twilogDecoder =
             OptimizedDecoder.oneOf
                 [ OptimizedDecoder.succeed (List.map2 TcoUrl)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsExpandedUrls" commaSeparatedUrls)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
                 , OptimizedDecoder.succeed []
                 ]
 
@@ -491,7 +492,7 @@ twilogDecoder =
             OptimizedDecoder.oneOf
                 [ OptimizedDecoder.succeed (List.map2 TcoUrl)
                     |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsExpandedUrls" commaSeparatedUrls)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
                 , OptimizedDecoder.succeed []
                 ]
 
@@ -531,6 +532,14 @@ twilogDecoder =
 
                 Nothing ->
                     twilog
+
+        maybeModifyAmazonUrl =
+            case maybeAmazonAssociateTag of
+                Just amazonAssociateTag ->
+                    OptimizedDecoder.map (List.map (Helper.makeAmazonUrl amazonAssociateTag))
+
+                Nothing ->
+                    identity
     in
     OptimizedDecoder.succeed Twilog
         |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
@@ -579,22 +588,26 @@ dailyTwilogsFromOldest paths =
                 )
                 baseDict
     in
-    List.foldl
-        (\path accDS ->
-            DataSource.andThen
-                (\accDict ->
-                    DataSource.File.jsonFile
-                        -- Make it Maybe, allow decode-failures to be ignored
-                        (OptimizedDecoder.list (OptimizedDecoder.maybe twilogDecoder)
-                            |> OptimizedDecoder.map (toDailyDictFromNewest accDict)
-                            |> OptimizedDecoder.map resolveRepliesWithinDayAndSortFromOldest
-                        )
-                        path
-                )
-                accDS
-        )
-        (DataSource.succeed Dict.empty)
-        paths
+    DataSource.Env.load "AMAZON_ASSOCIATE_TAG"
+        |> DataSource.andThen
+            (\amazonAssociateTag ->
+                List.foldl
+                    (\path accDS ->
+                        DataSource.andThen
+                            (\accDict ->
+                                DataSource.File.jsonFile
+                                    -- Make it Maybe, allow decode-failures to be ignored
+                                    (OptimizedDecoder.list (OptimizedDecoder.maybe (twilogDecoder (Just amazonAssociateTag)))
+                                        |> OptimizedDecoder.map (toDailyDictFromNewest accDict)
+                                        |> OptimizedDecoder.map resolveRepliesWithinDayAndSortFromOldest
+                                    )
+                                    path
+                            )
+                            accDS
+                    )
+                    (DataSource.succeed Dict.empty)
+                    paths
+            )
 
 
 resolveRepliesWithinDayAndSortFromOldest : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)

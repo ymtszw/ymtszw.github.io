@@ -440,7 +440,20 @@ replaceTcoUrls tcoUrls rawText =
 
 
 makeDisplayUrl : String -> String
-makeDisplayUrl rawUrl =
+makeDisplayUrl =
+    removeQuery >> truncateUrl
+
+
+removeQuery rawUrl =
+    case String.split "?" rawUrl of
+        url :: _ ->
+            url
+
+        _ ->
+            rawUrl
+
+
+truncateUrl rawUrl =
     if String.length rawUrl > 40 then
         (rawUrl
             |> String.left 40

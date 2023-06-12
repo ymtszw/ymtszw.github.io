@@ -131,7 +131,7 @@ searchResultDecoder : String -> Json.Decode.Decoder SearchTwilogsResult
 searchResultDecoder term =
     let
         hitTwilogDecoder =
-            OptimizedDecoder.decoder Shared.twilogDecoder
+            OptimizedDecoder.decoder (Shared.twilogDecoder Nothing)
     in
     Json.Decode.map2 (SearchTwilogsResult term)
         (Json.Decode.field "hits"
