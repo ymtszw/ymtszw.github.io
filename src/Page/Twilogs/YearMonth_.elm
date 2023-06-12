@@ -9,6 +9,7 @@ module Page.Twilogs.YearMonth_ exposing
 import Browser.Dom
 import Browser.Navigation
 import DataSource exposing (DataSource)
+import DataSource.Env
 import DataSource.Glob
 import Dict exposing (Dict)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
@@ -46,6 +47,7 @@ type alias RouteParams =
 type alias Data =
     { dailyTwilogsFromOldest : Dict RataDie (List Twilog)
     , searchApiKey : String
+    , amazonAssociateTag : String
     }
 
 
@@ -83,6 +85,7 @@ data routeParams =
                     |> DataSource.map Data
             )
         |> DataSource.andMap TwilogSearch.apiKey
+        |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
 
 
 getAvailableDays : String -> DataSource (List String)
@@ -134,7 +137,7 @@ update url _ shared app msg model =
 
                 _ ->
                     Cmd.none
-            , Page.Twilogs.listUrlsForPreviewBulk shared app.data.dailyTwilogsFromOldest
+            , Page.Twilogs.listUrlsForPreviewBulk shared app.data.amazonAssociateTag app.data.dailyTwilogsFromOldest
             )
 
         NoOp ->

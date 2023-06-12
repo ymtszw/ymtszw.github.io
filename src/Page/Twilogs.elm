@@ -15,6 +15,7 @@ module Page.Twilogs exposing
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
+import DataSource.Env
 import DataSource.Glob
 import Date
 import Dict exposing (Dict)
@@ -54,6 +55,7 @@ type alias RouteParams =
 type alias Data =
     { recentDailyTwilogs : Dict RataDie (List Twilog)
     , searchApiKey : String
+    , amazonAssociateTag : String
     }
 
 
@@ -79,6 +81,7 @@ data =
                     |> DataSource.map Data
             )
         |> DataSource.andMap TwilogSearch.apiKey
+        |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
 
 
 daysToPeek =
@@ -116,7 +119,7 @@ update _ _ shared app msg model =
         InitiateLinkPreviewPopulation ->
             ( model
             , Cmd.none
-            , listUrlsForPreviewBulk shared app.data.recentDailyTwilogs
+            , listUrlsForPreviewBulk shared app.data.amazonAssociateTag app.data.recentDailyTwilogs
             )
 
         TwilogSearchMsg twMsg ->
@@ -130,14 +133,14 @@ update _ _ shared app msg model =
             )
 
 
-listUrlsForPreviewBulk : Shared.Model -> Dict RataDie (List Twilog) -> Maybe Shared.Msg
-listUrlsForPreviewBulk { links } recentDailyTwilogs =
+listUrlsForPreviewBulk : Shared.Model -> String -> Dict RataDie (List Twilog) -> Maybe Shared.Msg
+listUrlsForPreviewBulk { links } amazonAssociateTag recentDailyTwilogs =
     case listUrlsForPreviewBulkHelp links recentDailyTwilogs of
         [] ->
             Nothing
 
         urls ->
-            Just (Shared.SharedMsg (Shared.Req_LinkPreview urls))
+            Just (Shared.SharedMsg (Shared.Req_LinkPreview amazonAssociateTag urls))
 
 
 listUrlsForPreviewBulkHelp : Dict String LinkPreview.Metadata -> Dict RataDie (List Twilog) -> List String
@@ -150,14 +153,14 @@ listUrlsForPreviewBulkHelp links recentDailyTwilogsFromOldest =
         |> List.Extra.unique
 
 
-listUrlsForPreviewSingle : Shared.Model -> List Twilog -> Maybe Shared.Msg
-listUrlsForPreviewSingle { links } twilogs =
+listUrlsForPreviewSingle : Shared.Model -> String -> List Twilog -> Maybe Shared.Msg
+listUrlsForPreviewSingle { links } amazonAssociateTag twilogs =
     case listUrlsForPreviewSingleHelp links twilogs of
         [] ->
             Nothing
 
         urls ->
-            Just (Shared.SharedMsg (Shared.Req_LinkPreview urls))
+            Just (Shared.SharedMsg (Shared.Req_LinkPreview amazonAssociateTag urls))
 
 
 listUrlsForPreviewSingleHelp : Dict String LinkPreview.Metadata -> List Twilog -> List String

@@ -55,7 +55,9 @@ type alias RouteParams =
 
 
 type alias Data =
-    { microCmsApiKey : String }
+    { microCmsApiKey : String
+    , amazonAssociateTag : String
+    }
 
 
 type alias ActionData =
@@ -77,8 +79,9 @@ page =
 
 data : DataSource Data
 data =
-    DataSource.Env.load "MICROCMS_API_KEY"
-        |> DataSource.map Data
+    DataSource.map2 Data
+        (DataSource.Env.load "MICROCMS_API_KEY")
+        (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
 
 
 head : Page.StaticPayload Data RouteParams -> List Head.Tag
@@ -152,7 +155,7 @@ update _ _ shared app msg m =
                     Nothing
 
                 nonEmpty ->
-                    Just (Shared.SharedMsg (Shared.Req_LinkPreview nonEmpty))
+                    Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag nonEmpty))
             )
 
         Res_Draft (Err _) ->

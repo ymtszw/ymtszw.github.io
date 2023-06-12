@@ -116,8 +116,8 @@ type alias CmsImage =
 
 type SharedMsg
     = NoOp
-    | Req_LinkPreview (List String)
-    | Res_LinkPreview (List String) (Result String ( String, LinkPreview.Metadata ))
+    | Req_LinkPreview String (List String)
+    | Res_LinkPreview String (List String) (Result String ( String, LinkPreview.Metadata ))
     | ScrollToTop
     | ScrollToBottom
     | CloseLightbox
@@ -146,10 +146,10 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        SharedMsg (Req_LinkPreview (url :: urls)) ->
-            ( model, requestLinkPreviewSequentially urls url )
+        SharedMsg (Req_LinkPreview amazonAssociateTag (url :: urls)) ->
+            ( model, requestLinkPreviewSequentially amazonAssociateTag urls url )
 
-        SharedMsg (Res_LinkPreview remainingUrls result) ->
+        SharedMsg (Res_LinkPreview amazonAssociateTag remainingUrls result) ->
             ( case result of
                 Ok ( url, metadata ) ->
                     { model | links = Dict.insert url metadata model.links }
@@ -161,7 +161,7 @@ update msg model =
                     Cmd.none
 
                 url :: urls ->
-                    requestLinkPreviewSequentially urls url
+                    requestLinkPreviewSequentially amazonAssociateTag urls url
             )
 
         SharedMsg ScrollToTop ->
@@ -199,11 +199,11 @@ lockScrollPosition =
         |> Cmd.map SharedMsg
 
 
-requestLinkPreviewSequentially : List String -> String -> Cmd Msg
-requestLinkPreviewSequentially urls url =
+requestLinkPreviewSequentially : String -> List String -> String -> Cmd Msg
+requestLinkPreviewSequentially amazonAssociateTag urls url =
     url
-        |> LinkPreview.getMetadataOnDemand
-        |> Task.attempt (Res_LinkPreview urls)
+        |> LinkPreview.getMetadataOnDemand amazonAssociateTag
+        |> Task.attempt (Res_LinkPreview amazonAssociateTag urls)
         |> Cmd.map SharedMsg
 
 

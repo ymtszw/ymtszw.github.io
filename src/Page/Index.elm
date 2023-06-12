@@ -8,6 +8,7 @@ module Page.Index exposing
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
+import DataSource.Env
 import Dict
 import Head
 import Head.Seo as Seo
@@ -44,6 +45,7 @@ type alias Data =
     , qiitaArticles : List QiitaArticleMetadata
     , rataDie : RataDie
     , twilogs : List Twilog
+    , amazonAssociateTag : String
     }
 
 
@@ -111,6 +113,7 @@ data =
                                     DataSource.fail "No twilogs; Should not happen"
                         )
             )
+        |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
 
 
 publicOriginalRepos =
@@ -183,7 +186,7 @@ update _ _ shared app msg model =
         InitiateLinkPreviewPopulation ->
             ( model
             , Cmd.none
-            , Page.Twilogs.listUrlsForPreviewSingle shared app.data.twilogs
+            , Page.Twilogs.listUrlsForPreviewSingle shared app.data.amazonAssociateTag app.data.twilogs
             )
 
 
