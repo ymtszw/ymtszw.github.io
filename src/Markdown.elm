@@ -338,7 +338,7 @@ transformWithLinkMetadata links nodes =
                 Markdown.Block.Paragraph [ Markdown.Block.Link bareUrl _ _ ] ->
                     case Dict.get bareUrl links of
                         Just metadata ->
-                            Markdown.Block.HtmlBlock <| Markdown.Block.HtmlElement "a" [ { name = "class", value = "link-preview" }, { name = "href", value = bareUrl } ] [ linkPreview metadata ]
+                            Markdown.Block.HtmlBlock <| Markdown.Block.HtmlElement "a" [ { name = "class", value = "link-preview" }, { name = "href", value = metadata.canonicalUrl } ] [ linkPreview metadata ]
 
                         Nothing ->
                             block
