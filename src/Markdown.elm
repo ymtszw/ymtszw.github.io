@@ -10,6 +10,7 @@ module Markdown exposing
     )
 
 import Dict exposing (Dict)
+import Helper
 import Html
 import Html.Attributes
 import LinkPreview
@@ -363,7 +364,7 @@ linkPreview meta =
                             Nothing ->
                                 []
                 , Markdown.Block.HtmlInline <|
-                    Markdown.Block.HtmlElement "small" [] [ Markdown.Block.Paragraph [ Markdown.Block.Text meta.canonicalUrl ] ]
+                    Markdown.Block.HtmlElement "small" [] [ Markdown.Block.Paragraph [ Markdown.Block.Text (Helper.makeDisplayUrl meta.canonicalUrl) ] ]
                 ]
               , case meta.imageUrl of
                     Just imageUrl ->

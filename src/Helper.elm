@@ -1,4 +1,4 @@
-module Helper exposing (initMsg, iso8601Decoder, makeAmazonUrl, nonEmptyString, waitMsg)
+module Helper exposing (initMsg, iso8601Decoder, makeAmazonUrl, makeDisplayUrl, nonEmptyString, waitMsg)
 
 import Iso8601
 import OptimizedDecoder
@@ -35,6 +35,53 @@ initMsg =
 waitMsg : Float -> msg -> Cmd msg
 waitMsg ms msg =
     Task.perform (\() -> msg) (Process.sleep ms)
+
+
+makeDisplayUrl : String -> String
+makeDisplayUrl =
+    removeFragment >> removeQuery >> truncateUrl >> removeRootSlash
+
+
+removeFragment rawUrl =
+    case String.split "#" rawUrl of
+        url :: _ ->
+            url
+
+        _ ->
+            rawUrl
+
+
+removeQuery rawUrl =
+    case String.split "?" rawUrl of
+        url :: _ ->
+            url
+
+        _ ->
+            rawUrl
+
+
+truncateUrl rawUrl =
+    if String.length rawUrl > 40 then
+        (rawUrl
+            |> String.left 40
+            |> String.replace "https://" ""
+            |> String.replace "http://" ""
+        )
+            ++ "..."
+
+    else
+        rawUrl
+            |> String.replace "https://" ""
+            |> String.replace "http://" ""
+
+
+removeRootSlash rawUrl =
+    case String.split "/" rawUrl of
+        [ _, "" ] ->
+            String.dropRight 1 rawUrl
+
+        _ ->
+            rawUrl
 
 
 makeAmazonUrl : String -> String -> String

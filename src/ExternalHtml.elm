@@ -5,6 +5,7 @@ module ExternalHtml exposing
     )
 
 import Dict exposing (Dict)
+import Helper
 import Html exposing (Html)
 import Html.Parser exposing (Node(..))
 import Html.Parser.Util
@@ -169,7 +170,7 @@ linkPreview meta =
 
                         Nothing ->
                             Text ""
-                    , Element "small" [] [ Text meta.canonicalUrl ]
+                    , Element "small" [] [ Text (Helper.makeDisplayUrl meta.canonicalUrl) ]
                     ]
                 , case meta.imageUrl of
                     Just imageUrl ->

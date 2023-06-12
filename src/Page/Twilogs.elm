@@ -433,39 +433,10 @@ replaceTcoUrls tcoUrls rawText =
                 acc
 
             else
-                String.replace url ("[" ++ makeDisplayUrl expandedUrl ++ "](" ++ expandedUrl ++ ")") acc
+                String.replace url ("[" ++ Helper.makeDisplayUrl expandedUrl ++ "](" ++ expandedUrl ++ ")") acc
         )
         rawText
         tcoUrls
-
-
-makeDisplayUrl : String -> String
-makeDisplayUrl =
-    removeQuery >> truncateUrl
-
-
-removeQuery rawUrl =
-    case String.split "?" rawUrl of
-        url :: _ ->
-            url
-
-        _ ->
-            rawUrl
-
-
-truncateUrl rawUrl =
-    if String.length rawUrl > 40 then
-        (rawUrl
-            |> String.left 40
-            |> String.replace "https://" ""
-            |> String.replace "http://" ""
-        )
-            ++ "..."
-
-    else
-        rawUrl
-            |> String.replace "https://" ""
-            |> String.replace "http://" ""
 
 
 appendQuote : Maybe Quote -> List (Html msg) -> List (Html msg)
@@ -576,7 +547,7 @@ autoLinkedMarkdown : String -> List (Html msg)
 autoLinkedMarkdown rawText =
     rawText
         -- Shorten remaining t.co URLs. Another URLs, if any, will be autolinked by Markdown.render
-        |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ makeDisplayUrl match ++ "](" ++ match ++ ")")
+        |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ Helper.makeDisplayUrl match ++ "](" ++ match ++ ")")
         |> Regex.replace mentionRegex (\{ match } -> "[@" ++ String.dropLeft 1 match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
         |> replaceHashtags ""
         -- 最終的に、各種処理されたtweet由来のテキストをMarkdownとして解釈している。
