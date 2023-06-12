@@ -4,6 +4,7 @@ module LinkPreview exposing (Metadata, collectMetadataOnBuild, getMetadataOnBuil
 -}
 
 import DataSource exposing (DataSource)
+import DataSource.Env
 import DataSource.Http
 import Dict exposing (Dict)
 import Helper exposing (nonEmptyString)
@@ -43,7 +44,9 @@ collectMetadataOnBuild links =
 
 getMetadataOnBuild : String -> DataSource ( String, Metadata )
 getMetadataOnBuild url =
-    DataSource.Http.get (Pages.Secrets.succeed (linkPreviewApiEndpoint url)) (linkPreviewDecoder url)
+    DataSource.map2 (\meta amazonAssociateTag -> { meta | canonicalUrl = Helper.makeAmazonUrl amazonAssociateTag meta.canonicalUrl })
+        (DataSource.Http.get (Pages.Secrets.succeed (linkPreviewApiEndpoint url)) (linkPreviewDecoder url))
+        (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
         |> DataSource.map (Tuple.pair url)
 
 
