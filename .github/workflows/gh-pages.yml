@@ -51,6 +51,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
           TWILOG_SEARCH_API_KEY: ${{ secrets.TWILOG_SEARCH_API_KEY }}
+          AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
       - uses: actions/upload-pages-artifact@v1
         with:
           path: ./dist
