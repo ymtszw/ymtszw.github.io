@@ -61,7 +61,7 @@ embedTag amazonAssociateTag url =
                 { url
                     | query =
                         QS.setStr "tag" amazonAssociateTag qs
-                            |> QS.serialize QS.config
+                            |> QS.serialize (QS.config |> QS.addQuestionMark False)
                             |> Just
                 }
            )
