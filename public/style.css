@@ -17,6 +17,34 @@ html, body {
   scroll-behavior: smooth;
 }
 
+h1,h2,h3,h4,h5,h6 {
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-color: #93ce5799;
+  text-decoration-thickness: 30%;
+  text-decoration-skip-ink: none;
+}
+h2 {
+  text-decoration-style: solid;
+  text-decoration-thickness: 20%;
+}
+h3 {
+  text-decoration-style: dashed;
+  text-decoration-thickness: 15%;
+}
+h4 {
+  text-decoration-style: dashed;
+  text-decoration-thickness: 10%;
+}
+h5 {
+  text-decoration-style: dotted;
+  text-decoration-thickness: 10%;
+}
+h6 {
+  text-decoration-style: dotted;
+  text-decoration-thickness: 7%;
+}
+
 p {
   text-align: left;
 }
