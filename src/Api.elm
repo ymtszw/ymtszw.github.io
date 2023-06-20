@@ -147,6 +147,9 @@ makeSitemapEntries getStaticRoutes =
                         |> DataSource.andThen (\data -> routeSource (Iso8601.fromTime data.article.revisedAt))
                         |> Just
 
+                Library ->
+                    Nothing
+
                 Twilogs ->
                     Shared.twilogArchives
                         |> DataSource.andThen

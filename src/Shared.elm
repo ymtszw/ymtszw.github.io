@@ -774,6 +774,11 @@ view _ page shared sharedTagger pageView =
                                     , Html.text "記事（下書き）"
                                     ]
 
+                                Route.Library ->
+                                    [ Route.link Route.Index [] [ Html.text "Index" ]
+                                    , Html.text "書架"
+                                    ]
+
                                 Route.Twilogs ->
                                     [ Route.link Route.Index [] [ Html.text "Index" ]
                                     , Html.text "Twilog"
@@ -849,6 +854,7 @@ sitemap =
             , Route.link Route.About [] [ Html.text "このサイトについて" ]
             , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
             , Route.link Route.Articles [] [ Html.text "記事" ]
+            , Route.link Route.Library [] [ Html.text "書架" ]
             , Html.text ""
             ]
 
