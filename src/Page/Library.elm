@@ -1,13 +1,20 @@
 module Page.Library exposing (Data, Model, Msg, page)
 
 import DataSource exposing (DataSource)
-import Dict
+import DataSource.Env
+import DataSource.Http
+import Date exposing (Date)
+import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
-import Html exposing (div, h1, text)
+import Helper exposing (nonEmptyString)
+import Html exposing (a, div, h1, img, text)
+import Html.Attributes exposing (alt, class, href, src, target, width)
 import Markdown
+import OptimizedDecoder
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
+import Pages.Secrets as Secrets
 import Shared exposing (seoBase)
 import View exposing (View)
 
@@ -34,12 +41,51 @@ page =
 
 
 type alias Data =
-    ()
+    Dict String KindleBook
+
+
+type alias KindleBook =
+    { id : String -- ASIN
+    , title : String
+    , authors : List String
+    , img : String -- 書影画像URL
+    , acquiredDate : Date
+    }
 
 
 data : DataSource Data
 data =
-    DataSource.succeed ()
+    DataSource.Env.load "BOOKS_JSON_URL"
+        |> DataSource.andThen
+            (\booksJsonUrl ->
+                DataSource.Http.get (Secrets.succeed booksJsonUrl) <|
+                    OptimizedDecoder.dict <|
+                        OptimizedDecoder.map5 KindleBook
+                            (OptimizedDecoder.field "id" nonEmptyString)
+                            (OptimizedDecoder.field "title" nonEmptyString)
+                            (OptimizedDecoder.field "authors" (OptimizedDecoder.list nonEmptyString))
+                            (OptimizedDecoder.field "img" nonEmptyString)
+                            (OptimizedDecoder.field "acquiredDate" japaneseDate)
+            )
+
+
+japaneseDate =
+    nonEmptyString
+        |> OptimizedDecoder.andThen
+            (\str ->
+                OptimizedDecoder.fromResult <|
+                    case String.split "年" str of
+                        [ year, monthDay ] ->
+                            case String.split "月" monthDay of
+                                [ month, day ] ->
+                                    Date.fromIsoString <| String.join "-" <| [ year, String.padLeft 2 '0' month, String.padLeft 2 '0' <| String.dropRight 1 day ]
+
+                                _ ->
+                                    Err <| "Invalid Date: " ++ str
+
+                        _ ->
+                            Err <| "Invalid Date: " ++ str
+            )
 
 
 head :
@@ -59,7 +105,7 @@ view :
     -> Shared.Model
     -> StaticPayload Data RouteParams
     -> View Msg
-view _ _ _ =
+view _ _ app =
     { title = "書架"
     , body =
         [ h1 [] [ text "書架" ]
@@ -73,5 +119,13 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - **TODO**: 自分限定のレビュー機能をつける
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
 """
+        , app.data
+            |> Dict.toList
+            |> List.take 1000
+            |> List.map
+                (\( asin, book ) ->
+                    a [ class "has-image", href <| "https://read.amazon.co.jp/manga/" ++ asin, target "_blank" ] [ img [ src book.img, width 150, alt <| book.title ++ "の書影" ] [] ]
+                )
+            |> div []
         ]
     }
