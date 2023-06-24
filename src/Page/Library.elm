@@ -1,5 +1,6 @@
 module Page.Library exposing (Data, Model, Msg, page)
 
+import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Env
 import DataSource.Http
@@ -8,36 +9,34 @@ import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
 import Helper exposing (nonEmptyString)
-import Html exposing (a, div, h1, img, text)
-import Html.Attributes exposing (alt, class, href, src, target, width)
+import Html exposing (a, div, h1, option, select, text)
+import Html.Attributes exposing (alt, class, href, selected, src, target, value, width)
+import Html.Events exposing (onInput)
 import Markdown
 import OptimizedDecoder
-import Page exposing (Page, StaticPayload)
+import Page exposing (PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Secrets as Secrets
 import Shared exposing (seoBase)
 import View exposing (View)
 
 
-type alias Model =
-    ()
-
-
-type alias Msg =
-    Never
-
-
 type alias RouteParams =
     {}
 
 
-page : Page RouteParams Data
+page : PageWithState RouteParams Data Model Msg
 page =
     Page.single
         { head = head
         , data = data
         }
-        |> Page.buildNoState { view = view }
+        |> Page.buildWithLocalState
+            { init = init
+            , update = update
+            , subscriptions = \_ _ _ _ -> Sub.none
+            , view = view
+            }
 
 
 type alias Data =
@@ -88,6 +87,59 @@ japaneseDate =
             )
 
 
+type alias Model =
+    { sortKey : SortKey
+    }
+
+
+type SortKey
+    = DATE
+    | TITLE
+
+
+sortKeys =
+    [ DATE, TITLE ]
+
+
+sortKeyToString : SortKey -> String
+sortKeyToString sk =
+    case sk of
+        DATE ->
+            "購入日順"
+
+        TITLE ->
+            "タイトル順"
+
+
+stringToSortKey : String -> SortKey
+stringToSortKey str =
+    case str of
+        "購入日順" ->
+            DATE
+
+        "タイトル順" ->
+            TITLE
+
+        _ ->
+            TITLE
+
+
+init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Cmd Msg )
+init _ _ _ =
+    ( { sortKey = DATE }, Cmd.none )
+
+
+type Msg
+    = SetSortKey String
+
+
+update : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg )
+update _ _ _ _ msg m =
+    case msg of
+        SetSortKey sk ->
+            ( { m | sortKey = stringToSortKey sk }, Cmd.none )
+
+
 head :
     StaticPayload Data RouteParams
     -> List Head.Tag
@@ -103,9 +155,10 @@ head _ =
 view :
     Maybe PageUrl
     -> Shared.Model
+    -> Model
     -> StaticPayload Data RouteParams
     -> View Msg
-view _ _ app =
+view _ _ m app =
     { title = "書架"
     , body =
         [ h1 [] [ text "書架" ]
@@ -119,13 +172,28 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - **TODO**: 自分限定のレビュー機能をつける
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
 """
+        , select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys
         , app.data
             |> Dict.toList
-            |> List.take 1000
+            |> sorter m.sortKey
             |> List.map
                 (\( asin, book ) ->
-                    a [ class "has-image", href <| "https://read.amazon.co.jp/manga/" ++ asin, target "_blank" ] [ img [ src book.img, width 150, alt <| book.title ++ "の書影" ] [] ]
+                    a [ class "has-image", href <| "https://read.amazon.co.jp/manga/" ++ asin, target "_blank" ] [ View.imgLazy [ src book.img, width 50, alt <| book.title ++ "の書影" ] [] ]
                 )
             |> div []
         ]
     }
+
+
+sorter sk =
+    case sk of
+        DATE ->
+            List.sortWith compareWithAcquiredDate
+
+        TITLE ->
+            List.sortBy (\( _, book ) -> book.title)
+
+
+compareWithAcquiredDate : ( String, KindleBook ) -> ( String, KindleBook ) -> Order
+compareWithAcquiredDate ( _, book1 ) ( _, book2 ) =
+    Date.compare book2.acquiredDate book1.acquiredDate
