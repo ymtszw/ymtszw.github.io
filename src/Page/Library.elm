@@ -175,7 +175,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
         , select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys
         , app.data
             |> Dict.toList
-            |> sorter m.sortKey
+            |> doSort m.sortKey
             |> List.map
                 (\( asin, book ) ->
                     a [ class "has-image", href <| "https://read.amazon.co.jp/manga/" ++ asin, target "_blank" ] [ View.imgLazy [ src book.img, width 50, alt <| book.title ++ "の書影" ] [] ]
@@ -185,7 +185,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
     }
 
 
-sorter sk =
+doSort sk =
     case sk of
         DATE ->
             List.sortWith compareWithAcquiredDate
