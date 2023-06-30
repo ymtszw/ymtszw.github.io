@@ -854,6 +854,7 @@ sitemap =
             , Route.link Route.About [] [ Html.text "このサイトについて" ]
             , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
             , Route.link Route.Articles [] [ Html.text "記事" ]
+            , Route.link Route.Library [] [ Html.text "書架" ]
             , Html.text ""
             ]
 
