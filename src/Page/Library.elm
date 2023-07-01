@@ -12,6 +12,7 @@ import Helper exposing (nonEmptyString)
 import Html exposing (a, div, h1, option, select, text)
 import Html.Attributes exposing (alt, class, href, selected, src, target, value, width)
 import Html.Events exposing (onInput)
+import KindleBookTitle
 import Markdown
 import OptimizedDecoder
 import Page exposing (PageWithState, StaticPayload)
@@ -45,7 +46,10 @@ type alias Data =
 
 type alias KindleBook =
     { id : String -- ASIN
-    , title : String
+    , rawTitle : String
+    , label : Maybe String
+    , volume : Int
+    , seriesName : String
     , authors : List String
     , img : String -- 書影画像URL
     , acquiredDate : Date
@@ -59,13 +63,25 @@ data =
             (\booksJsonUrl ->
                 DataSource.Http.get (Secrets.succeed booksJsonUrl) <|
                     OptimizedDecoder.dict <|
-                        OptimizedDecoder.map5 KindleBook
-                            (OptimizedDecoder.field "id" nonEmptyString)
-                            (OptimizedDecoder.field "title" nonEmptyString)
-                            (OptimizedDecoder.field "authors" (OptimizedDecoder.list nonEmptyString))
-                            (OptimizedDecoder.field "img" nonEmptyString)
-                            (OptimizedDecoder.field "acquiredDate" japaneseDate)
+                        (OptimizedDecoder.field "title" kindleBookTitle
+                            |> OptimizedDecoder.andThen
+                                (\parsed ->
+                                    OptimizedDecoder.map8 KindleBook
+                                        (OptimizedDecoder.field "id" nonEmptyString)
+                                        (OptimizedDecoder.succeed parsed.rawTitle)
+                                        (OptimizedDecoder.succeed parsed.label)
+                                        (OptimizedDecoder.succeed parsed.volume)
+                                        (OptimizedDecoder.succeed parsed.seriesName)
+                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list nonEmptyString))
+                                        (OptimizedDecoder.field "img" nonEmptyString)
+                                        (OptimizedDecoder.field "acquiredDate" japaneseDate)
+                                )
+                        )
             )
+
+
+kindleBookTitle =
+    OptimizedDecoder.andThen (OptimizedDecoder.fromResult << KindleBookTitle.parse) nonEmptyString
 
 
 japaneseDate =
@@ -167,7 +183,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 
 - Kindleのコンテンツ一覧ページをスクレイプするTampermonkeyスクリプトを実装
 - 上記ページを不定期に手動で開いてスクレイピング→蔵書DBファイルを更新
-- **TODO**: サイトビルド時に蔵書DBファイルを読み込み、ページを描画
+- サイトビルド時に蔵書DBファイルを読み込み、ページを描画
 - **TODO**: Meilisearchで検索機能提供
 - **TODO**: 自分限定のレビュー機能をつける
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
@@ -178,7 +194,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
             |> doSort m.sortKey
             |> List.map
                 (\( asin, book ) ->
-                    a [ class "has-image", href <| "https://read.amazon.co.jp/manga/" ++ asin, target "_blank" ] [ View.imgLazy [ src book.img, width 50, alt <| book.title ++ "の書影" ] [] ]
+                    a [ class "has-image", href <| "https://read.amazon.co.jp/manga/" ++ asin, target "_blank" ] [ View.imgLazy [ src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
                 )
             |> div []
         ]
@@ -191,7 +207,7 @@ doSort sk =
             List.sortWith compareWithAcquiredDate
 
         TITLE ->
-            List.sortBy (\( _, book ) -> book.title)
+            List.sortBy (\( _, book ) -> book.rawTitle)
 
 
 compareWithAcquiredDate : ( String, KindleBook ) -> ( String, KindleBook ) -> Order
