@@ -1,57 +1,171 @@
-module KindleBookTitle exposing (KindleBookTitle, parse)
+module KindleBookTitle exposing (KindleBookTitle, parse, possibleFailure)
 
 import Parser as P exposing ((|.), (|=), Parser)
 
 
 type alias KindleBookTitle =
-    { error : Maybe String
-    , rawTitle : String
-    , labelAndPublisher : Maybe ( String, String )
+    { rawTitle : String
+    , label : Maybe String
     , volume : Int
     , seriesName : String
     }
 
 
-parse : String -> KindleBookTitle
-parse rawTitle =
-    case P.run (parser rawTitle) (String.reverse rawTitle) |> Result.mapError d2s of
-        Ok result ->
-            result
+possibleFailure : KindleBookTitle -> Maybe String
+possibleFailure title =
+    if title.volume == 0 && title.label == Nothing then
+        Just <| "Volume/label missing" ++ " 『" ++ title.rawTitle ++ "』"
 
-        Err err ->
-            KindleBookTitle (Just err) rawTitle Nothing 1 rawTitle
+    else
+        Nothing
+
+
+parse : String -> Result String KindleBookTitle
+parse rawTitle =
+    case rawTitle of
+        "" ->
+            Err "Empty title"
+
+        nonEmpty ->
+            P.run (parser nonEmpty) (String.reverse nonEmpty) |> Result.mapError d2s
 
 
 parser rawTitle =
-    P.succeed (KindleBookTitle Nothing rawTitle)
-        |= parseLabelAndPublisherReversed
+    P.succeed (KindleBookTitle rawTitle)
+        |. optional (reversedToken "(English Edition)")
         |. spaces_
-        |= parseOptionalVolumeReversed
+        |= parseLabelReversed
+        |. spaces_
+        |. optional parsePerkReversed
+        |. spaces_
+        |= parseVolumeReversed
+        |. spaces_
+        |. optional parsePerkReversed
         |. spaces_
         |= parseSeriesNameReversed
 
 
-parseLabelAndPublisherReversed : Parser (Maybe ( String, String ))
-parseLabelAndPublisherReversed =
-    P.succeed Just
-        |. braceClose
-        |= knownLabelAndPublisherReversed
-        |. braceOpen
+parseLabelReversed : Parser (Maybe String)
+parseLabelReversed =
+    P.oneOf
+        [ P.succeed Just
+            |. braceClose
+            |= labelLikeStringInBracesReversed
+            |. braceOpen
+            |> P.backtrackable
+        , P.succeed Just
+            |= nonSeparatedLabelLikeStringReversed
+            |> P.backtrackable
+        , P.succeed Nothing
+        ]
 
 
-parseOptionalVolumeReversed : Parser Int
-parseOptionalVolumeReversed =
+labelLikeStringInBracesReversed : Parser String
+labelLikeStringInBracesReversed =
+    P.chompWhile (\c -> c /= '(' && c /= '（')
+        |> P.getChompedString
+        |> P.andThen labelLikeStringReversed
+
+
+nonSeparatedLabelLikeStringReversed : Parser String
+nonSeparatedLabelLikeStringReversed =
+    P.chompWhile (\c -> c /= ' ' && c /= '\u{3000}')
+        |> P.getChompedString
+        |> P.andThen labelLikeStringReversed
+
+
+labelLikeStringReversed : String -> Parser String
+labelLikeStringReversed s =
+    let
+        reversed =
+            String.reverse s
+
+        labelLikeStringParts =
+            -- よくある文字列を含まないこまっしゃくれたレーベル名や、英書のレーベル名が見つかったら例外対応する
+            [ "A.L.C."
+            , "BOOK"
+            , "COMI"
+            , "FC Jam"
+            , "GANMA"
+            , "KADOKAWA"
+            , "KATTS"
+            , "LiLy"
+            , "MANGA"
+            , "MFC"
+            , "Oxford"
+            , "Pragmatic Programmers"
+            , "カドカワ"
+            , "コミ"
+            , "サンデー"
+            , "ジャンプ"
+            , "シリーズ"
+            , "スペシャル"
+            , "デジコレ"
+            , "ブルーバックス"
+            , "マガジン"
+            , "まんが"
+            , "マンガ"
+            , "ライブラリ"
+            , "角川"
+            , "講談社"
+            , "集英社"
+            , "出版"
+            , "小学館"
+            , "新書"
+            , "新潮"
+            , "文庫"
+            ]
+    in
+    if List.any (\part -> String.contains (String.toLower part) (String.toLower reversed)) labelLikeStringParts then
+        P.succeed reversed
+
+    else
+        P.problem ("Expecting label-like string, got " ++ reversed)
+
+
+parsePerkReversed : Parser ()
+parsePerkReversed =
+    -- 「【電子特典付き】」のような文字列。隅付き括弧で書かれていることが多い...？
+    -- 「【公式アンソロジー小冊子「上野本」付き】限定版」のように連続してもよい。
+    P.loop () <|
+        \() ->
+            P.oneOf
+                [ P.oneOf
+                    [ P.succeed ()
+                        |. P.token "】"
+                        |. P.chompWhile ((/=) '【')
+                        |. P.token "【"
+                    , reversedToken "（通常版）"
+                    , reversedToken "（限定版）"
+                    , reversedToken "通常版"
+                    , reversedToken "限定版"
+                    , reversedToken "（完）"
+                    ]
+                    |> P.map (\_ -> P.Loop ())
+                , P.succeed (P.Done ())
+                ]
+
+
+parseVolumeReversed : Parser Int
+parseVolumeReversed =
     P.oneOf
         [ P.succeed identity
             |. braceClose
-            |= numericVolumeReversed
+            |= P.oneOf
+                [ numericVolumeReversed
+                , -- 「彼とカレット。」１巻の例外対応
+                  P.token "―" |> P.map (\_ -> 1)
+                ]
             |. braceOpen
+            |> P.backtrackable
         , P.succeed identity
             |= numericVolumeReversed
             |. spaces_
             |. colons
             |> P.backtrackable
         , P.succeed identity
+            |. optional colons
+            |. optional parsePerkReversed
             |. volumeSuffixReversed
             |= numericVolumeReversed
         , P.succeed identity
@@ -61,7 +175,7 @@ parseOptionalVolumeReversed =
 
 
 numericVolumeReversed =
-    P.chompWhile (\c -> Char.isDigit c || List.member c [ '０', '１', '２', '３', '４', '５', '６', '７', '８', '９' ])
+    P.chompWhile (\c -> Char.isDigit c || List.member c [ '０', '１', '２', '３', '４', '５', '６', '７', '８', '９', '上', '中', '下' ])
         |> P.getChompedString
         |> P.andThen
             (\s ->
@@ -111,6 +225,15 @@ j2a c =
         '９' ->
             '9'
 
+        '上' ->
+            '1'
+
+        '中' ->
+            '2'
+
+        '下' ->
+            '3'
+
         _ ->
             c
 
@@ -130,6 +253,14 @@ parseSeriesNameReversed =
 -- HELPERS
 
 
+optional : Parser () -> Parser ()
+optional p =
+    P.oneOf
+        [ p
+        , P.succeed ()
+        ]
+
+
 spaces_ =
     P.chompWhile (\c -> c == ' ' || c == '\u{3000}' || c == '\n' || c == '\u{000D}' || c == '\t')
 
@@ -146,23 +277,9 @@ braceClose =
     P.oneOf [ P.token ")", P.token "）" ]
 
 
-knownLabelAndPublisherReversed : Parser ( String, String )
-knownLabelAndPublisherReversed =
-    let
-        help ( label, publisher ) =
-            P.token (String.reverse label)
-                |> P.map (\_ -> ( label, publisher ))
-    in
-    P.oneOf <|
-        List.map help <|
-            [ ( "モーニングコミックス", "講談社" )
-            , ( "青騎士コミックス", "KADOKAWA" )
-            , ( "アクションコミックス", "DCコミックス" )
-            , ( "百合姫コミックス", "一迅社" )
-            , ( "ヤングキングコミックス", "少年画報社" )
-            , ( "新潮文庫", "新潮社" )
-            , ( "少年チャンピオン・コミックス", "秋田書店" )
-            ]
+reversedToken : String -> P.Parser ()
+reversedToken label =
+    P.token (String.reverse label)
 
 
 d2s : List P.DeadEnd -> String
