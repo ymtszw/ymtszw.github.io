@@ -9,9 +9,10 @@ import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
 import Helper exposing (nonEmptyString)
-import Html exposing (a, div, h1, option, select, text)
-import Html.Attributes exposing (alt, class, href, selected, src, target, value, width)
+import Html exposing (a, div, h1, option, pre, select, text)
+import Html.Attributes exposing (alt, class, hidden, href, selected, src, target, title, value, width)
 import Html.Events exposing (onInput)
+import Html.Keyed
 import KindleBookTitle
 import Markdown
 import OptimizedDecoder
@@ -41,7 +42,7 @@ page =
 
 
 type alias Data =
-    Dict String KindleBook
+    Dict SeriesName (List KindleBook)
 
 
 type alias KindleBook =
@@ -49,11 +50,15 @@ type alias KindleBook =
     , rawTitle : String
     , label : Maybe String
     , volume : Int
-    , seriesName : String
+    , seriesName : SeriesName
     , authors : List String
     , img : String -- 書影画像URL
     , acquiredDate : Date
     }
+
+
+type alias SeriesName =
+    String
 
 
 data : DataSource Data
@@ -78,10 +83,29 @@ data =
                                 )
                         )
             )
+        |> DataSource.map groupBySeriesName
 
 
 kindleBookTitle =
     OptimizedDecoder.andThen (OptimizedDecoder.fromResult << KindleBookTitle.parse) nonEmptyString
+
+
+groupBySeriesName : Dict String KindleBook -> Dict SeriesName (List KindleBook)
+groupBySeriesName =
+    Dict.foldl
+        (\_ book acc ->
+            Dict.update book.seriesName
+                (\books ->
+                    case books of
+                        Just books_ ->
+                            Just (List.sortBy .volume (book :: books_))
+
+                        Nothing ->
+                            Just [ book ]
+                )
+                acc
+        )
+        Dict.empty
 
 
 japaneseDate =
@@ -109,19 +133,23 @@ type alias Model =
 
 
 type SortKey
-    = DATE
+    = DATE_ASC
+    | DATE_DESC
     | TITLE
 
 
 sortKeys =
-    [ DATE, TITLE ]
+    [ DATE_ASC, DATE_DESC, TITLE ]
 
 
 sortKeyToString : SortKey -> String
 sortKeyToString sk =
     case sk of
-        DATE ->
-            "購入日順"
+        DATE_ASC ->
+            "昔に買った順"
+
+        DATE_DESC ->
+            "最近買った順"
 
         TITLE ->
             "タイトル順"
@@ -130,8 +158,11 @@ sortKeyToString sk =
 stringToSortKey : String -> SortKey
 stringToSortKey str =
     case str of
-        "購入日順" ->
-            DATE
+        "昔に買った順" ->
+            DATE_ASC
+
+        "最近買った順" ->
+            DATE_DESC
 
         "タイトル順" ->
             TITLE
@@ -142,7 +173,7 @@ stringToSortKey str =
 
 init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Cmd Msg )
 init _ _ _ =
-    ( { sortKey = DATE }, Cmd.none )
+    ( { sortKey = DATE_DESC }, Cmd.none )
 
 
 type Msg
@@ -181,10 +212,10 @@ view _ _ m app =
         , div [] <| Markdown.parseAndRender Dict.empty """
 Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロントエンドがほしいと思っていたので自作し始めたページ。仕組み：
 
-- Kindleのコンテンツ一覧ページをスクレイプするTampermonkeyスクリプトを実装
-- 上記ページを不定期に手動で開いてスクレイピング→蔵書DBファイルを更新
+- Kindleのコンテンツ一覧ページをTampermonkeyスクリプトでスクレイプ
+- 上記ページを不定期に手動で開いて蔵書DBファイルを更新
 - サイトビルド時に蔵書DBファイルを読み込み、ページを描画
-- **TODO**: Meilisearchで検索機能提供
+- **TODO**: 検索機能提供
 - **TODO**: 自分限定のレビュー機能をつける
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
 """
@@ -192,24 +223,69 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
         , app.data
             |> Dict.toList
             |> doSort m.sortKey
-            |> List.map
-                (\( asin, book ) ->
-                    a [ class "has-image", href <| "https://read.amazon.co.jp/manga/" ++ asin, target "_blank" ] [ View.imgLazy [ src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
+            |> List.concatMap
+                (\( _, books ) ->
+                    List.map
+                        (\book ->
+                            let
+                                item ( label, value ) =
+                                    case value of
+                                        "" ->
+                                            []
+
+                                        nonEmpty ->
+                                            [ label ++ ": " ++ nonEmpty ]
+
+                                metadata =
+                                    [ ( "タイトル", book.rawTitle )
+                                    , ( "ASIN", book.id )
+                                    , ( "巻数", String.fromInt book.volume )
+                                    , ( "シリーズ", book.seriesName )
+                                    , ( "レーベル", Maybe.withDefault "" book.label )
+                                    ]
+                                        |> List.concatMap item
+                                        |> String.join "\n"
+                            in
+                            a
+                                [ class "has-image"
+                                , href <| "https://read.amazon.co.jp/manga/" ++ book.id
+                                , target "_blank"
+                                , title metadata
+                                ]
+                                [ View.imgLazy [ src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] []
+                                , pre [ hidden True ] [ text metadata ]
+                                ]
+                                |> Tuple.pair book.id
+                        )
+                        books
                 )
-            |> div []
+            |> Html.Keyed.node "div" []
         ]
     }
 
 
+doSort : SortKey -> List ( SeriesName, List KindleBook ) -> List ( SeriesName, List KindleBook )
 doSort sk =
     case sk of
-        DATE ->
-            List.sortWith compareWithAcquiredDate
+        DATE_ASC ->
+            List.sortWith (compareWithAcquiredDate True)
+
+        DATE_DESC ->
+            List.sortWith (compareWithAcquiredDate False)
 
         TITLE ->
-            List.sortBy (\( _, book ) -> book.rawTitle)
+            List.sortBy Tuple.first
 
 
-compareWithAcquiredDate : ( String, KindleBook ) -> ( String, KindleBook ) -> Order
-compareWithAcquiredDate ( _, book1 ) ( _, book2 ) =
-    Date.compare book2.acquiredDate book1.acquiredDate
+compareWithAcquiredDate : Bool -> ( SeriesName, List KindleBook ) -> ( SeriesName, List KindleBook ) -> Order
+compareWithAcquiredDate isAsc ( _, books1 ) ( _, books2 ) =
+    case ( List.reverse books1, List.reverse books2 ) of
+        ( latest1 :: _, latest2 :: _ ) ->
+            if isAsc then
+                Date.compare latest1.acquiredDate latest2.acquiredDate
+
+            else
+                Date.compare latest2.acquiredDate latest1.acquiredDate
+
+        ( _, _ ) ->
+            EQ
