@@ -704,6 +704,30 @@ nav.twilog-archive-navigation ul li.selected::after {
   background-color: #eaeaea;
 }
 
+.kindle-bookshelf-image {
+  vertical-align: top;
+}
+.series-bookmark-start::before {
+  content: " ";
+}
+.series-bookmark {
+  position: absolute;
+  background-color: #1d7484;
+  color: #f5f5f5;
+  font-size: 8px;
+  box-sizing: border-box;
+  max-width: 200px;
+  padding: 0 0.5em 0 1em;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transform: translate(-100%, -100%);
+  border-top-left-radius: 0.5lh;
+  border-bottom-left-radius: 0.5lh;
+}
+.series-bookmark[data-count="3"] { max-width: 150px }
+.series-bookmark[data-count="2"] { max-width: 100px }
+
 .kindle-popover {
   display: block;
   visibility: hidden;

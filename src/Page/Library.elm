@@ -588,6 +588,19 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
             |> doSort m.sortKey
             |> List.concatMap
                 (\( _, books ) ->
+                    let
+                        seriesBookmark =
+                            case books of
+                                [] ->
+                                    []
+
+                                [ _ ] ->
+                                    []
+
+                                first :: _ ->
+                                    -- ２冊以上あるときだけ表示
+                                    [ ( first.id ++ "-series-bookmark", span [ class "series-bookmark", attribute "data-count" (String.fromInt (List.length books)) ] [ text first.seriesName ] ) ]
+                    in
                     List.map
                         (\book ->
                             a
@@ -597,10 +610,11 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                                 , title (metadata book)
                                 , Html.Events.custom "click" (clickBookEvent book)
                                 ]
-                                [ View.imgLazy [ src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
+                                [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
                                 |> Tuple.pair (book.id ++ "-link")
                         )
                         books
+                        ++ seriesBookmark
                 )
             |> Html.Keyed.node "div" []
         , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.selectedBook)
