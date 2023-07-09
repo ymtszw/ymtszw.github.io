@@ -9,8 +9,8 @@ import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
 import Helper exposing (nonEmptyString)
-import Html exposing (Html, a, article, dd, div, dl, dt, figure, h1, h2, h3, h5, header, li, main_, option, p, pre, select, span, strong, text, ul)
-import Html.Attributes exposing (alt, attribute, class, hidden, href, id, property, selected, src, target, title, value, width)
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Html.Keyed
 import Json.Decode
@@ -21,6 +21,7 @@ import OptimizedDecoder
 import Page exposing (PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Secrets as Secrets
+import Regex
 import Shared exposing (seoBase)
 import View exposing (View)
 
@@ -45,6 +46,9 @@ page =
 
 type alias Data =
     { kindleBooks : Dict SeriesName (List KindleBook)
+    , numberOfBooks : Int
+    , authors : Dict String Int
+    , labels : Dict String Int
     , amazonAssociateTag : String
     }
 
@@ -71,9 +75,16 @@ type alias SeriesName =
 
 data : DataSource Data
 data =
-    DataSource.map2 Data
-        kindleBooks
-        (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
+    kindleBooks
+        |> DataSource.map
+            (\booksByAsin ->
+                let
+                    ( authors, labels ) =
+                        countByAuthorsAndLabels booksByAsin
+                in
+                Data (groupBySeriesName booksByAsin) (Dict.size booksByAsin) authors labels
+            )
+        |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
 
 
 kindleBooks =
@@ -91,17 +102,41 @@ kindleBooks =
                                         (OptimizedDecoder.succeed (Maybe.map j2a parsed.label))
                                         (OptimizedDecoder.succeed parsed.volume)
                                         (OptimizedDecoder.succeed parsed.seriesName |> OptimizedDecoder.map j2a)
-                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list (OptimizedDecoder.map j2a nonEmptyString)))
+                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list (OptimizedDecoder.map (j2a >> normalizeAuthor) nonEmptyString)))
                                         (OptimizedDecoder.field "img" nonEmptyString)
                                         (OptimizedDecoder.field "acquiredDate" japaneseDate)
                                 )
                         )
             )
-        |> DataSource.map groupBySeriesName
 
 
 kindleBookTitle =
     OptimizedDecoder.andThen (OptimizedDecoder.fromResult << KindleBookTitle.parse) nonEmptyString
+
+
+countByAuthorsAndLabels : Dict ASIN KindleBook -> ( Dict String Int, Dict String Int )
+countByAuthorsAndLabels =
+    Dict.foldl
+        (\_ book ( accAuthors, accLabels ) ->
+            ( List.foldl increment accAuthors book.authors
+            , book.label |> Maybe.map (\label -> increment label accLabels) |> Maybe.withDefault accLabels
+            )
+        )
+        ( Dict.empty, Dict.empty )
+
+
+increment : comparable -> Dict comparable Int -> Dict comparable Int
+increment key dict =
+    Dict.update key
+        (\count ->
+            case count of
+                Just count_ ->
+                    Just (count_ + 1)
+
+                Nothing ->
+                    Just 1
+        )
+        dict
 
 
 j2a : String -> String
@@ -298,10 +333,34 @@ j2a =
                 '\u{3000}' ->
                     ' '
 
+                '（' ->
+                    '('
+
+                '）' ->
+                    ')'
+
                 _ ->
                     c
     in
     String.map mapper
+
+
+normalizeAuthor : String -> String
+normalizeAuthor raw =
+    if String.all Char.isAlphaNum raw then
+        raw
+
+    else
+        -- 日本語表記の著者名は、姓名間のスペースを除去して正規化
+        -- また、"()"で囲まれた装飾が後置されていることがあるので削除する
+        -- ただし、著者名表記はほかにも表記揺れが多く、この正規化処理はおまけ程度
+        raw
+            |> String.replace " " ""
+            |> Regex.replace redundantAuthorSuffixPattern (\_ -> "")
+
+
+redundantAuthorSuffixPattern =
+    Regex.fromString "(\\(.*\\))$" |> Maybe.withDefault Regex.never
 
 
 groupBySeriesName : Dict String KindleBook -> Dict SeriesName (List KindleBook)
@@ -458,6 +517,43 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - **TODO**: 自分限定のレビュー機能をつける
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
 """
+        , details [ class "kindle-data" ]
+            [ summary [] [ text <| "蔵書数: " ++ String.fromInt app.data.numberOfBooks ]
+            , ul []
+                [ li []
+                    [ details []
+                        [ summary [] [ text <| "著者数: " ++ String.fromInt (Dict.size app.data.authors) ]
+                        , table []
+                            [ thead [] [ tr [] [ th [] [ text "著者名" ], th [] [ text "冊数" ] ] ]
+                            , tbody [] <| List.map (\( author, count ) -> tr [] [ td [] [ text author ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.authors
+                            ]
+                        ]
+                    ]
+                , li []
+                    [ details []
+                        [ summary [] [ text <| "シリーズ数: " ++ String.fromInt (Dict.size app.data.kindleBooks) ++ " （１冊しか存在・購入していないものも含む）" ]
+                        , p []
+                            [ text "※KindleBookTitleパーサが対応できない形式のタイトル表記については、人力注釈が必要。"
+                            , br [] []
+                            , text "例えば現状、サブタイトルがある形式に対応していない。"
+                            ]
+                        , table []
+                            [ thead [] [ tr [] [ th [] [ text "シリーズ名" ], th [] [ text "購入済み冊数" ] ] ]
+                            , tbody [] <| List.map (\( seriesName, books ) -> tr [] [ td [] [ text seriesName ], td [] [ text (String.fromInt (List.length books)) ] ]) <| Dict.toList app.data.kindleBooks
+                            ]
+                        ]
+                    ]
+                , li []
+                    [ details []
+                        [ summary [] [ text <| "レーベル数: " ++ String.fromInt (Dict.size app.data.labels) ]
+                        , table []
+                            [ thead [] [ tr [] [ th [] [ text "レーベル名" ], th [] [ text "冊数" ] ] ]
+                            , tbody [] <| List.map (\( label_, count ) -> tr [] [ td [] [ text label_ ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.labels
+                            ]
+                        ]
+                    ]
+                ]
+            ]
         , select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys
         , let
             item ( label, value ) =
