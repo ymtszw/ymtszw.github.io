@@ -676,6 +676,7 @@ kindlePopover data_ openedBook =
                 [ View.imgLazy [ src book.img, width 150, alt <| book.rawTitle ++ "の書影" ] []
                 , article []
                     [ h5 [] [ a [ href (Helper.makeAmazonUrl data_.amazonAssociateTag book.id), target "_blank" ] [ text book.rawTitle ] ]
+                    , a [ class "cloud-reader-link", href ("https://read.amazon.co.jp/manga/" ++ book.id), target "_blank" ] [ text "Kindleビューアで読む" ]
                     , ul [] <|
                         List.filterMap (Maybe.map (\( key, kids ) -> li [] (strong [] [ text key ] :: text " : " :: kids)))
                             [ Just ( "著者", [ text <| String.join ", " book.authors ] )

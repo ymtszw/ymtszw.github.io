@@ -785,6 +785,28 @@ nav.twilog-archive-navigation ul li.selected::after {
   margin-top: 0;
   word-break: break-all;
 }
+.kindle-popover > main > article > .cloud-reader-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 0 0.5em;
+  line-height: 2em;
+  color: #f9f9f9;
+  background-color: #408fdf;
+  border-radius: 5px;
+}
+.kindle-popover > main > article > .cloud-reader-link:hover {
+  border-bottom: initial;
+  background-color: #2a84dd;
+}
+.kindle-popover > main > article > .cloud-reader-link::before {
+  content: "📚";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  margin-right: 0.2em;
+}
+.kindle-popover > main > article > .cloud-reader-link::after {
+  content: "";
+  display: none;
+}
 .kindle-popover > main > article > ul {
   font-size: 14px;
 }
