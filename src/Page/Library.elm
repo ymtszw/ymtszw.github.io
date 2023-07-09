@@ -77,7 +77,7 @@ data =
                                         (OptimizedDecoder.succeed parsed.label)
                                         (OptimizedDecoder.succeed parsed.volume)
                                         (OptimizedDecoder.succeed parsed.seriesName)
-                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list nonEmptyString))
+                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list author))
                                         (OptimizedDecoder.field "img" nonEmptyString)
                                         (OptimizedDecoder.field "acquiredDate" japaneseDate)
                                 )
@@ -88,6 +88,205 @@ data =
 
 kindleBookTitle =
     OptimizedDecoder.andThen (OptimizedDecoder.fromResult << KindleBookTitle.parse) nonEmptyString
+
+
+author =
+    let
+        mapper c =
+            case c of
+                '０' ->
+                    '0'
+
+                '１' ->
+                    '1'
+
+                '２' ->
+                    '2'
+
+                '３' ->
+                    '3'
+
+                '４' ->
+                    '4'
+
+                '５' ->
+                    '5'
+
+                '６' ->
+                    '6'
+
+                '７' ->
+                    '7'
+
+                '８' ->
+                    '8'
+
+                '９' ->
+                    '9'
+
+                'Ａ' ->
+                    'A'
+
+                'Ｂ' ->
+                    'B'
+
+                'Ｃ' ->
+                    'C'
+
+                'Ｄ' ->
+                    'D'
+
+                'Ｅ' ->
+                    'E'
+
+                'Ｆ' ->
+                    'F'
+
+                'Ｇ' ->
+                    'G'
+
+                'Ｈ' ->
+                    'H'
+
+                'Ｉ' ->
+                    'I'
+
+                'Ｊ' ->
+                    'J'
+
+                'Ｋ' ->
+                    'K'
+
+                'Ｌ' ->
+                    'L'
+
+                'Ｍ' ->
+                    'M'
+
+                'Ｎ' ->
+                    'N'
+
+                'Ｏ' ->
+                    'O'
+
+                'Ｐ' ->
+                    'P'
+
+                'Ｑ' ->
+                    'Q'
+
+                'Ｒ' ->
+                    'R'
+
+                'Ｓ' ->
+                    'S'
+
+                'Ｔ' ->
+                    'T'
+
+                'Ｕ' ->
+                    'U'
+
+                'Ｖ' ->
+                    'V'
+
+                'Ｗ' ->
+                    'W'
+
+                'Ｘ' ->
+                    'X'
+
+                'Ｙ' ->
+                    'Y'
+
+                'Ｚ' ->
+                    'Z'
+
+                'ａ' ->
+                    'a'
+
+                'ｂ' ->
+                    'b'
+
+                'ｃ' ->
+                    'c'
+
+                'ｄ' ->
+                    'd'
+
+                'ｅ' ->
+                    'e'
+
+                'ｆ' ->
+                    'f'
+
+                'ｇ' ->
+                    'g'
+
+                'ｈ' ->
+                    'h'
+
+                'ｉ' ->
+                    'i'
+
+                'ｊ' ->
+                    'j'
+
+                'ｋ' ->
+                    'k'
+
+                'ｌ' ->
+                    'l'
+
+                'ｍ' ->
+                    'm'
+
+                'ｎ' ->
+                    'n'
+
+                'ｏ' ->
+                    'o'
+
+                'ｐ' ->
+                    'p'
+
+                'ｑ' ->
+                    'q'
+
+                'ｒ' ->
+                    'r'
+
+                'ｓ' ->
+                    's'
+
+                'ｔ' ->
+                    't'
+
+                'ｕ' ->
+                    'u'
+
+                'ｖ' ->
+                    'v'
+
+                'ｗ' ->
+                    'w'
+
+                'ｘ' ->
+                    'x'
+
+                'ｙ' ->
+                    'y'
+
+                'ｚ' ->
+                    'z'
+
+                '\u{3000}' ->
+                    ' '
+
+                _ ->
+                    c
+    in
+    OptimizedDecoder.map (String.map mapper) nonEmptyString
 
 
 groupBySeriesName : Dict String KindleBook -> Dict SeriesName (List KindleBook)
@@ -135,11 +334,12 @@ type alias Model =
 type SortKey
     = DATE_ASC
     | DATE_DESC
+    | AUTHOR
     | TITLE
 
 
 sortKeys =
-    [ DATE_ASC, DATE_DESC, TITLE ]
+    [ DATE_ASC, DATE_DESC, AUTHOR, TITLE ]
 
 
 sortKeyToString : SortKey -> String
@@ -150,6 +350,9 @@ sortKeyToString sk =
 
         DATE_DESC ->
             "最近買った順"
+
+        AUTHOR ->
+            "著者名順"
 
         TITLE ->
             "タイトル順"
@@ -163,6 +366,9 @@ stringToSortKey str =
 
         "最近買った順" ->
             DATE_DESC
+
+        "著者名順" ->
+            AUTHOR
 
         "タイトル順" ->
             TITLE
@@ -241,7 +447,9 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                                     , ( "ASIN", book.id )
                                     , ( "巻数", String.fromInt book.volume )
                                     , ( "シリーズ", book.seriesName )
+                                    , ( "著者", String.join ", " book.authors )
                                     , ( "レーベル", Maybe.withDefault "" book.label )
+                                    , ( "購入日", Date.toIsoString book.acquiredDate )
                                     ]
                                         |> List.concatMap item
                                         |> String.join "\n"
@@ -273,6 +481,9 @@ doSort sk =
         DATE_DESC ->
             List.sortWith (compareWithAcquiredDate False)
 
+        AUTHOR ->
+            List.sortWith compareWithFirstAuthor
+
         TITLE ->
             List.sortBy Tuple.first
 
@@ -288,4 +499,19 @@ compareWithAcquiredDate isAsc ( _, books1 ) ( _, books2 ) =
                 Date.compare latest2.acquiredDate latest1.acquiredDate
 
         ( _, _ ) ->
+            EQ
+
+
+compareWithFirstAuthor : ( SeriesName, List KindleBook ) -> ( SeriesName, List KindleBook ) -> Order
+compareWithFirstAuthor ( _, books1 ) ( _, books2 ) =
+    case ( books1, books2 ) of
+        ( book1 :: _, book2 :: _ ) ->
+            case ( book1.authors, book2.authors ) of
+                ( author1 :: _, author2 :: _ ) ->
+                    Basics.compare author1 author2
+
+                _ ->
+                    EQ
+
+        _ ->
             EQ
