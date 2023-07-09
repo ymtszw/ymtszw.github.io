@@ -519,107 +519,101 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 """
         , details [ class "kindle-data" ]
             [ summary [] [ text <| "蔵書数: " ++ String.fromInt app.data.numberOfBooks ]
-            , ul []
-                [ li []
-                    [ details []
-                        [ summary [] [ text <| "著者数: " ++ String.fromInt (Dict.size app.data.authors) ]
-                        , table []
-                            [ thead [] [ tr [] [ th [] [ text "著者名" ], th [] [ text "冊数" ] ] ]
-                            , tbody [] <| List.map (\( author, count ) -> tr [] [ td [] [ text author ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.authors
-                            ]
-                        ]
+            , details []
+                [ summary [] [ text <| "著者数: " ++ String.fromInt (Dict.size app.data.authors) ]
+                , table []
+                    [ thead [] [ tr [] [ th [] [ text "著者名" ], th [] [ text "冊数" ] ] ]
+                    , tbody [] <| List.map (\( author, count ) -> tr [] [ td [] [ text author ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.authors
                     ]
-                , li []
-                    [ details []
-                        [ summary [] [ text <| "シリーズ数: " ++ String.fromInt (Dict.size app.data.kindleBooks) ++ " （１冊しか存在・購入していないものも含む）" ]
-                        , p []
-                            [ text "※KindleBookTitleパーサが対応できない形式のタイトル表記については、人力注釈が必要。"
-                            , br [] []
-                            , text "例えば現状、サブタイトルがある形式に対応していない。"
-                            ]
-                        , table []
-                            [ thead [] [ tr [] [ th [] [ text "シリーズ名" ], th [] [ text "購入済み冊数" ] ] ]
-                            , tbody [] <| List.map (\( seriesName, books ) -> tr [] [ td [] [ text seriesName ], td [] [ text (String.fromInt (List.length books)) ] ]) <| Dict.toList app.data.kindleBooks
-                            ]
-                        ]
+                ]
+            , details []
+                [ summary [] [ text <| "シリーズ数: " ++ String.fromInt (Dict.size app.data.kindleBooks) ++ " （１冊しか存在・購入していないものも含む）" ]
+                , p []
+                    [ text "※KindleBookTitleパーサが対応できない形式のタイトル表記については、人力注釈が必要。"
+                    , br [] []
+                    , text "例えば現状、サブタイトルがある形式に対応していない。"
                     ]
-                , li []
-                    [ details []
-                        [ summary [] [ text <| "レーベル数: " ++ String.fromInt (Dict.size app.data.labels) ]
-                        , table []
-                            [ thead [] [ tr [] [ th [] [ text "レーベル名" ], th [] [ text "冊数" ] ] ]
-                            , tbody [] <| List.map (\( label_, count ) -> tr [] [ td [] [ text label_ ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.labels
-                            ]
-                        ]
+                , table []
+                    [ thead [] [ tr [] [ th [] [ text "シリーズ名" ], th [] [ text "購入済み冊数" ] ] ]
+                    , tbody [] <| List.map (\( seriesName, books ) -> tr [] [ td [] [ text seriesName ], td [] [ text (String.fromInt (List.length books)) ] ]) <| Dict.toList app.data.kindleBooks
+                    ]
+                ]
+            , details []
+                [ summary [] [ text <| "レーベル数: " ++ String.fromInt (Dict.size app.data.labels) ]
+                , table []
+                    [ thead [] [ tr [] [ th [] [ text "レーベル名" ], th [] [ text "冊数" ] ] ]
+                    , tbody [] <| List.map (\( label_, count ) -> tr [] [ td [] [ text label_ ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.labels
                     ]
                 ]
             ]
         , select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys
         , let
-            item ( label, value ) =
-                case value of
-                    "" ->
-                        []
-
-                    nonEmpty ->
-                        [ label ++ ": " ++ nonEmpty ]
-
-            metadata book =
-                [ ( "タイトル", book.rawTitle )
-                , ( "ASIN", book.id )
-                , ( "巻数", String.fromInt book.volume )
-                , ( "シリーズ", book.seriesName )
-                , ( "著者", String.join ", " book.authors )
-                , ( "レーベル", Maybe.withDefault "" book.label )
-                , ( "購入日", Date.toIsoString book.acquiredDate )
-                ]
-                    |> List.concatMap item
-                    |> String.join "\n"
-
             clickBookEvent book =
                 Json.Decode.succeed
                     { message = ToggleKindlePopover (Just ( book.seriesName, book.id ))
                     , preventDefault = True
                     , stopPropagation = True
                     }
+
+            seriesBookmark books =
+                case books of
+                    [] ->
+                        []
+
+                    [ _ ] ->
+                        []
+
+                    first :: _ ->
+                        -- ２冊以上あるときだけ表示
+                        [ ( first.id ++ "-series-bookmark", span [ class "series-bookmark", attribute "data-count" (String.fromInt (List.length books)) ] [ text first.seriesName ] ) ]
           in
           app.data.kindleBooks
             |> Dict.toList
             |> doSort m.sortKey
             |> List.concatMap
                 (\( _, books ) ->
-                    let
-                        seriesBookmark =
-                            case books of
-                                [] ->
-                                    []
-
-                                [ _ ] ->
-                                    []
-
-                                first :: _ ->
-                                    -- ２冊以上あるときだけ表示
-                                    [ ( first.id ++ "-series-bookmark", span [ class "series-bookmark", attribute "data-count" (String.fromInt (List.length books)) ] [ text first.seriesName ] ) ]
-                    in
                     List.map
                         (\book ->
                             a
                                 [ class "has-image"
                                 , href <| "https://read.amazon.co.jp/manga/" ++ book.id
                                 , target "_blank"
-                                , title (metadata book)
+                                , title (bookMetadata book)
                                 , Html.Events.custom "click" (clickBookEvent book)
                                 ]
                                 [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
                                 |> Tuple.pair (book.id ++ "-link")
                         )
                         books
-                        ++ seriesBookmark
+                        ++ seriesBookmark books
                 )
             |> Html.Keyed.node "div" [ class "kindle-bookshelf" ]
         , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.selectedBook)
         ]
     }
+
+
+bookMetadata : KindleBook -> String
+bookMetadata book =
+    let
+        item ( label, value ) =
+            case value of
+                "" ->
+                    []
+
+                nonEmpty ->
+                    [ label ++ ": " ++ nonEmpty ]
+    in
+    [ ( "タイトル", book.rawTitle )
+    , ( "ASIN", book.id )
+    , ( "巻数", String.fromInt book.volume )
+    , ( "シリーズ", book.seriesName )
+    , ( "著者", String.join ", " book.authors )
+    , ( "レーベル", Maybe.withDefault "" book.label )
+    , ( "購入日", Date.toIsoString book.acquiredDate )
+    ]
+        |> List.concatMap item
+        |> String.join "\n"
 
 
 doSort : SortKey -> List ( SeriesName, List KindleBook ) -> List ( SeriesName, List KindleBook )
@@ -672,23 +666,27 @@ kindlePopover data_ openedBook =
     [ header [ onClick (ToggleKindlePopover Nothing), attribute "role" "button" ] []
     , main_ [] <|
         case getBook data_.kindleBooks openedBook of
-            Just book ->
-                [ View.imgLazy [ src book.img, width 150, alt <| book.rawTitle ++ "の書影" ] []
+            Just ( maybePrev, book, maybeNext ) ->
+                [ prevVolume maybePrev
                 , article []
-                    [ h5 [] [ a [ href (Helper.makeAmazonUrl data_.amazonAssociateTag book.id), target "_blank" ] [ text book.rawTitle ] ]
-                    , a [ class "cloud-reader-link", href ("https://read.amazon.co.jp/manga/" ++ book.id), target "_blank" ] [ text "Kindleビューアで読む" ]
-                    , ul [] <|
-                        List.filterMap (Maybe.map (\( key, kids ) -> li [] (strong [] [ text key ] :: text " : " :: kids)))
-                            [ Just ( "著者", [ text <| String.join ", " book.authors ] )
-                            , if book.seriesName == book.rawTitle then
-                                Nothing
+                    [ View.imgLazy [ src book.img, width 150, alt <| book.rawTitle ++ "の書影" ] []
+                    , div []
+                        [ h5 [] [ a [ href (Helper.makeAmazonUrl data_.amazonAssociateTag book.id), target "_blank" ] [ text book.rawTitle ] ]
+                        , a [ class "cloud-reader-link", href ("https://read.amazon.co.jp/manga/" ++ book.id), target "_blank" ] [ text "Kindleビューアで読む" ]
+                        , ul [] <|
+                            List.filterMap (Maybe.map (\( key, kids ) -> li [] (strong [] [ text key ] :: text " : " :: kids)))
+                                [ Just ( "著者", [ text <| String.join ", " book.authors ] )
+                                , if book.seriesName == book.rawTitle then
+                                    Nothing
 
-                              else
-                                Just ( "シリーズ", [ text book.seriesName ] )
-                            , Maybe.map (\label_ -> ( "レーベル", [ text label_ ] )) book.label
-                            , Just ( "購入日", [ text (Date.toIsoString book.acquiredDate) ] )
-                            ]
+                                  else
+                                    Just ( "シリーズ", [ text book.seriesName ] )
+                                , Maybe.map (\label_ -> ( "レーベル", [ text label_ ] )) book.label
+                                , Just ( "購入日", [ text (Date.toIsoString book.acquiredDate) ] )
+                                ]
+                        ]
                     ]
+                , nextVolume maybeNext
                 ]
 
             Nothing ->
@@ -701,5 +699,37 @@ getBook dict openedBook =
         |> Maybe.andThen
             (\( seriesName, asin ) ->
                 Dict.get seriesName dict
-                    |> Maybe.andThen (\books -> List.Extra.find (\book -> book.id == asin) books)
+                    |> Maybe.andThen
+                        (\books ->
+                            books
+                                |> List.Extra.selectSplit
+                                |> List.Extra.find (\( _, book, _ ) -> book.id == asin)
+                                |> Maybe.map
+                                    (\( prev, selected, next ) ->
+                                        ( List.head <| List.reverse prev
+                                        , selected
+                                        , List.head next
+                                        )
+                                    )
+                        )
             )
+
+
+prevVolume maybePrev =
+    case maybePrev of
+        Just prev ->
+            div [ class "prev-volume active", title (bookMetadata prev), onClick (ToggleKindlePopover (Just ( prev.seriesName, prev.id ))) ]
+                [ View.imgLazy [ src prev.img, width 34, alt <| prev.rawTitle ++ "の書影" ] [] ]
+
+        Nothing ->
+            div [ class "prev-volume" ] []
+
+
+nextVolume maybeNext =
+    case maybeNext of
+        Just next ->
+            div [ class "next-volume active", title (bookMetadata next), onClick (ToggleKindlePopover (Just ( next.seriesName, next.id ))) ]
+                [ View.imgLazy [ src next.img, width 34, alt <| next.rawTitle ++ "の書影" ] [] ]
+
+        Nothing ->
+            div [ class "prev-volume" ] []

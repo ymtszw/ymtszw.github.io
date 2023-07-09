@@ -697,6 +697,10 @@ nav.twilog-archive-navigation ul li.selected::after {
 .kindle-data {
   font-size: 0.6em;
 }
+.kindle-data details {
+  max-height: 50vh;
+  overflow-y: auto;
+}
 .kindle-data details[open] > summary {
   position: sticky;
   z-index: 1;
@@ -734,8 +738,12 @@ nav.twilog-archive-navigation ul li.selected::after {
   border-top-left-radius: 0.5lh;
   border-bottom-left-radius: 0.5lh;
 }
-.series-bookmark[data-count="3"] { max-width: 150px }
-.series-bookmark[data-count="2"] { max-width: 100px }
+.series-bookmark[data-count="3"] {
+  max-width: 150px;
+}
+.series-bookmark[data-count="2"] {
+  max-width: 100px;
+}
 
 .kindle-popover {
   display: block;
@@ -777,21 +785,54 @@ nav.twilog-archive-navigation ul li.selected::after {
 }
 .kindle-popover > main {
   display: flex;
-  margin-top: 0.5em;
-  padding: 0 1.5em;
-  overflow-y: auto;
-  max-height: 60vh;
+  padding-top: 0.5em;
+  padding: 0;
+  width: 100%;
   gap: 1em;
 }
-.kindle-popover > main > img:first-child {
+.kindle-popover > main > :is(.prev-volume, .next-volume) {
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  width: 40px;
+  padding: 60px 3px;
+  box-sizing: border-box;
+}
+.kindle-popover > main > :is(.prev-volume, .next-volume).active:hover {
+  background-color: #eaeaea;
+  cursor: pointer;
+}
+.kindle-popover > main > article {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+@media (max-width: 699px) {
+  .kindle-popover {
+    max-width: 95vw;
+  }
+  .kindle-popover > main {
+    gap: 0.2em;
+  }
+  .kindle-popover > main > article {
+    max-height: 85vh;
+    flex-direction: column;
+  }
+}
+.kindle-popover > main > article > img {
   width: 150px;
   object-fit: contain;
+  align-self: center; /* Small screenでいい感じになる */
 }
-.kindle-popover > main > article > h5 {
+.kindle-popover > main > article > div {
+  flex-grow: 1;
+}
+.kindle-popover > main > article > div > h5 {
   margin-top: 0;
   word-break: break-all;
 }
-.kindle-popover > main > article > .cloud-reader-link {
+.kindle-popover > main > article > div > .cloud-reader-link {
   display: inline-block;
   margin-bottom: 1.5rem;
   padding: 0 0.5em;
@@ -800,19 +841,19 @@ nav.twilog-archive-navigation ul li.selected::after {
   background-color: #408fdf;
   border-radius: 5px;
 }
-.kindle-popover > main > article > .cloud-reader-link:hover {
+.kindle-popover > main > article > div > .cloud-reader-link:hover {
   border-bottom: initial;
   background-color: #2a84dd;
 }
-.kindle-popover > main > article > .cloud-reader-link::before {
+.kindle-popover > main > article > div > .cloud-reader-link::before {
   content: "📚";
   font-family: "Noto Sans Symbols 2", sans-serif;
   margin-right: 0.2em;
 }
-.kindle-popover > main > article > .cloud-reader-link::after {
+.kindle-popover > main > article > div > .cloud-reader-link::after {
   content: "";
   display: none;
 }
-.kindle-popover > main > article > ul {
+.kindle-popover > main > article > div > ul {
   font-size: 14px;
 }
