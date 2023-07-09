@@ -616,7 +616,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                         books
                         ++ seriesBookmark
                 )
-            |> Html.Keyed.node "div" []
+            |> Html.Keyed.node "div" [ class "kindle-bookshelf" ]
         , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.selectedBook)
         ]
     }

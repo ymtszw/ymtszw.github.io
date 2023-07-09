@@ -704,6 +704,9 @@ nav.twilog-archive-navigation ul li.selected::after {
   background-color: #eaeaea;
 }
 
+.kindle-bookshelf {
+  margin-top: 1em;
+}
 .kindle-bookshelf-image {
   vertical-align: top;
 }
@@ -763,8 +766,12 @@ nav.twilog-archive-navigation ul li.selected::after {
   font-family: "Noto Sans Symbols 2", sans-serif;
   display: contents;
 }
+.kindle-popover > header:hover {
+  background-color: #eaeaea;
+}
 .kindle-popover > main {
   display: flex;
+  margin-top: 0.5em;
   padding: 0 1.5em;
   overflow-y: auto;
   max-height: 60vh;
