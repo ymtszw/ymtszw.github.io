@@ -144,7 +144,8 @@ body:has(.lightbox) {
   overflow: hidden;
 }
 .lightbox::after {
-  content: "☒";
+  content: "✕";
+  font-family: "Noto Sans Symbols 2", sans-serif;
   position: absolute;
   display: block;
   top: 0;
@@ -683,4 +684,58 @@ nav.twilog-archive-navigation ul li.selected::after {
   color: #999;
   font-size: 0.8em;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.kindle-popover {
+  display: block;
+  visibility: hidden;
+  opacity: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  max-width: 80vw;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px #999;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s ease-out;
+  transform: translateY(100%);
+}
+.kindle-popover:not([hidden]) {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+.kindle-popover > header {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  padding: 0 0.5em;
+  cursor: pointer;
+}
+.kindle-popover > header::after {
+  content: "✕";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  display: contents;
+}
+.kindle-popover > main {
+  display: flex;
+  padding: 0 1.5em;
+  overflow-y: auto;
+  max-height: 60vh;
+  gap: 1em;
+}
+.kindle-popover > main > img:first-child {
+  width: 150px;
+  object-fit: contain;
+}
+.kindle-popover > main > article > h5 {
+  margin-top: 0;
+  word-break: break-all;
+}
+.kindle-popover > main > article > ul {
+  font-size: 14px;
 }

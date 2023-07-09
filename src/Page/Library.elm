@@ -9,11 +9,13 @@ import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
 import Helper exposing (nonEmptyString)
-import Html exposing (a, div, h1, option, pre, select, text)
-import Html.Attributes exposing (alt, class, hidden, href, selected, src, target, title, value, width)
-import Html.Events exposing (onInput)
+import Html exposing (Html, a, article, dd, div, dl, dt, figure, h1, h2, h3, h5, header, li, main_, option, p, pre, select, span, strong, text, ul)
+import Html.Attributes exposing (alt, attribute, class, hidden, href, id, property, selected, src, target, title, value, width)
+import Html.Events exposing (onClick, onInput)
 import Html.Keyed
+import Json.Decode
 import KindleBookTitle
+import List.Extra
 import Markdown
 import OptimizedDecoder
 import Page exposing (PageWithState, StaticPayload)
@@ -42,11 +44,13 @@ page =
 
 
 type alias Data =
-    Dict SeriesName (List KindleBook)
+    { kindleBooks : Dict SeriesName (List KindleBook)
+    , amazonAssociateTag : String
+    }
 
 
 type alias KindleBook =
-    { id : String -- ASIN
+    { id : ASIN
     , rawTitle : String
     , label : Maybe String
     , volume : Int
@@ -57,12 +61,22 @@ type alias KindleBook =
     }
 
 
+type alias ASIN =
+    String
+
+
 type alias SeriesName =
     String
 
 
 data : DataSource Data
 data =
+    DataSource.map2 Data
+        kindleBooks
+        (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
+
+
+kindleBooks =
     DataSource.Env.load "BOOKS_JSON_URL"
         |> DataSource.andThen
             (\booksJsonUrl ->
@@ -74,10 +88,10 @@ data =
                                     OptimizedDecoder.map8 KindleBook
                                         (OptimizedDecoder.field "id" nonEmptyString)
                                         (OptimizedDecoder.succeed parsed.rawTitle)
-                                        (OptimizedDecoder.succeed parsed.label)
+                                        (OptimizedDecoder.succeed (Maybe.map j2a parsed.label))
                                         (OptimizedDecoder.succeed parsed.volume)
-                                        (OptimizedDecoder.succeed parsed.seriesName)
-                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list author))
+                                        (OptimizedDecoder.succeed parsed.seriesName |> OptimizedDecoder.map j2a)
+                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list (OptimizedDecoder.map j2a nonEmptyString)))
                                         (OptimizedDecoder.field "img" nonEmptyString)
                                         (OptimizedDecoder.field "acquiredDate" japaneseDate)
                                 )
@@ -90,7 +104,8 @@ kindleBookTitle =
     OptimizedDecoder.andThen (OptimizedDecoder.fromResult << KindleBookTitle.parse) nonEmptyString
 
 
-author =
+j2a : String -> String
+j2a =
     let
         mapper c =
             case c of
@@ -286,7 +301,7 @@ author =
                 _ ->
                     c
     in
-    OptimizedDecoder.map (String.map mapper) nonEmptyString
+    String.map mapper
 
 
 groupBySeriesName : Dict String KindleBook -> Dict SeriesName (List KindleBook)
@@ -328,6 +343,12 @@ japaneseDate =
 
 type alias Model =
     { sortKey : SortKey
+
+    -- ハーフモーダルのpopoverが閉じるとき、selectedBookをNothingにしてしまうと
+    -- アニメーション中に先行してモーダル内が空になってしまい、スライドアウトがきれいに見えない。
+    -- そこで開閉状態と選択状態を分けることで、モーダル内のコンテンツは描画したままに保つ
+    , popoverOpened : Bool
+    , selectedBook : Maybe ( SeriesName, ASIN )
     }
 
 
@@ -339,7 +360,7 @@ type SortKey
 
 
 sortKeys =
-    [ DATE_ASC, DATE_DESC, AUTHOR, TITLE ]
+    [ DATE_DESC, DATE_ASC, AUTHOR, TITLE ]
 
 
 sortKeyToString : SortKey -> String
@@ -379,11 +400,12 @@ stringToSortKey str =
 
 init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Cmd Msg )
 init _ _ _ =
-    ( { sortKey = DATE_DESC }, Cmd.none )
+    ( { sortKey = DATE_DESC, popoverOpened = False, selectedBook = Nothing }, Cmd.none )
 
 
 type Msg
     = SetSortKey String
+    | ToggleKindlePopover (Maybe ( SeriesName, ASIN ))
 
 
 update : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg )
@@ -391,6 +413,17 @@ update _ _ _ _ msg m =
     case msg of
         SetSortKey sk ->
             ( { m | sortKey = stringToSortKey sk }, Cmd.none )
+
+        ToggleKindlePopover (Just selected) ->
+            if m.popoverOpened then
+                -- すでにpopoverが開いている場合、内容が切り替わったことをわかりやすくするために一瞬閉じる
+                ( { m | popoverOpened = False }, Helper.waitMsg 50 msg )
+
+            else
+                ( { m | popoverOpened = True, selectedBook = Just selected }, Cmd.none )
+
+        ToggleKindlePopover Nothing ->
+            ( { m | popoverOpened = False }, Cmd.none )
 
 
 head :
@@ -426,48 +459,55 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
 """
         , select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys
-        , app.data
+        , let
+            item ( label, value ) =
+                case value of
+                    "" ->
+                        []
+
+                    nonEmpty ->
+                        [ label ++ ": " ++ nonEmpty ]
+
+            metadata book =
+                [ ( "タイトル", book.rawTitle )
+                , ( "ASIN", book.id )
+                , ( "巻数", String.fromInt book.volume )
+                , ( "シリーズ", book.seriesName )
+                , ( "著者", String.join ", " book.authors )
+                , ( "レーベル", Maybe.withDefault "" book.label )
+                , ( "購入日", Date.toIsoString book.acquiredDate )
+                ]
+                    |> List.concatMap item
+                    |> String.join "\n"
+
+            clickBookEvent book =
+                Json.Decode.succeed
+                    { message = ToggleKindlePopover (Just ( book.seriesName, book.id ))
+                    , preventDefault = True
+                    , stopPropagation = True
+                    }
+          in
+          app.data.kindleBooks
             |> Dict.toList
             |> doSort m.sortKey
             |> List.concatMap
                 (\( _, books ) ->
                     List.map
                         (\book ->
-                            let
-                                item ( label, value ) =
-                                    case value of
-                                        "" ->
-                                            []
-
-                                        nonEmpty ->
-                                            [ label ++ ": " ++ nonEmpty ]
-
-                                metadata =
-                                    [ ( "タイトル", book.rawTitle )
-                                    , ( "ASIN", book.id )
-                                    , ( "巻数", String.fromInt book.volume )
-                                    , ( "シリーズ", book.seriesName )
-                                    , ( "著者", String.join ", " book.authors )
-                                    , ( "レーベル", Maybe.withDefault "" book.label )
-                                    , ( "購入日", Date.toIsoString book.acquiredDate )
-                                    ]
-                                        |> List.concatMap item
-                                        |> String.join "\n"
-                            in
                             a
                                 [ class "has-image"
                                 , href <| "https://read.amazon.co.jp/manga/" ++ book.id
                                 , target "_blank"
-                                , title metadata
+                                , title (metadata book)
+                                , Html.Events.custom "click" (clickBookEvent book)
                                 ]
-                                [ View.imgLazy [ src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] []
-                                , pre [ hidden True ] [ text metadata ]
-                                ]
-                                |> Tuple.pair book.id
+                                [ View.imgLazy [ src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
+                                |> Tuple.pair (book.id ++ "-link")
                         )
                         books
                 )
             |> Html.Keyed.node "div" []
+        , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.selectedBook)
         ]
     }
 
@@ -515,3 +555,40 @@ compareWithFirstAuthor ( _, books1 ) ( _, books2 ) =
 
         _ ->
             EQ
+
+
+kindlePopover : Data -> Maybe ( SeriesName, ASIN ) -> List (Html Msg)
+kindlePopover data_ openedBook =
+    [ header [ onClick (ToggleKindlePopover Nothing), attribute "role" "button" ] []
+    , main_ [] <|
+        case getBook data_.kindleBooks openedBook of
+            Just book ->
+                [ View.imgLazy [ src book.img, width 150, alt <| book.rawTitle ++ "の書影" ] []
+                , article []
+                    [ h5 [] [ a [ href (Helper.makeAmazonUrl data_.amazonAssociateTag book.id), target "_blank" ] [ text book.rawTitle ] ]
+                    , ul [] <|
+                        List.filterMap (Maybe.map (\( key, kids ) -> li [] (strong [] [ text key ] :: text " : " :: kids)))
+                            [ Just ( "著者", [ text <| String.join ", " book.authors ] )
+                            , if book.seriesName == book.rawTitle then
+                                Nothing
+
+                              else
+                                Just ( "シリーズ", [ text book.seriesName ] )
+                            , Maybe.map (\label_ -> ( "レーベル", [ text label_ ] )) book.label
+                            , Just ( "購入日", [ text (Date.toIsoString book.acquiredDate) ] )
+                            ]
+                    ]
+                ]
+
+            Nothing ->
+                []
+    ]
+
+
+getBook dict openedBook =
+    openedBook
+        |> Maybe.andThen
+            (\( seriesName, asin ) ->
+                Dict.get seriesName dict
+                    |> Maybe.andThen (\books -> List.Extra.find (\book -> book.id == asin) books)
+            )
