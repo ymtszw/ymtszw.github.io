@@ -133,13 +133,22 @@ parsePerkReversed =
                 [ P.oneOf
                     [ P.succeed ()
                         |. P.token "】"
-                        |. P.chompWhile ((/=) '【')
+                        -- 「【推しの子】」の例外対応。'子'で判定すると「【電子書籍版特典付き】」のようなケースを誤判定するので
+                        -- より特徴的な文字で判定しなければならない。「【文化庁推薦】」のようなケースは諦めている
+                        |. P.chompWhile (\c -> c /= '【' && c /= '推')
                         |. P.token "【"
+                        |> P.backtrackable
                     , reversedToken "（通常版）"
                     , reversedToken "（限定版）"
                     , reversedToken "通常版"
                     , reversedToken "限定版"
+                    , reversedToken "特装版"
+                    , reversedToken "完全版"
+                    , reversedToken "豪華版"
+                    , reversedToken "デジタルVer."
                     , reversedToken "（完）"
+                    , P.token " "
+                    , P.token "\u{3000}"
                     ]
                     |> P.map (\_ -> P.Loop ())
                 , P.succeed (P.Done ())
@@ -168,6 +177,7 @@ parseVolumeReversed =
             |. optional parsePerkReversed
             |. volumeSuffixReversed
             |= numericVolumeReversed
+            |> P.backtrackable
         , P.succeed identity
             |= numericVolumeReversed
         , P.succeed 0
@@ -246,7 +256,15 @@ parseSeriesNameReversed : Parser String
 parseSeriesNameReversed =
     P.chompWhile (always True)
         |> P.getChompedString
-        |> P.map String.reverse
+        |> P.andThen
+            (\chomped ->
+                case chomped of
+                    "" ->
+                        P.problem "SeriesName resulted in empty!"
+
+                    nonEmpty ->
+                        P.succeed (String.reverse nonEmpty)
+            )
 
 
 
