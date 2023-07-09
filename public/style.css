@@ -13,11 +13,17 @@ Symbol font
 Global
 
 */
-html, body {
+html,
+body {
   scroll-behavior: smooth;
 }
 
-h1,h2,h3,h4,h5,h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-decoration-color: #93ce5799;
@@ -83,7 +89,7 @@ a.has-image:hover {
 
 *:target {
   /* Yellow-ish highlight background on target text */
-  background-color: #fff9d7!important;
+  background-color: #fff9d7 !important;
 }
 
 .link-ish {
@@ -94,7 +100,7 @@ a:visited > .link-ish {
   color: #144f5a;
 }
 .link-ish:hover {
-  color: #982c61!important;
+  color: #982c61 !important;
 }
 
 /* Navigation for site metadata such as build status badge and author follow link.
@@ -306,7 +312,7 @@ Tweet-like style on top of Sakura.css
   top: 0.5em;
   cursor: pointer;
   opacity: 0.1;
-  outline: none!important;
+  outline: none !important;
 }
 .tweet > input[type="checkbox"]:checked {
   opacity: 0.8;
@@ -314,7 +320,7 @@ Tweet-like style on top of Sakura.css
 .tweet > input[type="checkbox"] ~ .twilog-data {
   display: none;
   white-space: pre-wrap;
-  font-family: 'Cica', Courier, 'Courier New', monospace;
+  font-family: "Cica", Courier, "Courier New", monospace;
 }
 .tweet > input[type="checkbox"] ~ label {
   display: none;
