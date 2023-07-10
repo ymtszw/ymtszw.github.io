@@ -714,8 +714,15 @@ nav.twilog-archive-navigation ul li.selected::after {
   background-color: #eaeaea;
 }
 
+.kindle-control {
+  font-size: 14px;
+}
+.kindle-control > select {
+  font-weight: bold;
+}
 button.kindle-filterable-tag {
   border-radius: 1em;
+  margin-left: 0.1em;
 }
 button.kindle-filterable-tag:focus {
   border-color: #144f5a;
@@ -732,6 +739,7 @@ button.kindle-filterable-tag::after {
 button.kindle-filterable-tag.active {
   color: #fff;
   background-color: #982c61;
+  border-color: #982c61;
 }
 button.kindle-filterable-tag.active:hover {
   background-color: #95225a;
@@ -774,6 +782,9 @@ button.kindle-filterable-tag.active::after {
 }
 .series-bookmark[data-count="2"] {
   max-width: 100px;
+}
+.series-bookmark[data-count="1"] {
+  max-width: 50px;
 }
 
 .kindle-popover {

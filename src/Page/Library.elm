@@ -105,7 +105,7 @@ kindleBooks =
                                         (OptimizedDecoder.succeed (Maybe.map j2a parsed.label))
                                         (OptimizedDecoder.succeed parsed.volume)
                                         (OptimizedDecoder.succeed parsed.seriesName |> OptimizedDecoder.map j2a)
-                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list (OptimizedDecoder.map (j2a >> normalizeAuthor) nonEmptyString)))
+                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list (OptimizedDecoder.map (j2a >> normalizeAuthor) nonEmptyString) |> OptimizedDecoder.map (List.filter notStopWords)))
                                         (OptimizedDecoder.field "img" nonEmptyString)
                                         (OptimizedDecoder.field "acquiredDate" japaneseDate)
                                 )
@@ -367,6 +367,15 @@ redundantAuthorSuffixPattern =
     Regex.fromString "(\\(.*\\))$" |> Maybe.withDefault Regex.never
 
 
+notStopWords raw =
+    case raw of
+        "ほか" ->
+            False
+
+        _ ->
+            True
+
+
 groupBySeriesName : Dict String KindleBook -> Dict SeriesName (List KindleBook)
 groupBySeriesName =
     Dict.foldl
@@ -481,7 +490,6 @@ type Msg
     = SetSortKey String
     | ToggleAuthorFilter Bool String
     | ToggleLabelFilter Bool String
-    | ClearFilter
     | ToggleKindlePopover (Maybe ( SeriesName, ASIN ))
 
 
@@ -497,13 +505,18 @@ update _ _ _ _ msg ({ filter } as m) =
         ToggleLabelFilter switch author ->
             ( { m | filter = { filter | labels = toggle switch author filter.labels } }, Cmd.none )
 
-        ClearFilter ->
-            ( { m | filter = noFilter }, Cmd.none )
-
         ToggleKindlePopover (Just selected) ->
             if m.popoverOpened then
-                -- すでにpopoverが開いている場合、内容が切り替わったことをわかりやすくするために一瞬閉じる
-                ( { m | popoverOpened = False }, Helper.waitMsg 50 msg )
+                -- すでにpopoverが開いている場合:
+                ( { m | popoverOpened = False }
+                , if m.selectedBook == Just selected then
+                    -- 同じ本を選択した場合、単に閉じて終了
+                    Cmd.none
+
+                  else
+                    -- 違う本を選択した場合、内容が切り替わったことをわかりやすくするために一瞬閉じるだけで、次の枝ですぐ開く
+                    Helper.waitMsg 50 msg
+                )
 
             else
                 ( { m | popoverOpened = True, selectedBook = Just selected }, Cmd.none )
@@ -556,13 +569,6 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
         , details [ class "kindle-data" ]
             [ summary [] [ text <| "蔵書数: " ++ String.fromInt app.data.numberOfBooks ]
             , details []
-                [ summary [] [ text <| "著者数: " ++ String.fromInt (Dict.size app.data.authors) ]
-                , table []
-                    [ thead [] [ tr [] [ th [] [ text "著者名" ], th [] [ text "冊数" ] ] ]
-                    , tbody [] <| List.map (\( author, count ) -> tr [] [ td [] [ filterableTag ToggleAuthorFilter m.filter.authors author ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.authors
-                    ]
-                ]
-            , details []
                 [ summary [] [ text <| "シリーズ数: " ++ String.fromInt (Dict.size app.data.kindleBooks) ++ " （１冊しか存在・購入していないものも含む）" ]
                 , p []
                     [ text "※KindleBookTitleパーサが対応できない形式のタイトル表記については、人力注釈が必要。"
@@ -575,6 +581,13 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                     ]
                 ]
             , details []
+                [ summary [] [ text <| "著者数: " ++ String.fromInt (Dict.size app.data.authors) ]
+                , table []
+                    [ thead [] [ tr [] [ th [] [ text "著者名" ], th [] [ text "冊数" ] ] ]
+                    , tbody [] <| List.map (\( author, count ) -> tr [] [ td [] [ filterableTag ToggleAuthorFilter m.filter.authors author ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.authors
+                    ]
+                ]
+            , details []
                 [ summary [] [ text <| "レーベル数: " ++ String.fromInt (Dict.size app.data.labels) ]
                 , table []
                     [ thead [] [ tr [] [ th [] [ text "レーベル名" ], th [] [ text "冊数" ] ] ]
@@ -582,7 +595,10 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                     ]
                 ]
             ]
-        , select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys
+        , div [ class "kindle-control" ] <|
+            (select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys)
+                :: (List.map (filterableTag ToggleAuthorFilter m.filter.authors) <| Set.toList m.filter.authors)
+                ++ List.map (filterableTag ToggleLabelFilter m.filter.labels) (Set.toList m.filter.labels)
         , let
             clickBookEvent book =
                 Json.Decode.succeed
@@ -599,10 +615,6 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                     [] ->
                         -- MNH
                         []
-
-                    [ singleton ] ->
-                        -- １冊だけのときは頭文字だけ
-                        [ ( singleton.id ++ "-series-bookmark", span [ class "series-bookmark" ] [ text (String.left 1 singleton.seriesName) ] ) ]
 
                     first :: _ ->
                         -- ２冊以上あるときだけ名称を表示
@@ -631,7 +643,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                         ++ seriesBookmark books
                 )
             |> Html.Keyed.node "div" [ class "kindle-bookshelf" ]
-        , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.selectedBook)
+        , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.filter m.selectedBook)
         ]
     }
 
@@ -740,8 +752,8 @@ filterableTag event filter word =
     button (class "kindle-filterable-tag" :: attrs) [ text word ]
 
 
-kindlePopover : Data -> Maybe ( SeriesName, ASIN ) -> List (Html Msg)
-kindlePopover data_ openedBook =
+kindlePopover : Data -> Filter -> Maybe ( SeriesName, ASIN ) -> List (Html Msg)
+kindlePopover data_ f openedBook =
     [ header [ onClick (ToggleKindlePopover Nothing), attribute "role" "button" ] []
     , main_ [] <|
         case getBook data_.kindleBooks openedBook of
@@ -754,13 +766,13 @@ kindlePopover data_ openedBook =
                         , a [ class "cloud-reader-link", href ("https://read.amazon.co.jp/manga/" ++ book.id), target "_blank" ] [ text "Kindleビューアで読む" ]
                         , ul [] <|
                             List.filterMap (Maybe.map (\( key, kids ) -> li [] (strong [] [ text key ] :: text " : " :: kids)))
-                                [ Just ( "著者", [ text <| String.join ", " book.authors ] )
+                                [ Just ( "著者", List.map (filterableTag ToggleAuthorFilter f.authors) book.authors )
                                 , if book.seriesName == book.rawTitle then
                                     Nothing
 
                                   else
                                     Just ( "シリーズ", [ text book.seriesName ] )
-                                , Maybe.map (\label_ -> ( "レーベル", [ text label_ ] )) book.label
+                                , Maybe.map (\label_ -> ( "レーベル", [ filterableTag ToggleLabelFilter f.labels label_ ] )) book.label
                                 , Just ( "購入日", [ text (Date.toIsoString book.acquiredDate) ] )
                                 ]
                         ]
