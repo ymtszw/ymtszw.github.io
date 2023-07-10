@@ -83,9 +83,6 @@ a[target="_blank"]:not(.link-preview):not(.has-image)::after {
   height: 1em;
 }
 
-a.has-image {
-  display: contents;
-}
 a.has-image:hover {
   border-bottom: unset;
 }
@@ -720,11 +717,19 @@ nav.twilog-archive-navigation ul li.selected::after {
 .kindle-bookshelf {
   margin: 1em auto;
 }
+.kindle-bookshelf a.has-image {
+  display: inline-block;
+}
 .kindle-bookshelf-image {
   vertical-align: top;
+  transition: transform 0.2s ease-in-out;
+}
+.kindle-bookshelf-image:hover {
+  transform: scale(2);
 }
 .series-bookmark {
   position: absolute;
+  z-index: -1;
   background-color: #1d7484;
   color: #f5f5f5;
   font-size: 8px;

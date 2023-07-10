@@ -586,9 +586,10 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                                 , href <| "https://read.amazon.co.jp/manga/" ++ book.id
                                 , target "_blank"
                                 , title (bookMetadata book)
+                                , seriesColor seriesName
                                 , Html.Events.custom "click" (clickBookEvent book)
                                 ]
-                                [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 50, alt <| book.rawTitle ++ "の書影", seriesColor seriesName ] [] ]
+                                [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
                                 |> Tuple.pair (book.id ++ "-link")
                         )
                         books
