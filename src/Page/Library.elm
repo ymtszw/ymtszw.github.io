@@ -562,8 +562,9 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - [Kindleのコンテンツ一覧ページ](https://www.amazon.co.jp/hz/mycd/digital-console/contentlist/booksAll/dateDsc/)をTampermonkeyスクリプトでスクレイプ
 - 上記ページを不定期に手動で開いて蔵書DBを更新
 - サイトビルド時に蔵書DBを読み込み、ページを描画
+- **TODO**: 書架ページは事前共有鍵でロックする
+- **TODO**: 自分限定のレビュー機能をつけ、レビュー済みのシリーズについてのみ一般公開する（記事化する）
 - **TODO**: 検索機能提供
-- **TODO**: 自分限定のレビュー機能をつける
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
 """
         , details [ class "kindle-data" ]
