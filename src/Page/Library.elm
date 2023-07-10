@@ -1,6 +1,7 @@
 module Page.Library exposing (Data, Model, Msg, page)
 
 import Browser.Navigation
+import Color
 import DataSource exposing (DataSource)
 import DataSource.Env
 import DataSource.Http
@@ -13,6 +14,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Html.Keyed
+import Identicon
 import Json.Decode
 import KindleBookTitle
 import List.Extra
@@ -555,6 +557,9 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                     , stopPropagation = True
                     }
 
+            seriesColor sn =
+                style "border-top" <| "5px solid " ++ Color.toCssString (Identicon.defaultColor sn)
+
             seriesBookmark books =
                 case books of
                     [] ->
@@ -573,7 +578,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
             |> Dict.toList
             |> doSort m.sortKey
             |> List.concatMap
-                (\( _, books ) ->
+                (\( seriesName, books ) ->
                     List.map
                         (\book ->
                             a
@@ -583,7 +588,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                                 , title (bookMetadata book)
                                 , Html.Events.custom "click" (clickBookEvent book)
                                 ]
-                                [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
+                                [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 50, alt <| book.rawTitle ++ "の書影", seriesColor seriesName ] [] ]
                                 |> Tuple.pair (book.id ++ "-link")
                         )
                         books
