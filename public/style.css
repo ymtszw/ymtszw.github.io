@@ -83,6 +83,9 @@ a[target="_blank"]:not(.link-preview):not(.has-image)::after {
   height: 1em;
 }
 
+a.has-image {
+  display: contents;
+}
 a.has-image:hover {
   border-bottom: unset;
 }
@@ -715,13 +718,10 @@ nav.twilog-archive-navigation ul li.selected::after {
 }
 
 .kindle-bookshelf {
-  margin-top: 1em;
+  margin: 1em auto;
 }
 .kindle-bookshelf-image {
   vertical-align: top;
-}
-.series-bookmark-start::before {
-  content: " ";
 }
 .series-bookmark {
   position: absolute;

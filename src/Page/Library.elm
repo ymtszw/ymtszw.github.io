@@ -510,9 +510,9 @@ view _ _ m app =
         , div [] <| Markdown.parseAndRender Dict.empty """
 Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロントエンドがほしいと思っていたので自作し始めたページ。仕組み：
 
-- Kindleのコンテンツ一覧ページをTampermonkeyスクリプトでスクレイプ
-- 上記ページを不定期に手動で開いて蔵書DBファイルを更新
-- サイトビルド時に蔵書DBファイルを読み込み、ページを描画
+- [Kindleのコンテンツ一覧ページ](https://www.amazon.co.jp/hz/mycd/digital-console/contentlist/booksAll/dateDsc/)をTampermonkeyスクリプトでスクレイプ
+- 上記ページを不定期に手動で開いて蔵書DBを更新
+- サイトビルド時に蔵書DBを読み込み、ページを描画
 - **TODO**: 検索機能提供
 - **TODO**: 自分限定のレビュー機能をつける
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
@@ -558,13 +558,15 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
             seriesBookmark books =
                 case books of
                     [] ->
+                        -- MNH
                         []
 
-                    [ _ ] ->
-                        []
+                    [ singleton ] ->
+                        -- １冊だけのときは頭文字だけ
+                        [ ( singleton.id ++ "-series-bookmark", span [ class "series-bookmark" ] [ text (String.left 1 singleton.seriesName) ] ) ]
 
                     first :: _ ->
-                        -- ２冊以上あるときだけ表示
+                        -- ２冊以上あるときだけ名称を表示
                         [ ( first.id ++ "-series-bookmark", span [ class "series-bookmark", attribute "data-count" (String.fromInt (List.length books)) ] [ text first.seriesName ] ) ]
           in
           app.data.kindleBooks
