@@ -349,7 +349,8 @@ j2a =
 
 normalizeAuthor : String -> String
 normalizeAuthor raw =
-    if String.all Char.isAlphaNum raw then
+    if String.all (\c -> Char.toCode c < 256) raw then
+        -- Extended ASCIIまでは英字氏名とみなし、スペースを除去しない
         raw
 
     else
