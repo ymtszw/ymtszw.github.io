@@ -24,6 +24,7 @@ import Page exposing (PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Secrets as Secrets
 import Regex
+import Set exposing (Set)
 import Shared exposing (seoBase)
 import View exposing (View)
 
@@ -405,6 +406,7 @@ japaneseDate =
 
 type alias Model =
     { sortKey : SortKey
+    , filter : Filter
 
     -- ハーフモーダルのpopoverが閉じるとき、selectedBookをNothingにしてしまうと
     -- アニメーション中に先行してモーダル内が空になってしまい、スライドアウトがきれいに見えない。
@@ -423,6 +425,16 @@ type SortKey
 
 sortKeys =
     [ DATE_DESC, DATE_ASC, AUTHOR, TITLE ]
+
+
+type alias Filter =
+    { authors : Set String
+    , labels : Set String
+    }
+
+
+noFilter =
+    { authors = Set.empty, labels = Set.empty }
 
 
 sortKeyToString : SortKey -> String
@@ -462,19 +474,31 @@ stringToSortKey str =
 
 init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Cmd Msg )
 init _ _ _ =
-    ( { sortKey = DATE_DESC, popoverOpened = False, selectedBook = Nothing }, Cmd.none )
+    ( { sortKey = DATE_DESC, filter = noFilter, popoverOpened = False, selectedBook = Nothing }, Cmd.none )
 
 
 type Msg
     = SetSortKey String
+    | ToggleAuthorFilter Bool String
+    | ToggleLabelFilter Bool String
+    | ClearFilter
     | ToggleKindlePopover (Maybe ( SeriesName, ASIN ))
 
 
 update : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg )
-update _ _ _ _ msg m =
+update _ _ _ _ msg ({ filter } as m) =
     case msg of
         SetSortKey sk ->
             ( { m | sortKey = stringToSortKey sk }, Cmd.none )
+
+        ToggleAuthorFilter switch author ->
+            ( { m | filter = { filter | authors = toggle switch author filter.authors } }, Cmd.none )
+
+        ToggleLabelFilter switch author ->
+            ( { m | filter = { filter | labels = toggle switch author filter.labels } }, Cmd.none )
+
+        ClearFilter ->
+            ( { m | filter = noFilter }, Cmd.none )
 
         ToggleKindlePopover (Just selected) ->
             if m.popoverOpened then
@@ -486,6 +510,15 @@ update _ _ _ _ msg m =
 
         ToggleKindlePopover Nothing ->
             ( { m | popoverOpened = False }, Cmd.none )
+
+
+toggle : Bool -> comparable -> Set comparable -> Set comparable
+toggle switch e set =
+    if switch then
+        Set.insert e set
+
+    else
+        Set.remove e set
 
 
 head :
@@ -526,7 +559,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                 [ summary [] [ text <| "著者数: " ++ String.fromInt (Dict.size app.data.authors) ]
                 , table []
                     [ thead [] [ tr [] [ th [] [ text "著者名" ], th [] [ text "冊数" ] ] ]
-                    , tbody [] <| List.map (\( author, count ) -> tr [] [ td [] [ text author ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.authors
+                    , tbody [] <| List.map (\( author, count ) -> tr [] [ td [] [ filterableTag ToggleAuthorFilter m.filter.authors author ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.authors
                     ]
                 ]
             , details []
@@ -545,7 +578,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                 [ summary [] [ text <| "レーベル数: " ++ String.fromInt (Dict.size app.data.labels) ]
                 , table []
                     [ thead [] [ tr [] [ th [] [ text "レーベル名" ], th [] [ text "冊数" ] ] ]
-                    , tbody [] <| List.map (\( label_, count ) -> tr [] [ td [] [ text label_ ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.labels
+                    , tbody [] <| List.map (\( label_, count ) -> tr [] [ td [] [ filterableTag ToggleLabelFilter m.filter.labels label_ ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.labels
                     ]
                 ]
             ]
@@ -576,6 +609,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                         [ ( first.id ++ "-series-bookmark", span [ class "series-bookmark", attribute "data-count" (String.fromInt (List.length books)) ] [ text first.seriesName ] ) ]
           in
           app.data.kindleBooks
+            |> doFilter m.filter
             |> Dict.toList
             |> doSort m.sortKey
             |> List.concatMap
@@ -602,27 +636,27 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
     }
 
 
-bookMetadata : KindleBook -> String
-bookMetadata book =
+doFilter : Filter -> Dict SeriesName (List KindleBook) -> Dict SeriesName (List KindleBook)
+doFilter f =
     let
-        item ( label, value ) =
-            case value of
-                "" ->
-                    []
+        filterByAuthors authors books =
+            List.any (\author -> List.any (\book -> List.member author book.authors) books) authors
 
-                nonEmpty ->
-                    [ label ++ ": " ++ nonEmpty ]
+        filterByLabels labels books =
+            List.any (\label_ -> List.any (\book -> Maybe.withDefault "" book.label == label_) books) labels
     in
-    [ ( "タイトル", book.rawTitle )
-    , ( "ASIN", book.id )
-    , ( "巻数", String.fromInt book.volume )
-    , ( "シリーズ", book.seriesName )
-    , ( "著者", String.join ", " book.authors )
-    , ( "レーベル", Maybe.withDefault "" book.label )
-    , ( "購入日", Date.toIsoString book.acquiredDate )
-    ]
-        |> List.concatMap item
-        |> String.join "\n"
+    case ( Set.toList f.authors, Set.toList f.labels ) of
+        ( [], [] ) ->
+            identity
+
+        ( nonEmptyAuthors, [] ) ->
+            Dict.filter (\_ books -> filterByAuthors nonEmptyAuthors books)
+
+        ( [], nonEmptyLabels ) ->
+            Dict.filter (\_ books -> filterByLabels nonEmptyLabels books)
+
+        ( nonEmptyAuthors, nonEmptyLabels ) ->
+            Dict.filter (\_ books -> filterByAuthors nonEmptyAuthors books || filterByLabels nonEmptyLabels books)
 
 
 doSort : SortKey -> List ( SeriesName, List KindleBook ) -> List ( SeriesName, List KindleBook )
@@ -668,6 +702,42 @@ compareWithFirstAuthor ( _, books1 ) ( _, books2 ) =
 
         _ ->
             EQ
+
+
+bookMetadata : KindleBook -> String
+bookMetadata book =
+    let
+        item ( label, value ) =
+            case value of
+                "" ->
+                    []
+
+                nonEmpty ->
+                    [ label ++ ": " ++ nonEmpty ]
+    in
+    [ ( "タイトル", book.rawTitle )
+    , ( "ASIN", book.id )
+    , ( "巻数", String.fromInt book.volume )
+    , ( "シリーズ", book.seriesName )
+    , ( "著者", String.join ", " book.authors )
+    , ( "レーベル", Maybe.withDefault "" book.label )
+    , ( "購入日", Date.toIsoString book.acquiredDate )
+    ]
+        |> List.concatMap item
+        |> String.join "\n"
+
+
+filterableTag : (Bool -> String -> Msg) -> Set String -> String -> Html Msg
+filterableTag event filter word =
+    let
+        attrs =
+            if Set.member word filter then
+                [ class "active", onClick (event False word) ]
+
+            else
+                [ onClick (event True word) ]
+    in
+    button (class "kindle-filterable-tag" :: attrs) [ text word ]
 
 
 kindlePopover : Data -> Maybe ( SeriesName, ASIN ) -> List (Html Msg)

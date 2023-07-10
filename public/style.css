@@ -714,6 +714,32 @@ nav.twilog-archive-navigation ul li.selected::after {
   background-color: #eaeaea;
 }
 
+button.kindle-filterable-tag {
+  border-radius: 1em;
+}
+button.kindle-filterable-tag:focus {
+  border-color: #144f5a;
+  background-color: #144f5a;
+}
+button.kindle-filterable-tag::after {
+  display: inline-block;
+  content: "＋";
+  font-weight: bold;
+  margin-left: 0.5em;
+  transform: scale(1.2);
+  transition: transform 1s ease-in-out;
+}
+button.kindle-filterable-tag.active {
+  color: #fff;
+  background-color: #982c61;
+}
+button.kindle-filterable-tag.active:hover {
+  background-color: #95225a;
+}
+button.kindle-filterable-tag.active::after {
+  transform: scale(1.2) rotate(45deg);
+}
+
 .kindle-bookshelf {
   margin: 1em auto;
 }
