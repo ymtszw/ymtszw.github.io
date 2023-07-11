@@ -13,11 +13,17 @@ Symbol font
 Global
 
 */
-html, body {
+html,
+body {
   scroll-behavior: smooth;
 }
 
-h1,h2,h3,h4,h5,h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-decoration-color: #93ce5799;
@@ -83,7 +89,7 @@ a.has-image:hover {
 
 *:target {
   /* Yellow-ish highlight background on target text */
-  background-color: #fff9d7!important;
+  background-color: #fff9d7 !important;
 }
 
 .link-ish {
@@ -94,7 +100,7 @@ a:visited > .link-ish {
   color: #144f5a;
 }
 .link-ish:hover {
-  color: #982c61!important;
+  color: #982c61 !important;
 }
 
 /* Navigation for site metadata such as build status badge and author follow link.
@@ -144,7 +150,8 @@ body:has(.lightbox) {
   overflow: hidden;
 }
 .lightbox::after {
-  content: "☒";
+  content: "✕";
+  font-family: "Noto Sans Symbols 2", sans-serif;
   position: absolute;
   display: block;
   top: 0;
@@ -305,7 +312,7 @@ Tweet-like style on top of Sakura.css
   top: 0.5em;
   cursor: pointer;
   opacity: 0.1;
-  outline: none!important;
+  outline: none !important;
 }
 .tweet > input[type="checkbox"]:checked {
   opacity: 0.8;
@@ -313,7 +320,7 @@ Tweet-like style on top of Sakura.css
 .tweet > input[type="checkbox"] ~ .twilog-data {
   display: none;
   white-space: pre-wrap;
-  font-family: 'Cica', Courier, 'Courier New', monospace;
+  font-family: "Cica", Courier, "Courier New", monospace;
 }
 .tweet > input[type="checkbox"] ~ label {
   display: none;
@@ -558,17 +565,18 @@ nav.twilog-archive-navigation {
   margin: 1.3em 0;
 }
 
-nav.twilog-archive-navigation details {
+/* 他で使う場合にもtwilog-archive-navigation配下で使っていたスタイルをベースとして援用 */
+details {
   margin: 5px 0;
 }
 
-nav.twilog-archive-navigation details summary {
+details summary {
   font-size: 1.1em;
   font-weight: bold;
   color: #4a4a4a;
   cursor: pointer;
 }
-nav.twilog-archive-navigation details[open] > summary {
+details[open] > summary {
   /* Somewhat bright border-bottom, in-line with Sakura's link style */
   border-bottom: 2px solid #4a4a4a;
 }
@@ -683,4 +691,231 @@ nav.twilog-archive-navigation ul li.selected::after {
   color: #999;
   font-size: 0.8em;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* 書架 */
+body:has(.locked) {
+  max-height: 100vh;
+  overflow-y: hidden;
+}
+.locked {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+}
+.kindle-data {
+  font-size: 0.6em;
+}
+.kindle-data details {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.kindle-data details[open] > summary {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background-color: #f9f9f9;
+}
+.kindle-data thead > tr {
+  background-color: #ddd;
+}
+.kindle-data tbody > tr:nth-child(even) {
+  background-color: #eaeaea;
+}
+
+.kindle-control {
+  font-size: 14px;
+}
+.kindle-control > select {
+  font-weight: bold;
+}
+button.kindle-filterable-tag {
+  border-radius: 1em;
+  margin-left: 0.1em;
+}
+button.kindle-filterable-tag:focus {
+  border-color: #144f5a;
+  background-color: #144f5a;
+}
+button.kindle-filterable-tag::after {
+  display: inline-block;
+  content: "＋";
+  font-weight: bold;
+  margin-left: 0.5em;
+  transform: scale(1.2);
+  transition: transform 1s ease-in-out;
+}
+button.kindle-filterable-tag.active {
+  color: #fff;
+  background-color: #982c61;
+  border-color: #982c61;
+}
+button.kindle-filterable-tag.active:hover {
+  background-color: #95225a;
+}
+button.kindle-filterable-tag.active::after {
+  transform: scale(1.2) rotate(45deg);
+}
+
+.kindle-bookshelf {
+  margin: 1em auto;
+}
+.kindle-bookshelf a.has-image {
+  display: inline-block;
+}
+.kindle-bookshelf-image {
+  vertical-align: top;
+  transition: transform 0.2s ease-in-out;
+}
+.kindle-bookshelf-image:hover {
+  transform: scale(2);
+}
+.series-bookmark {
+  position: absolute;
+  z-index: -1;
+  background-color: #1d7484;
+  color: #f5f5f5;
+  font-size: 8px;
+  box-sizing: border-box;
+  max-width: 200px;
+  padding: 0 0.5em 0 1em;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transform: translate(-100%, -100%);
+  border-top-left-radius: 0.5lh;
+  border-bottom-left-radius: 0.5lh;
+}
+.series-bookmark[data-count="3"] {
+  max-width: 150px;
+}
+.series-bookmark[data-count="2"] {
+  max-width: 100px;
+}
+.series-bookmark[data-count="1"] {
+  max-width: 50px;
+}
+
+.kindle-popover {
+  display: block;
+  visibility: hidden;
+  opacity: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  max-width: 80vw;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px #999;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s ease-out;
+  transform: translateY(100%);
+}
+.kindle-popover:not([hidden]) {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+.kindle-popover > header {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  padding: 0 0.5em;
+  cursor: pointer;
+}
+.kindle-popover > header::after {
+  content: "✕";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  display: contents;
+}
+.kindle-popover > header:hover {
+  background-color: #eaeaea;
+}
+.kindle-popover > main {
+  display: flex;
+  padding-top: 0.5em;
+  padding: 0;
+  width: 100%;
+  gap: 1em;
+}
+.kindle-popover > main > :is(.prev-volume, .next-volume) {
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  width: 40px;
+  padding: 60px 3px;
+  box-sizing: border-box;
+}
+.kindle-popover > main > :is(.prev-volume, .next-volume).active:hover {
+  background-color: #eaeaea;
+  cursor: pointer;
+}
+.kindle-popover > main > article {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+@media (max-width: 699px) {
+  .kindle-popover {
+    max-width: 95vw;
+  }
+  .kindle-popover > main {
+    gap: 0.2em;
+  }
+  .kindle-popover > main > article {
+    max-height: 85vh;
+    flex-direction: column;
+  }
+}
+.kindle-popover > main > article > img {
+  width: 150px;
+  object-fit: contain;
+  align-self: center; /* Small screenでいい感じになる */
+}
+.kindle-popover > main > article > div {
+  flex-grow: 1;
+}
+.kindle-popover > main > article > div > h5 {
+  margin-top: 0;
+  word-break: break-all;
+}
+.kindle-popover > main > article > div > .cloud-reader-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 0 0.5em;
+  line-height: 2em;
+  color: #f9f9f9;
+  background-color: #408fdf;
+  border-radius: 5px;
+}
+.kindle-popover > main > article > div > .cloud-reader-link:hover {
+  border-bottom: initial;
+  background-color: #2a84dd;
+}
+.kindle-popover > main > article > div > .cloud-reader-link::before {
+  content: "📚";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  margin-right: 0.2em;
+}
+.kindle-popover > main > article > div > .cloud-reader-link::after {
+  content: "";
+  display: none;
+}
+.kindle-popover > main > article > div > ul {
+  font-size: 14px;
+}
+.kindle-popover > main > article.kindle-library-lock > form {
+  margin: 15vh auto;
+}
+.kindle-popover > main > article.kindle-library-lock > form::before {
+  content: "🔐";
+  display: inline-block;
+  position: absolute;
+  font-size: 4em;
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  transform: translate(-100%, -50%) rotate(10deg);
 }

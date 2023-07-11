@@ -148,6 +148,7 @@ makeSitemapEntries getStaticRoutes =
                         |> Just
 
                 Library ->
+                    -- 書架ページは自分専用で検索に載せないが、書架ページでレビューを投稿すると一般公開記事が生成される仕組み
                     Nothing
 
                 Twilogs ->

@@ -85,8 +85,8 @@ removeRootSlash rawUrl =
 
 
 makeAmazonUrl : String -> String -> String
-makeAmazonUrl amazonAssociateTag rawUrl =
-    Url.fromString rawUrl
+makeAmazonUrl amazonAssociateTag rawUrlOrAsin =
+    Url.fromString rawUrlOrAsin
         |> Maybe.map
             (\url ->
                 case ( url.host, String.contains "/dp/" url.path ) of
@@ -94,9 +94,13 @@ makeAmazonUrl amazonAssociateTag rawUrl =
                         embedTag amazonAssociateTag url
 
                     _ ->
-                        rawUrl
+                        Url.toString url
             )
-        |> Maybe.withDefault rawUrl
+        |> Maybe.withDefault (dpUrlWithTag amazonAssociateTag rawUrlOrAsin)
+
+
+dpUrlWithTag amazonAssociateTag asin =
+    "https://www.amazon.co.jp/dp/" ++ asin ++ "?tag=" ++ amazonAssociateTag
 
 
 embedTag : String -> Url.Url -> String
