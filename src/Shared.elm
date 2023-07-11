@@ -36,6 +36,7 @@ module Shared exposing
     )
 
 import Browser.Dom
+import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Env
 import DataSource.File
@@ -58,6 +59,8 @@ import Markdown
 import MimeType exposing (MimeImage(..), MimeType(..))
 import OptimizedDecoder
 import Pages
+import Pages.Flags
+import Pages.PageUrl
 import Pages.Secrets
 import Pages.Url
 import Path exposing (Path)
@@ -127,13 +130,38 @@ type SharedMsg
 type alias Model =
     { links : Dict String LinkPreview.Metadata
     , lightbox : Maybe View.LightboxMedia
+    , storedLibraryKey : Maybe String
     }
 
 
-init _ _ _ =
-    ( { links = Dict.empty, lightbox = Nothing }
+init :
+    Maybe Browser.Navigation.Key
+    -> Pages.Flags.Flags
+    ->
+        Maybe
+            { path :
+                { path : Path
+                , query : Maybe String
+                , fragment : Maybe String
+                }
+            , metadata : Maybe Route.Route
+            , pageUrl : Maybe Pages.PageUrl.PageUrl
+            }
+    -> ( Model, Cmd Msg )
+init _ flags _ =
+    ( { links = Dict.empty, lightbox = Nothing, storedLibraryKey = decodeStoredLibraryKey flags }
     , Cmd.none
     )
+
+
+decodeStoredLibraryKey flags =
+    case flags of
+        Pages.Flags.PreRenderFlags ->
+            Nothing
+
+        Pages.Flags.BrowserFlags v ->
+            Json.Decode.decodeValue (Json.Decode.field "libraryKey" (OptimizedDecoder.decoder nonEmptyString)) v
+                |> Result.toMaybe
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

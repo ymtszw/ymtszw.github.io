@@ -7,6 +7,8 @@ export default {
     console.log("App loaded", app);
   },
   flags: function () {
-    return "You can decode this in Shared.elm using OptimizedDecoder.string!";
+    return {
+      libraryKey: localStorage.getItem("LibraryKey"),
+    };
   },
 };

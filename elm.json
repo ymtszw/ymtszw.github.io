@@ -30,6 +30,7 @@
             "gdamjan/elm-identicon": "1.0.0",
             "jinjor/elm-debounce": "3.0.0",
             "justinmimbs/date": "4.0.1",
+            "robinheghan/murmur3": "1.0.0",
             "rtfeldman/elm-hex": "1.0.0",
             "rtfeldman/elm-iso8601-date-strings": "1.1.4",
             "sporto/qs": "2.0.0"
@@ -54,7 +55,6 @@
             "miniBill/elm-codec": "2.0.0",
             "miniBill/elm-unicode": "1.0.3",
             "noahzgordon/elm-color-extra": "1.0.2",
-            "robinheghan/murmur3": "1.0.0",
             "ryannhg/date-format": "2.3.0",
             "stil4m/elm-syntax": "7.2.9",
             "stil4m/structured-writer": "1.0.3",
