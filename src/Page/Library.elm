@@ -19,6 +19,7 @@ import Json.Decode
 import KindleBookTitle
 import List.Extra
 import Markdown
+import Murmur3
 import OptimizedDecoder
 import Page exposing (PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
@@ -53,6 +54,7 @@ type alias Data =
     , authors : Dict String Int
     , labels : Dict String Int
     , amazonAssociateTag : String
+    , libraryKeySeedHash : ( Int, Int )
     }
 
 
@@ -78,19 +80,39 @@ type alias SeriesName =
 
 data : DataSource Data
 data =
-    kindleBooks
-        |> DataSource.map
-            (\booksByAsin ->
-                let
-                    ( authors, labels ) =
-                        countByAuthorsAndLabels booksByAsin
-                in
-                Data (groupBySeriesName booksByAsin) (Dict.size booksByAsin) authors labels
+    libraryKeySeedHash
+        |> DataSource.andThen
+            (\lksh ->
+                kindleBooks lksh
+                    |> DataSource.map
+                        (\booksByAsin ->
+                            let
+                                ( authors, labels ) =
+                                    countByAuthorsAndLabels booksByAsin
+                            in
+                            Data (groupBySeriesName booksByAsin) (Dict.size booksByAsin) authors labels
+                        )
+                    |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
+                    |> DataSource.andMap (DataSource.succeed lksh)
             )
-        |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
 
 
-kindleBooks =
+libraryKeySeedHash : DataSource ( Int, Int )
+libraryKeySeedHash =
+    DataSource.Env.load "LIBRARY_KEY_SEED_HASH"
+        |> DataSource.andThen
+            (\s ->
+                case String.split "." s |> List.filterMap String.toInt of
+                    [ seed, hash ] ->
+                        DataSource.succeed ( seed, hash )
+
+                    _ ->
+                        DataSource.fail "LIBRARY_KEY_SEED_HASH is invalid"
+            )
+
+
+kindleBooks ( _, derivedKey ) =
+    -- TODO derivedKeyを鍵として蔵書DBの中身を対象暗号化しておけば、真に保護されたページを実現できる
     DataSource.Env.load "BOOKS_JSON_URL"
         |> DataSource.andThen
             (\booksJsonUrl ->
@@ -422,6 +444,13 @@ type alias Model =
     -- そこで開閉状態と選択状態を分けることで、モーダル内のコンテンツは描画したままに保つ
     , popoverOpened : Bool
     , selectedBook : Maybe ( SeriesName, ASIN )
+
+    -- Libraryページをパスワード保護している
+    -- 1) 初期状態ではFalseで、書架部分は非表示
+    -- 2) localStorage経由でshared.storedLibraryKeyを取得し、unlockできればTrueになり、書架部分を表示
+    -- 3) 非表示な書架部分には代わりにパスワードフォームを表示し、unlockできればTrueになり、書架部分を表示
+    --    その際、成功したパスワードはlocalStorageに保存してその端末での再入力を不要にする
+    , unlocked : Bool
     }
 
 
@@ -482,8 +511,24 @@ stringToSortKey str =
 
 
 init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Cmd Msg )
-init _ _ _ =
-    ( { sortKey = DATE_DESC, filter = noFilter, popoverOpened = False, selectedBook = Nothing }, Cmd.none )
+init _ shared app =
+    ( { sortKey = DATE_DESC
+      , filter = noFilter
+      , popoverOpened = False
+      , selectedBook = Nothing
+      , unlocked = Maybe.withDefault False (Maybe.map (unlockLibrary app.data.libraryKeySeedHash) shared.storedLibraryKey)
+      }
+    , Cmd.none
+    )
+
+
+type alias Password =
+    String
+
+
+unlockLibrary : ( Int, Int ) -> Password -> Bool
+unlockLibrary ( seed, hash ) pw =
+    Murmur3.hashString seed pw == hash
 
 
 type Msg
@@ -491,10 +536,11 @@ type Msg
     | ToggleAuthorFilter Bool String
     | ToggleLabelFilter Bool String
     | ToggleKindlePopover (Maybe ( SeriesName, ASIN ))
+    | UnlockLibrary Password
 
 
 update : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg )
-update _ _ _ _ msg ({ filter } as m) =
+update _ _ _ app msg ({ filter } as m) =
     case msg of
         SetSortKey sk ->
             ( { m | sortKey = stringToSortKey sk }, Cmd.none )
@@ -523,6 +569,14 @@ update _ _ _ _ msg ({ filter } as m) =
 
         ToggleKindlePopover Nothing ->
             ( { m | popoverOpened = False }, Cmd.none )
+
+        UnlockLibrary pw ->
+            if unlockLibrary app.data.libraryKeySeedHash pw then
+                -- TODO 解錠に成功したパスワードをlocalStorageに保存する
+                ( { m | unlocked = True }, Cmd.none )
+
+            else
+                ( m, Cmd.none )
 
 
 toggle : Bool -> comparable -> Set comparable -> Set comparable
@@ -556,7 +610,9 @@ view _ _ m app =
     { title = "書架"
     , body =
         [ h1 [] [ text "書架" ]
-        , div [] <| Markdown.parseAndRender Dict.empty """
+        , div [] <|
+            Markdown.parseAndRender Dict.empty <|
+                """
 Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロントエンドがほしいと思っていたので自作し始めたページ。仕組み：
 
 - [Kindleのコンテンツ一覧ページ](https://www.amazon.co.jp/hz/mycd/digital-console/contentlist/booksAll/dateDsc/)をTampermonkeyスクリプトでスクレイプ
@@ -567,7 +623,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - **TODO**: 検索機能提供
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
 """
-        , details [ class "kindle-data" ]
+        , details [ class "kindle-data", classList [ ( "locked", not m.unlocked ) ] ]
             [ summary [] [ text <| "蔵書数: " ++ String.fromInt app.data.numberOfBooks ]
             , details []
                 [ summary [] [ text <| "シリーズ数: " ++ String.fromInt (Dict.size app.data.kindleBooks) ++ " （１冊しか存在・購入していないものも含む）" ]
@@ -596,7 +652,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                     ]
                 ]
             ]
-        , div [ class "kindle-control" ] <|
+        , div [ class "kindle-control", classList [ ( "locked", not m.unlocked ) ] ] <|
             (select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys)
                 :: (List.map (filterableTag ToggleAuthorFilter m.filter.authors) <| Set.toList m.filter.authors)
                 ++ List.map (filterableTag ToggleLabelFilter m.filter.labels) (Set.toList m.filter.labels)
@@ -643,8 +699,9 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                         books
                         ++ seriesBookmark books
                 )
-            |> Html.Keyed.node "div" [ class "kindle-bookshelf" ]
+            |> Html.Keyed.node "div" [ class "kindle-bookshelf", classList [ ( "locked", not m.unlocked ) ] ]
         , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.filter m.selectedBook)
+        , div [ class "kindle-popover", hidden m.unlocked ] kindleLibraryLock
         ]
     }
 
@@ -751,6 +808,16 @@ filterableTag event filter word =
                 [ onClick (event True word) ]
     in
     button (class "kindle-filterable-tag" :: attrs) [ text word ]
+
+
+kindleLibraryLock : List (Html Msg)
+kindleLibraryLock =
+    [ main_ []
+        [ article [ class "kindle-library-lock" ]
+            [ Html.form [] [ input [ type_ "password", autofocus True, onInput UnlockLibrary ] [] ]
+            ]
+        ]
+    ]
 
 
 kindlePopover : Data -> Filter -> Maybe ( SeriesName, ASIN ) -> List (Html Msg)

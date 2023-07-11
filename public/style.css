@@ -694,6 +694,14 @@ nav.twilog-archive-navigation ul li.selected::after {
 }
 
 /* 書架 */
+.locked {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+  max-height: 100vh;
+  overflow-x: visible;
+  overflow-y: hidden;
+}
 .kindle-data {
   font-size: 0.6em;
 }
@@ -898,4 +906,15 @@ button.kindle-filterable-tag.active::after {
 }
 .kindle-popover > main > article > div > ul {
   font-size: 14px;
+}
+.kindle-popover > main > article.kindle-library-lock > form {
+  margin: 15vh auto;
+}
+.kindle-popover > main > article.kindle-library-lock > form::before {
+  content: "🔐";
+  display: inline-block;
+  position: absolute;
+  font-size: 4em;
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  transform: translate(-100%, -50%) rotate(10deg);
 }
