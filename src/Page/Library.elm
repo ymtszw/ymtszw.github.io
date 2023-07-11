@@ -16,6 +16,7 @@ import Html.Events exposing (onClick, onInput)
 import Html.Keyed
 import Identicon
 import Json.Decode
+import Json.Encode
 import KindleBookTitle
 import List.Extra
 import Markdown
@@ -25,6 +26,7 @@ import Page exposing (PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Secrets as Secrets
 import Regex
+import RuntimePorts
 import Set exposing (Set)
 import Shared exposing (seoBase)
 import View exposing (View)
@@ -572,8 +574,13 @@ update _ _ _ app msg ({ filter } as m) =
 
         UnlockLibrary pw ->
             if unlockLibrary app.data.libraryKeySeedHash pw then
-                -- TODO 解錠に成功したパスワードをlocalStorageに保存する
-                ( { m | unlocked = True }, Cmd.none )
+                ( { m | unlocked = True }
+                , RuntimePorts.toJs <|
+                    Json.Encode.object
+                        [ ( "tag", Json.Encode.string "StoreLibraryKey" )
+                        , ( "value", Json.Encode.string pw )
+                        ]
+                )
 
             else
                 ( m, Cmd.none )
@@ -592,12 +599,14 @@ head :
     StaticPayload Data RouteParams
     -> List Head.Tag
 head _ =
-    Seo.summaryLarge
+    (Seo.summaryLarge
         { seoBase
             | title = Shared.makeTitle "書架"
-            , description = "Kindle蔵書リスト。基本的には自分用のポータルページだが、将来的にレビュー機能をつけて公開したい"
+            , description = "Kindle蔵書リスト。基本的には自分用のページで検索にも載せないが、レビュー機能を持ち、レビューを投稿するとシリーズ単位で一般公開記事化される仕組み"
         }
         |> Seo.website
+    )
+        ++ [ Head.metaName "robots" (Head.raw "noindex,nofollow,noarchive,nocache") ]
 
 
 view :
@@ -618,10 +627,11 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - [Kindleのコンテンツ一覧ページ](https://www.amazon.co.jp/hz/mycd/digital-console/contentlist/booksAll/dateDsc/)をTampermonkeyスクリプトでスクレイプ
 - 上記ページを不定期に手動で開いて蔵書DBを更新
 - サイトビルド時に蔵書DBを読み込み、ページを描画
-- **TODO**: 書架ページは事前共有鍵でロックする
-- **TODO**: 自分限定のレビュー機能をつけ、レビュー済みのシリーズについてのみ一般公開する（記事化する）
-- **TODO**: 検索機能提供
+- ただし書架は検索に載せない自分専用、事前共有鍵でロック
+- **TODO**: レビュー機能＆レビュー自動記事化
+- **TODO**: 検索機能
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
+- **TODO**: DataSourceを事前暗号化→ロック解除時に復号
 """
         , details [ class "kindle-data", classList [ ( "locked", not m.unlocked ) ] ]
             [ summary [] [ text <| "蔵書数: " ++ String.fromInt app.data.numberOfBooks ]

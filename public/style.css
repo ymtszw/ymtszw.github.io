@@ -694,13 +694,14 @@ nav.twilog-archive-navigation ul li.selected::after {
 }
 
 /* 書架 */
+body:has(.locked) {
+  max-height: 100vh;
+  overflow-y: hidden;
+}
 .locked {
   filter: blur(5px);
   user-select: none;
   pointer-events: none;
-  max-height: 100vh;
-  overflow-x: visible;
-  overflow-y: hidden;
 }
 .kindle-data {
   font-size: 0.6em;
