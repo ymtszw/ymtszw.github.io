@@ -52,6 +52,8 @@ jobs:
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
           TWILOG_SEARCH_API_KEY: ${{ secrets.TWILOG_SEARCH_API_KEY }}
           AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
+          BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
+          LIBRARY_KEY_SEED_HASH: ${{ secrets.LIBRARY_KEY_SEED_HASH }}
       - uses: actions/upload-pages-artifact@v1
         with:
           path: ./dist
