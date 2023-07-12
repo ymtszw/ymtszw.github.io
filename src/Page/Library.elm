@@ -1,5 +1,6 @@
 module Page.Library exposing (Data, Model, Msg, page)
 
+import Browser.Dom
 import Browser.Navigation
 import Color
 import DataSource exposing (DataSource)
@@ -29,6 +30,7 @@ import Regex
 import RuntimePorts
 import Set exposing (Set)
 import Shared exposing (seoBase)
+import Task
 import View exposing (View)
 
 
@@ -539,6 +541,7 @@ type Msg
     | ToggleLabelFilter Bool String
     | ToggleKindlePopover (Maybe ( SeriesName, ASIN ))
     | UnlockLibrary Password
+    | LockLibrary
 
 
 update : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg )
@@ -584,6 +587,18 @@ update _ _ _ app msg ({ filter } as m) =
 
             else
                 ( m, Cmd.none )
+
+        LockLibrary ->
+            ( { m | unlocked = False }
+            , Cmd.batch
+                [ RuntimePorts.toJs <|
+                    Json.Encode.object
+                        [ ( "tag", Json.Encode.string "StoreLibraryKey" )
+                        , ( "value", Json.Encode.string "" )
+                        ]
+                , Browser.Dom.setViewport 0 0 |> Task.perform (\_ -> ToggleKindlePopover Nothing)
+                ]
+            )
 
 
 toggle : Bool -> comparable -> Set comparable -> Set comparable
@@ -710,6 +725,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                         ++ seriesBookmark books
                 )
             |> Html.Keyed.node "div" [ class "kindle-bookshelf", classList [ ( "locked", not m.unlocked ) ] ]
+        , lockKindleLibrary
         , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.filter m.selectedBook)
         , div [ class "kindle-popover", hidden m.unlocked ] kindleLibraryLock
         ]
@@ -828,6 +844,11 @@ kindleLibraryLock =
             ]
         ]
     ]
+
+
+lockKindleLibrary : Html Msg
+lockKindleLibrary =
+    button [ onClick LockLibrary ] [ text "再度ロックする（テスト用）" ]
 
 
 kindlePopover : Data -> Filter -> Maybe ( SeriesName, ASIN ) -> List (Html Msg)
