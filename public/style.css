@@ -716,8 +716,14 @@ body:has(.locked) {
   top: 0;
   background-color: #f9f9f9;
 }
-.kindle-data thead > tr {
-  background-color: #ddd;
+.kindle-data thead > th {
+  color: #fff;
+  background-color: #408fdf;
+
+  /* elm-sortable-table */
+  &:has(span) {
+    cursor: pointer;
+  }
 }
 .kindle-data tbody > tr:nth-child(even) {
   background-color: #eaeaea;
@@ -768,7 +774,7 @@ button.kindle-filterable-tag.active::after {
   transition: transform 0.2s ease-in-out;
 }
 .kindle-bookshelf-image:hover {
-  transform: scale(2);
+  transform: scale(1.5);
 }
 .series-bookmark {
   position: absolute;

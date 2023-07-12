@@ -30,6 +30,7 @@ import Regex
 import RuntimePorts
 import Set exposing (Set)
 import Shared exposing (seoBase)
+import Table
 import Task
 import View exposing (View)
 
@@ -455,6 +456,11 @@ type alias Model =
     -- 3) 非表示な書架部分には代わりにパスワードフォームを表示し、unlockできればTrueになり、書架部分を表示
     --    その際、成功したパスワードはlocalStorageに保存してその端末での再入力を不要にする
     , unlocked : Bool
+
+    -- kindle-dataセクションのテーブルはelm-sortable-tableで可動式にしている
+    , seriesTableState : Table.State
+    , authorsTableState : Table.State
+    , labelsTableState : Table.State
     }
 
 
@@ -521,6 +527,9 @@ init _ shared app =
       , popoverOpened = False
       , selectedBook = Nothing
       , unlocked = Maybe.withDefault False (Maybe.map (unlockLibrary app.data.libraryKeySeedHash) shared.storedLibraryKey)
+      , seriesTableState = Table.initialSort ""
+      , authorsTableState = Table.initialSort ""
+      , labelsTableState = Table.initialSort ""
       }
     , Cmd.none
     )
@@ -542,6 +551,9 @@ type Msg
     | ToggleKindlePopover (Maybe ( SeriesName, ASIN ))
     | UnlockLibrary Password
     | LockLibrary
+    | SeriesTableMsg Table.State
+    | AuthorsTableMsg Table.State
+    | LabelsTableMsg Table.State
 
 
 update : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg )
@@ -600,6 +612,15 @@ update _ _ _ app msg ({ filter } as m) =
                 ]
             )
 
+        SeriesTableMsg state ->
+            ( { m | seriesTableState = state }, Cmd.none )
+
+        AuthorsTableMsg state ->
+            ( { m | authorsTableState = state }, Cmd.none )
+
+        LabelsTableMsg state ->
+            ( { m | labelsTableState = state }, Cmd.none )
+
 
 toggle : Bool -> comparable -> Set comparable -> Set comparable
 toggle switch e set =
@@ -648,35 +669,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
 - **TODO**: DataSourceを事前暗号化→ロック解除時に復号
 """
-        , details [ class "kindle-data", classList [ ( "locked", not m.unlocked ) ] ]
-            [ summary [] [ text <| "蔵書数: " ++ String.fromInt app.data.numberOfBooks ]
-            , details []
-                [ summary [] [ text <| "シリーズ数: " ++ String.fromInt (Dict.size app.data.kindleBooks) ++ " （１冊しか存在・購入していないものも含む）" ]
-                , p []
-                    [ text "※KindleBookTitleパーサが対応できない形式のタイトル表記については、人力注釈が必要。"
-                    , br [] []
-                    , text "例えば現状、サブタイトルがある形式に対応していない。"
-                    ]
-                , table []
-                    [ thead [] [ tr [] [ th [] [ text "シリーズ名" ], th [] [ text "購入済み冊数" ] ] ]
-                    , tbody [] <| List.map (\( seriesName, books ) -> tr [] [ td [] [ text seriesName ], td [] [ text (String.fromInt (List.length books)) ] ]) <| Dict.toList app.data.kindleBooks
-                    ]
-                ]
-            , details []
-                [ summary [] [ text <| "著者数: " ++ String.fromInt (Dict.size app.data.authors) ]
-                , table []
-                    [ thead [] [ tr [] [ th [] [ text "著者名" ], th [] [ text "冊数" ] ] ]
-                    , tbody [] <| List.map (\( author, count ) -> tr [] [ td [] [ filterableTag ToggleAuthorFilter m.filter.authors author ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.authors
-                    ]
-                ]
-            , details []
-                [ summary [] [ text <| "レーベル数: " ++ String.fromInt (Dict.size app.data.labels) ]
-                , table []
-                    [ thead [] [ tr [] [ th [] [ text "レーベル名" ], th [] [ text "冊数" ] ] ]
-                    , tbody [] <| List.map (\( label_, count ) -> tr [] [ td [] [ filterableTag ToggleLabelFilter m.filter.labels label_ ], td [] [ text (String.fromInt count) ] ]) <| Dict.toList app.data.labels
-                    ]
-                ]
-            ]
+        , kindleData m app
         , div [ class "kindle-control", classList [ ( "locked", not m.unlocked ) ] ] <|
             (select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys)
                 :: (List.map (filterableTag ToggleAuthorFilter m.filter.authors) <| Set.toList m.filter.authors)
@@ -730,6 +723,70 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
         , div [ class "kindle-popover", hidden m.unlocked ] kindleLibraryLock
         ]
     }
+
+
+kindleData m app =
+    details [ class "kindle-data", classList [ ( "locked", not m.unlocked ) ] ]
+        [ summary [] [ text <| "蔵書数: " ++ String.fromInt app.data.numberOfBooks ]
+        , details []
+            [ summary [] [ text <| "シリーズ数: " ++ String.fromInt (Dict.size app.data.kindleBooks) ++ " （１冊しか存在・購入していないものも含む）" ]
+            , p []
+                [ text "※KindleBookTitleパーサが対応できない形式のタイトル表記については、人力注釈が必要。"
+                , br [] []
+                , text "例えば現状、サブタイトルがある形式に対応していない。"
+                ]
+            , Table.view
+                (Table.config
+                    { toId = \( seriesName, _ ) -> seriesName
+                    , toMsg = SeriesTableMsg
+                    , columns =
+                        [ Table.stringColumn "シリーズ名" (\( seriesName, _ ) -> seriesName)
+                        , Table.intColumn "冊数" (\( _, books ) -> List.length books)
+                        ]
+                    }
+                )
+                m.seriesTableState
+                (Dict.toList app.data.kindleBooks)
+            ]
+        , details []
+            [ summary [] [ text <| "著者数: " ++ String.fromInt (Dict.size app.data.authors) ]
+            , Table.view
+                (Table.config
+                    { toId = \( author, _ ) -> author
+                    , toMsg = AuthorsTableMsg
+                    , columns =
+                        [ Table.veryCustomColumn
+                            { name = "著者名"
+                            , sorter = Table.decreasingOrIncreasingBy <| \( author, _ ) -> author
+                            , viewData = \( author, _ ) -> Table.HtmlDetails [] [ filterableTag ToggleAuthorFilter m.filter.authors author ]
+                            }
+                        , Table.intColumn "冊数" (\( _, count ) -> count)
+                        ]
+                    }
+                )
+                m.authorsTableState
+                (Dict.toList app.data.authors)
+            ]
+        , details []
+            [ summary [] [ text <| "レーベル数: " ++ String.fromInt (Dict.size app.data.labels) ]
+            , Table.view
+                (Table.config
+                    { toId = \( label, _ ) -> label
+                    , toMsg = LabelsTableMsg
+                    , columns =
+                        [ Table.veryCustomColumn
+                            { name = "レーベル名"
+                            , sorter = Table.decreasingOrIncreasingBy <| \( label, _ ) -> label
+                            , viewData = \( label, _ ) -> Table.HtmlDetails [] [ filterableTag ToggleAuthorFilter m.filter.labels label ]
+                            }
+                        , Table.intColumn "冊数" (\( _, count ) -> count)
+                        ]
+                    }
+                )
+                m.labelsTableState
+                (Dict.toList app.data.labels)
+            ]
+        ]
 
 
 doFilter : Filter -> Dict SeriesName (List KindleBook) -> Dict SeriesName (List KindleBook)
