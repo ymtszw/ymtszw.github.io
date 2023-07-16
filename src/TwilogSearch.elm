@@ -152,9 +152,8 @@ searchResultDecoder term =
 
 searchBox : (Msg -> msg) -> (Twilog -> Html msg) -> Model -> Html msg
 searchBox tagger renderer { searchResults, searching } =
-    div [ class "search" ]
-        [ label [ for "twilogs-search", classList [ ( "spinner", searching ) ] ] [ text "検索" ]
-        , input
+    div [ class "search", classList [ ( "spinner", searching ) ] ]
+        [ input
             [ type_ "search"
             , id "twilogs-search"
             , placeholder "Twilog検索"
