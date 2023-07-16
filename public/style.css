@@ -766,11 +766,14 @@ button.kindle-filterable-tag.active::after {
 .kindle-bookshelf {
   margin: 1em auto;
 }
-.kindle-bookshelf a.has-image {
+.kindle-bookshelf .has-image {
   display: inline-block;
 }
 .kindle-bookshelf-image {
   vertical-align: top;
+  width: 50px;
+  min-height: 70px;
+  margin-bottom: 30px;
   transition: transform 0.2s ease-in-out;
 }
 .kindle-bookshelf-image:hover {

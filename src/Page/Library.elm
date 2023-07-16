@@ -674,55 +674,77 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
             (select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys)
                 :: (List.map (filterableTag ToggleAuthorFilter m.filter.authors) <| Set.toList m.filter.authors)
                 ++ List.map (filterableTag ToggleLabelFilter m.filter.labels) (Set.toList m.filter.labels)
-        , let
-            clickBookEvent book =
-                Json.Decode.succeed
-                    { message = ToggleKindlePopover (Just ( book.seriesName, book.id ))
-                    , preventDefault = True
-                    , stopPropagation = True
-                    }
-
-            seriesColor sn =
-                style "border-top" <| "5px solid " ++ Color.toCssString (Identicon.defaultColor sn)
-
-            seriesBookmark books =
-                case books of
-                    [] ->
-                        -- MNH
-                        []
-
-                    first :: _ ->
-                        -- ２冊以上あるときだけ名称を表示
-                        [ ( first.id ++ "-series-bookmark", span [ class "series-bookmark", attribute "data-count" (String.fromInt (List.length books)) ] [ text first.seriesName ] ) ]
-          in
-          app.data.kindleBooks
-            |> doFilter m.filter
-            |> Dict.toList
-            |> doSort m.sortKey
-            |> List.concatMap
-                (\( seriesName, books ) ->
-                    List.map
-                        (\book ->
-                            a
-                                [ class "has-image"
-                                , href <| "https://read.amazon.co.jp/manga/" ++ book.id
-                                , target "_blank"
-                                , title (bookMetadata book)
-                                , seriesColor seriesName
-                                , Html.Events.custom "click" (clickBookEvent book)
-                                ]
-                                [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
-                                |> Tuple.pair (book.id ++ "-link")
-                        )
-                        books
-                        ++ seriesBookmark books
-                )
-            |> Html.Keyed.node "div" [ class "kindle-bookshelf", classList [ ( "locked", not m.unlocked ) ] ]
+        , kindleBookshelf m app
         , lockKindleLibrary
         , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.filter m.selectedBook)
         , div [ class "kindle-popover", hidden m.unlocked ] kindleLibraryLock
         ]
     }
+
+
+kindleBookshelf m app =
+    let
+        clickBookEvent book =
+            Json.Decode.succeed
+                { message = ToggleKindlePopover (Just ( book.seriesName, book.id ))
+                , preventDefault = True
+                , stopPropagation = True
+                }
+
+        seriesColor sn =
+            Color.toCssString (Identicon.defaultColor sn)
+
+        seriesBookmark books =
+            case books of
+                [] ->
+                    -- MNH
+                    []
+
+                first :: _ ->
+                    [ Tuple.pair (first.id ++ "-series-bookmark") <|
+                        span [ class "series-bookmark", attribute "data-count" (String.fromInt (List.length books)) ]
+                            [ text <|
+                                if m.unlocked then
+                                    first.seriesName
+
+                                else
+                                    String.map (\_ -> 'X') first.seriesName
+                            ]
+                    ]
+    in
+    app.data.kindleBooks
+        |> doFilter m.filter
+        |> Dict.toList
+        |> doSort m.sortKey
+        |> List.concatMap
+            (\( seriesName, books ) ->
+                List.map
+                    (\book ->
+                        Tuple.pair (book.id ++ "-link") <|
+                            if m.unlocked then
+                                a
+                                    [ class "has-image"
+                                    , href <| "https://read.amazon.co.jp/manga/" ++ book.id
+                                    , target "_blank"
+                                    , title (bookMetadata book)
+                                    , style "border-top" <| "5px solid " ++ seriesColor seriesName
+                                    , Html.Events.custom "click" (clickBookEvent book)
+                                    ]
+                                    [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
+
+                            else
+                                a
+                                    [ class "has-image"
+                                    , href "https://read.amazon.co.jp/"
+                                    , target "_blank"
+                                    , style "border-top" <| "5px solid " ++ seriesColor seriesName
+                                    ]
+                                    [ div [ class "kindle-bookshelf-image", style "background-color" <| seriesColor seriesName ] [] ]
+                    )
+                    books
+                    ++ seriesBookmark books
+            )
+        |> Html.Keyed.node "div" [ class "kindle-bookshelf", classList [ ( "locked", not m.unlocked ) ] ]
 
 
 kindleData m app =
@@ -746,7 +768,12 @@ kindleData m app =
                     }
                 )
                 m.seriesTableState
-                (Dict.toList app.data.kindleBooks)
+                (if m.unlocked then
+                    Dict.toList app.data.kindleBooks
+
+                 else
+                    []
+                )
             ]
         , details []
             [ summary [] [ text <| "著者数: " ++ String.fromInt (Dict.size app.data.authors) ]
@@ -765,7 +792,12 @@ kindleData m app =
                     }
                 )
                 m.authorsTableState
-                (Dict.toList app.data.authors)
+                (if m.unlocked then
+                    Dict.toList app.data.authors
+
+                 else
+                    []
+                )
             ]
         , details []
             [ summary [] [ text <| "レーベル数: " ++ String.fromInt (Dict.size app.data.labels) ]
@@ -784,7 +816,12 @@ kindleData m app =
                     }
                 )
                 m.labelsTableState
-                (Dict.toList app.data.labels)
+                (if m.unlocked then
+                    Dict.toList app.data.labels
+
+                 else
+                    []
+                )
             ]
         ]
 
