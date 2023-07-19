@@ -6,6 +6,10 @@ on:
       - index-kindle-books
   workflow_dispatch:
 
+permissions:
+  contents: write
+  id-token: write
+
 concurrency:
   group: index-kindle-books
   cancel-in-progress: false
@@ -31,3 +35,11 @@ jobs:
           BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
           MEILISEARCH_HOST: ${{ secrets.MEILISEARCH_HOST }}
           MEILISEARCH_ADMIN_KEY: ${{ secrets.MEILISEARCH_ADMIN_KEY }}
+  deploy:
+    needs: index-kindle-books
+    uses: ./.github/workflows/gh-pages.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
