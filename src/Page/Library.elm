@@ -664,10 +664,9 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - 上記ページを不定期に手動で開いて蔵書DBを更新
 - サイトビルド時に蔵書DBを読み込み、ページを描画
 - ただし書架は検索に載せない自分専用、事前共有鍵でロック
+- **TODO**: 人力データ修正機能
 - **TODO**: レビュー機能＆レビュー自動記事化
-- **TODO**: 検索機能
-- **TODO**: いい感じに「本棚」「書架」っぽいUIを探求
-- **TODO**: DataSourceを事前暗号化→ロック解除時に復号
+- **TODO**: DataSourceを暗号化→ロック解除時に復号
 """
         , kindleData m app
         , div [ class "kindle-control", classList [ ( "locked", not m.unlocked ) ] ] <|
