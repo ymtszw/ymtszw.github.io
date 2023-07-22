@@ -1,4 +1,20 @@
-module KindleBookTitle exposing (KindleBookTitle, parse, possibleFailure)
+module KindleBookTitle exposing (KindleBookTitle, parse)
+
+{-| Kindle本のタイトルをいい感じにパースする。
+
+Prior work: <https://github.com/amakan/amakanize>
+
+
+# Examples
+
+  - 【推しの子】 4 (ヤングジャンプコミックスDIGITAL)
+  - 上野さんは不器用 【公式アンソロジー小冊子「上野本」付き】限定版 6 (ヤングアニマルコミックス)
+  - SQL Antipatterns: Avoiding the Pitfalls of Database Programming (Pragmatic Programmers) (English Edition)
+  - ...
+
+Tests.elmに代表的なケースだけでなく現在対応している様々なコーナーケースがある。
+
+-}
 
 import Parser as P exposing ((|.), (|=), Parser)
 
@@ -11,15 +27,19 @@ type alias KindleBookTitle =
     }
 
 
-possibleFailure : KindleBookTitle -> Maybe String
-possibleFailure title =
-    if title.volume == 0 && title.label == Nothing then
-        Just <| "Volume/label missing" ++ " 『" ++ title.rawTitle ++ "』"
+{-| パース実行する。
 
-    else
-        Nothing
+ポイントとして、Kindle本のタイトルは多くの場合、以下のような形式になっている。
 
+    [シリーズ名] [巻数] [レーベル名]
 
+この際、比較的後方の要素のほうがパターンのばらつきが少ないので、
+文字列を反転して後方からパースするよう実装している。
+
+区切りスペースの有無や、囲みカッコの有無・種類、余計な情報（特典情報など）のランダムな挿入など、
+非正規表記が大量にあるのでうまいこと読み飛ばしているのがミソ。
+
+-}
 parse : String -> Result String KindleBookTitle
 parse rawTitle =
     case rawTitle of
