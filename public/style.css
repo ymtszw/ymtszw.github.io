@@ -617,22 +617,23 @@ nav.twilog-archive-navigation ul li.selected::after {
 .search {
   position: relative;
 }
-.search.spinner::after {
+.spinner::before {
   position: absolute;
   display: inline-block;
   vertical-align: middle;
   content: "";
   margin-left: 0.2em;
-  width: 1em;
-  height: 1em;
-  border: 5px solid #eaeaea;
+  width: 0.5em;
+  height: 0.5em;
+  transform: translate(-50%, -50%);
+  border: 5px solid #aeaeae;
   border-radius: 50%;
   border-top-color: #1d7484;
   animation: spin 1s linear infinite;
 }
 @keyframes spin {
   to {
-    transform: rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 .search input[type="search"] {
