@@ -225,22 +225,25 @@ view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data Ro
 view _ _ app =
     { title = app.data.article.title
     , body =
+        let
+            timestamp =
+                Html.small [] <|
+                    if app.data.article.published then
+                        Html.text ("公開: " ++ Shared.formatPosix app.data.article.publishedAt)
+                            :: (if app.data.article.revisedAt /= app.data.article.publishedAt then
+                                    [ Html.text (" (更新: " ++ Shared.formatPosix app.data.article.revisedAt ++ ")") ]
+
+                                else
+                                    []
+                               )
+
+                    else
+                        [ Html.text <| "未公開 (articles/" ++ app.data.article.contentId ++ ".md)" ]
+        in
         [ prevNextNavigation app.data
-        , Html.header []
-            [ Html.small [] <|
-                if app.data.article.published then
-                    Html.text ("公開: " ++ Shared.formatPosix app.data.article.publishedAt)
-                        :: (if app.data.article.revisedAt /= app.data.article.publishedAt then
-                                [ Html.text (" (更新: " ++ Shared.formatPosix app.data.article.revisedAt ++ ")") ]
-
-                            else
-                                []
-                           )
-
-                else
-                    [ Html.text <| "未公開 (articles/" ++ app.data.article.contentId ++ ".md)" ]
-            ]
+        , Html.header [] [ timestamp ]
         , renderArticle app.data.links app.data.article
+        , Html.div [] [ timestamp ]
         , prevNextNavigation app.data
         ]
     }
