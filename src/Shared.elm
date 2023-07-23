@@ -83,48 +83,34 @@ template =
     }
 
 
-type Msg
-    = OnPageChange
-        { path : Path
-        , query : Maybe String
-        , fragment : Maybe String
-        }
-    | SharedMsg SharedMsg
+
+-----------------
+-- SHARED DATA
+-----------------
 
 
 type alias Data =
     { twilogArchives : List TwilogArchiveYearMonth
+    , githubToken : String
     }
 
 
-type alias RataDie =
-    Int
+data : DataSource Data
+data =
+    DataSource.map2 Data twilogArchives (DataSource.Env.load "GITHUB_TOKEN")
 
 
-type alias CmsArticleMetadata =
-    { contentId : String
-    , published : Bool
-    , publishedAt : Time.Posix
-    , revisedAt : Time.Posix
-    , title : String
-    , image : Maybe CmsImage
-    }
+twilogArchives : DataSource (List TwilogArchiveYearMonth)
+twilogArchives =
+    -- PERF: このリストはsrc/Generated/TwilogsArchives.elmにハードコードされるようになった。
+    -- 予めnewest-firstにソートされている。
+    DataSource.succeed Generated.TwilogArchives.list
 
 
-type alias CmsImage =
-    { url : String
-    , height : Int
-    , width : Int
-    }
 
-
-type SharedMsg
-    = NoOp
-    | Req_LinkPreview String (List String)
-    | Res_LinkPreview String (List String) (Result String ( String, LinkPreview.Metadata ))
-    | ScrollToTop
-    | ScrollToBottom
-    | CloseLightbox
+-----------------
+-- SHARED MODEL & INIT
+-----------------
 
 
 type alias Model =
@@ -162,6 +148,30 @@ decodeStoredLibraryKey flags =
         Pages.Flags.BrowserFlags v ->
             Json.Decode.decodeValue (Json.Decode.field "libraryKey" (OptimizedDecoder.decoder nonEmptyString)) v
                 |> Result.toMaybe
+
+
+
+-----------------
+-- SHARED UPDATE
+-----------------
+
+
+type Msg
+    = OnPageChange
+        { path : Path
+        , query : Maybe String
+        , fragment : Maybe String
+        }
+    | SharedMsg SharedMsg
+
+
+type SharedMsg
+    = NoOp
+    | Req_LinkPreview String (List String)
+    | Res_LinkPreview String (List String) (Result String ( String, LinkPreview.Metadata ))
+    | ScrollToTop
+    | ScrollToBottom
+    | CloseLightbox
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -236,498 +246,10 @@ requestLinkPreviewSequentially amazonAssociateTag urls url =
         |> Cmd.map SharedMsg
 
 
-data : DataSource Data
-data =
-    DataSource.map Data twilogArchives
 
-
-githubGet : String -> OptimizedDecoder.Decoder a -> DataSource a
-githubGet url decoder =
-    DataSource.Http.request
-        (Pages.Secrets.with "GITHUB_TOKEN" <|
-            Pages.Secrets.succeed <|
-                \githubToken ->
-                    { url = url
-                    , method = "GET"
-                    , headers = [ ( "Authorization", "token " ++ githubToken ) ]
-                    , body = DataSource.Http.emptyBody
-                    }
-        )
-        decoder
-
-
-cmsGet : String -> OptimizedDecoder.Decoder a -> DataSource a
-cmsGet url decoder =
-    DataSource.Http.request
-        (Pages.Secrets.with "MICROCMS_API_KEY" <|
-            Pages.Secrets.succeed <|
-                \microCmsApiKey ->
-                    { url = url
-                    , method = "GET"
-                    , headers = [ ( "X-MICROCMS-API-KEY", microCmsApiKey ) ]
-                    , body = DataSource.Http.emptyBody
-                    }
-        )
-        decoder
-
-
-miscGet : String -> OptimizedDecoder.Decoder a -> DataSource a
-miscGet url decoder =
-    DataSource.Http.get (Pages.Secrets.succeed url) decoder
-
-
-cmsArticles : DataSource (List CmsArticleMetadata)
-cmsArticles =
-    DataSource.map2 (++) publicCmsArticles markdownArticles
-        |> DataSource.map (List.sortBy (.publishedAt >> Time.posixToMillis >> negate))
-
-
-publicCmsArticles : DataSource (List CmsArticleMetadata)
-publicCmsArticles =
-    let
-        articleMetadataDecoder =
-            OptimizedDecoder.succeed CmsArticleMetadata
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "id" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.succeed True)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" iso8601Decoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" iso8601Decoder)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
-    in
-    cmsGet "https://ymtszw.microcms.io/api/v1/articles?limit=10000&orders=-publishedAt&fields=id,title,image,publishedAt,revisedAt"
-        (OptimizedDecoder.field "contents" (OptimizedDecoder.list articleMetadataDecoder))
-
-
-markdownArticles : DataSource (List CmsArticleMetadata)
-markdownArticles =
-    let
-        markdownMetadataDecoder =
-            OptimizedDecoder.map4
-                (\title publishedAt revisedAt image slug ->
-                    { contentId = slug
-                    , published = Time.posixToMillis publishedAt <= Time.posixToMillis Pages.builtAt
-                    , publishedAt = publishedAt
-                    , revisedAt = Maybe.withDefault publishedAt revisedAt
-                    , title = title
-                    , image = image
-                    }
-                )
-                (OptimizedDecoder.field "title" OptimizedDecoder.string)
-                (OptimizedDecoder.oneOf
-                    [ OptimizedDecoder.field "publishedAt" iso8601Decoder
-                    , -- 未来の日付にfallbackして記事一覧ページに表示させないようにする
-                      OptimizedDecoder.succeed (Time.millisToPosix (Time.posixToMillis Pages.builtAt + 24 * 60 * 60 * 1000))
-                    ]
-                )
-                (OptimizedDecoder.maybe (OptimizedDecoder.field "revisedAt" iso8601Decoder))
-                (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
-    in
-    DataSource.Glob.succeed Tuple.pair
-        |> DataSource.Glob.captureFilePath
-        |> DataSource.Glob.match (DataSource.Glob.literal "articles/")
-        |> DataSource.Glob.capture DataSource.Glob.wildcard
-        |> DataSource.Glob.match (DataSource.Glob.literal ".md")
-        |> DataSource.Glob.toDataSource
-        |> DataSource.andThen
-            (\files ->
-                files
-                    |> List.map
-                        (\( path, slug ) ->
-                            DataSource.File.onlyFrontmatter markdownMetadataDecoder path
-                                |> DataSource.andMap (DataSource.succeed slug)
-                        )
-                    |> DataSource.combine
-            )
-
-
-cmsImageDecoder : OptimizedDecoder.Decoder CmsImage
-cmsImageDecoder =
-    OptimizedDecoder.succeed CmsImage
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "url" OptimizedDecoder.string)
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "height" OptimizedDecoder.int)
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "width" OptimizedDecoder.int)
-
-
-type alias Twilog =
-    { createdAt : Time.Posix
-    , touchedAt : Time.Posix
-    , createdDate : Date.Date
-    , text : String
-    , id : TwitterStatusId
-    , idStr : String
-    , userName : String
-    , userProfileImageUrl : String
-    , retweet : Maybe Retweet
-    , inReplyTo : Maybe InReplyTo
-    , replies : List Reply
-    , quote : Maybe Quote
-    , entitiesTcoUrl : List TcoUrl
-    , extendedEntitiesMedia : List Media
-    }
-
-
-type Reply
-    = Reply Twilog
-
-
-type alias Retweet =
-    { fullText : String
-    , id : TwitterStatusId
-    , userName : String
-    , userProfileImageUrl : String
-    , quote : Maybe Quote
-    , entitiesTcoUrl : List TcoUrl
-    , extendedEntitiesMedia : List Media
-    }
-
-
-type alias InReplyTo =
-    { id : TwitterStatusId
-    , userId : TwitterUserId
-    }
-
-
-type alias Quote =
-    { fullText : String
-    , id : TwitterStatusId
-    , userName : String
-    , userProfileImageUrl : String
-    , permalinkUrl : String
-    }
-
-
-type alias TcoUrl =
-    { url : String
-    , expandedUrl : String
-    }
-
-
-type alias Media =
-    { url : String
-    , sourceUrl : String
-    , type_ : String
-    , expandedUrl : String
-    }
-
-
-type TwitterStatusId
-    = TwitterStatusId String
-
-
-type TwitterUserId
-    = TwitterUserId String
-
-
-twilogArchives : DataSource (List TwilogArchiveYearMonth)
-twilogArchives =
-    -- PERF: このリストはsrc/Generated/TwilogsArchives.elmにハードコードされるようになった。
-    -- 予めnewest-firstにソートされている。
-    DataSource.succeed Generated.TwilogArchives.list
-
-
-makeTwilogsJsonPath : String -> String
-makeTwilogsJsonPath dateString =
-    "data/" ++ String.replace "-" "/" dateString ++ "-twilogs.json"
-
-
-twilogDecoder : Maybe String -> OptimizedDecoder.Decoder Twilog
-twilogDecoder maybeAmazonAssociateTag =
-    let
-        createdAtDecoder =
-            OptimizedDecoder.oneOf
-                [ iso8601Decoder
-                , -- Decode date time string formatted with "ddd MMM DD HH:mm:ss Z YYYY" (originates from Twitter API)
-                  OptimizedDecoder.andThen
-                    (\str ->
-                        case String.split " " str of
-                            [ _, mon, paddedDay, paddedHourMinSec, zone, year ] ->
-                                Iso8601.toTime (year ++ "-" ++ monthToPaddedNumber mon ++ "-" ++ paddedDay ++ "T" ++ paddedHourMinSec ++ zone)
-                                    |> Result.mapError Markdown.deadEndsToString
-                                    |> OptimizedDecoder.fromResult
-
-                            _ ->
-                                OptimizedDecoder.fail ("Failed to parse date: " ++ str)
-                    )
-                    OptimizedDecoder.string
-                ]
-
-        retweetDecoder =
-            OptimizedDecoder.field "Retweet" boolString
-                |> OptimizedDecoder.andThen
-                    (\isRetweet ->
-                        if isRetweet then
-                            OptimizedDecoder.succeed Retweet
-                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusFullText" OptimizedDecoder.string)
-                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
-                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" nonEmptyString)
-                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserProfileImageUrl" OptimizedDecoder.string)
-                                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetQuoteDecoder)
-                                |> OptimizedDecoder.andMap retweetEntitiesTcoUrlDecoder
-                                |> OptimizedDecoder.andMap retweetExtendedEntitiesMediaDecoder
-                                -- Postprocesses
-                                |> OptimizedDecoder.map removeQuoteUrlFromEntitiesTcoUrls
-
-                        else
-                            OptimizedDecoder.fail "Not a retweet"
-                    )
-
-        inReplyToDecoder =
-            -- アーカイブ由来のデータでは、Retweet: "TRUE"でもInReplyToが入っていることがあるので除く。
-            -- つまり両方入っていた場合はRetweetとしての表示を優先。
-            OptimizedDecoder.field "Retweet" boolString
-                |> OptimizedDecoder.andThen
-                    (\isRetweet ->
-                        if isRetweet then
-                            OptimizedDecoder.fail "Is a retweet"
-
-                        else
-                            OptimizedDecoder.succeed InReplyTo
-                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
-                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToUserId" (OptimizedDecoder.map TwitterUserId nonEmptyString))
-                    )
-
-        quoteDecoder =
-            OptimizedDecoder.succeed Quote
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusFullText" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserName" nonEmptyString)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
-
-        entitiesTcoUrlDecoder =
-            OptimizedDecoder.oneOf
-                [ OptimizedDecoder.succeed (List.map2 TcoUrl)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
-                , OptimizedDecoder.succeed []
-                ]
-
-        extendedEntitiesMediaDecoder =
-            OptimizedDecoder.oneOf
-                [ OptimizedDecoder.succeed (List.map4 Media)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
-                , OptimizedDecoder.succeed (List.map3 (\url sourceUrl type_ -> Media url sourceUrl type_ sourceUrl))
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
-                , OptimizedDecoder.succeed []
-                ]
-
-        retweetEntitiesTcoUrlDecoder =
-            OptimizedDecoder.oneOf
-                [ OptimizedDecoder.succeed (List.map2 TcoUrl)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
-                , OptimizedDecoder.succeed []
-                ]
-
-        retweetExtendedEntitiesMediaDecoder =
-            OptimizedDecoder.oneOf
-                [ OptimizedDecoder.succeed (List.map4 Media)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaUrls" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaTypes" commaSeparatedList)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
-                , OptimizedDecoder.succeed []
-                ]
-
-        retweetQuoteDecoder =
-            OptimizedDecoder.succeed Quote
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusFullText" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserName" nonEmptyString)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
-                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
-
-        removeQuoteUrlFromEntitiesTcoUrls tw =
-            case tw.quote of
-                Just quote ->
-                    -- アーカイブツイートにはQuote情報がないので、TcoUrlをプレビューしてQuote表示の代替としたい。
-                    -- 一方、最近のツイートにはQuote情報があるので、TcoUrlとして含まれているQuoteのURLは除外する。
-                    { tw | entitiesTcoUrl = List.filter (\tcoUrl -> tcoUrl.url /= quote.permalinkUrl) tw.entitiesTcoUrl }
-
-                Nothing ->
-                    tw
-
-        removeRtQuoteUrlFromEntitiesTcoUrls twilog =
-            case Maybe.andThen .quote twilog.retweet of
-                Just rtQuote ->
-                    -- RetweetのQuoteのURLも、rootのTwilogのentitiesTcoUrlに含まれているので、二重に除外しなければならない
-                    { twilog | entitiesTcoUrl = List.filter (\tcoUrl -> tcoUrl.url /= rtQuote.permalinkUrl) twilog.entitiesTcoUrl }
-
-                Nothing ->
-                    twilog
-
-        maybeModifyAmazonUrl =
-            case maybeAmazonAssociateTag of
-                Just amazonAssociateTag ->
-                    OptimizedDecoder.map (List.map (Helper.makeAmazonUrl amazonAssociateTag))
-
-                Nothing ->
-                    identity
-    in
-    OptimizedDecoder.succeed Twilog
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (createdAtDecoder |> OptimizedDecoder.map (Date.fromPosix jst)))
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" nonEmptyString)
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
-        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
-        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
-        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
-        -- Resolve replies later
-        |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
-        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
-        |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
-        |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
-        -- Postprocesses
-        |> OptimizedDecoder.map removeQuoteUrlFromEntitiesTcoUrls
-        |> OptimizedDecoder.map removeRtQuoteUrlFromEntitiesTcoUrls
-
-
-dailyTwilogsFromOldest : List String -> DataSource (Dict RataDie (List Twilog))
-dailyTwilogsFromOldest paths =
-    let
-        toDailyDictFromNewest baseDict =
-            List.foldl
-                (\maybeTwilog dict ->
-                    case maybeTwilog of
-                        Just twilog ->
-                            Dict.update (Date.toRataDie twilog.createdDate)
-                                (\dailySortedTwilogs ->
-                                    case dailySortedTwilogs of
-                                        Just twilogs ->
-                                            -- コミット済みJSON由来のtwilogは古い順、かつArchive/Spreadsheetをマージ済み
-                                            -- foldlで古い順からtraverseし、ここで到着順にconsしているので、最終的に結果は新しい順になる
-                                            Just (twilog :: twilogs)
-
-                                        Nothing ->
-                                            Just [ twilog ]
-                                )
-                                dict
-
-                        Nothing ->
-                            dict
-                )
-                baseDict
-    in
-    DataSource.Env.load "AMAZON_ASSOCIATE_TAG"
-        |> DataSource.andThen
-            (\amazonAssociateTag ->
-                List.foldl
-                    (\path accDS ->
-                        DataSource.andThen
-                            (\accDict ->
-                                DataSource.File.jsonFile
-                                    -- Make it Maybe, allow decode-failures to be ignored
-                                    (OptimizedDecoder.list (OptimizedDecoder.maybe (twilogDecoder (Just amazonAssociateTag)))
-                                        |> OptimizedDecoder.map (toDailyDictFromNewest accDict)
-                                        |> OptimizedDecoder.map resolveRepliesWithinDayAndSortFromOldest
-                                    )
-                                    path
-                            )
-                            accDS
-                    )
-                    (DataSource.succeed Dict.empty)
-                    paths
-            )
-
-
-resolveRepliesWithinDayAndSortFromOldest : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
-resolveRepliesWithinDayAndSortFromOldest =
-    let
-        -- Assume twilogsOfDay is newest-first.
-        -- Here we traverse the list so that reply tweets are brought under `.replies` field of the tweet (within the same day) they replied to.
-        -- Also at the same time, propagate touchedAt field to the tweet they replied to, eventually to the root tweet. At last we re-sort the list with touchedAt
-        resolveHelp : List Twilog -> List Twilog -> List Twilog
-        resolveHelp acc twilogsOfDay =
-            case twilogsOfDay of
-                [] ->
-                    -- Finally sort acc list again with touchedAt, but stays mostly oldest-first
-                    List.sortBy (.touchedAt >> Time.posixToMillis) acc
-
-                twilog :: olderTwilogs ->
-                    -- With this recursion acc list eventually becomes oldest-first
-                    case Maybe.andThen (\inReplyTo -> List.Extra.findIndex (\olderTwilog -> olderTwilog.id == inReplyTo.id) olderTwilogs) twilog.inReplyTo of
-                        Just index ->
-                            let
-                                updatedOlderTwilogs =
-                                    List.Extra.updateAt index (\repliedTwilog -> { repliedTwilog | touchedAt = maxTime repliedTwilog.touchedAt twilog.touchedAt, replies = sortReplies (Reply { twilog | inReplyTo = Nothing } :: repliedTwilog.replies) }) olderTwilogs
-                            in
-                            resolveHelp acc updatedOlderTwilogs
-
-                        Nothing ->
-                            resolveHelp (twilog :: acc) olderTwilogs
-
-        sortReplies =
-            -- Reverse to newsest-first
-            List.sortBy (\(Reply twilog) -> Time.posixToMillis twilog.touchedAt) >> List.reverse
-    in
-    Dict.map (\_ twilogs -> resolveHelp [] twilogs)
-
-
-maxTime : Time.Posix -> Time.Posix -> Time.Posix
-maxTime t1 t2 =
-    if Time.posixToMillis t1 > Time.posixToMillis t2 then
-        t1
-
-    else
-        t2
-
-
-boolString =
-    OptimizedDecoder.string
-        |> OptimizedDecoder.andThen
-            (\s ->
-                case s of
-                    "TRUE" ->
-                        OptimizedDecoder.succeed True
-
-                    _ ->
-                        OptimizedDecoder.succeed False
-            )
-
-
-commaSeparatedList =
-    nonEmptyString
-        |> OptimizedDecoder.andThen (\s -> OptimizedDecoder.succeed (String.split "," s))
-
-
-commaSeparatedUrls =
-    nonEmptyString
-        |> OptimizedDecoder.andThen
-            (\s ->
-                let
-                    -- Since URLs MAY contain commas, we need special handling
-                    -- If split items are not starting with "http", merge it with previous item
-                    normalize : List String -> List String -> List String
-                    normalize acc items =
-                        case items of
-                            [] ->
-                                List.reverse acc
-
-                            item :: rest ->
-                                if String.startsWith "http" item then
-                                    normalize (item :: acc) rest
-
-                                else
-                                    case acc of
-                                        prev :: prevRest ->
-                                            normalize ((prev ++ "," ++ item) :: prevRest) rest
-
-                                        [] ->
-                                            -- 最初のスロットがURLでない文字列だった場合。まず起こらないが、fallbackとしては通常進行にしちゃう
-                                            normalize (item :: acc) rest
-                in
-                String.split "," s
-                    |> normalize []
-                    |> OptimizedDecoder.succeed
-            )
+-----------------
+-- SHARED HEAD & VIEW
+-----------------
 
 
 seoBase :
@@ -994,6 +516,7 @@ jst =
     Time.customZone (9 * 60) []
 
 
+unixOrigin : Time.Posix
 unixOrigin =
     Time.millisToPosix 0
 
@@ -1118,3 +641,512 @@ dumpTwilog =
                 ]
     in
     encodeTwilog >> Json.Encode.encode 4
+
+
+
+-----------------
+-- DATASOURCES (Used by multiple pages)
+-----------------
+
+
+githubGet : String -> OptimizedDecoder.Decoder a -> DataSource a
+githubGet url decoder =
+    DataSource.Http.request
+        (Pages.Secrets.with "GITHUB_TOKEN" <|
+            Pages.Secrets.succeed <|
+                \githubToken ->
+                    { url = url
+                    , method = "GET"
+                    , headers = [ ( "Authorization", "token " ++ githubToken ) ]
+                    , body = DataSource.Http.emptyBody
+                    }
+        )
+        decoder
+
+
+cmsGet : String -> OptimizedDecoder.Decoder a -> DataSource a
+cmsGet url decoder =
+    DataSource.Http.request
+        (Pages.Secrets.with "MICROCMS_API_KEY" <|
+            Pages.Secrets.succeed <|
+                \microCmsApiKey ->
+                    { url = url
+                    , method = "GET"
+                    , headers = [ ( "X-MICROCMS-API-KEY", microCmsApiKey ) ]
+                    , body = DataSource.Http.emptyBody
+                    }
+        )
+        decoder
+
+
+miscGet : String -> OptimizedDecoder.Decoder a -> DataSource a
+miscGet url decoder =
+    DataSource.Http.get (Pages.Secrets.succeed url) decoder
+
+
+type alias CmsArticleMetadata =
+    { contentId : String
+    , published : Bool
+    , publishedAt : Time.Posix
+    , revisedAt : Time.Posix
+    , title : String
+    , image : Maybe CmsImage
+    }
+
+
+type alias CmsImage =
+    { url : String
+    , height : Int
+    , width : Int
+    }
+
+
+cmsArticles : DataSource (List CmsArticleMetadata)
+cmsArticles =
+    DataSource.map2 (++) publicCmsArticles markdownArticles
+        |> DataSource.map (List.sortBy (.publishedAt >> Time.posixToMillis >> negate))
+
+
+publicCmsArticles : DataSource (List CmsArticleMetadata)
+publicCmsArticles =
+    let
+        articleMetadataDecoder =
+            OptimizedDecoder.succeed CmsArticleMetadata
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "id" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.succeed True)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "publishedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "revisedAt" iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
+    in
+    cmsGet "https://ymtszw.microcms.io/api/v1/articles?limit=10000&orders=-publishedAt&fields=id,title,image,publishedAt,revisedAt"
+        (OptimizedDecoder.field "contents" (OptimizedDecoder.list articleMetadataDecoder))
+
+
+markdownArticles : DataSource (List CmsArticleMetadata)
+markdownArticles =
+    let
+        markdownMetadataDecoder =
+            OptimizedDecoder.map4
+                (\title publishedAt revisedAt image slug ->
+                    { contentId = slug
+                    , published = Time.posixToMillis publishedAt <= Time.posixToMillis Pages.builtAt
+                    , publishedAt = publishedAt
+                    , revisedAt = Maybe.withDefault publishedAt revisedAt
+                    , title = title
+                    , image = image
+                    }
+                )
+                (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                (OptimizedDecoder.oneOf
+                    [ OptimizedDecoder.field "publishedAt" iso8601Decoder
+                    , -- 未来の日付にfallbackして記事一覧ページに表示させないようにする
+                      OptimizedDecoder.succeed (Time.millisToPosix (Time.posixToMillis Pages.builtAt + 24 * 60 * 60 * 1000))
+                    ]
+                )
+                (OptimizedDecoder.maybe (OptimizedDecoder.field "revisedAt" iso8601Decoder))
+                (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
+    in
+    DataSource.Glob.succeed Tuple.pair
+        |> DataSource.Glob.captureFilePath
+        |> DataSource.Glob.match (DataSource.Glob.literal "articles/")
+        |> DataSource.Glob.capture DataSource.Glob.wildcard
+        |> DataSource.Glob.match (DataSource.Glob.literal ".md")
+        |> DataSource.Glob.toDataSource
+        |> DataSource.andThen
+            (\files ->
+                files
+                    |> List.map
+                        (\( path, slug ) ->
+                            DataSource.File.onlyFrontmatter markdownMetadataDecoder path
+                                |> DataSource.andMap (DataSource.succeed slug)
+                        )
+                    |> DataSource.combine
+            )
+
+
+cmsImageDecoder : OptimizedDecoder.Decoder CmsImage
+cmsImageDecoder =
+    OptimizedDecoder.succeed CmsImage
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "url" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "height" OptimizedDecoder.int)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "width" OptimizedDecoder.int)
+
+
+type alias Twilog =
+    { createdAt : Time.Posix
+    , touchedAt : Time.Posix
+    , createdDate : Date.Date
+    , text : String
+    , id : TwitterStatusId
+    , idStr : String
+    , userName : String
+    , userProfileImageUrl : String
+    , retweet : Maybe Retweet
+    , inReplyTo : Maybe InReplyTo
+    , replies : List Reply
+    , quote : Maybe Quote
+    , entitiesTcoUrl : List TcoUrl
+    , extendedEntitiesMedia : List Media
+    }
+
+
+type Reply
+    = Reply Twilog
+
+
+type alias Retweet =
+    { fullText : String
+    , id : TwitterStatusId
+    , userName : String
+    , userProfileImageUrl : String
+    , quote : Maybe Quote
+    , entitiesTcoUrl : List TcoUrl
+    , extendedEntitiesMedia : List Media
+    }
+
+
+type alias InReplyTo =
+    { id : TwitterStatusId
+    , userId : TwitterUserId
+    }
+
+
+type alias Quote =
+    { fullText : String
+    , id : TwitterStatusId
+    , userName : String
+    , userProfileImageUrl : String
+    , permalinkUrl : String
+    }
+
+
+type alias TcoUrl =
+    { url : String
+    , expandedUrl : String
+    }
+
+
+type alias Media =
+    { url : String
+    , sourceUrl : String
+    , type_ : String
+    , expandedUrl : String
+    }
+
+
+type TwitterStatusId
+    = TwitterStatusId String
+
+
+type TwitterUserId
+    = TwitterUserId String
+
+
+makeTwilogsJsonPath : String -> String
+makeTwilogsJsonPath dateString =
+    "data/" ++ String.replace "-" "/" dateString ++ "-twilogs.json"
+
+
+twilogDecoder : Maybe String -> OptimizedDecoder.Decoder Twilog
+twilogDecoder maybeAmazonAssociateTag =
+    let
+        createdAtDecoder =
+            OptimizedDecoder.oneOf
+                [ iso8601Decoder
+                , -- Decode date time string formatted with "ddd MMM DD HH:mm:ss Z YYYY" (originates from Twitter API)
+                  OptimizedDecoder.andThen
+                    (\str ->
+                        case String.split " " str of
+                            [ _, mon, paddedDay, paddedHourMinSec, zone, year ] ->
+                                Iso8601.toTime (year ++ "-" ++ monthToPaddedNumber mon ++ "-" ++ paddedDay ++ "T" ++ paddedHourMinSec ++ zone)
+                                    |> Result.mapError Markdown.deadEndsToString
+                                    |> OptimizedDecoder.fromResult
+
+                            _ ->
+                                OptimizedDecoder.fail ("Failed to parse date: " ++ str)
+                    )
+                    OptimizedDecoder.string
+                ]
+
+        retweetDecoder =
+            OptimizedDecoder.field "Retweet" boolString
+                |> OptimizedDecoder.andThen
+                    (\isRetweet ->
+                        if isRetweet then
+                            OptimizedDecoder.succeed Retweet
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusFullText" OptimizedDecoder.string)
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserName" nonEmptyString)
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusUserProfileImageUrl" OptimizedDecoder.string)
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetQuoteDecoder)
+                                |> OptimizedDecoder.andMap retweetEntitiesTcoUrlDecoder
+                                |> OptimizedDecoder.andMap retweetExtendedEntitiesMediaDecoder
+                                -- Postprocesses
+                                |> OptimizedDecoder.map removeQuoteUrlFromEntitiesTcoUrls
+
+                        else
+                            OptimizedDecoder.fail "Not a retweet"
+                    )
+
+        inReplyToDecoder =
+            -- アーカイブ由来のデータでは、Retweet: "TRUE"でもInReplyToが入っていることがあるので除く。
+            -- つまり両方入っていた場合はRetweetとしての表示を優先。
+            OptimizedDecoder.field "Retweet" boolString
+                |> OptimizedDecoder.andThen
+                    (\isRetweet ->
+                        if isRetweet then
+                            OptimizedDecoder.fail "Is a retweet"
+
+                        else
+                            OptimizedDecoder.succeed InReplyTo
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                                |> OptimizedDecoder.andMap (OptimizedDecoder.field "InReplyToUserId" (OptimizedDecoder.map TwitterUserId nonEmptyString))
+                    )
+
+        quoteDecoder =
+            OptimizedDecoder.succeed Quote
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusFullText" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserName" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
+
+        entitiesTcoUrlDecoder =
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map2 TcoUrl)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "EntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
+                , OptimizedDecoder.succeed []
+                ]
+
+        extendedEntitiesMediaDecoder =
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map4 Media)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
+                , OptimizedDecoder.succeed (List.map3 (\url sourceUrl type_ -> Media url sourceUrl type_ sourceUrl))
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "ExtendedEntitiesMediaTypes" commaSeparatedList)
+                , OptimizedDecoder.succeed []
+                ]
+
+        retweetEntitiesTcoUrlDecoder =
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map2 TcoUrl)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusEntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
+                , OptimizedDecoder.succeed []
+                ]
+
+        retweetExtendedEntitiesMediaDecoder =
+            OptimizedDecoder.oneOf
+                [ OptimizedDecoder.succeed (List.map4 Media)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaUrls" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaSourceUrls" commaSeparatedUrls)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaTypes" commaSeparatedList)
+                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusExtendedEntitiesMediaExpandedUrls" commaSeparatedUrls)
+                , OptimizedDecoder.succeed []
+                ]
+
+        retweetQuoteDecoder =
+            OptimizedDecoder.succeed Quote
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusFullText" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserName" nonEmptyString)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "RetweetedStatusQuotedStatusUserProfileImageUrl" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "QuotedStatusPermalinkUrl" nonEmptyString)
+
+        removeQuoteUrlFromEntitiesTcoUrls tw =
+            case tw.quote of
+                Just quote ->
+                    -- アーカイブツイートにはQuote情報がないので、TcoUrlをプレビューしてQuote表示の代替としたい。
+                    -- 一方、最近のツイートにはQuote情報があるので、TcoUrlとして含まれているQuoteのURLは除外する。
+                    { tw | entitiesTcoUrl = List.filter (\tcoUrl -> tcoUrl.url /= quote.permalinkUrl) tw.entitiesTcoUrl }
+
+                Nothing ->
+                    tw
+
+        removeRtQuoteUrlFromEntitiesTcoUrls twilog =
+            case Maybe.andThen .quote twilog.retweet of
+                Just rtQuote ->
+                    -- RetweetのQuoteのURLも、rootのTwilogのentitiesTcoUrlに含まれているので、二重に除外しなければならない
+                    { twilog | entitiesTcoUrl = List.filter (\tcoUrl -> tcoUrl.url /= rtQuote.permalinkUrl) twilog.entitiesTcoUrl }
+
+                Nothing ->
+                    twilog
+
+        maybeModifyAmazonUrl =
+            case maybeAmazonAssociateTag of
+                Just amazonAssociateTag ->
+                    OptimizedDecoder.map (List.map (Helper.makeAmazonUrl amazonAssociateTag))
+
+                Nothing ->
+                    identity
+    in
+    OptimizedDecoder.succeed Twilog
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" createdAtDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "CreatedAt" (createdAtDecoder |> OptimizedDecoder.map (Date.fromPosix jst)))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "Text" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" (OptimizedDecoder.map TwitterStatusId nonEmptyString))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "StatusId" nonEmptyString)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserName" nonEmptyString)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.field "UserProfileImageUrl" OptimizedDecoder.string)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe retweetDecoder)
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe inReplyToDecoder)
+        -- Resolve replies later
+        |> OptimizedDecoder.andMap (OptimizedDecoder.succeed [])
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe quoteDecoder)
+        |> OptimizedDecoder.andMap entitiesTcoUrlDecoder
+        |> OptimizedDecoder.andMap extendedEntitiesMediaDecoder
+        -- Postprocesses
+        |> OptimizedDecoder.map removeQuoteUrlFromEntitiesTcoUrls
+        |> OptimizedDecoder.map removeRtQuoteUrlFromEntitiesTcoUrls
+
+
+type alias RataDie =
+    Int
+
+
+dailyTwilogsFromOldest : List String -> DataSource (Dict RataDie (List Twilog))
+dailyTwilogsFromOldest paths =
+    let
+        toDailyDictFromNewest baseDict =
+            List.foldl
+                (\maybeTwilog dict ->
+                    case maybeTwilog of
+                        Just twilog ->
+                            Dict.update (Date.toRataDie twilog.createdDate)
+                                (\dailySortedTwilogs ->
+                                    case dailySortedTwilogs of
+                                        Just twilogs ->
+                                            -- コミット済みJSON由来のtwilogは古い順、かつArchive/Spreadsheetをマージ済み
+                                            -- foldlで古い順からtraverseし、ここで到着順にconsしているので、最終的に結果は新しい順になる
+                                            Just (twilog :: twilogs)
+
+                                        Nothing ->
+                                            Just [ twilog ]
+                                )
+                                dict
+
+                        Nothing ->
+                            dict
+                )
+                baseDict
+    in
+    DataSource.Env.load "AMAZON_ASSOCIATE_TAG"
+        |> DataSource.andThen
+            (\amazonAssociateTag ->
+                List.foldl
+                    (\path accDS ->
+                        DataSource.andThen
+                            (\accDict ->
+                                DataSource.File.jsonFile
+                                    -- Make it Maybe, allow decode-failures to be ignored
+                                    (OptimizedDecoder.list (OptimizedDecoder.maybe (twilogDecoder (Just amazonAssociateTag)))
+                                        |> OptimizedDecoder.map (toDailyDictFromNewest accDict)
+                                        |> OptimizedDecoder.map resolveRepliesWithinDayAndSortFromOldest
+                                    )
+                                    path
+                            )
+                            accDS
+                    )
+                    (DataSource.succeed Dict.empty)
+                    paths
+            )
+
+
+resolveRepliesWithinDayAndSortFromOldest : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)
+resolveRepliesWithinDayAndSortFromOldest =
+    let
+        -- Assume twilogsOfDay is newest-first.
+        -- Here we traverse the list so that reply tweets are brought under `.replies` field of the tweet (within the same day) they replied to.
+        -- Also at the same time, propagate touchedAt field to the tweet they replied to, eventually to the root tweet. At last we re-sort the list with touchedAt
+        resolveHelp : List Twilog -> List Twilog -> List Twilog
+        resolveHelp acc twilogsOfDay =
+            case twilogsOfDay of
+                [] ->
+                    -- Finally sort acc list again with touchedAt, but stays mostly oldest-first
+                    List.sortBy (.touchedAt >> Time.posixToMillis) acc
+
+                twilog :: olderTwilogs ->
+                    -- With this recursion acc list eventually becomes oldest-first
+                    case Maybe.andThen (\inReplyTo -> List.Extra.findIndex (\olderTwilog -> olderTwilog.id == inReplyTo.id) olderTwilogs) twilog.inReplyTo of
+                        Just index ->
+                            let
+                                updatedOlderTwilogs =
+                                    List.Extra.updateAt index (\repliedTwilog -> { repliedTwilog | touchedAt = maxTime repliedTwilog.touchedAt twilog.touchedAt, replies = sortReplies (Reply { twilog | inReplyTo = Nothing } :: repliedTwilog.replies) }) olderTwilogs
+                            in
+                            resolveHelp acc updatedOlderTwilogs
+
+                        Nothing ->
+                            resolveHelp (twilog :: acc) olderTwilogs
+
+        sortReplies =
+            -- Reverse to newsest-first
+            List.sortBy (\(Reply twilog) -> Time.posixToMillis twilog.touchedAt) >> List.reverse
+    in
+    Dict.map (\_ twilogs -> resolveHelp [] twilogs)
+
+
+maxTime : Time.Posix -> Time.Posix -> Time.Posix
+maxTime t1 t2 =
+    if Time.posixToMillis t1 > Time.posixToMillis t2 then
+        t1
+
+    else
+        t2
+
+
+boolString =
+    OptimizedDecoder.string
+        |> OptimizedDecoder.andThen
+            (\s ->
+                case s of
+                    "TRUE" ->
+                        OptimizedDecoder.succeed True
+
+                    _ ->
+                        OptimizedDecoder.succeed False
+            )
+
+
+commaSeparatedList =
+    nonEmptyString
+        |> OptimizedDecoder.andThen (\s -> OptimizedDecoder.succeed (String.split "," s))
+
+
+commaSeparatedUrls =
+    nonEmptyString
+        |> OptimizedDecoder.andThen
+            (\s ->
+                let
+                    -- Since URLs MAY contain commas, we need special handling
+                    -- If split items are not starting with "http", merge it with previous item
+                    normalize : List String -> List String -> List String
+                    normalize acc items =
+                        case items of
+                            [] ->
+                                List.reverse acc
+
+                            item :: rest ->
+                                if String.startsWith "http" item then
+                                    normalize (item :: acc) rest
+
+                                else
+                                    case acc of
+                                        prev :: prevRest ->
+                                            normalize ((prev ++ "," ++ item) :: prevRest) rest
+
+                                        [] ->
+                                            -- 最初のスロットがURLでない文字列だった場合。まず起こらないが、fallbackとしては通常進行にしちゃう
+                                            normalize (item :: acc) rest
+                in
+                String.split "," s
+                    |> normalize []
+                    |> OptimizedDecoder.succeed
+            )
