@@ -20,9 +20,7 @@
     "elm-review": "^2.9",
     "elm-test": "^0.19.1-revision12",
     "elm-tooling": "^1.4",
-    "meilisearch": "^0.33",
     "node-fetch": "^3.3",
-    "patch-package": "^7.0",
-    "stopword": "^2.0"
+    "patch-package": "^7.0"
   }
 }
