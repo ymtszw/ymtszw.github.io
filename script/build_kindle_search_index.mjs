@@ -58,7 +58,9 @@ const indexedIds = (
       books.map((book) => book.id),
       1000
     ).map(async (ids) => {
-      return (await index.getObjects(ids)).results.map((r) => r.objectID);
+      return (await index.getObjects(ids)).results
+        .filter((r) => r)
+        .map((r) => r.objectID);
     })
   )
 ).flat();
