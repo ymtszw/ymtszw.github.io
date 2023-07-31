@@ -1,40 +1,34 @@
-import { MeiliSearch, MeiliSearchApiError } from "meilisearch";
-import { eng, jpn } from "stopword";
+import algoliasearch from "algoliasearch";
 import fetch from "node-fetch";
 
 const indexUid = "ymtszw-kindle";
 
-const client = new MeiliSearch({
-  host: process.env.MEILISEARCH_HOST,
-  apiKey: process.env.MEILISEARCH_ADMIN_KEY,
-});
+const client = algoliasearch(
+  process.env.ALGOLIA_APP_ID,
+  process.env.ALGOLIA_ADMIN_KEY
+);
 
-let index;
-try {
-  index = await client.getIndex(indexUid);
-} catch (e) {
-  if (e instanceof MeiliSearchApiError && e.httpStatus === 404) {
-    index = await client.createIndex(indexUid, { primaryKey: "id" });
-  }
-}
+const index = client.initIndex(indexUid);
 
 // 変更すると全体再indexが開始される
-const updated = await index.updateSettings({
-  pagination: { maxTotalHits: 30 },
+const setResponse = await index.setSettings({
+  paginationLimitedTo: 30,
   searchableAttributes: ["title", "authors"],
-  displayedAttributes: ["id", "title", "authors", "img", "acquiredDate"],
-  filterableAttributes: ["title", "authors", "acquiredDate"],
+  attributesToRetrieve: ["id", "title", "authors", "img", "acquiredDate"],
+  attributesToTransliterate: ["title", "authors"],
+  indexLanguages: ["ja", "en"],
+  queryLanguages: ["ja", "en"],
+  removeStopWords: true,
 });
-console.log("Index settings", updated);
-
-const stopWords = [...eng, ...jpn];
-console.log("Stop words", await index.updateStopWords(stopWords));
+console.log("Index settings", setResponse);
 
 // Indexingは非同期で、裏でqueue管理される
 const res = await fetch(process.env.BOOKS_JSON_URL);
-const books = Object.values(await res.json());
+const books = Object.values(await res.json()).map((book) => {
+  return Object.assign(book, { objectID: book.id });
+});
 console.log("books", books.slice(0, 3));
-await index.addDocuments(books);
+await index.saveObjects(books, { batchSize: 999999 });
 console.log("Indexing requested for books.json");
 
 // Sanity check
@@ -42,6 +36,6 @@ const candidates = ["ヒストリエ", "宝石の国", "手塚治虫"];
 testSearch(candidates[Math.floor(Math.random() * candidates.length)]);
 
 async function testSearch(term) {
-  const res = await index.search(term, { limit: 3 });
+  const res = await index.search(term, { hitsPerPage: 3 });
   console.log("Search test", term, res.hits);
 }

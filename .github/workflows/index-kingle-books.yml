@@ -33,8 +33,8 @@ jobs:
       - run: npm run build_kindle_meilisearch_index
         env:
           BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
-          MEILISEARCH_HOST: ${{ secrets.MEILISEARCH_HOST }}
-          MEILISEARCH_ADMIN_KEY: ${{ secrets.MEILISEARCH_ADMIN_KEY }}
+          ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+          ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
   deploy:
     needs: index-kindle-books
     uses: ./.github/workflows/gh-pages.yml
