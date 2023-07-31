@@ -13,6 +13,7 @@
   },
   "//": "elm-optimize-level-2 v2 and elm-pages v2 depends on deprecated TS v3 API",
   "devDependencies": {
+    "algoliasearch": "^4.19.1",
     "csvtojson": "^2.0",
     "elm-optimize-level-2": "^0.2",
     "elm-pages": "^2.1",
