@@ -16,6 +16,7 @@ import Path
 import Route
 import Shared exposing (Twilog, TwitterStatusId(..))
 import Url
+import View exposing (imgLazy)
 
 
 type alias Secrets =
@@ -167,7 +168,7 @@ searchBox tagger renderer { searchResults, searching } =
         [ input
             [ type_ "search"
             , id "twilogs-search"
-            , placeholder "Twilog検索"
+            , placeholder "Twilog検索 by Algolia"
             , onInput (SetSearchTerm >> tagger)
             ]
             []
@@ -191,6 +192,19 @@ searchBox tagger renderer { searchResults, searching } =
                             in
                             renderer twilog |> permalink
                         )
-                    |> List.append [ small [] [ text ("約" ++ String.fromInt searchResults.estimatedTotalHits ++ "件") ] ]
+                    |> (\results ->
+                            small [] [ text ("約" ++ String.fromInt searchResults.estimatedTotalHits ++ "件") ]
+                                :: results
+                                ++ [ div [ class "provider" ]
+                                        [ text "Powered by "
+                                        , a
+                                            [ href "https://algolia.com"
+                                            , target "_blank"
+                                            , class "has-image"
+                                            ]
+                                            [ imgLazy [ src "/algolia.svg" ] [] ]
+                                        ]
+                                   ]
+                       )
                     |> div [ class "search-results" ]
         ]

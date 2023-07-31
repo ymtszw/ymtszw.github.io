@@ -683,8 +683,7 @@ nav.twilog-archive-navigation ul li.selected::after {
   background-color: #fff9c4;
   cursor: pointer;
 }
-.search .search-results::after {
-  content: "Powered by Meilisearch";
+.search .search-results .provider {
   position: relative;
   display: block;
   width: 100%;
@@ -693,6 +692,13 @@ nav.twilog-archive-navigation ul li.selected::after {
   color: #999;
   font-size: 0.8em;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  & img {
+    display: inline;
+    vertical-align: middle;
+    height: 1em;
+    margin: 0;
+  }
 }
 
 /* 書架 */

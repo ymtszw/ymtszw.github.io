@@ -205,7 +205,7 @@ view _ shared m app =
 - Zapierを起点としてうまいことTweetを継続的に蓄積
 - それを自前でTwilogっぽくwebページ化（サイトはデイリービルド）
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（完成）
-- Meilisearchで検索機能提供
+- 検索SaaSを使って検索機能提供
 """
         , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m
         ]
