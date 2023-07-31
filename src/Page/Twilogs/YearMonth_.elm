@@ -46,7 +46,7 @@ type alias RouteParams =
 
 type alias Data =
     { dailyTwilogsFromOldest : Dict RataDie (List Twilog)
-    , searchApiKey : String
+    , searchSecrets : TwilogSearch.Secrets
     , amazonAssociateTag : String
     }
 
@@ -58,7 +58,7 @@ page =
         , data = data
         }
         |> Page.buildWithSharedState
-            { init = \_ _ app -> ( TwilogSearch.init app.data.searchApiKey, Helper.initMsg InitiateLinkPreviewPopulation )
+            { init = \_ _ app -> ( TwilogSearch.init app.data.searchSecrets, Helper.initMsg InitiateLinkPreviewPopulation )
             , update = update
             , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
@@ -84,7 +84,7 @@ data routeParams =
                     |> Shared.dailyTwilogsFromOldest
                     |> DataSource.map Data
             )
-        |> DataSource.andMap TwilogSearch.apiKey
+        |> DataSource.andMap TwilogSearch.secrets
         |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
 
 

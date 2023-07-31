@@ -1,4 +1,4 @@
-module TwilogSearch exposing (Model, Msg, apiKey, init, searchBox, update)
+module TwilogSearch exposing (Model, Msg, Secrets, init, searchBox, secrets, update)
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
@@ -15,18 +15,28 @@ import OptimizedDecoder
 import Path
 import Route
 import Shared exposing (Twilog, TwitterStatusId(..))
+import Url
 
 
-apiKey : DataSource String
-apiKey =
-    DataSource.Env.load "TWILOG_SEARCH_API_KEY"
+type alias Secrets =
+    { algoliaAppId : String
+    , clientSearchKey : String
+    }
+
+
+secrets : DataSource Secrets
+secrets =
+    DataSource.map2 Secrets
+        (DataSource.Env.load "ALGOLIA_APP_ID")
+        (DataSource.Env.load "ALGOLIA_SEARCH_KEY")
 
 
 type alias Model =
     { searchResults : SearchTwilogsResult
     , searching : Bool
     , searchTerm : Debounce String
-    , searchApiKey : String
+    , algoliaAppId : String
+    , clientSearchKey : String
     }
 
 
@@ -37,9 +47,14 @@ type alias SearchTwilogsResult =
     }
 
 
-init : String -> Model
-init clientSearchKey =
-    { searchResults = emptyResult, searching = False, searchTerm = Debounce.init, searchApiKey = clientSearchKey }
+init : Secrets -> Model
+init { algoliaAppId, clientSearchKey } =
+    { searchResults = emptyResult
+    , searching = False
+    , searchTerm = Debounce.init
+    , algoliaAppId = algoliaAppId
+    , clientSearchKey = clientSearchKey
+    }
 
 
 emptyResult =
@@ -76,7 +91,7 @@ update msg model =
         DebounceMsg dMsg ->
             let
                 ( newDebounce, cmd ) =
-                    Debounce.update debounceConfig (Debounce.takeLast (searchTwilogs Res_SearchTwilogs model.searchApiKey)) dMsg model.searchTerm
+                    Debounce.update debounceConfig (Debounce.takeLast (searchTwilogs Res_SearchTwilogs model)) dMsg model.searchTerm
             in
             ( { model | searchTerm = newDebounce }
             , cmd
@@ -105,12 +120,15 @@ debounceConfig =
     }
 
 
-searchTwilogs : (Result String SearchTwilogsResult -> msg) -> String -> String -> Cmd msg
-searchTwilogs tagger clientSearchKey term =
+searchTwilogs : (Result String SearchTwilogsResult -> msg) -> Model -> String -> Cmd msg
+searchTwilogs tagger { algoliaAppId, clientSearchKey } term =
     Http.request
         { method = "POST"
-        , url = "https://ms-302b6a5b2398-3215.sgp.meilisearch.io/indexes/ymtszw-twilogs/search"
-        , headers = [ Http.header "Authorization" ("Bearer " ++ clientSearchKey) ]
+        , url = "https://" ++ algoliaAppId ++ "-dsn.algolia.net/1/indexes/ymtszw-twilogs/query"
+        , headers =
+            [ Http.header "X-Algolia-Application-Id" algoliaAppId
+            , Http.header "X-Algolia-API-Key" clientSearchKey
+            ]
         , body = searchBody term
         , timeout = Just 5000
         , tracker = Nothing
@@ -122,8 +140,7 @@ searchBody : String -> Http.Body
 searchBody term =
     Http.jsonBody <|
         Json.Encode.object
-            [ ( "q", Json.Encode.string term )
-            , ( "limit", Json.Encode.int 10 )
+            [ ( "params", Json.Encode.string <| "query=" ++ Url.percentEncode term ++ "&hitsPerPage=10" )
             ]
 
 
@@ -134,14 +151,8 @@ searchResultDecoder term =
             OptimizedDecoder.decoder (Shared.twilogDecoder Nothing)
     in
     Json.Decode.map2 (SearchTwilogsResult term)
-        (Json.Decode.field "hits"
-            (Json.Decode.oneOf
-                [ Json.Decode.list (Json.Decode.field "_formatted" hitTwilogDecoder)
-                , Json.Decode.list hitTwilogDecoder
-                ]
-            )
-        )
-        (Json.Decode.field "estimatedTotalHits" Json.Decode.int)
+        (Json.Decode.field "hits" (Json.Decode.list hitTwilogDecoder))
+        (Json.Decode.field "nbHits" Json.Decode.int)
 
 
 
