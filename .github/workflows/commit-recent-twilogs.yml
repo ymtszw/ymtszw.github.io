@@ -44,8 +44,8 @@ jobs:
           fi
         env:
           MY_TWILOG_CSV_URL: ${{ secrets.MY_TWILOG_CSV_URL }}
-          MEILISEARCH_HOST: ${{ secrets.MEILISEARCH_HOST }}
-          MEILISEARCH_ADMIN_KEY: ${{ secrets.MEILISEARCH_ADMIN_KEY }}
+          ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+          ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
     outputs:
       has_new_twilogs: ${{ steps.fetch.outputs.has_new_twilogs }}
   deploy:
