@@ -1,26 +1,18 @@
-import { MeiliSearch, MeiliSearchApiError } from "meilisearch";
+import algoliasearch from "algoliasearch";
 import { readFile } from "fs/promises";
-import { eng, jpn } from "stopword";
 
 const indexUid = "ymtszw-twilogs";
 
-const client = new MeiliSearch({
-  host: process.env.MEILISEARCH_HOST,
-  apiKey: process.env.MEILISEARCH_ADMIN_KEY,
-});
+const client = algoliasearch(
+  process.env.ALGOLIA_APP_ID,
+  process.env.ALGOLIA_ADMIN_KEY
+);
 
-let index;
-try {
-  index = await client.getIndex(indexUid);
-} catch (e) {
-  if (e instanceof MeiliSearchApiError && e.httpStatus === 404) {
-    index = await client.createIndex(indexUid, { primaryKey: "StatusId" });
-  }
-}
+const index = client.initIndex(indexUid);
 
 // 変更すると全体再indexが開始される
-const updated = await index.updateSettings({
-  pagination: { maxTotalHits: 30 },
+const setResponse = await index.setSettings({
+  paginationLimitedTo: 30,
   searchableAttributes: [
     "CreatedAt",
     "UserName",
@@ -29,7 +21,7 @@ const updated = await index.updateSettings({
     "RetweetedStatusFullText",
     "QuotedStatusFullText",
   ],
-  displayedAttributes: [
+  attributesToRetrieve: [
     "StatusId",
     "CreatedAt",
     "UserName",
@@ -42,7 +34,7 @@ const updated = await index.updateSettings({
     "RetweetedStatusUserProfileImageUrl",
     "QuotedStatusFullText",
   ],
-  filterableAttributes: [
+  attributesToTransliterate: [
     "CreatedAt",
     "UserName",
     "Text",
@@ -50,17 +42,19 @@ const updated = await index.updateSettings({
     "RetweetedStatusFullText",
     "QuotedStatusFullText",
   ],
+  indexLanguages: ["ja", "en"],
+  queryLanguages: ["ja", "en"],
+  removeStopWords: true,
 });
-console.log("Index settings", updated);
-
-const stopWords = [...eng, ...jpn];
-console.log("Stop words", await index.updateStopWords(stopWords));
+console.log("Index settings", setResponse);
 
 // Indexingは非同期で、裏でqueue管理される
 process.argv.slice(2).forEach(async (changedArchivePath) => {
   const json = await readFile(changedArchivePath);
-  const documents = JSON.parse(json);
-  await index.addDocuments(documents);
+  const documents = JSON.parse(json).map((d) => {
+    return Object.assign(d, { objectID: d.StatusId });
+  });
+  await index.saveObjects(documents, { batchSize: 999999 });
   console.log("Indexing requested", changedArchivePath);
 });
 
@@ -70,14 +64,11 @@ testSearch(candidates[Math.floor(Math.random() * candidates.length)]);
 
 async function testSearch(term) {
   const res = await index.search(term, {
-    limit: 3,
-    attributesToHighlight: ["Text", "QuotedStatusFullText"],
-    highlightPreTag: " **",
-    highlightPostTag: "** ",
+    hitsPerPage: 3,
   });
   console.log(
     "Search test",
     term,
-    res.hits.map((h) => h._formatted)
+    res.hits.map((h) => h.Text)
   );
 }
