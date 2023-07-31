@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: "16"
       - run: npm ci
-      - run: npm run build_kindle_meilisearch_index
+      - run: npm run build_kindle_search_index
         env:
           BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
           ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}

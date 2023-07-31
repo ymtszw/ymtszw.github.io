@@ -38,7 +38,7 @@ jobs:
         id: fetch
         run: |
           if npm run fetch_recent_twilogs; then
-            git diff --name-only HEAD~ | grep "\-twilogs.json" | xargs npm run build_twilog_meilisearch_index
+            git diff --name-only HEAD~ | grep "\-twilogs.json" | xargs npm run build_twilog_search_index
             git push origin HEAD:master
             echo "has_new_twilogs=true" >> "$GITHUB_OUTPUT"
           fi
