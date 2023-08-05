@@ -83,6 +83,5 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ymtszw-github-io
           directory: ./dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           # git連携していないPagesプロジェクトのデフォルトは、branchをmainと名付けると本番環境になる
           branch: main
