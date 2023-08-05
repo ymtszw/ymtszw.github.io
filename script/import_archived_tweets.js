@@ -85,11 +85,10 @@ function destructivelyResolveRetweet(simplified, tweet) {
     // GET users/show APIが使えればユーザーのプロフィール画像URLを取得できるが、
     // このAPIは要認証APIのため開発者アカウントが必要。
     // cf. https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-show
-    // LinkPreviewサービスのTwitter User Profile Image機能もあるが、
-    // => simplified.RetweetedStatusUserProfileImageUrl = `https://link-preview.ymtszw.workers.dev?tw-profile-icon=${rtUserName}`;
-    // Cloudflare Workersの無料枠ではCPU時間が足りないことが多く、Cloudinaryを採用。ただしこちらもCreditの不安がある。
-    // キャッシュ挙動はこちら: https://support.cloudinary.com/hc/en-us/articles/207307269-For-how-long-does-Cloudinary-cache-my-delivered-content-on-the-CDN-
-    simplified.RetweetedStatusUserProfileImageUrl = `https://res.cloudinary.com/du9b7ybxy/image/twitter_name/h_20,w_20,d_default_twitter_avatar.jpg/${rtUserName}.jpg`;
+    // Cloudinaryの機能を使っていたが、結局上記開発者アカウントが必須になってしまったので撤退。
+    // LinkPreviewサービスのTwitter User Profile Image機能をアグレッシブにキャッシュする挙動にして使っている。
+    simplified.RetweetedStatusUserProfileImageUrl = `https://link-preview.ymtszw.workers.dev?tw-profile-icon=${rtUserName}`;
+    // Cloudflare Workersの無料枠ではCPU時間が足りないことも多い。
   } else {
     simplified.Retweet = "FALSE";
   }
