@@ -31,10 +31,10 @@ jobs:
           submodules: recursive
       - uses: actions/cache@v3
         with:
-          key: v3-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
+          key: v4-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
           restore-keys: |
-            v3-${{ hashFiles('package-lock.json') }}-
-            v3-
+            v4-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            v4-${{ runner.arch }}-${{ runner.os }}-
           path: |
             node_modules/
             elm-stuff/
