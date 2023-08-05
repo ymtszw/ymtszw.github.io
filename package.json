@@ -21,6 +21,7 @@
     "elm-test": "^0.19.1-revision12",
     "elm-tooling": "^1.4",
     "node-fetch": "^3.3",
-    "patch-package": "^7.0"
+    "patch-package": "^7.0",
+    "wrangler": "^2.2"
   }
 }
