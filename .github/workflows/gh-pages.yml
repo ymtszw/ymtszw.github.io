@@ -74,7 +74,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: github-pages # default of actions/upload-pages-artifact
-          path: ./dist
+          path: .
+      - name: untar gzipped artifact.tar into ./dist
+        run: tar -xzf ./artifact.tar -C ./dist
       - uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
