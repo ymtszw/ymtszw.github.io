@@ -380,7 +380,7 @@ siteBuildStatus =
     Html.a [ Html.Attributes.href "https://github.com/ymtszw/ymtszw.github.io/actions", Html.Attributes.target "_blank", Html.Attributes.class "has-image" ]
         [ View.imgLazy
             [ Html.Attributes.src "https://github.com/ymtszw/ymtszw.github.io/actions/workflows/gh-pages.yml/badge.svg"
-            , Html.Attributes.alt "GitHub Pages: ymtszw/ymtszw.github.io"
+            , Html.Attributes.alt "Build status badge of the site"
             , Html.Attributes.height 20
             ]
             []
