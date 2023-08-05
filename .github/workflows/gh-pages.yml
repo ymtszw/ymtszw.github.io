@@ -55,6 +55,14 @@ jobs:
           AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
           BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
           LIBRARY_KEY_SEED_HASH: ${{ secrets.LIBRARY_KEY_SEED_HASH }}
+      - uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ymtszw-github-io
+          directory: ./dist
+          # git連携していないPagesプロジェクトのデフォルトは、branchをmainと名付けると本番環境になる
+          branch: main
       - uses: actions/upload-pages-artifact@v1
         with:
           path: ./dist
@@ -67,23 +75,3 @@ jobs:
     steps:
       - uses: actions/deploy-pages@v2
         id: deployment
-  deploy-cloudflare:
-    needs: build
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: github-pages # default of actions/upload-pages-artifact
-          path: .
-      - name: Untar artifact.tar into ./dist
-        run: |
-          mkdir -p ./dist
-          tar -xvf artifact.tar -C ./dist
-      - uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ymtszw-github-io
-          directory: ./dist
-          # git連携していないPagesプロジェクトのデフォルトは、branchをmainと名付けると本番環境になる
-          branch: main
