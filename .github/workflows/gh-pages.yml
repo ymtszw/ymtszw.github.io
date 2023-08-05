@@ -67,3 +67,18 @@ jobs:
     steps:
       - uses: actions/deploy-pages@v2
         id: deployment
+  deploy-cloudflare:
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: github-pages # default of actions/upload-pages-artifact
+          path: ./dist
+      - uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ymtszw-github-io
+          directory: ./dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
