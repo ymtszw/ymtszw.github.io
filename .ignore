@@ -1,0 +1,2 @@
+# gitignoreするが、VSCodeの検索対象には含める
+!.elm-pages/
