@@ -58,7 +58,7 @@ manifest _ =
 
 canonicalUrl : String
 canonicalUrl =
-    "https://ymtszw.github.io"
+    "https://ymtszw.cc"
 
 
 title : String

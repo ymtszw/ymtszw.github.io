@@ -305,7 +305,7 @@ htmlRenderer =
 
 destAttr : String -> List (Html.Attribute msg)
 destAttr destination =
-    if not (String.startsWith "https://ymtszw.github.io/" destination) && (String.startsWith "http://" destination || String.startsWith "https://" destination) then
+    if not (String.startsWith "https://ymtszw.github.io/" destination) && not (String.startsWith "https://ymtszw.cc" destination) && (String.startsWith "http://" destination || String.startsWith "https://" destination) then
         [ Html.Attributes.href destination, Html.Attributes.target "_blank" ]
 
     else

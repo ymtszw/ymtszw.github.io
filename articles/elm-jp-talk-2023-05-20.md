@@ -53,7 +53,7 @@ publishedAt: 2023-06-06T19:00:00.000+09:00
 
 このサイトの記事は元々microCMSから入稿するようにJAMStack実装した。
 
-<https://ymtszw.github.io/articles/elm-pages-and-headless-cms>
+<https://ymtszw.cc/articles/elm-pages-and-headless-cms>
 
 ただ、Markdown記事入稿なら正直microCMS経由するよりgit管理のほうが楽というのがあり、発表後にちょっといじって対応した。この記事原稿もgit管理されている。
 
