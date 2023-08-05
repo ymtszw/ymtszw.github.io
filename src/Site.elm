@@ -32,7 +32,8 @@ head _ =
         Pages.Url.external "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4bbee72905cf4e5fa4a55d9de0d9593b/icon-square.png?w=100&h=100"
     , Head.appleTouchIcon (Just 192) <|
         Pages.Url.external "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4bbee72905cf4e5fa4a55d9de0d9593b/icon-square.png?w=192&h=192"
-    , Head.metaName "google-site-verification" (Head.raw "Bby4JbWa2r4u77WnDC7sWGQbmIWji1Z5cQwCTAXr0Sg")
+    , -- ymtszw.github.io 時代のSearch Console認証
+      Head.metaName "google-site-verification" (Head.raw "Bby4JbWa2r4u77WnDC7sWGQbmIWji1Z5cQwCTAXr0Sg")
     , Head.sitemapLink "/sitemap.xml"
     , Head.rssLink "/articles/feed.xml"
     ]
