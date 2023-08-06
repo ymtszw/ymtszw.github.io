@@ -283,7 +283,12 @@ update _ _ _ app msg ({ filter } as m) =
                 )
 
             else
-                ( { m | popoverOpened = True, selectedBook = Just selected }, KindleBook.getOnDemand Res_getKindleBookOnDemand app.data.secrets (Tuple.second selected) )
+                ( { m | popoverOpened = True, selectedBook = Just selected }
+                , -- 人力注釈やレビューでKindleBookはruntimeに更新されている可能性がある
+                  -- しばらく時間が経てばstatic buildにも反映されるが、それまではオンデマンドで取得しないとstaleデータが見え続ける
+                  -- このページではPopoverを開いたタイミングで更新する
+                  KindleBook.getOnDemand Res_getKindleBookOnDemand app.data.secrets (Tuple.second selected)
+                )
 
         ToggleKindlePopover Nothing ->
             ( { m | popoverOpened = False }, Cmd.none )
@@ -463,6 +468,7 @@ kindleBookshelf m app =
         |> Html.Keyed.node "div" [ class "kindle-bookshelf", classList [ ( "locked", not m.unlocked ) ] ]
 
 
+kindleData : Model -> StaticPayload Data RouteParams -> Html Msg
 kindleData m app =
     details [ class "kindle-data", classList [ ( "locked", not m.unlocked ) ] ]
         [ summary [] [ text <| "蔵書数: " ++ String.fromInt app.data.numberOfBooks ]
@@ -485,7 +491,7 @@ kindleData m app =
                 )
                 m.seriesTableState
                 (if m.unlocked then
-                    Dict.toList app.data.kindleBooks
+                    Dict.toList m.decryptedKindleBooks
 
                  else
                     []
@@ -509,6 +515,7 @@ kindleData m app =
                 )
                 m.authorsTableState
                 (if m.unlocked then
+                    -- 統計テーブルの方はstaticデータの更新までstaleデータを元にする
                     Dict.toList app.data.authors
 
                  else
@@ -533,6 +540,7 @@ kindleData m app =
                 )
                 m.labelsTableState
                 (if m.unlocked then
+                    -- 統計テーブルの方はstaticデータの更新までstaleデータを元にする
                     Dict.toList app.data.labels
 
                  else
