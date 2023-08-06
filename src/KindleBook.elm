@@ -5,7 +5,7 @@ import DataSource.Env
 import DataSource.Http
 import Date exposing (Date)
 import Dict exposing (Dict)
-import Helper exposing (dataSourceWith, decodeWith, nonEmptyString)
+import Helper exposing (dataSourceWith, decodeWith, japaneseDateDecoder, nonEmptyString)
 import Http
 import Json.Encode
 import KindleBookTitle exposing (kindleBookTitle)
@@ -152,7 +152,7 @@ decodeNormalizedBook =
                 (OptimizedDecoder.succeed seriesName)
                 (OptimizedDecoder.field "authors" (OptimizedDecoder.list nonEmptyString))
                 (OptimizedDecoder.field "img" nonEmptyString)
-                (OptimizedDecoder.field "acquiredDate" japaneseDate)
+                (OptimizedDecoder.field "acquiredDate" japaneseDateDecoder)
 
 
 decodeRawBook =
@@ -166,7 +166,7 @@ decodeRawBook =
                 (OptimizedDecoder.succeed parsed.seriesName |> OptimizedDecoder.map j2a)
                 (OptimizedDecoder.field "authors" (OptimizedDecoder.list (OptimizedDecoder.map (j2a >> normalizeAuthor) nonEmptyString) |> OptimizedDecoder.map (List.filter notStopWords)))
                 (OptimizedDecoder.field "img" nonEmptyString)
-                (OptimizedDecoder.field "acquiredDate" japaneseDate)
+                (OptimizedDecoder.field "acquiredDate" japaneseDateDecoder)
 
 
 j2a : String -> String
@@ -373,24 +373,6 @@ j2a =
                     c
     in
     String.map mapper
-
-
-japaneseDate : OptimizedDecoder.Decoder Date
-japaneseDate =
-    decodeWith nonEmptyString <|
-        \str ->
-            OptimizedDecoder.fromResult <|
-                case String.split "年" str of
-                    [ year, monthDay ] ->
-                        case String.split "月" monthDay of
-                            [ month, day ] ->
-                                Date.fromIsoString <| String.join "-" <| [ year, String.padLeft 2 '0' month, String.padLeft 2 '0' <| String.dropRight 1 day ]
-
-                            _ ->
-                                Err <| "Invalid Date: " ++ str
-
-                    _ ->
-                        Err <| "Invalid Date: " ++ str
 
 
 normalizeAuthor : String -> String

@@ -1,6 +1,7 @@
-module Helper exposing (dataSourceWith, decodeWith, initMsg, iso8601Decoder, makeAmazonUrl, makeDisplayUrl, nonEmptyString, waitMsg)
+module Helper exposing (dataSourceWith, decodeWith, initMsg, iso8601Decoder, japaneseDateDecoder, makeAmazonUrl, makeDisplayUrl, nonEmptyString, toJapaneseDate, waitMsg)
 
 import DataSource exposing (DataSource)
+import Date exposing (Date)
 import Iso8601
 import OptimizedDecoder
 import Process
@@ -23,6 +24,38 @@ decodeWith a b =
 iso8601Decoder : OptimizedDecoder.Decoder Time.Posix
 iso8601Decoder =
     OptimizedDecoder.andThen (Iso8601.toTime >> Result.mapError (\_ -> "Invalid ISO8601 timestamp") >> OptimizedDecoder.fromResult) OptimizedDecoder.string
+
+
+japaneseDateDecoder : OptimizedDecoder.Decoder Date
+japaneseDateDecoder =
+    decodeWith nonEmptyString <|
+        OptimizedDecoder.fromResult
+            << fromJapaneseDate
+
+
+fromJapaneseDate : String -> Result String Date
+fromJapaneseDate str =
+    case String.split "年" str of
+        [ year, monthDay ] ->
+            case String.split "月" monthDay of
+                [ month, day ] ->
+                    Date.fromIsoString <| String.join "-" <| [ year, String.padLeft 2 '0' month, String.padLeft 2 '0' <| String.dropRight 1 day ]
+
+                _ ->
+                    Err <| "Invalid Date: " ++ str
+
+        _ ->
+            Err <| "Invalid Date: " ++ str
+
+
+toJapaneseDate : Date -> String
+toJapaneseDate date =
+    String.fromInt (Date.year date)
+        ++ "年"
+        ++ String.fromInt (Date.monthNumber date)
+        ++ "月"
+        ++ String.fromInt (Date.day date)
+        ++ "日"
 
 
 nonEmptyString : OptimizedDecoder.Decoder String
