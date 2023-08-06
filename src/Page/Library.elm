@@ -297,19 +297,37 @@ update _ _ _ app msg ({ filter } as m) =
             ( { m | popoverOpened = False, editingBook = Nothing }, Cmd.none )
 
         EditKindleBook editingBook ->
-            ( { m | editingBook = editingBook }
-            , case ( m.editingBook, editingBook ) of
-                ( Just editing, Nothing ) ->
-                    -- TODO 明示的な閉じ動作を確定とみなして保存する
+            case ( m.selectedBook, m.editingBook, editingBook ) of
+                ( Just ( previousSeriesName, _ ), Just editing, Nothing ) ->
+                    -- 明示的な編集終了動作を確定とみなして保存する
                     -- このとき初めての保存動作であれば、何も編集していなかったとしても、
                     -- editingの中身がGist由来の元の書籍タイトルをparseした結果であるため、
                     -- それがAlgoliaに保存されて若干情報量が増える。
                     -- ２回目以降の保存動作であれば、実際に内容に変更がないと挙動に変化がない。
-                    KindleBook.putOnDemand Res_refreshKindleBookOnDemand app.data.secrets editing
+                    ( if previousSeriesName == editing.seriesName then
+                        { m | editingBook = editingBook }
+
+                      else
+                        -- シリーズ名が変わった場合
+                        let
+                            updater previousSeries =
+                                case List.filter (\book -> book.id /= editing.id) previousSeries of
+                                    [] ->
+                                        Nothing
+
+                                    updated ->
+                                        Just updated
+                        in
+                        { m
+                            | editingBook = editingBook
+                            , selectedBook = Just ( editing.seriesName, editing.id )
+                            , decryptedKindleBooks = Dict.update previousSeriesName (Maybe.andThen updater) m.decryptedKindleBooks
+                        }
+                    , KindleBook.putOnDemand Res_refreshKindleBookOnDemand app.data.secrets editing
+                    )
 
                 _ ->
-                    Cmd.none
-            )
+                    ( { m | editingBook = editingBook }, Cmd.none )
 
         UnlockLibrary pw ->
             if unlockLibrary app.data.libraryKeySeedHash pw then
@@ -350,7 +368,17 @@ update _ _ _ app msg ({ filter } as m) =
                 updater currentSeries =
                     case currentSeries of
                         Just books ->
-                            Just (List.Extra.setIf (\before -> before.id == book.id) book books)
+                            -- groupBySeriesNameのsort挙動に従う
+                            Just <|
+                                List.sortBy .volume <|
+                                    case List.Extra.findIndex (\before -> before.id == book.id) books of
+                                        Just foundIndex ->
+                                            -- 既存シリーズの本のシリーズ名以外を編集した場合
+                                            List.Extra.setAt foundIndex book books
+
+                                        Nothing ->
+                                            -- 別のシリーズから移動した場合
+                                            book :: books
 
                         Nothing ->
                             -- 人力注釈でシリーズ名を編集した後にread after writeすると新規シリーズが生まれることがある
@@ -404,7 +432,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - 上記ページを不定期に手動で開いて蔵書DBを更新
 - サイトビルド時に蔵書DBを読み込み、ページを描画
 - ただし書架は検索に載せない自分専用、事前共有鍵でロック
-- **TODO**: 人力データ修正機能
+- データの正規化（人力注釈）機能
 - **TODO**: レビュー機能＆レビュー自動記事化
 - **TODO**: DataSourceを暗号化→ロック解除時に復号
 """
@@ -486,6 +514,7 @@ kindleBookshelf m app =
                                     ]
                                     [ div [ class "kindle-bookshelf-image", style "background-color" <| seriesColor seriesName ] [] ]
                     )
+                    -- booksはDataSourceの時点でvolumeでソートされている前提
                     books
                     ++ seriesBookmark books
             )
@@ -583,6 +612,7 @@ doFilter f =
         filterByLabels labels books =
             List.any (\label_ -> List.any (\book -> Maybe.withDefault "" book.label == label_) books) labels
     in
+    -- 基本的にシリーズ単位でList.anyで探索するため、シリーズ途中で著者やレーベルが変わった場合もシリーズ全巻がマッチする
     case ( Set.toList f.authors, Set.toList f.labels ) of
         ( [], [] ) ->
             identity
@@ -729,7 +759,7 @@ kindlePopover amazonAssociateTag decryptedKindleBooks f openedBook maybeEditingB
                                                     edit handler currentValue =
                                                         input [ class "kindle-book-edit-input", type_ "text", value currentValue, onChange (EditKindleBook << Just << handler) ] []
                                                 in
-                                                [ ( "著者", edit (\s -> { editingBook | authors = String.split "," s }) (String.join "," editingBook.authors) )
+                                                [ ( "著者", edit (\s -> { editingBook | authors = String.split "," s |> List.map String.trim }) (String.join "," editingBook.authors) )
                                                 , ( "シリーズ", edit (\s -> { editingBook | seriesName = s }) editingBook.seriesName )
                                                 , ( "巻数", edit (\s -> String.toInt s |> Maybe.map (\i -> { editingBook | volume = i }) |> Maybe.withDefault editingBook) (String.fromInt editingBook.volume) )
                                                 , ( "レーベル", edit (\s -> { editingBook | label = Just s }) (Maybe.withDefault "" editingBook.label) )

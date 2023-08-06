@@ -175,8 +175,7 @@ kindleBookDecoder =
 
 
 decodeNormalizedBook =
-    -- TODO 面倒なので、正規化（人力注釈）機能は必須項目を必ず埋めさせるようにする予定。
-    -- また、decodeRawBookで機械的に正規化された結果はある程度そのまま保存する。
+    -- 人力注釈機能の仕様上、decodeRawBookで機械的に正規化された結果はある程度そのまま保存されることが多い。
     -- ここではそれを前提に、最も特徴的なseriesNameの存在を先にチェックしてfail-fast.
     decodeWith (OptimizedDecoder.field "seriesName" nonEmptyString) <|
         \seriesName ->
