@@ -9,7 +9,7 @@ import Date
 import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
-import Helper exposing (dataSourceWith)
+import Helper exposing (dataSourceWith, onChange)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -297,7 +297,15 @@ update _ _ _ app msg ({ filter } as m) =
             ( { m | popoverOpened = False, editingBook = Nothing }, Cmd.none )
 
         EditKindleBook editingBook ->
-            ( { m | editingBook = editingBook }, Cmd.none )
+            ( { m | editingBook = editingBook }
+            , case ( m.editingBook, editingBook ) of
+                ( Just editing, Nothing ) ->
+                    -- TODO 明示的な閉じ動作を確定とみなして保存する
+                    Cmd.none
+
+                _ ->
+                    Cmd.none
+            )
 
         UnlockLibrary pw ->
             if unlockLibrary app.data.libraryKeySeedHash pw then
@@ -714,13 +722,13 @@ kindlePopover amazonAssociateTag decryptedKindleBooks f openedBook maybeEditingB
                                         , ul [] <|
                                             List.map (\( key, kid ) -> li [] [ strong [] [ text key ], text " : ", kid ]) <|
                                                 let
-                                                    edit currentValue =
-                                                        input [ class "kindle-book-edit-input", type_ "text", value currentValue ] []
+                                                    edit handler currentValue =
+                                                        input [ class "kindle-book-edit-input", type_ "text", value currentValue, onChange (EditKindleBook << Just << handler) ] []
                                                 in
-                                                [ ( "著者", edit (String.join "," editingBook.authors) )
-                                                , ( "シリーズ", edit editingBook.seriesName )
-                                                , ( "巻数", edit (String.fromInt editingBook.volume) )
-                                                , ( "レーベル", edit (Maybe.withDefault "" editingBook.label) )
+                                                [ ( "著者", edit (\s -> { editingBook | authors = String.split "," s }) (String.join "," editingBook.authors) )
+                                                , ( "シリーズ", edit (\s -> { editingBook | seriesName = s }) editingBook.seriesName )
+                                                , ( "巻数", edit (\s -> String.toInt s |> Maybe.map (\i -> { editingBook | volume = i }) |> Maybe.withDefault editingBook) (String.fromInt editingBook.volume) )
+                                                , ( "レーベル", edit (\s -> { editingBook | label = Just s }) (Maybe.withDefault "" editingBook.label) )
                                                 , ( "購入日", text (Helper.toJapaneseDate editingBook.acquiredDate) )
                                                 ]
                                         ]
