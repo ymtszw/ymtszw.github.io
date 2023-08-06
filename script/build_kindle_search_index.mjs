@@ -15,6 +15,7 @@ const setResponse = await index.setSettings({
   paginationLimitedTo: 30,
   searchableAttributes: [
     "title",
+    "rawTitle",
     "authors",
     "seriesName",
     "volume",
@@ -23,7 +24,8 @@ const setResponse = await index.setSettings({
   ],
   attributesToRetrieve: [
     "id",
-    "title",
+    "title", // parse前
+    "rawTitle", // parse後
     "authors",
     "img",
     "acquiredDate",
@@ -34,6 +36,7 @@ const setResponse = await index.setSettings({
   ],
   attributesToTransliterate: [
     "title",
+    "rawTitle",
     "authors",
     "seriesName",
     "volume",
@@ -46,12 +49,14 @@ const setResponse = await index.setSettings({
 });
 console.log("Index settings", setResponse);
 
-// Indexingは非同期で、裏でqueue管理される
+// Gistから元データの一覧を取得する
 const res = await fetch(process.env.BOOKS_JSON_URL);
 const books = Object.values(await res.json()).map((book) => {
   return Object.assign(book, { objectID: book.id });
 });
 console.log("books", books.length);
+
+// Algoliaからindex済みのID一覧を取得する
 const indexedIds = (
   await Promise.all(
     arrayChunks(
@@ -65,14 +70,16 @@ const indexedIds = (
   )
 ).flat();
 
+// 最新とIndex済みとで件数に差分がなければ終了
 console.log("indexed", indexedIds.length);
 if (indexedIds.length === books.length) {
   console.log("No need to index");
   process.exit(0);
 }
 
+// 差分があれば、Indexされていないものだけする
+// Indexingは非同期で、裏でqueue管理される
 const toIndex = books.filter((book) => !indexedIds.includes(book.id));
-
 await index.saveObjects(toIndex, { batchSize: 999999 });
 console.log("Indexing requested", toIndex);
 
