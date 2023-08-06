@@ -309,6 +309,9 @@ update _ _ _ app msg ({ filter } as m) =
 
                       else
                         -- シリーズ名が変わった場合
+                        -- NOTE: この処理はRes_refreshKindleBookOnDemand側の枝で行ったほうが汎用性が高まり、
+                        -- static buildが行われるまでの間に別のセッションで更新されたbookを読み込んだときに辞書を更新できる。
+                        -- が、この枝で実装したほうがpreviousSeriesNameと自然に比較できるので面倒が少ない。
                         let
                             updater previousSeries =
                                 case List.filter (\book -> book.id /= editing.id) previousSeries of
