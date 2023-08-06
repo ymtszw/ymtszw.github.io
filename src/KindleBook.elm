@@ -6,7 +6,9 @@ import DataSource.Http
 import Date exposing (Date)
 import Dict exposing (Dict)
 import Helper exposing (dataSourceWith, decodeWith, nonEmptyString)
+import Json.Encode
 import KindleBookTitle exposing (kindleBookTitle)
+import List.Extra
 import OptimizedDecoder
 import Pages.Secrets as Secrets
 import Regex
@@ -32,9 +34,68 @@ type alias SeriesName =
     String
 
 
+{-| KindleBookの全件DBを構成するDataSource.
+
+スクレイピングデータの一時置き場であるGistから全IDリストを獲得し、
+その後Algoliaから1000件ずつデータを取得して、最終的にDictに変換している。
+
+Algolia側のデータはスクレイピングデータを格納したあと、
+正規化（人力注釈）機能で更新されている情報が増えているかもしれない。
+
+-}
 kindleBooks : DataSource (Dict ASIN KindleBook)
 kindleBooks =
-    getFromGist (OptimizedDecoder.dict kindleBookDecoder)
+    let
+        idsDecoder =
+            OptimizedDecoder.dict (OptimizedDecoder.succeed ())
+                |> OptimizedDecoder.map Dict.keys
+
+        toDict =
+            List.foldl
+                (\books dict ->
+                    List.foldl (\book dict_ -> Dict.insert book.id book dict_) dict books
+                )
+                Dict.empty
+    in
+    dataSourceWith (getFromGist idsDecoder) <|
+        \ids ->
+            ids
+                |> List.Extra.greedyGroupsOf 1000
+                |> List.map getFromAlgolia
+                |> DataSource.combine
+                |> DataSource.map toDict
+
+
+{-| AlgoliaのGet Objects APIからデータを取得する。
+
+ドキュメントされていないが、1回最大1000件までしか取得できないことに注意。
+
+DocumentDBとしてAlgoliaを使っている格好だが、検索以外にフィルタ機構などはないので、
+DataSourceとして全件取得してからよしなに使うことになる。
+
+-}
+getFromAlgolia : List ASIN -> DataSource (List KindleBook)
+getFromAlgolia ids =
+    DataSource.Http.request
+        (Secrets.succeed
+            (\appId searchKey ->
+                let
+                    request id =
+                        Json.Encode.object
+                            [ ( "indexName", Json.Encode.string "ymtszw-kindle" )
+                            , ( "objectID", Json.Encode.string id )
+                            ]
+                in
+                { method = "POST"
+                , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
+                , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", searchKey ) ]
+                , body = DataSource.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
+                }
+            )
+            |> Secrets.with "ALGOLIA_APP_ID"
+            |> Secrets.with "ALGOLIA_SEARCH_KEY"
+        )
+        (OptimizedDecoder.field "results" (OptimizedDecoder.list kindleBookDecoder))
 
 
 getFromGist : OptimizedDecoder.Decoder a -> DataSource a
