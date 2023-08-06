@@ -1,4 +1,4 @@
-module KindleBook exposing (ASIN, KindleBook, Secrets, SeriesName, getOnDemand, kindleBooks, secrets)
+module KindleBook exposing (ASIN, KindleBook, Secrets, SeriesName, getOnDemand, kindleBooks, putOnDemand, secrets)
 
 import DataSource exposing (DataSource)
 import DataSource.Env
@@ -45,6 +45,7 @@ secrets : DataSource Secrets
 secrets =
     DataSource.map2 Secrets
         (DataSource.Env.load "ALGOLIA_APP_ID")
+        -- RuntimeにはReferrerと権限を制限したsearchKeyを使う
         (DataSource.Env.load "ALGOLIA_SEARCH_KEY")
 
 
@@ -62,6 +63,38 @@ getOnDemand tagger { appId, searchKey } objectId =
         , timeout = Just 5000
         , tracker = Nothing
         }
+
+
+putOnDemand : (Result String KindleBook -> msg) -> Secrets -> KindleBook -> Cmd msg
+putOnDemand tagger { appId, searchKey } updatedBook =
+    Http.request
+        { method = "PUT"
+        , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/ymtszw-kindle/" ++ updatedBook.id
+        , headers =
+            [ Http.header "X-Algolia-Application-Id" appId
+            , Http.header "X-Algolia-API-Key" searchKey
+            ]
+        , body = Http.jsonBody (serialize updatedBook)
+        , -- getOnDemand相当の結果は帰ってこない。当座は成功時、入力をそのまま返しておく。
+          -- Call siteでgetOnDemandするかどうかは自由。
+          expect = Http.expectWhatever (Result.mapError (\_ -> "") >> Result.map (\() -> updatedBook) >> tagger)
+        , timeout = Just 10000
+        , tracker = Nothing
+        }
+
+
+serialize : KindleBook -> Json.Encode.Value
+serialize book =
+    Json.Encode.object
+        [ ( "id", Json.Encode.string book.id )
+        , ( "rawTitle", Json.Encode.string book.rawTitle )
+        , ( "label", Maybe.map Json.Encode.string book.label |> Maybe.withDefault Json.Encode.null )
+        , ( "volume", Json.Encode.int book.volume )
+        , ( "seriesName", Json.Encode.string book.seriesName )
+        , ( "authors", Json.Encode.list Json.Encode.string book.authors )
+        , ( "img", Json.Encode.string book.img )
+        , ( "acquiredDate", Json.Encode.string (Helper.toJapaneseDate book.acquiredDate) )
+        ]
 
 
 {-| KindleBookの全件DBを構成するDataSource.
@@ -107,24 +140,27 @@ DataSourceとして全件取得してからよしなに使うことになる。
 get1000FromAlgolia : List ASIN -> DataSource (List KindleBook)
 get1000FromAlgolia ids =
     dataSourceWith secrets <|
-        \{ appId, searchKey } ->
-            DataSource.Http.request
-                (Secrets.succeed
-                    (let
-                        request id =
-                            Json.Encode.object
-                                [ ( "indexName", Json.Encode.string "ymtszw-kindle" )
-                                , ( "objectID", Json.Encode.string id )
-                                ]
-                     in
-                     { method = "POST"
-                     , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
-                     , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", searchKey ) ]
-                     , body = DataSource.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
-                     }
-                    )
-                )
-                (OptimizedDecoder.field "results" (OptimizedDecoder.list kindleBookDecoder))
+        \{ appId } ->
+            -- DataSourceではReferrer制限のないadminKeyを使う
+            dataSourceWith (DataSource.Env.load "ALGOLIA_ADMIN_KEY") <|
+                \adminKey ->
+                    DataSource.Http.request
+                        (Secrets.succeed
+                            (let
+                                request id =
+                                    Json.Encode.object
+                                        [ ( "indexName", Json.Encode.string "ymtszw-kindle" )
+                                        , ( "objectID", Json.Encode.string id )
+                                        ]
+                             in
+                             { method = "POST"
+                             , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
+                             , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", adminKey ) ]
+                             , body = DataSource.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
+                             }
+                            )
+                        )
+                        (OptimizedDecoder.field "results" (OptimizedDecoder.list kindleBookDecoder))
 
 
 getFromGist : OptimizedDecoder.Decoder a -> DataSource a
@@ -146,7 +182,7 @@ decodeNormalizedBook =
         \seriesName ->
             OptimizedDecoder.map8 KindleBook
                 (OptimizedDecoder.field "id" nonEmptyString)
-                (OptimizedDecoder.field "title" nonEmptyString)
+                (OptimizedDecoder.field "rawTitle" nonEmptyString)
                 (OptimizedDecoder.maybe (OptimizedDecoder.field "label" nonEmptyString))
                 (OptimizedDecoder.field "volume" OptimizedDecoder.int)
                 (OptimizedDecoder.succeed seriesName)

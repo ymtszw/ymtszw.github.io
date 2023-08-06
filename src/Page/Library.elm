@@ -257,7 +257,7 @@ type Msg
     | SeriesTableMsg Table.State
     | AuthorsTableMsg Table.State
     | LabelsTableMsg Table.State
-    | Res_getKindleBookOnDemand (Result String KindleBook)
+    | Res_refreshKindleBookOnDemand (Result String KindleBook)
 
 
 update : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg )
@@ -290,7 +290,7 @@ update _ _ _ app msg ({ filter } as m) =
                 , -- 人力注釈やレビューでKindleBookはruntimeに更新されている可能性がある
                   -- しばらく時間が経てばstatic buildにも反映されるが、それまではオンデマンドで取得しないとstaleデータが見え続ける
                   -- このページではPopoverを開いたタイミングで更新する
-                  KindleBook.getOnDemand Res_getKindleBookOnDemand app.data.secrets (Tuple.second selected)
+                  KindleBook.getOnDemand Res_refreshKindleBookOnDemand app.data.secrets (Tuple.second selected)
                 )
 
         ToggleKindlePopover Nothing ->
@@ -305,7 +305,7 @@ update _ _ _ app msg ({ filter } as m) =
                     -- editingの中身がGist由来の元の書籍タイトルをparseした結果であるため、
                     -- それがAlgoliaに保存されて若干情報量が増える。
                     -- ２回目以降の保存動作であれば、実際に内容に変更がないと挙動に変化がない。
-                    Cmd.none
+                    KindleBook.putOnDemand Res_refreshKindleBookOnDemand app.data.secrets editing
 
                 _ ->
                     Cmd.none
@@ -345,7 +345,7 @@ update _ _ _ app msg ({ filter } as m) =
         LabelsTableMsg state ->
             ( { m | labelsTableState = state }, Cmd.none )
 
-        Res_getKindleBookOnDemand (Ok book) ->
+        Res_refreshKindleBookOnDemand (Ok book) ->
             let
                 updater currentSeries =
                     case currentSeries of
@@ -358,7 +358,7 @@ update _ _ _ app msg ({ filter } as m) =
             in
             ( { m | decryptedKindleBooks = Dict.update book.seriesName updater m.decryptedKindleBooks }, Cmd.none )
 
-        Res_getKindleBookOnDemand (Err _) ->
+        Res_refreshKindleBookOnDemand (Err _) ->
             ( m, Cmd.none )
 
 
