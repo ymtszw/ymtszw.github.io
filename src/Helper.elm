@@ -1,8 +1,11 @@
-module Helper exposing (dataSourceWith, decodeWith, initMsg, iso8601Decoder, japaneseDateDecoder, makeAmazonUrl, makeDisplayUrl, nonEmptyString, toJapaneseDate, waitMsg)
+module Helper exposing (dataSourceWith, decodeWith, initMsg, iso8601Decoder, japaneseDateDecoder, makeAmazonUrl, makeDisplayUrl, nonEmptyString, onChange, toJapaneseDate, waitMsg)
 
 import DataSource exposing (DataSource)
 import Date exposing (Date)
+import Html
+import Html.Events
 import Iso8601
+import Json.Decode
 import OptimizedDecoder
 import Process
 import QS
@@ -161,3 +164,8 @@ embedTag amazonAssociateTag url =
                 }
            )
         |> Url.toString
+
+
+onChange : (String -> msg) -> Html.Attribute msg
+onChange handler =
+    Html.Events.stopPropagationOn "change" (Json.Decode.map (\a -> ( a, True )) (Json.Decode.map handler Html.Events.targetValue))
