@@ -1,4 +1,4 @@
-module KindleBook exposing (ASIN, KindleBook, SeriesName, kindleBooks)
+module KindleBook exposing (ASIN, KindleBook, Secrets, SeriesName, getOnDemand, kindleBooks, secrets)
 
 import DataSource exposing (DataSource)
 import DataSource.Env
@@ -6,6 +6,7 @@ import DataSource.Http
 import Date exposing (Date)
 import Dict exposing (Dict)
 import Helper exposing (dataSourceWith, decodeWith, nonEmptyString)
+import Http
 import Json.Encode
 import KindleBookTitle exposing (kindleBookTitle)
 import List.Extra
@@ -32,6 +33,35 @@ type alias ASIN =
 
 type alias SeriesName =
     String
+
+
+type alias Secrets =
+    { appId : String
+    , searchKey : String
+    }
+
+
+secrets : DataSource Secrets
+secrets =
+    DataSource.map2 Secrets
+        (DataSource.Env.load "ALGOLIA_APP_ID")
+        (DataSource.Env.load "ALGOLIA_SEARCH_KEY")
+
+
+getOnDemand : (Result String KindleBook -> msg) -> Secrets -> ASIN -> Cmd msg
+getOnDemand tagger { appId, searchKey } objectId =
+    Http.request
+        { method = "GET"
+        , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/ymtszw-kindle/" ++ objectId
+        , headers =
+            [ Http.header "X-Algolia-Application-Id" appId
+            , Http.header "X-Algolia-API-Key" searchKey
+            ]
+        , body = Http.emptyBody
+        , expect = Http.expectJson (Result.mapError (\_ -> "") >> tagger) (OptimizedDecoder.decoder kindleBookDecoder)
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
 
 
 {-| KindleBookの全件DBを構成するDataSource.
@@ -61,7 +91,7 @@ kindleBooks =
         \ids ->
             ids
                 |> List.Extra.greedyGroupsOf 1000
-                |> List.map getFromAlgolia
+                |> List.map get1000FromAlgolia
                 |> DataSource.combine
                 |> DataSource.map toDict
 
@@ -74,28 +104,27 @@ DocumentDBとしてAlgoliaを使っている格好だが、検索以外にフィ
 DataSourceとして全件取得してからよしなに使うことになる。
 
 -}
-getFromAlgolia : List ASIN -> DataSource (List KindleBook)
-getFromAlgolia ids =
-    DataSource.Http.request
-        (Secrets.succeed
-            (\appId searchKey ->
-                let
-                    request id =
-                        Json.Encode.object
-                            [ ( "indexName", Json.Encode.string "ymtszw-kindle" )
-                            , ( "objectID", Json.Encode.string id )
-                            ]
-                in
-                { method = "POST"
-                , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
-                , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", searchKey ) ]
-                , body = DataSource.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
-                }
-            )
-            |> Secrets.with "ALGOLIA_APP_ID"
-            |> Secrets.with "ALGOLIA_SEARCH_KEY"
-        )
-        (OptimizedDecoder.field "results" (OptimizedDecoder.list kindleBookDecoder))
+get1000FromAlgolia : List ASIN -> DataSource (List KindleBook)
+get1000FromAlgolia ids =
+    dataSourceWith secrets <|
+        \{ appId, searchKey } ->
+            DataSource.Http.request
+                (Secrets.succeed
+                    (let
+                        request id =
+                            Json.Encode.object
+                                [ ( "indexName", Json.Encode.string "ymtszw-kindle" )
+                                , ( "objectID", Json.Encode.string id )
+                                ]
+                     in
+                     { method = "POST"
+                     , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
+                     , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", searchKey ) ]
+                     , body = DataSource.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
+                     }
+                    )
+                )
+                (OptimizedDecoder.field "results" (OptimizedDecoder.list kindleBookDecoder))
 
 
 getFromGist : OptimizedDecoder.Decoder a -> DataSource a

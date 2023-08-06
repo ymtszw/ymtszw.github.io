@@ -56,6 +56,7 @@ type alias Data =
     , labels : Dict String Int
     , amazonAssociateTag : String
     , libraryKeySeedHash : ( Int, Int )
+    , secrets : KindleBook.Secrets
     }
 
 
@@ -76,6 +77,7 @@ data =
                     )
                 |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
                 |> DataSource.andMap (DataSource.succeed lksh)
+                |> DataSource.andMap KindleBook.secrets
 
 
 libraryKeySeedHash : DataSource ( Int, Int )
@@ -149,6 +151,9 @@ type alias Model =
     -- 3) 非表示な書架部分には代わりにパスワードフォームを表示し、unlockできればTrueになり、書架部分を表示
     --    その際、成功したパスワードはlocalStorageに保存してその端末での再入力を不要にする
     , unlocked : Bool
+    , -- TODO data.kindleBooksが暗号化されるようになったら、unlockしたときにデータを復号し、初めてこのDictが実体化する。
+      -- こちらのデータはruntimeにAlgoliaからオンデマンドに取得した最新データを持っている。
+      decryptedKindleBooks : Dict SeriesName (List KindleBook)
 
     -- kindle-dataセクションのテーブルはelm-sortable-tableで可動式にしている
     , seriesTableState : Table.State
@@ -220,6 +225,8 @@ init _ shared app =
       , popoverOpened = False
       , selectedBook = Nothing
       , unlocked = Maybe.withDefault False (Maybe.map (unlockLibrary app.data.libraryKeySeedHash) shared.storedLibraryKey)
+      , -- TODO app.data.kindleBooksが暗号化されるようになったら、当初はempty dictから初めて復号成功時にデータを入れる。
+        decryptedKindleBooks = app.data.kindleBooks
       , seriesTableState = Table.initialSort ""
       , authorsTableState = Table.initialSort ""
       , labelsTableState = Table.initialSort ""
@@ -247,6 +254,7 @@ type Msg
     | SeriesTableMsg Table.State
     | AuthorsTableMsg Table.State
     | LabelsTableMsg Table.State
+    | Res_getKindleBookOnDemand (Result String KindleBook)
 
 
 update : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg )
@@ -270,12 +278,15 @@ update _ _ _ app msg ({ filter } as m) =
                     Cmd.none
 
                   else
-                    -- 違う本を選択した場合、内容が切り替わったことをわかりやすくするために一瞬閉じるだけで、次の枝ですぐ開く
-                    Helper.waitMsg 50 msg
+                    Cmd.batch
+                        [ -- 違う本を選択した場合、内容が切り替わったことをわかりやすくするために一瞬閉じるだけで、次の枝ですぐ開く
+                          Helper.waitMsg 50 msg
+                        , KindleBook.getOnDemand Res_getKindleBookOnDemand app.data.secrets (Tuple.second selected)
+                        ]
                 )
 
             else
-                ( { m | popoverOpened = True, selectedBook = Just selected }, Cmd.none )
+                ( { m | popoverOpened = True, selectedBook = Just selected }, KindleBook.getOnDemand Res_getKindleBookOnDemand app.data.secrets (Tuple.second selected) )
 
         ToggleKindlePopover Nothing ->
             ( { m | popoverOpened = False }, Cmd.none )
@@ -313,6 +324,16 @@ update _ _ _ app msg ({ filter } as m) =
 
         LabelsTableMsg state ->
             ( { m | labelsTableState = state }, Cmd.none )
+
+        Res_getKindleBookOnDemand (Ok book) ->
+            let
+                updater =
+                    Maybe.map (List.Extra.setIf (\before -> before.id == book.id) book)
+            in
+            ( { m | decryptedKindleBooks = Dict.update book.seriesName updater m.decryptedKindleBooks }, Cmd.none )
+
+        Res_getKindleBookOnDemand (Err _) ->
+            ( m, Cmd.none )
 
 
 toggle : Bool -> comparable -> Set comparable -> Set comparable
