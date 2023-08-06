@@ -301,6 +301,10 @@ update _ _ _ app msg ({ filter } as m) =
             , case ( m.editingBook, editingBook ) of
                 ( Just editing, Nothing ) ->
                     -- TODO 明示的な閉じ動作を確定とみなして保存する
+                    -- このとき初めての保存動作であれば、何も編集していなかったとしても、
+                    -- editingの中身がGist由来の元の書籍タイトルをparseした結果であるため、
+                    -- それがAlgoliaに保存されて若干情報量が増える。
+                    -- ２回目以降の保存動作であれば、実際に内容に変更がないと挙動に変化がない。
                     Cmd.none
 
                 _ ->
