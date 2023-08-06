@@ -5,12 +5,11 @@ import Browser.Navigation
 import Color
 import DataSource exposing (DataSource)
 import DataSource.Env
-import DataSource.Http
 import Date
 import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
-import Helper exposing (nonEmptyString)
+import Helper exposing (dataSourceWith)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -18,16 +17,12 @@ import Html.Keyed
 import Identicon
 import Json.Decode
 import Json.Encode
-import KindleBook exposing (ASIN, KindleBook, SeriesName)
-import KindleBookTitle
+import KindleBook exposing (ASIN, KindleBook, SeriesName, kindleBooks)
 import List.Extra
 import Markdown
 import Murmur3
-import OptimizedDecoder
 import Page exposing (PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
-import Pages.Secrets as Secrets
-import Regex
 import RuntimePorts
 import Set exposing (Set)
 import Shared exposing (seoBase)
@@ -66,63 +61,33 @@ type alias Data =
 
 data : DataSource Data
 data =
-    libraryKeySeedHash
-        |> DataSource.andThen
-            (\lksh ->
-                kindleBooks lksh
-                    |> DataSource.map
-                        (\booksByAsin ->
-                            let
-                                ( authors, labels ) =
-                                    countByAuthorsAndLabels booksByAsin
-                            in
-                            Data (groupBySeriesName booksByAsin) (Dict.size booksByAsin) authors labels
-                        )
-                    |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
-                    |> DataSource.andMap (DataSource.succeed lksh)
-            )
+    dataSourceWith libraryKeySeedHash <|
+        \lksh ->
+            -- TODO lkshを元にderivedKeyを作り、鍵として蔵書DBの中身を対称暗号化しておけば、
+            -- index.htmlを読み込んだ時点では真に保護されたページを実現できる
+            kindleBooks
+                |> DataSource.map
+                    (\booksByAsin ->
+                        let
+                            ( authors, labels ) =
+                                countByAuthorsAndLabels booksByAsin
+                        in
+                        Data (groupBySeriesName booksByAsin) (Dict.size booksByAsin) authors labels
+                    )
+                |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
+                |> DataSource.andMap (DataSource.succeed lksh)
 
 
 libraryKeySeedHash : DataSource ( Int, Int )
 libraryKeySeedHash =
-    DataSource.Env.load "LIBRARY_KEY_SEED_HASH"
-        |> DataSource.andThen
-            (\s ->
-                case String.split "." s |> List.filterMap String.toInt of
-                    [ seed, hash ] ->
-                        DataSource.succeed ( seed, hash )
+    dataSourceWith (DataSource.Env.load "LIBRARY_KEY_SEED_HASH") <|
+        \s ->
+            case String.split "." s |> List.filterMap String.toInt of
+                [ seed, hash ] ->
+                    DataSource.succeed ( seed, hash )
 
-                    _ ->
-                        DataSource.fail "LIBRARY_KEY_SEED_HASH is invalid"
-            )
-
-
-kindleBooks ( _, derivedKey ) =
-    -- TODO derivedKeyを鍵として蔵書DBの中身を対象暗号化しておけば、真に保護されたページを実現できる
-    DataSource.Env.load "BOOKS_JSON_URL"
-        |> DataSource.andThen
-            (\booksJsonUrl ->
-                DataSource.Http.get (Secrets.succeed booksJsonUrl) <|
-                    OptimizedDecoder.dict <|
-                        (OptimizedDecoder.field "title" kindleBookTitle
-                            |> OptimizedDecoder.andThen
-                                (\parsed ->
-                                    OptimizedDecoder.map8 KindleBook
-                                        (OptimizedDecoder.field "id" nonEmptyString)
-                                        (OptimizedDecoder.succeed parsed.rawTitle)
-                                        (OptimizedDecoder.succeed (Maybe.map j2a parsed.label))
-                                        (OptimizedDecoder.succeed parsed.volume)
-                                        (OptimizedDecoder.succeed parsed.seriesName |> OptimizedDecoder.map j2a)
-                                        (OptimizedDecoder.field "authors" (OptimizedDecoder.list (OptimizedDecoder.map (j2a >> normalizeAuthor) nonEmptyString) |> OptimizedDecoder.map (List.filter notStopWords)))
-                                        (OptimizedDecoder.field "img" nonEmptyString)
-                                        (OptimizedDecoder.field "acquiredDate" japaneseDate)
-                                )
-                        )
-            )
-
-
-kindleBookTitle =
-    OptimizedDecoder.andThen (OptimizedDecoder.fromResult << KindleBookTitle.parse) nonEmptyString
+                _ ->
+                    DataSource.fail "LIBRARY_KEY_SEED_HASH is invalid"
 
 
 countByAuthorsAndLabels : Dict ASIN KindleBook -> ( Dict String Int, Dict String Int )
@@ -150,240 +115,6 @@ increment key dict =
         dict
 
 
-j2a : String -> String
-j2a =
-    let
-        mapper c =
-            case c of
-                '０' ->
-                    '0'
-
-                '１' ->
-                    '1'
-
-                '２' ->
-                    '2'
-
-                '３' ->
-                    '3'
-
-                '４' ->
-                    '4'
-
-                '５' ->
-                    '5'
-
-                '６' ->
-                    '6'
-
-                '７' ->
-                    '7'
-
-                '８' ->
-                    '8'
-
-                '９' ->
-                    '9'
-
-                'Ａ' ->
-                    'A'
-
-                'Ｂ' ->
-                    'B'
-
-                'Ｃ' ->
-                    'C'
-
-                'Ｄ' ->
-                    'D'
-
-                'Ｅ' ->
-                    'E'
-
-                'Ｆ' ->
-                    'F'
-
-                'Ｇ' ->
-                    'G'
-
-                'Ｈ' ->
-                    'H'
-
-                'Ｉ' ->
-                    'I'
-
-                'Ｊ' ->
-                    'J'
-
-                'Ｋ' ->
-                    'K'
-
-                'Ｌ' ->
-                    'L'
-
-                'Ｍ' ->
-                    'M'
-
-                'Ｎ' ->
-                    'N'
-
-                'Ｏ' ->
-                    'O'
-
-                'Ｐ' ->
-                    'P'
-
-                'Ｑ' ->
-                    'Q'
-
-                'Ｒ' ->
-                    'R'
-
-                'Ｓ' ->
-                    'S'
-
-                'Ｔ' ->
-                    'T'
-
-                'Ｕ' ->
-                    'U'
-
-                'Ｖ' ->
-                    'V'
-
-                'Ｗ' ->
-                    'W'
-
-                'Ｘ' ->
-                    'X'
-
-                'Ｙ' ->
-                    'Y'
-
-                'Ｚ' ->
-                    'Z'
-
-                'ａ' ->
-                    'a'
-
-                'ｂ' ->
-                    'b'
-
-                'ｃ' ->
-                    'c'
-
-                'ｄ' ->
-                    'd'
-
-                'ｅ' ->
-                    'e'
-
-                'ｆ' ->
-                    'f'
-
-                'ｇ' ->
-                    'g'
-
-                'ｈ' ->
-                    'h'
-
-                'ｉ' ->
-                    'i'
-
-                'ｊ' ->
-                    'j'
-
-                'ｋ' ->
-                    'k'
-
-                'ｌ' ->
-                    'l'
-
-                'ｍ' ->
-                    'm'
-
-                'ｎ' ->
-                    'n'
-
-                'ｏ' ->
-                    'o'
-
-                'ｐ' ->
-                    'p'
-
-                'ｑ' ->
-                    'q'
-
-                'ｒ' ->
-                    'r'
-
-                'ｓ' ->
-                    's'
-
-                'ｔ' ->
-                    't'
-
-                'ｕ' ->
-                    'u'
-
-                'ｖ' ->
-                    'v'
-
-                'ｗ' ->
-                    'w'
-
-                'ｘ' ->
-                    'x'
-
-                'ｙ' ->
-                    'y'
-
-                'ｚ' ->
-                    'z'
-
-                '\u{3000}' ->
-                    ' '
-
-                '（' ->
-                    '('
-
-                '）' ->
-                    ')'
-
-                _ ->
-                    c
-    in
-    String.map mapper
-
-
-normalizeAuthor : String -> String
-normalizeAuthor raw =
-    if String.all (\c -> Char.toCode c < 256) raw then
-        -- Extended ASCIIまでは英字氏名とみなし、スペースを除去しない
-        raw
-
-    else
-        -- 日本語表記の著者名は、姓名間のスペースを除去して正規化
-        -- また、"()"で囲まれた装飾が後置されていることがあるので削除する
-        -- ただし、著者名表記はほかにも表記揺れが多く、この正規化処理はおまけ程度
-        raw
-            |> String.replace " " ""
-            |> Regex.replace redundantAuthorSuffixPattern (\_ -> "")
-
-
-redundantAuthorSuffixPattern =
-    Regex.fromString "(\\(.*\\))$" |> Maybe.withDefault Regex.never
-
-
-notStopWords raw =
-    case raw of
-        "ほか" ->
-            False
-
-        _ ->
-            True
-
-
 groupBySeriesName : Dict String KindleBook -> Dict SeriesName (List KindleBook)
 groupBySeriesName =
     Dict.foldl
@@ -400,25 +131,6 @@ groupBySeriesName =
                 acc
         )
         Dict.empty
-
-
-japaneseDate =
-    nonEmptyString
-        |> OptimizedDecoder.andThen
-            (\str ->
-                OptimizedDecoder.fromResult <|
-                    case String.split "年" str of
-                        [ year, monthDay ] ->
-                            case String.split "月" monthDay of
-                                [ month, day ] ->
-                                    Date.fromIsoString <| String.join "-" <| [ year, String.padLeft 2 '0' month, String.padLeft 2 '0' <| String.dropRight 1 day ]
-
-                                _ ->
-                                    Err <| "Invalid Date: " ++ str
-
-                        _ ->
-                            Err <| "Invalid Date: " ++ str
-            )
 
 
 type alias Model =

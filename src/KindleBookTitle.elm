@@ -1,4 +1,4 @@
-module KindleBookTitle exposing (KindleBookTitle, parse)
+module KindleBookTitle exposing (KindleBookTitle, kindleBookTitle, parse)
 
 {-| Kindle本のタイトルをいい感じにパースする。
 
@@ -16,6 +16,8 @@ Tests.elmに代表的なケースだけでなく現在対応している様々�
 
 -}
 
+import Helper exposing (nonEmptyString)
+import OptimizedDecoder
 import Parser as P exposing ((|.), (|=), Parser)
 
 
@@ -25,6 +27,11 @@ type alias KindleBookTitle =
     , volume : Int
     , seriesName : String
     }
+
+
+kindleBookTitle : OptimizedDecoder.Decoder KindleBookTitle
+kindleBookTitle =
+    OptimizedDecoder.andThen (OptimizedDecoder.fromResult << parse) nonEmptyString
 
 
 {-| パース実行する。
