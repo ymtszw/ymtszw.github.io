@@ -278,11 +278,8 @@ update _ _ _ app msg ({ filter } as m) =
                     Cmd.none
 
                   else
-                    Cmd.batch
-                        [ -- 違う本を選択した場合、内容が切り替わったことをわかりやすくするために一瞬閉じるだけで、次の枝ですぐ開く
-                          Helper.waitMsg 50 msg
-                        , KindleBook.getOnDemand Res_getKindleBookOnDemand app.data.secrets (Tuple.second selected)
-                        ]
+                    -- 違う本を選択した場合、内容が切り替わったことをわかりやすくするために一瞬閉じるだけで、次の枝ですぐ開く
+                    Helper.waitMsg 50 msg
                 )
 
             else
@@ -395,6 +392,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
     }
 
 
+kindleBookshelf : Model -> StaticPayload Data RouteParams -> Html Msg
 kindleBookshelf m app =
     let
         clickBookEvent book =
@@ -425,7 +423,12 @@ kindleBookshelf m app =
                             ]
                     ]
     in
-    app.data.kindleBooks
+    (if m.unlocked then
+        m.decryptedKindleBooks
+
+     else
+        app.data.kindleBooks
+    )
         |> doFilter m.filter
         |> Dict.toList
         |> doSort m.sortKey
