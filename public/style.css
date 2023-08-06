@@ -922,6 +922,42 @@ button.kindle-filterable-tag.active::after {
   content: "";
   display: none;
 }
+.kindle-popover > main > article > div > .kindle-book-edit-button {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  margin-left: 10px;
+  line-height: 1.5em;
+  height: 1.5em;
+  width: 1.5em;
+  padding: 0;
+  border-radius: 2px;
+  border-style: solid;
+  border-width: 2px;
+  background-color: transparent;
+  color: #144f5a;
+}
+.kindle-popover > main > article > div > .kindle-book-edit-button::after {
+  content: "🖉";
+  font-size: 1.5em;
+}
+.kindle-popover
+  > main
+  > article
+  > div
+  > .kindle-book-edit-button:is(:hover, :focus) {
+  color: #982c61;
+}
+.kindle-popover
+  > main
+  > article
+  > div
+  > .kindle-book-edit-button.active::after {
+  content: "✔";
+}
+input[type="text"].kindle-book-edit-input {
+  width: 100%;
+}
 .kindle-popover > main > article > div > ul {
   font-size: 14px;
 }

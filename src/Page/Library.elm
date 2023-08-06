@@ -144,6 +144,7 @@ type alias Model =
     -- そこで開閉状態と選択状態を分けることで、モーダル内のコンテンツは描画したままに保つ
     , popoverOpened : Bool
     , selectedBook : Maybe ( SeriesName, ASIN )
+    , editingBook : Maybe KindleBook
 
     -- Libraryページをパスワード保護している
     -- 1) 初期状態ではFalseで、書架部分は非表示
@@ -224,6 +225,7 @@ init _ shared app =
       , filter = noFilter
       , popoverOpened = False
       , selectedBook = Nothing
+      , editingBook = Nothing
       , unlocked = Maybe.withDefault False (Maybe.map (unlockLibrary app.data.libraryKeySeedHash) shared.storedLibraryKey)
       , -- TODO app.data.kindleBooksが暗号化されるようになったら、当初はempty dictから初めて復号成功時にデータを入れる。
         decryptedKindleBooks = app.data.kindleBooks
@@ -249,6 +251,7 @@ type Msg
     | ToggleAuthorFilter Bool String
     | ToggleLabelFilter Bool String
     | ToggleKindlePopover (Maybe ( SeriesName, ASIN ))
+    | EditKindleBook (Maybe KindleBook)
     | UnlockLibrary Password
     | LockLibrary
     | SeriesTableMsg Table.State
@@ -272,7 +275,7 @@ update _ _ _ app msg ({ filter } as m) =
         ToggleKindlePopover (Just selected) ->
             if m.popoverOpened then
                 -- すでにpopoverが開いている場合:
-                ( { m | popoverOpened = False }
+                ( { m | popoverOpened = False, editingBook = Nothing }
                 , if m.selectedBook == Just selected then
                     -- 同じ本を選択した場合、単に閉じて終了
                     Cmd.none
@@ -291,7 +294,10 @@ update _ _ _ app msg ({ filter } as m) =
                 )
 
         ToggleKindlePopover Nothing ->
-            ( { m | popoverOpened = False }, Cmd.none )
+            ( { m | popoverOpened = False, editingBook = Nothing }, Cmd.none )
+
+        EditKindleBook editingBook ->
+            ( { m | editingBook = editingBook }, Cmd.none )
 
         UnlockLibrary pw ->
             if unlockLibrary app.data.libraryKeySeedHash pw then
@@ -329,8 +335,14 @@ update _ _ _ app msg ({ filter } as m) =
 
         Res_getKindleBookOnDemand (Ok book) ->
             let
-                updater =
-                    Maybe.map (List.Extra.setIf (\before -> before.id == book.id) book)
+                updater currentSeries =
+                    case currentSeries of
+                        Just books ->
+                            Just (List.Extra.setIf (\before -> before.id == book.id) book books)
+
+                        Nothing ->
+                            -- 人力注釈でシリーズ名を編集した後にread after writeすると新規シリーズが生まれることがある
+                            Just [ book ]
             in
             ( { m | decryptedKindleBooks = Dict.update book.seriesName updater m.decryptedKindleBooks }, Cmd.none )
 
@@ -391,7 +403,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                 ++ List.map (filterableTag ToggleLabelFilter m.filter.labels) (Set.toList m.filter.labels)
         , kindleBookshelf m app
         , lockKindleLibrary
-        , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data m.filter m.selectedBook)
+        , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data.amazonAssociateTag m.decryptedKindleBooks m.filter m.selectedBook m.editingBook)
         , div [ class "kindle-popover", hidden m.unlocked ] kindleLibraryLock
         ]
     }
@@ -413,7 +425,7 @@ kindleBookshelf m app =
         seriesBookmark books =
             case books of
                 [] ->
-                    -- MNH
+                    -- 人力注釈でシリーズにあった本がすべて別シリーズに修正されるとemptyになる
                     []
 
                 first :: _ ->
@@ -669,30 +681,54 @@ lockKindleLibrary =
     button [ onClick LockLibrary ] [ text "再度ロックする（テスト用）" ]
 
 
-kindlePopover : Data -> Filter -> Maybe ( SeriesName, ASIN ) -> List (Html Msg)
-kindlePopover data_ f openedBook =
+kindlePopover : String -> Dict SeriesName (List KindleBook) -> Filter -> Maybe ( SeriesName, ASIN ) -> Maybe KindleBook -> List (Html Msg)
+kindlePopover amazonAssociateTag decryptedKindleBooks f openedBook maybeEditingBook =
     [ header [ onClick (ToggleKindlePopover Nothing), attribute "role" "button" ] []
     , main_ [] <|
-        case getBook data_.kindleBooks openedBook of
+        case getBook decryptedKindleBooks openedBook of
             Just ( maybePrev, book, maybeNext ) ->
                 [ prevVolume maybePrev
                 , article []
                     [ View.imgLazy [ src book.img, width 150, alt <| book.rawTitle ++ "の書影" ] []
-                    , div []
-                        [ h5 [] [ a [ href (Helper.makeAmazonUrl data_.amazonAssociateTag book.id), target "_blank" ] [ text book.rawTitle ] ]
-                        , a [ class "cloud-reader-link", href ("https://read.amazon.co.jp/manga/" ++ book.id), target "_blank" ] [ text "Kindleビューアで読む" ]
-                        , ul [] <|
-                            List.filterMap (Maybe.map (\( key, kids ) -> li [] (strong [] [ text key ] :: text " : " :: kids)))
-                                [ Just ( "著者", List.map (filterableTag ToggleAuthorFilter f.authors) book.authors )
-                                , if book.seriesName == book.rawTitle then
-                                    Nothing
+                    , div [] <|
+                        let
+                            editablePart =
+                                case maybeEditingBook of
+                                    Nothing ->
+                                        [ button [ class "kindle-book-edit-button", onClick (EditKindleBook (Just book)) ] []
+                                        , ul [] <|
+                                            List.filterMap (Maybe.map (\( key, kids ) -> li [] (strong [] [ text key ] :: text " : " :: kids)))
+                                                [ Just ( "著者", List.map (filterableTag ToggleAuthorFilter f.authors) book.authors )
+                                                , if book.seriesName == book.rawTitle then
+                                                    Nothing
 
-                                  else
-                                    Just ( "シリーズ", [ text book.seriesName ] )
-                                , Maybe.map (\label_ -> ( "レーベル", [ filterableTag ToggleLabelFilter f.labels label_ ] )) book.label
-                                , Just ( "購入日", [ text (Date.toIsoString book.acquiredDate) ] )
-                                ]
+                                                  else
+                                                    Just ( "シリーズ", [ text book.seriesName ] )
+                                                , Maybe.map (\label_ -> ( "レーベル", [ filterableTag ToggleLabelFilter f.labels label_ ] )) book.label
+                                                , Just ( "購入日", [ text (Helper.toJapaneseDate book.acquiredDate) ] )
+                                                ]
+                                        ]
+
+                                    Just editingBook ->
+                                        [ button [ class "kindle-book-edit-button active", onClick (EditKindleBook Nothing) ] []
+                                        , ul [] <|
+                                            List.map (\( key, kid ) -> li [] [ strong [] [ text key ], text " : ", kid ]) <|
+                                                let
+                                                    edit currentValue =
+                                                        input [ class "kindle-book-edit-input", type_ "text", value currentValue ] []
+                                                in
+                                                [ ( "著者", edit (String.join "," editingBook.authors) )
+                                                , ( "シリーズ", edit editingBook.seriesName )
+                                                , ( "巻数", edit (String.fromInt editingBook.volume) )
+                                                , ( "レーベル", edit (Maybe.withDefault "" editingBook.label) )
+                                                , ( "購入日", text (Helper.toJapaneseDate editingBook.acquiredDate) )
+                                                ]
+                                        ]
+                        in
+                        [ h5 [] [ a [ href (Helper.makeAmazonUrl amazonAssociateTag book.id), target "_blank" ] [ text book.rawTitle ] ]
+                        , a [ class "cloud-reader-link", href ("https://read.amazon.co.jp/manga/" ++ book.id), target "_blank" ] [ text "Kindleビューアで読む" ]
                         ]
+                            ++ editablePart
                     ]
                 , nextVolume maybeNext
                 ]
