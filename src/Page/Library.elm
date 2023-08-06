@@ -6,7 +6,7 @@ import Color
 import DataSource exposing (DataSource)
 import DataSource.Env
 import DataSource.Http
-import Date exposing (Date)
+import Date
 import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
@@ -18,6 +18,7 @@ import Html.Keyed
 import Identicon
 import Json.Decode
 import Json.Encode
+import KindleBook exposing (ASIN, KindleBook, SeriesName)
 import KindleBookTitle
 import List.Extra
 import Markdown
@@ -61,26 +62,6 @@ type alias Data =
     , amazonAssociateTag : String
     , libraryKeySeedHash : ( Int, Int )
     }
-
-
-type alias KindleBook =
-    { id : ASIN
-    , rawTitle : String
-    , label : Maybe String
-    , volume : Int
-    , seriesName : SeriesName
-    , authors : List String
-    , img : String -- 書影画像URL
-    , acquiredDate : Date
-    }
-
-
-type alias ASIN =
-    String
-
-
-type alias SeriesName =
-    String
 
 
 data : DataSource Data
