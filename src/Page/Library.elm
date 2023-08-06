@@ -808,7 +808,7 @@ kindleData m app =
                         [ Table.veryCustomColumn
                             { name = "レーベル名"
                             , sorter = Table.decreasingOrIncreasingBy <| \( label, _ ) -> label
-                            , viewData = \( label, _ ) -> Table.HtmlDetails [] [ filterableTag ToggleAuthorFilter m.filter.labels label ]
+                            , viewData = \( label, _ ) -> Table.HtmlDetails [] [ filterableTag ToggleLabelFilter m.filter.labels label ]
                             }
                         , Table.intColumn "冊数" (\( _, count ) -> count)
                         ]
