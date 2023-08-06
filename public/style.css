@@ -772,7 +772,7 @@ button.kindle-filterable-tag.active::after {
 }
 
 .kindle-bookshelf {
-  margin: 1em auto;
+  margin: 1em auto 30vh;
 }
 .kindle-bookshelf .has-image {
   display: inline-block;
