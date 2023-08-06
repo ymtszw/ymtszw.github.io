@@ -1,5 +1,6 @@
-module Helper exposing (initMsg, iso8601Decoder, makeAmazonUrl, makeDisplayUrl, nonEmptyString, waitMsg)
+module Helper exposing (dataSourceWith, decodeWith, initMsg, iso8601Decoder, makeAmazonUrl, makeDisplayUrl, nonEmptyString, waitMsg)
 
+import DataSource exposing (DataSource)
 import Iso8601
 import OptimizedDecoder
 import Process
@@ -7,6 +8,16 @@ import QS
 import Task
 import Time
 import Url
+
+
+dataSourceWith : DataSource a -> (a -> DataSource b) -> DataSource b
+dataSourceWith a b =
+    DataSource.andThen b a
+
+
+decodeWith : OptimizedDecoder.Decoder a -> (a -> OptimizedDecoder.Decoder b) -> OptimizedDecoder.Decoder b
+decodeWith a b =
+    OptimizedDecoder.andThen b a
 
 
 iso8601Decoder : OptimizedDecoder.Decoder Time.Posix
