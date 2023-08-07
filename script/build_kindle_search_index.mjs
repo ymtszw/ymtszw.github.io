@@ -33,6 +33,8 @@ const setResponse = await index.setSettings({
     "volume",
     "label",
     "reviewMarkdown",
+    "reviewUpdatedAt",
+    "reviewPublishedAt",
   ],
   attributesToTransliterate: [
     "title",
