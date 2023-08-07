@@ -5,14 +5,16 @@ import DataSource.Env
 import DataSource.Http
 import Date exposing (Date)
 import Dict exposing (Dict)
-import Helper exposing (dataSourceWith, decodeWith, japaneseDateDecoder, nonEmptyString)
+import Helper exposing (dataSourceWith, decodeWith, iso8601Decoder, japaneseDateDecoder, nonEmptyString)
 import Http
+import Iso8601
 import Json.Encode
 import KindleBookTitle exposing (kindleBookTitle)
 import List.Extra
 import OptimizedDecoder
 import Pages.Secrets as Secrets
 import Regex
+import Time exposing (Posix)
 
 
 type alias KindleBook =
@@ -24,6 +26,9 @@ type alias KindleBook =
     , authors : List String
     , img : String -- 書影画像URL
     , acquiredDate : Date
+    , reviewMarkdown : Maybe String
+    , reviewUpdatedAt : Maybe Posix
+    , reviewPublishedAt : Maybe Posix
     }
 
 
@@ -85,15 +90,22 @@ putOnDemand tagger { appId, searchKey } updatedBook =
 
 serialize : KindleBook -> Json.Encode.Value
 serialize book =
+    let
+        maybe encoder val =
+            Maybe.withDefault Json.Encode.null (Maybe.map encoder val)
+    in
     Json.Encode.object
         [ ( "id", Json.Encode.string book.id )
         , ( "rawTitle", Json.Encode.string book.rawTitle )
-        , ( "label", Maybe.map Json.Encode.string book.label |> Maybe.withDefault Json.Encode.null )
+        , ( "label", maybe Json.Encode.string book.label )
         , ( "volume", Json.Encode.int book.volume )
         , ( "seriesName", Json.Encode.string book.seriesName )
         , ( "authors", Json.Encode.list Json.Encode.string book.authors )
         , ( "img", Json.Encode.string book.img )
         , ( "acquiredDate", Json.Encode.string (Helper.toJapaneseDate book.acquiredDate) )
+        , ( "reviewMarkdown", maybe Json.Encode.string book.reviewMarkdown )
+        , ( "reviewUpdatedAt", maybe (Json.Encode.string << Iso8601.fromTime) book.reviewUpdatedAt )
+        , ( "reviewPublishedAt", maybe (Json.Encode.string << Iso8601.fromTime) book.reviewPublishedAt )
         ]
 
 
@@ -172,6 +184,9 @@ getFromGist decoder =
 kindleBookDecoder : OptimizedDecoder.Decoder KindleBook
 kindleBookDecoder =
     OptimizedDecoder.oneOf [ decodeNormalizedBook, decodeRawBook ]
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewMarkdown" nonEmptyString))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewUpdatedAt" iso8601Decoder))
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewPublishedAt" iso8601Decoder))
 
 
 decodeNormalizedBook =
