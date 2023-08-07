@@ -692,7 +692,7 @@ bookMetadata book =
     , ( "シリーズ", book.seriesName )
     , ( "著者", String.join ", " book.authors )
     , ( "レーベル", Maybe.withDefault "" book.label )
-    , ( "購入日", Date.toIsoString book.acquiredDate )
+    , ( "購入日", Helper.toJapaneseDate book.acquiredDate )
     ]
         |> List.concatMap item
         |> String.join "\n"
