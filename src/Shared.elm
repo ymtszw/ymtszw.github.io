@@ -329,6 +329,11 @@ view _ page shared sharedTagger pageView =
                                     , Html.text "書架"
                                     ]
 
+                                Route.Reviews__Draft ->
+                                    [ Route.link Route.Index [] [ Html.text "Index" ]
+                                    , Html.text "レビュー（下書き）"
+                                    ]
+
                                 Route.Twilogs ->
                                     [ Route.link Route.Index [] [ Html.text "Index" ]
                                     , Html.text "Twilog"
