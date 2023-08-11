@@ -40,24 +40,9 @@ data =
     DataSource.succeed ()
 
 
-head :
-    StaticPayload Data RouteParams
-    -> List Head.Tag
-head static =
-    Seo.summary
-        { canonicalUrlOverride = Nothing
-        , siteName = "elm-pages"
-        , image =
-            { url = Pages.Url.external "TODO"
-            , alt = "elm-pages logo"
-            , dimensions = Nothing
-            , mimeType = Nothing
-            }
-        , description = "TODO"
-        , locale = Nothing
-        , title = "TODO title" -- metadata.title -- TODO
-        }
-        |> Seo.website
+head : StaticPayload Data RouteParams -> List Head.Tag
+head _ =
+    [ Head.metaName "robots" (Head.raw "noindex,nofollow,noarchive,nocache") ]
 
 
 view :

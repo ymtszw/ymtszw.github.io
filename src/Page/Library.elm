@@ -23,11 +23,13 @@ import Markdown
 import Murmur3
 import Page exposing (PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
+import Route
 import RuntimePorts
 import Set exposing (Set)
 import Shared exposing (seoBase)
 import Table
 import Task
+import Url.Builder
 import View exposing (View)
 
 
@@ -751,6 +753,7 @@ kindlePopover amazonAssociateTag decryptedKindleBooks f openedBook maybeEditingB
                                                     Just ( "シリーズ", [ text book.seriesName ] )
                                                 , Maybe.map (\label_ -> ( "レーベル", [ filterableTag ToggleLabelFilter f.labels label_ ] )) book.label
                                                 , Just ( "購入日", [ text (Helper.toJapaneseDate book.acquiredDate) ] )
+                                                , Just ( "レビュー", [ a [ href reviewUrl ] [ text "書く" ] ] )
                                                 ]
                                         ]
 
@@ -767,8 +770,13 @@ kindlePopover amazonAssociateTag decryptedKindleBooks f openedBook maybeEditingB
                                                 , ( "巻数", edit (\s -> String.toInt s |> Maybe.map (\i -> { editingBook | volume = i }) |> Maybe.withDefault editingBook) (String.fromInt editingBook.volume) )
                                                 , ( "レーベル", edit (\s -> { editingBook | label = Just s }) (Maybe.withDefault "" editingBook.label) )
                                                 , ( "購入日", text (Helper.toJapaneseDate editingBook.acquiredDate) )
+                                                , ( "レビュー", a [ href reviewUrl ] [ text "書く" ] )
                                                 ]
                                         ]
+
+                            reviewUrl =
+                                -- 執筆したいときは書架ページからの遷移を必須とすることで自分しか書けないようにしたい
+                                Url.Builder.absolute (Route.routeToPath Route.Reviews__Draft) [ Url.Builder.string "id" book.id ]
                         in
                         [ h5 [] [ a [ href (Helper.makeAmazonUrl amazonAssociateTag book.id), target "_blank" ] [ text book.rawTitle ] ]
                         , a [ class "cloud-reader-link", href ("https://read.amazon.co.jp/manga/" ++ book.id), target "_blank" ] [ text "Kindleビューアで読む" ]
