@@ -985,3 +985,62 @@ input[type="text"].kindle-book-edit-input {
   font-family: "Noto Sans Symbols 2", sans-serif;
   transform: translate(-100%, -50%) rotate(10deg);
 }
+
+.kindle-review-editor {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 5px;
+  left: 0;
+  bottom: 0;
+  width: 600px;
+  max-width: 80vw;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px #999;
+  border-top-right-radius: 10px;
+  overflow: hidden;
+
+  & > :is(input[type="text"], textarea) {
+    width: 100%;
+  }
+}
+
+.markdown-editor {
+  position: relative;
+  font-size: 1.5rem;
+  line-height: 1.8;
+
+  & > .background {
+    overflow: hidden;
+    visibility: hidden;
+    box-sizing: border-box;
+    padding: 10px;
+    min-height: 120px;
+    max-height: 50vh;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    border: 1px solid;
+  }
+
+  & > textarea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+    font: inherit;
+    letter-spacing: inherit;
+    resize: none;
+  }
+
+  & > textarea:focus {
+    box-shadow: 0 0 0 1px #144f5a;
+    outline: 0;
+  }
+}

@@ -5,12 +5,14 @@ module View exposing
     , imgLazy
     , lightboxLink
     , map
+    , markdownEditor
     , parseLightboxFragment
     , placeholder
     )
 
-import Html exposing (Html)
-import Html.Attributes
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput)
 
 
 type alias View msg =
@@ -83,3 +85,17 @@ parseLightboxFragment fr =
 
     else
         Nothing
+
+
+markdownEditor : (String -> msg) -> String -> Html msg
+markdownEditor tagger val =
+    -- https://qiita.com/tsmd/items/fce7bf1f65f03239eef0
+    div
+        [ class "markdown-editor" ]
+        [ div [ class "background", attribute "aria-hidden" "true" ] [ text (val ++ "\u{200B}") ]
+        , textarea
+            [ onInput tagger
+            , value val
+            ]
+            []
+        ]

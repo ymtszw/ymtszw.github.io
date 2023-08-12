@@ -5,7 +5,7 @@ import DataSource exposing (DataSource)
 import DataSource.Env
 import Dict exposing (Dict)
 import Head
-import Helper
+import Helper exposing (onChange)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import KindleBook exposing (ASIN, KindleBook, kindleBooks)
@@ -106,8 +106,7 @@ getStaticBook pageUrl books =
 
 
 sample =
-    """
-## アカリがやってきたぞ！
+    """## アカリがやってきたぞ！
 
 うおー
 
@@ -116,13 +115,13 @@ https://twitter.com/gada_twt/status/1690322717642457088
 どうにかなーれ
 
 https://snowbreak.amazingseasun.com/#/?id=1
-
-
 """
 
 
 type Msg
     = Res_refreshKindleBookOnDemand (Result String KindleBook)
+    | SetReviewTitle String
+    | SetReviewMarkdown String
 
 
 update :
@@ -140,16 +139,26 @@ update _ _ _ static msg m =
                 |> (\updated ->
                         ( updated
                         , Cmd.none
-                        , updated.reviewMarkdown
-                            |> Markdown.parseAndEnumerateLinks
-                            |> Shared.Req_LinkPreview static.data.amazonAssociateTag
-                            |> Shared.SharedMsg
-                            |> Just
+                        , requestLinkPreview static.data.amazonAssociateTag updated.reviewMarkdown
                         )
                    )
 
         Res_refreshKindleBookOnDemand (Err _) ->
             ( m, Cmd.none, Nothing )
+
+        SetReviewTitle s ->
+            ( { m | reviewTitle = s }, Cmd.none, Nothing )
+
+        SetReviewMarkdown s ->
+            ( { m | reviewMarkdown = s }, Cmd.none, requestLinkPreview static.data.amazonAssociateTag s )
+
+
+requestLinkPreview amazonAssociateTag body =
+    body
+        |> Markdown.parseAndEnumerateLinks
+        |> Shared.Req_LinkPreview amazonAssociateTag
+        |> Shared.SharedMsg
+        |> Just
 
 
 view :
@@ -167,6 +176,7 @@ view _ { links } m static =
 
             Nothing ->
                 Html.div [] []
+        , reviewEditor m
         ]
     }
 
@@ -238,3 +248,24 @@ bookDetails amazonAssociateTag book =
 
 tag word =
     span [ class "kindle-filterable-tag" ] [ text word ]
+
+
+
+-----------------
+-- EDITOR
+-----------------
+
+
+reviewEditor : Model -> Html Msg
+reviewEditor m =
+    div [ class "kindle-review-editor" ]
+        [ input
+            [ type_ "text"
+            , placeholder "タイトル"
+            , value m.reviewTitle
+            , autofocus True
+            , onChange SetReviewTitle
+            ]
+            []
+        , View.markdownEditor SetReviewMarkdown m.reviewMarkdown
+        ]
