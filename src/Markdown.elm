@@ -5,6 +5,7 @@ module Markdown exposing
     , decoder
     , decoderInternal
     , parse
+    , parseAndEnumerateLinks
     , parseAndRender
     , render
     )
@@ -310,6 +311,13 @@ destAttr destination =
 
     else
         [ Html.Attributes.href destination ]
+
+
+parseAndEnumerateLinks : String -> List String
+parseAndEnumerateLinks markdown =
+    parse markdown
+        |> Result.map enumerateLinks
+        |> Result.withDefault []
 
 
 enumerateLinks : List Markdown.Block.Block -> List String
