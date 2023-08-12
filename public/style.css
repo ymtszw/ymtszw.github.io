@@ -83,6 +83,10 @@ a[target="_blank"]:not(.link-preview):not(.has-image)::after {
   height: 1em;
 }
 
+a.has-image {
+  display: contents;
+}
+
 a.has-image:hover {
   border-bottom: unset;
 }
