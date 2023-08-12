@@ -1,7 +1,5 @@
 module Markdown exposing
     ( DecodedMarkdown
-    , deadEndToString
-    , deadEndsToString
     , decoder
     , decoderInternal
     , parse
@@ -50,7 +48,7 @@ parse input =
     preprocessMarkdown input
         |> Markdown.Parser.parse
         |> Result.map (List.map (Markdown.Block.walkInlines postprocessInline))
-        |> Result.mapError (deadEndsToString >> (++) "Error while parsing Markdown!\n\n")
+        |> Result.mapError (Helper.deadEndsToString >> (++) "Error while parsing Markdown!\n\n")
 
 
 parseAndRender : Dict String LinkPreview.Metadata -> String -> List (Html.Html msg)
@@ -170,62 +168,6 @@ extractInlineBlockText block =
 
         Markdown.Block.ThematicBreak ->
             ""
-
-
-deadEndsToString : List { a | row : Int, col : Int, problem : Parser.Problem } -> String
-deadEndsToString =
-    List.map deadEndToString >> String.join "\n"
-
-
-deadEndToString : { a | row : Int, col : Int, problem : Parser.Problem } -> String
-deadEndToString deadEnd =
-    "Problem at row " ++ String.fromInt deadEnd.row ++ ", col " ++ String.fromInt deadEnd.col ++ "\n" ++ problemToString deadEnd.problem
-
-
-problemToString : Parser.Problem -> String
-problemToString problem =
-    case problem of
-        Parser.Expecting string ->
-            "Expecting " ++ string
-
-        Parser.ExpectingInt ->
-            "Expecting int"
-
-        Parser.ExpectingHex ->
-            "Expecting hex"
-
-        Parser.ExpectingOctal ->
-            "Expecting octal"
-
-        Parser.ExpectingBinary ->
-            "Expecting binary"
-
-        Parser.ExpectingFloat ->
-            "Expecting float"
-
-        Parser.ExpectingNumber ->
-            "Expecting number"
-
-        Parser.ExpectingVariable ->
-            "Expecting variable"
-
-        Parser.ExpectingSymbol string ->
-            "Expecting symbol " ++ string
-
-        Parser.ExpectingKeyword string ->
-            "Expecting keyword " ++ string
-
-        Parser.ExpectingEnd ->
-            "Expecting keyword end"
-
-        Parser.UnexpectedChar ->
-            "Unexpected char"
-
-        Parser.Problem problemDescription ->
-            problemDescription
-
-        Parser.BadRepeat ->
-            "Bad repeat"
 
 
 preprocessMarkdown : String -> String

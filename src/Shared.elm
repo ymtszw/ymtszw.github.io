@@ -55,7 +55,6 @@ import Json.Decode
 import Json.Encode
 import LinkPreview
 import List.Extra
-import Markdown
 import MimeType exposing (MimeImage(..), MimeType(..))
 import OptimizedDecoder
 import Pages
@@ -865,7 +864,7 @@ twilogDecoder maybeAmazonAssociateTag =
                         case String.split " " str of
                             [ _, mon, paddedDay, paddedHourMinSec, zone, year ] ->
                                 Iso8601.toTime (year ++ "-" ++ monthToPaddedNumber mon ++ "-" ++ paddedDay ++ "T" ++ paddedHourMinSec ++ zone)
-                                    |> Result.mapError Markdown.deadEndsToString
+                                    |> Result.mapError Helper.deadEndsToString
                                     |> OptimizedDecoder.fromResult
 
                             _ ->

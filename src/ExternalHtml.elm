@@ -10,7 +10,6 @@ import Html exposing (Html)
 import Html.Parser exposing (Node(..))
 import Html.Parser.Util
 import LinkPreview
-import Markdown
 import OptimizedDecoder
 
 
@@ -35,7 +34,7 @@ decoder =
                             }
 
                     Err e ->
-                        OptimizedDecoder.fail (Markdown.deadEndsToString e)
+                        OptimizedDecoder.fail (Helper.deadEndsToString e)
             )
 
 
