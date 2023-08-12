@@ -1,4 +1,4 @@
-module LinkPreview exposing (Metadata, collectMetadataOnBuild, getMetadataOnBuild, getMetadataOnDemand)
+module LinkPreview exposing (Metadata, PseudoTweet, collectMetadataOnBuild, getMetadataOnBuild, getMetadataOnDemand, isTweet, toPseudoTweet)
 
 {-| LinkPreview API module.
 -}
@@ -8,10 +8,13 @@ import DataSource.Env
 import DataSource.Http
 import Dict exposing (Dict)
 import Helper exposing (nonEmptyString)
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Parser exposing (Node(..))
 import Http
 import OptimizedDecoder
 import Pages.Secrets
+import Regex
 import Task exposing (Task)
 import Url
 
@@ -140,3 +143,63 @@ getMetadataOnDemand amazonAssociateTag url =
                             Err "something failed"
         }
         |> Task.map (Tuple.pair url)
+
+
+isTweet : Metadata -> Bool
+isTweet { canonicalUrl } =
+    Regex.contains tweetPermalinkRegex canonicalUrl
+
+
+tweetPermalinkRegex =
+    Maybe.withDefault Regex.never (Regex.fromString "https?://twitter\\.com/[^/]+/status/.+")
+
+
+type alias PseudoTweet =
+    { permalink : String
+    , userName : String
+    , screenName : String
+    , body : String
+    , firstAttachedImage : Maybe String
+    }
+
+
+toPseudoTweet : Metadata -> PseudoTweet
+toPseudoTweet meta =
+    -- LinkPreviewから得られる情報を元に、アーカイブツイートなどを擬似的にTweet情報として再現している。
+    { permalink = meta.canonicalUrl
+    , userName = String.replace "さんはTwitterを使っています" "" meta.title
+    , screenName =
+        -- 一度LinkPreviewで取得したTweet URL metadataのcanonicalUrlにはscreen name解決済みのURLが入っている
+        -- e.g. https://twitter.com/gada_twt/status/1234567890123456789
+        -- screen nameが分かればLinkPreviewサービスの裏機能でアイコン画像に解決できる
+        meta.canonicalUrl
+            |> Url.fromString
+            |> Maybe.map .path
+            -- "/gada_twt/status/1234567890123456789"
+            |> Maybe.map (String.dropLeft 1)
+            -- "gada_twt/status/1234567890123456789"
+            |> Maybe.map (String.split "/")
+            -- ["gada_twt", "status", "1234567890123456789"]
+            |> Maybe.andThen List.head
+            |> Maybe.withDefault "x"
+    , body =
+        meta.description
+            |> Maybe.withDefault ""
+            -- LinkPreviewではtweet descriptionに本文が入っているが、ダブルクォートされているので解除
+            |> String.dropLeft 1
+            |> String.dropRight 1
+    , firstAttachedImage =
+        -- LinkPreviewで取得したTweet URL metadataのimageには、
+        -- 1. テキストのみツイートならユーザのアイコン画像が
+        -- 2. メディア付きツイートなら1枚目のサムネイル画像が
+        -- それぞれ入っているので、ここでは後者の取得を試みる
+        meta.imageUrl
+            |> Maybe.andThen
+                (\url ->
+                    if String.contains "profile_images" url then
+                        Nothing
+
+                    else
+                        Just url
+                )
+    }

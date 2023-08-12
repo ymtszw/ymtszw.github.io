@@ -17,9 +17,10 @@ import Markdown.Block
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
+import Maybe.Extra
 import OptimizedDecoder
-import Parser
 import Regex
+import Tweet
 import View
 
 
@@ -227,6 +228,12 @@ htmlRenderer =
                 , Markdown.Html.tag "u" <| Html.u [ inline ]
                 , Markdown.Html.tag "small" <| Html.small [ inline ]
                 , Markdown.Html.tag "div" <| Html.div []
+                , Markdown.Html.tag "embed-tweet" renderPseudoEmbeddedTweet
+                    |> Markdown.Html.withAttribute "src"
+                    |> Markdown.Html.withAttribute "user-name"
+                    |> Markdown.Html.withAttribute "screen-name"
+                    |> Markdown.Html.withAttribute "body"
+                    |> Markdown.Html.withOptionalAttribute "attached-image-src"
                 ]
         , link =
             \link content ->
@@ -289,7 +296,11 @@ transformWithLinkMetadata links nodes =
                 Markdown.Block.Paragraph [ Markdown.Block.Link bareUrl _ _ ] ->
                     case Dict.get bareUrl links of
                         Just metadata ->
-                            Markdown.Block.HtmlBlock <| Markdown.Block.HtmlElement "a" [ { name = "class", value = "link-preview" }, { name = "href", value = metadata.canonicalUrl } ] [ linkPreview metadata ]
+                            if LinkPreview.isTweet metadata then
+                                pseudoEmbeddedTweet metadata
+
+                            else
+                                Markdown.Block.HtmlBlock <| Markdown.Block.HtmlElement "a" [ { name = "class", value = "link-preview" }, { name = "href", value = metadata.canonicalUrl } ] [ linkPreview metadata ]
 
                         Nothing ->
                             block
@@ -325,3 +336,53 @@ linkPreview meta =
               ]
             ]
         ]
+
+
+pseudoEmbeddedTweet : LinkPreview.Metadata -> Markdown.Block.Block
+pseudoEmbeddedTweet meta =
+    let
+        pseudoTweet =
+            LinkPreview.toPseudoTweet meta
+    in
+    Markdown.Block.HtmlBlock <|
+        Markdown.Block.HtmlElement "embed-tweet"
+            ([ { name = "src", value = pseudoTweet.permalink }
+             , { name = "user-name", value = pseudoTweet.userName }
+             , { name = "screen-name", value = pseudoTweet.screenName }
+             , { name = "body", value = pseudoTweet.body }
+             ]
+                ++ Maybe.Extra.unwrap [] (\src -> [ { name = "attached-image-src", value = src } ]) pseudoTweet.firstAttachedImage
+            )
+            []
+
+
+renderPseudoEmbeddedTweet : String -> String -> String -> String -> Maybe String -> List (Html.Html msg) -> Html.Html msg
+renderPseudoEmbeddedTweet permalink userName screenName body optionalFirstAttachedImage _ =
+    Html.div [ Html.Attributes.class "tweet" ]
+        [ Html.header []
+            [ Html.a [ Html.Attributes.target "_blank", Html.Attributes.href permalink ]
+                [ View.imgLazy [ Html.Attributes.alt ("Avatar of " ++ userName), Html.Attributes.src (Helper.twitterProfileImageUrl screenName) ] []
+                , Html.strong [] [ Html.text userName ]
+                ]
+            ]
+        , body
+            |> Tweet.render
+            |> appendMediaGrid permalink optionalFirstAttachedImage
+            |> Html.div [ Html.Attributes.class "body" ]
+        , Html.a [ Html.Attributes.target "_blank", Html.Attributes.href permalink ] [ Html.time [] [ Html.text (Helper.makeDisplayUrl permalink) ] ]
+        ]
+
+
+appendMediaGrid permalink optionalFirstAttachedImage tw =
+    case optionalFirstAttachedImage of
+        Just imageUrl ->
+            tw
+                ++ [ Html.div [ Html.Attributes.class "media-grid" ]
+                        [ View.lightboxLink { href = permalink, src = imageUrl, type_ = "photo" }
+                            []
+                            [ View.imgLazy [ Html.Attributes.src imageUrl, Html.Attributes.alt ("Attached photo of a tweet: " ++ permalink) ] [] ]
+                        ]
+                   ]
+
+        Nothing ->
+            tw
