@@ -1,4 +1,19 @@
-module Helper exposing (dataSourceWith, decodeWith, initMsg, iso8601Decoder, japaneseDateDecoder, makeAmazonUrl, makeDisplayUrl, nonEmptyString, onChange, toJapaneseDate, waitMsg)
+module Helper exposing
+    ( dataSourceWith
+    , deadEndToString
+    , deadEndsToString
+    , decodeWith
+    , initMsg
+    , iso8601Decoder
+    , japaneseDateDecoder
+    , makeAmazonUrl
+    , makeDisplayUrl
+    , nonEmptyString
+    , onChange
+    , toJapaneseDate
+    , twitterProfileImageUrl
+    , waitMsg
+    )
 
 import DataSource exposing (DataSource)
 import Date exposing (Date)
@@ -7,11 +22,13 @@ import Html.Events
 import Iso8601
 import Json.Decode
 import OptimizedDecoder
+import Parser
 import Process
 import QS
 import Task
 import Time
 import Url
+import Url.Builder exposing (string)
 
 
 dataSourceWith : DataSource a -> (a -> DataSource b) -> DataSource b
@@ -166,6 +183,67 @@ embedTag amazonAssociateTag url =
         |> Url.toString
 
 
+twitterProfileImageUrl : String -> String
+twitterProfileImageUrl screenName =
+    Url.Builder.crossOrigin "http://link-preview.ymtszw.workers.dev" [] [ string "tw-profile-icon" screenName ]
+
+
 onChange : (String -> msg) -> Html.Attribute msg
 onChange handler =
     Html.Events.stopPropagationOn "change" (Json.Decode.map (\a -> ( a, True )) (Json.Decode.map handler Html.Events.targetValue))
+
+
+deadEndsToString : List { a | row : Int, col : Int, problem : Parser.Problem } -> String
+deadEndsToString =
+    List.map deadEndToString >> String.join "\n"
+
+
+deadEndToString : { a | row : Int, col : Int, problem : Parser.Problem } -> String
+deadEndToString deadEnd =
+    "Problem at row " ++ String.fromInt deadEnd.row ++ ", col " ++ String.fromInt deadEnd.col ++ "\n" ++ problemToString deadEnd.problem
+
+
+problemToString : Parser.Problem -> String
+problemToString problem =
+    case problem of
+        Parser.Expecting string ->
+            "Expecting " ++ string
+
+        Parser.ExpectingInt ->
+            "Expecting int"
+
+        Parser.ExpectingHex ->
+            "Expecting hex"
+
+        Parser.ExpectingOctal ->
+            "Expecting octal"
+
+        Parser.ExpectingBinary ->
+            "Expecting binary"
+
+        Parser.ExpectingFloat ->
+            "Expecting float"
+
+        Parser.ExpectingNumber ->
+            "Expecting number"
+
+        Parser.ExpectingVariable ->
+            "Expecting variable"
+
+        Parser.ExpectingSymbol string ->
+            "Expecting symbol " ++ string
+
+        Parser.ExpectingKeyword string ->
+            "Expecting keyword " ++ string
+
+        Parser.ExpectingEnd ->
+            "Expecting keyword end"
+
+        Parser.UnexpectedChar ->
+            "Unexpected char"
+
+        Parser.Problem problemDescription ->
+            problemDescription
+
+        Parser.BadRepeat ->
+            "Bad repeat"
