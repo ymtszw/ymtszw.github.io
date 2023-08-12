@@ -20,6 +20,7 @@ const setResponse = await index.setSettings({
     "seriesName",
     "volume",
     "label",
+    "reviewTitle",
     "reviewMarkdown",
   ],
   attributesToRetrieve: [
@@ -32,6 +33,7 @@ const setResponse = await index.setSettings({
     "seriesName",
     "volume",
     "label",
+    "reviewTitle",
     "reviewMarkdown",
     "reviewUpdatedAt",
     "reviewPublishedAt",
@@ -43,6 +45,7 @@ const setResponse = await index.setSettings({
     "seriesName",
     "volume",
     "label",
+    "reviewTitle",
     "reviewMarkdown",
   ],
   indexLanguages: ["ja", "en"],

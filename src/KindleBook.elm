@@ -26,6 +26,7 @@ type alias KindleBook =
     , authors : List String
     , img : String -- 書影画像URL
     , acquiredDate : Date
+    , reviewTitle : Maybe String
     , reviewMarkdown : Maybe String
     , reviewUpdatedAt : Maybe Posix
     , reviewPublishedAt : Maybe Posix
@@ -103,6 +104,7 @@ serialize book =
         , ( "authors", Json.Encode.list Json.Encode.string book.authors )
         , ( "img", Json.Encode.string book.img )
         , ( "acquiredDate", Json.Encode.string (Helper.toJapaneseDate book.acquiredDate) )
+        , ( "reviewTitle", maybe Json.Encode.string book.reviewTitle )
         , ( "reviewMarkdown", maybe Json.Encode.string book.reviewMarkdown )
         , ( "reviewUpdatedAt", maybe (Json.Encode.string << Iso8601.fromTime) book.reviewUpdatedAt )
         , ( "reviewPublishedAt", maybe (Json.Encode.string << Iso8601.fromTime) book.reviewPublishedAt )
@@ -184,6 +186,7 @@ getFromGist decoder =
 kindleBookDecoder : OptimizedDecoder.Decoder KindleBook
 kindleBookDecoder =
     OptimizedDecoder.oneOf [ decodeNormalizedBook, decodeRawBook ]
+        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewTitle" nonEmptyString))
         |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewMarkdown" nonEmptyString))
         |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewUpdatedAt" iso8601Decoder))
         |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewPublishedAt" iso8601Decoder))
