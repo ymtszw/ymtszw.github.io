@@ -735,7 +735,7 @@ kindlePopover amazonAssociateTag decryptedKindleBooks f openedBook maybeEditingB
         case getBook decryptedKindleBooks openedBook of
             Just ( maybePrev, book, maybeNext ) ->
                 [ prevVolume maybePrev
-                , article []
+                , article [ class "kindle-book-details" ]
                     [ View.imgLazy [ src book.img, width 150, alt <| book.rawTitle ++ "の書影" ] []
                     , div [] <|
                         let

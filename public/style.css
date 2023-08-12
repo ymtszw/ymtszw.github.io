@@ -743,9 +743,18 @@ body:has(.locked) {
 .kindle-control > select {
   font-weight: bold;
 }
-button.kindle-filterable-tag {
+.kindle-filterable-tag {
+  display: inline-block;
   border-radius: 1em;
   margin-left: 0.1em;
+  padding: 5px 10px;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  color: #f9f9f9;
+  border-color: #1d7484;
+  background-color: #1d7484;
 }
 button.kindle-filterable-tag:focus {
   border-color: #144f5a;
@@ -868,7 +877,7 @@ button.kindle-filterable-tag.active::after {
   background-color: #eaeaea;
   cursor: pointer;
 }
-.kindle-popover > main > article {
+.kindle-book-details {
   flex-grow: 1;
   overflow-y: auto;
   max-height: 60vh;
@@ -883,24 +892,24 @@ button.kindle-filterable-tag.active::after {
   .kindle-popover > main {
     gap: 0.2em;
   }
-  .kindle-popover > main > article {
+  .kindle-book-details {
     max-height: 85vh;
     flex-direction: column;
   }
 }
-.kindle-popover > main > article > img {
+.kindle-book-details > img {
   width: 150px;
   object-fit: contain;
   align-self: center; /* Small screenでいい感じになる */
 }
-.kindle-popover > main > article > div {
+.kindle-book-details > div {
   flex-grow: 1;
 }
-.kindle-popover > main > article > div > h5 {
+.kindle-book-details > div > h5 {
   margin-top: 0;
   word-break: break-all;
 }
-.kindle-popover > main > article > div > .cloud-reader-link {
+.kindle-book-details > div > .cloud-reader-link {
   display: inline-block;
   margin-bottom: 1.5rem;
   padding: 0 0.5em;
@@ -909,20 +918,20 @@ button.kindle-filterable-tag.active::after {
   background-color: #408fdf;
   border-radius: 5px;
 }
-.kindle-popover > main > article > div > .cloud-reader-link:hover {
+.kindle-book-details > div > .cloud-reader-link:hover {
   border-bottom: initial;
   background-color: #2a84dd;
 }
-.kindle-popover > main > article > div > .cloud-reader-link::before {
+.kindle-book-details > div > .cloud-reader-link::before {
   content: "📚";
   font-family: "Noto Sans Symbols 2", sans-serif;
   margin-right: 0.2em;
 }
-.kindle-popover > main > article > div > .cloud-reader-link::after {
+.kindle-book-details > div > .cloud-reader-link::after {
   content: "";
   display: none;
 }
-.kindle-popover > main > article > div > .kindle-book-edit-button {
+.kindle-book-details > div > .kindle-book-edit-button {
   display: inline-block;
   vertical-align: middle;
   font-family: "Noto Sans Symbols 2", sans-serif;
@@ -937,7 +946,7 @@ button.kindle-filterable-tag.active::after {
   background-color: transparent;
   color: #144f5a;
 }
-.kindle-popover > main > article > div > .kindle-book-edit-button::after {
+.kindle-book-details > div > .kindle-book-edit-button::after {
   content: "🖉";
   font-size: 1.5em;
 }
@@ -958,13 +967,13 @@ button.kindle-filterable-tag.active::after {
 input[type="text"].kindle-book-edit-input {
   width: 100%;
 }
-.kindle-popover > main > article > div > ul {
+.kindle-book-details > div > ul {
   font-size: 14px;
 }
-.kindle-popover > main > article.kindle-library-lock > form {
+.kindle-book-details.kindle-library-lock > form {
   margin: 15vh auto;
 }
-.kindle-popover > main > article.kindle-library-lock > form::before {
+.kindle-book-details.kindle-library-lock > form::before {
   content: "🔐";
   display: inline-block;
   position: absolute;
