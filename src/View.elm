@@ -8,6 +8,7 @@ module View exposing
     , markdownEditor
     , parseLightboxFragment
     , placeholder
+    , toggleSwitch
     )
 
 import Html exposing (..)
@@ -99,3 +100,8 @@ markdownEditor tagger val =
             ]
             []
         ]
+
+
+toggleSwitch : List (Attribute msg) -> List (Html msg) -> Html msg
+toggleSwitch attrs _ =
+    label [ class "switch" ] [ input (type_ "checkbox" :: attrs) [], span [ class "slider" ] [] ]

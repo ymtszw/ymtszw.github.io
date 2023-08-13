@@ -991,7 +991,7 @@ input[type="text"].kindle-book-edit-input {
   display: flex;
   flex-direction: column;
   padding: 10px;
-  gap: 5px;
+  gap: 10px;
   left: 0;
   bottom: 0;
   width: 600px;
@@ -1001,8 +1001,9 @@ input[type="text"].kindle-book-edit-input {
   border-top-right-radius: 10px;
   overflow: hidden;
 
-  & > :is(input[type="text"], textarea) {
+  & > input[type="text"] {
     width: 100%;
+    margin: 0;
   }
 }
 
@@ -1016,12 +1017,17 @@ input[type="text"].kindle-book-edit-input {
     visibility: hidden;
     box-sizing: border-box;
     padding: 10px;
+    margin: 0;
     min-height: 120px;
-    max-height: 50vh;
+    max-height: 40vh;
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
     border: 1px solid;
+
+    @media (max-height: 699px) {
+      max-height: 25vh;
+    }
   }
 
   & > textarea {
@@ -1032,6 +1038,7 @@ input[type="text"].kindle-book-edit-input {
     overflow-y: auto;
     box-sizing: border-box;
     padding: 10px;
+    margin: 0;
     width: 100%;
     height: 100%;
     font: inherit;
@@ -1043,4 +1050,66 @@ input[type="text"].kindle-book-edit-input {
     box-shadow: 0 0 0 1px #144f5a;
     outline: 0;
   }
+}
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  vertical-align: bottom;
+  width: 54px;
+  height: 28px;
+  margin: 0;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #909090;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #f9f9f9;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #1d7484;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #144f5a;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+input:disabled + .slider {
+  cursor: not-allowed;
+}
+
+input:disabled + .slider::before {
+  background-color: #aeaeae;
 }

@@ -1,4 +1,4 @@
-module KindleBook exposing (ASIN, KindleBook, Secrets, SeriesName, getOnDemand, kindleBooks, putOnDemand, secrets)
+module KindleBook exposing (ASIN, KindleBook, Secrets, SeriesName, getOnDemand, kindleBooks, putOnDemand, putOnDemandTask, secrets)
 
 import DataSource exposing (DataSource)
 import DataSource.Env
@@ -14,6 +14,7 @@ import List.Extra
 import OptimizedDecoder
 import Pages.Secrets as Secrets
 import Regex
+import Task exposing (Task)
 import Time exposing (Posix)
 
 
@@ -72,8 +73,13 @@ getOnDemand tagger { appId, searchKey } objectId =
 
 
 putOnDemand : (Result String KindleBook -> msg) -> Secrets -> KindleBook -> Cmd msg
-putOnDemand tagger { appId, searchKey } updatedBook =
-    Http.request
+putOnDemand tagger secrets_ updatedBook =
+    Task.attempt tagger (putOnDemandTask secrets_ updatedBook)
+
+
+putOnDemandTask : Secrets -> KindleBook -> Task String KindleBook
+putOnDemandTask { appId, searchKey } updatedBook =
+    Http.task
         { method = "PUT"
         , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/ymtszw-kindle/" ++ updatedBook.id
         , headers =
@@ -83,9 +89,16 @@ putOnDemand tagger { appId, searchKey } updatedBook =
         , body = Http.jsonBody (serialize updatedBook)
         , -- getOnDemand相当の結果は帰ってこない。当座は成功時、入力をそのまま返しておく。
           -- Call siteでgetOnDemandするかどうかは自由。
-          expect = Http.expectWhatever (Result.mapError (\_ -> "") >> Result.map (\() -> updatedBook) >> tagger)
+          resolver =
+            Http.stringResolver <|
+                \httpRes ->
+                    case httpRes of
+                        Http.GoodStatus_ _ _ ->
+                            Ok updatedBook
+
+                        _ ->
+                            Err ""
         , timeout = Just 10000
-        , tracker = Nothing
         }
 
 
