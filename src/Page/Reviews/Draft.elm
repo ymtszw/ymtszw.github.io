@@ -8,13 +8,16 @@ import Head
 import Helper exposing (onChange)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onCheck, onClick)
 import KindleBook exposing (ASIN, KindleBook, kindleBooks)
 import LinkPreview
 import Markdown
+import Maybe.Extra
 import Page exposing (PageWithState, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import QueryParams
 import Shared
+import Task
 import Time exposing (Posix)
 import View exposing (View)
 
@@ -75,6 +78,7 @@ type alias Model =
     , reviewMarkdown : String
     , reviewUpdatedAt : Maybe Posix
     , reviewPublishedAt : Maybe Posix
+    , clean : Bool
     }
 
 
@@ -87,12 +91,12 @@ init pageUrl _ static =
             )
 
         Nothing ->
-            ( Model Nothing "タイトル" sample Nothing Nothing, Cmd.none )
+            ( Model Nothing "タイトル" sample Nothing Nothing True, Cmd.none )
 
 
 bookToModel : KindleBook -> Model
 bookToModel book =
-    Model (Just book) (Maybe.withDefault "タイトル" book.reviewTitle) (Maybe.withDefault sample book.reviewMarkdown) book.reviewUpdatedAt book.reviewPublishedAt
+    Model (Just book) (Maybe.withDefault "タイトル" book.reviewTitle) (Maybe.withDefault sample book.reviewMarkdown) book.reviewUpdatedAt book.reviewPublishedAt True
 
 
 getStaticBook : Maybe PageUrl -> Dict ASIN KindleBook -> Maybe KindleBook
@@ -106,15 +110,10 @@ getStaticBook pageUrl books =
 
 
 sample =
-    """## アカリがやってきたぞ！
+    """## 心得
 
-うおー
-
-https://twitter.com/gada_twt/status/1690322717642457088
-
-どうにかなーれ
-
-https://snowbreak.amazingseasun.com/#/?id=1
+- 公開には100字以上が必須
+- Markdownが使える
 """
 
 
@@ -122,6 +121,8 @@ type Msg
     = Res_refreshKindleBookOnDemand (Result String KindleBook)
     | SetReviewTitle String
     | SetReviewMarkdown String
+    | Save
+    | Publish Bool
 
 
 update :
@@ -137,7 +138,7 @@ update _ _ _ static msg m =
         Res_refreshKindleBookOnDemand (Ok book) ->
             bookToModel book
                 |> (\updated ->
-                        ( updated
+                        ( { updated | clean = True }
                         , Cmd.none
                         , requestLinkPreview static.data.amazonAssociateTag updated.reviewMarkdown
                         )
@@ -147,10 +148,48 @@ update _ _ _ static msg m =
             ( m, Cmd.none, Nothing )
 
         SetReviewTitle s ->
-            ( { m | reviewTitle = s }, Cmd.none, Nothing )
+            ( { m | reviewTitle = s, clean = False }, Cmd.none, Nothing )
 
         SetReviewMarkdown s ->
-            ( { m | reviewMarkdown = s }, Cmd.none, requestLinkPreview static.data.amazonAssociateTag s )
+            ( { m | reviewMarkdown = s, clean = False }, Cmd.none, requestLinkPreview static.data.amazonAssociateTag s )
+
+        Save ->
+            ( m
+            , modelToBook m
+                |> Maybe.Extra.unwrap Cmd.none
+                    (\book ->
+                        putWithTimestamp book
+                            |> Task.attempt Res_refreshKindleBookOnDemand
+                    )
+            , Nothing
+            )
+
+        Publish publishing ->
+            ( m
+            , if readyToPublish m then
+                case modelToBook m of
+                    Just book ->
+                        putWithTimestamp book
+                            |> Task.map
+                                (\updated ->
+                                    { updated
+                                        | reviewPublishedAt =
+                                            if publishing then
+                                                updated.reviewUpdatedAt
+
+                                            else
+                                                Nothing
+                                    }
+                                )
+                            |> Task.attempt Res_refreshKindleBookOnDemand
+
+                    Nothing ->
+                        Cmd.none
+
+              else
+                Cmd.none
+            , Nothing
+            )
 
 
 requestLinkPreview amazonAssociateTag body =
@@ -159,6 +198,31 @@ requestLinkPreview amazonAssociateTag body =
         |> Shared.Req_LinkPreview amazonAssociateTag
         |> Shared.SharedMsg
         |> Just
+
+
+readyToPublish m =
+    String.length m.reviewTitle >= 1 && String.length m.reviewMarkdown >= 100
+
+
+modelToBook : Model -> Maybe KindleBook
+modelToBook m =
+    m.book
+        |> Maybe.map
+            (\book ->
+                { book
+                    | reviewTitle = Just m.reviewTitle
+                    , reviewMarkdown = Just m.reviewMarkdown
+                }
+            )
+
+
+putWithTimestamp book =
+    Time.now
+        |> Task.andThen
+            (\now ->
+                -- KindleBook.putOnDemandTask static.data.secrets
+                Task.succeed { book | reviewUpdatedAt = Just now }
+            )
 
 
 view :
@@ -196,7 +260,11 @@ renderReview amazonAssociateTag links book m =
                         Html.text ("公開: " ++ Shared.formatPosix pa)
                             :: (case m.reviewUpdatedAt of
                                     Just ua ->
-                                        [ Html.text (" (更新: " ++ Shared.formatPosix ua ++ ")") ]
+                                        if ua == pa then
+                                            []
+
+                                        else
+                                            [ Html.text (" (更新: " ++ Shared.formatPosix ua ++ ")") ]
 
                                     Nothing ->
                                         []
@@ -268,4 +336,14 @@ reviewEditor m =
             ]
             []
         , View.markdownEditor SetReviewMarkdown m.reviewMarkdown
+        , button [ onClick Save, disabled m.clean ] [ text "保存" ]
+        , div []
+            [ text "公開 "
+            , View.toggleSwitch
+                [ onCheck Publish
+                , disabled (not (readyToPublish m))
+                , checked (m.reviewPublishedAt /= Nothing)
+                ]
+                []
+            ]
         ]
