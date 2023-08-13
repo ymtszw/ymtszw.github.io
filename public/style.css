@@ -901,7 +901,7 @@ button.kindle-filterable-tag.active::after {
     flex-direction: column;
   }
 }
-.kindle-book-details > img {
+.kindle-book-details img {
   width: 150px;
   object-fit: contain;
   align-self: center; /* Small screenでいい感じになる */
