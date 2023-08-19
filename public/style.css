@@ -825,6 +825,12 @@ button.kindle-filterable-tag.active::after {
 .series-bookmark[data-count="1"] {
   max-width: 50px;
 }
+.kindle-bookshelf-navigation {
+  margin-bottom: 1em;
+}
+.kindle-bookshelf-navigation > :not(:first-child) {
+  margin-left: 0.5em;
+}
 
 .kindle-popover {
   display: block;

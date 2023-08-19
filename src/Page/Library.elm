@@ -140,6 +140,7 @@ groupBySeriesName =
 type alias Model =
     { sortKey : SortKey
     , filter : Filter
+    , page : Int
 
     -- ハーフモーダルのpopoverが閉じるとき、selectedBookをNothingにしてしまうと
     -- アニメーション中に先行してモーダル内が空になってしまい、スライドアウトがきれいに見えない。
@@ -222,9 +223,10 @@ stringToSortKey str =
 
 
 init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Cmd Msg )
-init _ shared app =
+init maybePageUrl shared app =
     ( { sortKey = DATE_DESC
       , filter = noFilter
+      , page = getPage maybePageUrl
       , popoverOpened = False
       , selectedBook = Nothing
       , editingBook = Nothing
@@ -237,6 +239,23 @@ init _ shared app =
       }
     , Cmd.none
     )
+
+
+getPage : Maybe PageUrl -> Int
+getPage maybePageUrl =
+    maybePageUrl
+        |> Maybe.andThen .fragment
+        |> Maybe.andThen
+            (\fr ->
+                if String.startsWith "page=" fr then
+                    Just (String.dropLeft 5 fr)
+
+                else
+                    Nothing
+            )
+        |> Maybe.andThen String.toInt
+        |> Maybe.map (\num -> num - 1)
+        |> Maybe.withDefault 0
 
 
 type alias Password =
@@ -454,9 +473,20 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
     }
 
 
-kindleBookshelf : Model -> StaticPayload Data RouteParams -> Html Msg
 kindleBookshelf m app =
     let
+        seriesGroupedBy50 =
+            (if m.unlocked then
+                m.decryptedKindleBooks
+
+             else
+                app.data.kindleBooks
+            )
+                |> doFilter m.filter
+                |> Dict.toList
+                |> doSort m.sortKey
+                |> List.Extra.greedyGroupsOf 50
+
         clickBookEvent book =
             Json.Decode.succeed
                 { message = ToggleKindlePopover (Just ( book.seriesName, book.id ))
@@ -484,16 +514,13 @@ kindleBookshelf m app =
                                     String.map (\_ -> 'X') first.seriesName
                             ]
                     ]
-    in
-    (if m.unlocked then
-        m.decryptedKindleBooks
 
-     else
-        app.data.kindleBooks
-    )
-        |> doFilter m.filter
-        |> Dict.toList
-        |> doSort m.sortKey
+        navi =
+            bookshelfNavigation m seriesGroupedBy50
+    in
+    seriesGroupedBy50
+        |> List.Extra.getAt m.page
+        |> Maybe.withDefault []
         |> List.concatMap
             (\( seriesName, books ) ->
                 List.map
@@ -523,7 +550,33 @@ kindleBookshelf m app =
                     books
                     ++ seriesBookmark books
             )
+        |> (\books -> ( "navigation-top", navi ) :: books ++ [ ( "navigation-bottom", navi ) ])
         |> Html.Keyed.node "div" [ class "kindle-bookshelf", classList [ ( "locked", not m.unlocked ) ] ]
+
+
+bookshelfNavigation m seriesGroupedBy50 =
+    let
+        ( heads, tails ) =
+            seriesGroupedBy50
+                |> List.indexedMap (\index chunk -> ( index + 1, chunk ))
+                |> List.Extra.splitAt m.page
+
+        navButton selected ( pageNum, _ ) =
+            if selected then
+                u [] [ text (String.fromInt pageNum) ]
+
+            else
+                a [ href ("#page=" ++ String.fromInt pageNum) ] [ strong [] [ text (String.fromInt pageNum) ] ]
+    in
+    nav [ class "kindle-bookshelf-navigation" ] <|
+        List.map (navButton False) heads
+            ++ (case tails of
+                    [] ->
+                        []
+
+                    current :: tails_ ->
+                        navButton True current :: List.map (navButton False) tails_
+               )
 
 
 kindleData : Model -> StaticPayload Data RouteParams -> Html Msg
