@@ -1,6 +1,7 @@
 name: Commit Recent Twilogs
 
 on:
+  # ZapierのTwitter連携が終了となったので、定期実行しなくなった。何らかの理由で手動実行したくなったときのために維持している
   workflow_dispatch:
 
 permissions:
