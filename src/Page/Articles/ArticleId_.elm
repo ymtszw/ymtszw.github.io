@@ -13,7 +13,9 @@ module Page.Articles.ArticleId_ exposing
     , routes
     )
 
+import Browser.Navigation
 import DataSource exposing (DataSource)
+import DataSource.Env
 import DataSource.File
 import Dict exposing (Dict)
 import ExternalHtml
@@ -41,19 +43,15 @@ type alias Model =
     ()
 
 
-type alias Msg =
-    Never
-
-
 type alias RouteParams =
     { articleId : String }
 
 
 type alias Data =
     { article : CmsArticle
-    , links : Dict String LinkPreview.Metadata
     , prevArticleMeta : Maybe CmsArticleMetadata
     , nextArticleMeta : Maybe CmsArticleMetadata
+    , amazonAssociateTag : String
     }
 
 
@@ -87,7 +85,12 @@ page =
         , routes = routes
         , data = data
         }
-        |> Page.buildNoState { view = view }
+        |> Page.buildWithSharedState
+            { init = \_ _ _ -> ( (), Helper.initMsg InitiateLinkPreviewPopulation )
+            , update = update
+            , subscriptions = \_ _ _ _ _ -> Sub.none
+            , view = view
+            }
 
 
 routes : DataSource (List RouteParams)
@@ -149,10 +152,9 @@ publicCmsArticleData routeParams =
 
 buildPageData : CmsArticle -> DataSource Data
 buildPageData currentArticle =
-    currentArticle.body.links
-        |> LinkPreview.collectMetadataOnBuild
+    DataSource.Env.load "AMAZON_ASSOCIATE_TAG"
         |> DataSource.andThen
-            (\links ->
+            (\aat ->
                 Shared.cmsArticles
                     |> DataSource.map
                         (\cmsArticles ->
@@ -161,9 +163,9 @@ buildPageData currentArticle =
                                     findNextAndPrevArticleMeta currentArticle cmsArticles
                             in
                             { article = currentArticle
-                            , links = links
                             , prevArticleMeta = prev
                             , nextArticleMeta = next
+                            , amazonAssociateTag = aat
                             }
                         )
             )
@@ -221,8 +223,22 @@ head app =
             }
 
 
-view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data RouteParams -> View.View msg
-view _ _ app =
+type Msg
+    = InitiateLinkPreviewPopulation
+
+
+update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
+update _ _ _ app msg model =
+    case msg of
+        InitiateLinkPreviewPopulation ->
+            ( model
+            , Cmd.none
+            , Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag app.data.article.body.links))
+            )
+
+
+view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View msg
+view _ shared _ app =
     { title = app.data.article.title
     , body =
         let
@@ -242,7 +258,7 @@ view _ _ app =
         in
         [ prevNextNavigation app.data
         , Html.header [] [ timestamp ]
-        , renderArticle app.data.links app.data.article
+        , renderArticle shared.links app.data.article
         , Html.div [] [ timestamp ]
         , prevNextNavigation app.data
         ]

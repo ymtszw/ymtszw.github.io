@@ -237,6 +237,12 @@ lockScrollPosition =
         |> Cmd.map SharedMsg
 
 
+{-| Runtimeにリンクプレビューを要求する。
+
+特にTwilogなど、大量のリンクをビルド時にプレビューするのは時間がかかるので、
+ビルド時にプレビューを事前生成したい要求が強いページ以外は基本的にruntimeに寄せる。
+
+-}
 requestLinkPreviewSequentially : String -> List String -> String -> Cmd Msg
 requestLinkPreviewSequentially amazonAssociateTag urls url =
     url

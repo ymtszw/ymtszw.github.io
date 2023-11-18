@@ -1,19 +1,20 @@
-module LinkPreview exposing (Metadata, PseudoTweet, collectMetadataOnBuild, getMetadataOnBuild, getMetadataOnDemand, isTweet, toPseudoTweet)
+module LinkPreview exposing (Metadata, PseudoTweet, getMetadataOnDemand, isTweet, toPseudoTweet)
 
 {-| LinkPreview API module.
+
+サイトビルド時にLinkPreviewに依存するとたまに外部サイトの機嫌によってビルド失敗してしまい、鬱陶しい。
+そこで、基本的にはruntimeにブラウザからLinkPreviewを呼び出してもらうにした。
+
+FIXME: レイアウトシフトを嫌うなら、LinkPreviewガロードされていないときのスケルトンを改善する。
+
 -}
 
-import DataSource exposing (DataSource)
-import DataSource.Env
-import DataSource.Http
-import Dict exposing (Dict)
 import Helper exposing (nonEmptyString)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Parser exposing (Node(..))
 import Http
 import OptimizedDecoder
-import Pages.Secrets
 import Regex
 import Task exposing (Task)
 import Url
@@ -35,22 +36,6 @@ type alias Metadata =
     , -- Defaults to requested URL
       canonicalUrl : String
     }
-
-
-collectMetadataOnBuild : List String -> DataSource (Dict String Metadata)
-collectMetadataOnBuild links =
-    links
-        |> List.map getMetadataOnBuild
-        |> DataSource.combine
-        |> DataSource.map Dict.fromList
-
-
-getMetadataOnBuild : String -> DataSource ( String, Metadata )
-getMetadataOnBuild url =
-    DataSource.map2 (\meta amazonAssociateTag -> { meta | canonicalUrl = Helper.makeAmazonUrl amazonAssociateTag meta.canonicalUrl })
-        (DataSource.Http.get (Pages.Secrets.succeed (linkPreviewApiEndpoint url)) (linkPreviewDecoder url))
-        (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
-        |> DataSource.map (Tuple.pair url)
 
 
 {-| Using personal link preview service. <https://github.com/ymtszw/link-preview>
