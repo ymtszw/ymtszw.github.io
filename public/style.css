@@ -745,6 +745,7 @@ body:has(.locked) {
   font-size: 14px;
 }
 .kindle-control > select {
+  margin-top: 10px;
   font-weight: bold;
 }
 .kindle-filterable-tag {

@@ -1,4 +1,4 @@
-module KindleBook exposing (ASIN, KindleBook, Secrets, SeriesName, getOnDemand, kindleBooks, putOnDemand, putOnDemandTask, secrets)
+module KindleBook exposing (ASIN, KindleBook, SearchResult, Secrets, SeriesName, emptyResult, getOnDemand, kindleBooks, putOnDemand, putOnDemandTask, search, secrets)
 
 import DataSource exposing (DataSource)
 import DataSource.Env
@@ -8,6 +8,7 @@ import Dict exposing (Dict)
 import Helper exposing (dataSourceWith, decodeWith, iso8601Decoder, japaneseDateDecoder, nonEmptyString)
 import Http
 import Iso8601
+import Json.Decode
 import Json.Encode
 import KindleBookTitle exposing (kindleBookTitle)
 import List.Extra
@@ -16,6 +17,7 @@ import Pages.Secrets as Secrets
 import Regex
 import Task exposing (Task)
 import Time exposing (Posix)
+import Url
 
 
 type alias KindleBook =
@@ -54,6 +56,52 @@ secrets =
         (DataSource.Env.load "ALGOLIA_APP_ID")
         -- RuntimeにはReferrerと権限を制限したsearchKeyを使う
         (DataSource.Env.load "ALGOLIA_SEARCH_KEY")
+
+
+type alias SearchResult =
+    { searchTerm : String
+    , formattedHits : List KindleBook
+    , estimatedTotalHits : Int
+    }
+
+
+emptyResult : SearchResult
+emptyResult =
+    { searchTerm = ""
+    , formattedHits = []
+    , estimatedTotalHits = 0
+    }
+
+
+search : (Result String SearchResult -> msg) -> Secrets -> String -> Cmd msg
+search tagger { appId, searchKey } term =
+    Http.request
+        { method = "POST"
+        , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/ymtszw-kindle/query"
+        , headers =
+            [ Http.header "X-Algolia-Application-Id" appId
+            , Http.header "X-Algolia-API-Key" searchKey
+            ]
+        , body = searchBody term
+        , timeout = Just 5000
+        , tracker = Nothing
+        , expect = Http.expectJson (Result.mapError (\_ -> "") >> tagger) (searchResultDecoder term)
+        }
+
+
+searchBody : String -> Http.Body
+searchBody term =
+    Http.jsonBody <|
+        Json.Encode.object
+            [ ( "params", Json.Encode.string <| "query=" ++ Url.percentEncode term ++ "&hitsPerPage=10" )
+            ]
+
+
+searchResultDecoder : String -> Json.Decode.Decoder SearchResult
+searchResultDecoder term =
+    Json.Decode.map2 (SearchResult term)
+        (Json.Decode.field "hits" (Json.Decode.list (OptimizedDecoder.decoder kindleBookDecoder)))
+        (Json.Decode.field "nbHits" Json.Decode.int)
 
 
 getOnDemand : (Result String KindleBook -> msg) -> Secrets -> ASIN -> Cmd msg

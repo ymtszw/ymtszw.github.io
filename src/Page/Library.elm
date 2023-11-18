@@ -6,6 +6,7 @@ import Color
 import DataSource exposing (DataSource)
 import DataSource.Env
 import Date
+import Debounce exposing (Debounce)
 import Dict exposing (Dict)
 import Head
 import Head.Seo as Seo
@@ -30,7 +31,7 @@ import Shared exposing (seoBase)
 import Table
 import Task
 import Url.Builder
-import View exposing (View)
+import View exposing (View, imgLazy)
 
 
 type alias RouteParams =
@@ -141,6 +142,9 @@ type alias Model =
     { sortKey : SortKey
     , filter : Filter
     , page : Int
+    , searchResults : KindleBook.SearchResult
+    , searching : Bool
+    , searchTerm : Debounce String
 
     -- ハーフモーダルのpopoverが閉じるとき、selectedBookをNothingにしてしまうと
     -- アニメーション中に先行してモーダル内が空になってしまい、スライドアウトがきれいに見えない。
@@ -227,6 +231,9 @@ init maybePageUrl shared app =
     ( { sortKey = DATE_DESC
       , filter = noFilter
       , page = getPage maybePageUrl
+      , searchResults = KindleBook.emptyResult
+      , searching = False
+      , searchTerm = Debounce.init
       , popoverOpened = False
       , selectedBook = Nothing
       , editingBook = Nothing
@@ -271,6 +278,9 @@ type Msg
     = SetSortKey String
     | ToggleAuthorFilter Bool String
     | ToggleLabelFilter Bool String
+    | SetSearchTerm String
+    | DebounceMsg Debounce.Msg
+    | Res_SearchKindle (Result String KindleBook.SearchResult)
     | ToggleKindlePopover (Maybe ( SeriesName, ASIN ))
     | EditKindleBook (Maybe KindleBook)
     | UnlockLibrary Password
@@ -292,6 +302,29 @@ update _ _ _ app msg ({ filter } as m) =
 
         ToggleLabelFilter switch author ->
             ( { m | filter = { filter | labels = toggle switch author filter.labels } }, Cmd.none )
+
+        SetSearchTerm "" ->
+            ( { m | searchResults = KindleBook.emptyResult, searchTerm = Debounce.init }, Cmd.none )
+
+        SetSearchTerm input ->
+            let
+                ( newDebounce, cmd ) =
+                    Debounce.push debounceConfig input m.searchTerm
+            in
+            ( { m | searching = True, searchTerm = newDebounce }, cmd )
+
+        DebounceMsg dMsg ->
+            let
+                ( newDebounce, cmd ) =
+                    Debounce.update debounceConfig (Debounce.takeLast (KindleBook.search Res_SearchKindle app.data.secrets)) dMsg m.searchTerm
+            in
+            ( { m | searchTerm = newDebounce }, cmd )
+
+        Res_SearchKindle (Ok searchResults) ->
+            ( { m | searchResults = searchResults, searching = False }, Cmd.none )
+
+        Res_SearchKindle (Err _) ->
+            ( { m | searching = False }, Cmd.none )
 
         ToggleKindlePopover (Just selected) ->
             if m.popoverOpened then
@@ -423,6 +456,12 @@ toggle switch e set =
         Set.remove e set
 
 
+debounceConfig =
+    { strategy = Debounce.later 700
+    , transform = DebounceMsg
+    }
+
+
 head :
     StaticPayload Data RouteParams
     -> List Head.Tag
@@ -462,7 +501,8 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 """
         , kindleData m app
         , div [ class "kindle-control", classList [ ( "locked", not m.unlocked ) ] ] <|
-            (select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys)
+            kindleSearchBox m
+                :: (select [ onInput SetSortKey ] <| List.map (\sk -> option [ value <| sortKeyToString sk, selected <| m.sortKey == sk ] [ text <| sortKeyToString sk ]) sortKeys)
                 :: (List.map (filterableTag ToggleAuthorFilter m.filter.authors) <| Set.toList m.filter.authors)
                 ++ List.map (filterableTag ToggleLabelFilter m.filter.labels) (Set.toList m.filter.labels)
         , kindleBookshelf m app
@@ -471,6 +511,37 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
         , div [ class "kindle-popover", hidden m.unlocked ] kindleLibraryLock
         ]
     }
+
+
+kindleSearchBox : Model -> Html Msg
+kindleSearchBox { searchResults, searching } =
+    div [ class "search", classList [ ( "spinner", searching ) ] ]
+        [ input
+            [ type_ "search"
+            , id "kindle-search"
+            , placeholder "Kindle検索 by Algolia"
+            , onInput SetSearchTerm
+            ]
+            []
+        , case searchResults.formattedHits of
+            [] ->
+                text ""
+
+            _ ->
+                div [ class "search-results" ]
+                    [ small [] [ text ("約" ++ String.fromInt searchResults.estimatedTotalHits ++ "件ヒット") ]
+                    , div
+                        [ class "provider" ]
+                        [ text "Powered by "
+                        , a
+                            [ href "https://algolia.com"
+                            , target "_blank"
+                            , class "has-image"
+                            ]
+                            [ imgLazy [ src "/algolia.svg" ] [] ]
+                        ]
+                    ]
+        ]
 
 
 kindleBookshelf m app =
@@ -483,6 +554,7 @@ kindleBookshelf m app =
                 app.data.kindleBooks
             )
                 |> doFilter m.filter
+                |> applySearchResults m.searchResults
                 |> Dict.toList
                 |> doSort m.sortKey
                 |> List.Extra.greedyGroupsOf 50
@@ -683,6 +755,21 @@ doFilter f =
 
         ( nonEmptyAuthors, nonEmptyLabels ) ->
             Dict.filter (\_ books -> filterByAuthors nonEmptyAuthors books || filterByLabels nonEmptyLabels books)
+
+
+applySearchResults : KindleBook.SearchResult -> Dict SeriesName (List KindleBook) -> Dict SeriesName (List KindleBook)
+applySearchResults { formattedHits } =
+    let
+        filterByASINs found books =
+            List.any (\asin -> List.any (\book -> book.id == asin) books) found
+    in
+    -- Algolia検索では明示的にASINが手に入るので、単純に該当ASINの作品を含むシリーズを探す
+    case List.map .id formattedHits of
+        [] ->
+            identity
+
+        nonEmptyASINs ->
+            Dict.filter (\_ books -> filterByASINs nonEmptyASINs books)
 
 
 doSort : SortKey -> List ( SeriesName, List KindleBook ) -> List ( SeriesName, List KindleBook )
