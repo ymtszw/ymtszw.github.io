@@ -980,10 +980,14 @@ input[type="text"].kindle-book-edit-input {
 .kindle-book-details > div > ul {
   font-size: 14px;
 }
-.kindle-book-details.kindle-library-lock > form {
-  margin: 15vh auto;
+.kindle-library-lock {
+  flex-grow: 1;
 }
-.kindle-book-details.kindle-library-lock > form::before {
+.kindle-library-lock > form {
+  margin: 15vh auto;
+  width: fit-content;
+}
+.kindle-library-lock > form::before {
   content: "🔐";
   display: inline-block;
   position: absolute;
