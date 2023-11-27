@@ -201,12 +201,16 @@ view _ shared m app =
         [ h1 [] [ text "Twilog" ]
         , div [] <| Markdown.parseAndRender Dict.empty """
 2023年に、Twitter APIの大幅値上げ（無料枠縮小）で[Twilogが新規データを記録できなくなる](https://twitter.com/ropross/status/1641353674046992385)~~ようなのだが~~という懸念があったが （のちに[Togetter社がサービスを買収して復旧した](https://prtimes.jp/main/html/rd/p/000000008.000012337.html)）、
-そのタイミングで遅ればせながらTwilogがどういうサービスか知り、Twitterを自動で日記化するという便利さに気づいたので自作し始めたページ。仕組み：
+そのタイミングで遅ればせながらTwilogがどういうサービスか知り、Twitterを自動で日記化するという便利さに気づいたので自作し始めたページ。
+
+以下のような仕組みで実現できていたのだが、結局Twitter APIの締め付けは留まるところを知らず、データが取得できなくなったので店じまい。
 
 - Zapierを起点としてうまいことTweetを継続的に蓄積
 - それを自前でTwilogっぽくwebページ化（サイトはデイリービルド）
 - Twitter公式機能で取得したアーカイブから過去ページも追って作成（完成）
 - 検索SaaSを使って検索機能提供
+
+その後は[Twilog本家に任せることにした](https://twilog.togetter.com/gada_twt)。
 """
         , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m
         ]
