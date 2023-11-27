@@ -9,7 +9,6 @@ module Page.Index exposing
 import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Env
-import Dict
 import Head
 import Head.Seo as Seo
 import Helper exposing (iso8601Decoder)
@@ -18,10 +17,9 @@ import Html.Attributes
 import OptimizedDecoder
 import Page
 import Page.Articles
-import Page.Twilogs
 import Pages.PageUrl
 import Route
-import Shared exposing (CmsArticleMetadata, RataDie, Twilog, seoBase)
+import Shared exposing (CmsArticleMetadata, seoBase)
 import Time
 import View
 
@@ -43,8 +41,6 @@ type alias Data =
     , cmsArticles : List CmsArticleMetadata
     , zennArticles : List ZennArticleMetadata
     , qiitaArticles : List QiitaArticleMetadata
-    , rataDie : RataDie
-    , twilogs : List Twilog
     , amazonAssociateTag : String
     }
 
@@ -84,36 +80,12 @@ page =
 
 data : DataSource Data
 data =
-    DataSource.map4 Data
+    DataSource.map5 Data
         publicOriginalRepos
         Shared.cmsArticles
         publicZennArticles
         publicQiitaArticles
-        |> DataSource.andThen
-            (\cont ->
-                Page.Twilogs.getRecentDays 1
-                    |> DataSource.andThen
-                        (\latestArchive ->
-                            case latestArchive of
-                                latestArchive_ :: _ ->
-                                    Shared.dailyTwilogsFromOldest [ Shared.makeTwilogsJsonPath latestArchive_ ]
-                                        |> DataSource.map
-                                            (\dailyTwilogs ->
-                                                -- In this page dailyTwilogs contain only one day
-                                                case Dict.toList dailyTwilogs of
-                                                    [ ( rataDie, twilogs ) ] ->
-                                                        cont rataDie twilogs
-
-                                                    _ ->
-                                                        -- Should not happen
-                                                        cont 1 []
-                                            )
-
-                                [] ->
-                                    DataSource.fail "No twilogs; Should not happen"
-                        )
-            )
-        |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
+        (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
 
 
 publicOriginalRepos =
@@ -181,27 +153,23 @@ head _ =
 
 
 update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
-update _ _ shared app msg model =
+update _ _ _ _ msg model =
     case msg of
         InitiateLinkPreviewPopulation ->
             ( model
             , Cmd.none
-            , Page.Twilogs.listUrlsForPreviewSingle shared app.data.amazonAssociateTag app.data.twilogs
+            , Nothing
             )
 
 
 view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
-view _ shared _ app =
+view _ _ _ app =
     { title = ""
     , body =
         [ Html.h1 []
             [ View.imgLazy [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             , Html.text "ymtszw's page"
             ]
-        , Html.h2 [] [ Route.link Route.Twilogs [] [ Html.text "Twilog" ] ]
-        , app.data.twilogs
-            |> Page.Twilogs.twilogsOfTheDay shared
-            |> showless "latest-twilogs"
         , Html.h2 [] [ Route.link Route.Articles [] [ Html.text "記事" ], View.feedLink "/articles/feed.xml" ]
         , app.data.cmsArticles
             |> List.filter .published
