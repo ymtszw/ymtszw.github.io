@@ -200,19 +200,19 @@ view _ shared m app =
     , body =
         [ h1 [] [ text "Twilog" ]
         , div [] <| Markdown.parseAndRender Dict.empty """
-2023年に、Twitter APIの大幅値上げ（無料枠縮小）で[Twilogが新規データを記録できなくなる](https://twitter.com/ropross/status/1641353674046992385)~~ようなのだが~~という懸念があったが （のちに[Togetter社がサービスを買収して復旧した](https://prtimes.jp/main/html/rd/p/000000008.000012337.html)）、
-そのタイミングで遅ればせながらTwilogがどういうサービスか知り、Twitterを自動で日記化するという便利さに気づいたので自作し始めたページ。
+2023年の各種Twitter騒動のときに遅れ馳せながらTwilogがどういうサービスか知り、Twitterを自動で日記化するという便利さに気づいたので自作し始めたページ。
 
-以下のような仕組みで実現できていたのだが、結局Twitter APIの締め付けは留まるところを知らず、データが取得できなくなったので店じまい。
+以下のような仕組みで実現できていたのだが、結局Twitter APIの締め付けは留まるところを知らず、データ取得の維持が大変になったので店じまい。
+その後は[再開したTwilog本家に任せることにした](https://twilog.togetter.com/gada_twt)。
 
 - Zapierを起点としてうまいことTweetを継続的に蓄積
-- それを自前でTwilogっぽくwebページ化（サイトはデイリービルド）
-- Twitter公式機能で取得したアーカイブから過去ページも追って作成（完成）
+- それを自前でTwilogっぽくwebページ化
+- Twitter公式機能で取得したアーカイブから過去ページも追って作成
+    - <small>Twilog本家は再開後も過去４ヶ月以前まで遡ったデータ取得はできなくなってしまったので、幸い過去ページには価値が残った</small>
 - 検索SaaSを使って検索機能提供
-
-その後は[Twilog本家に任せることにした](https://twilog.togetter.com/gada_twt)。
 """
         , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m
+        , h3 [ class "twilogs-day-header", id "#2023-09-14-onward" ] [ a [ href "https://twilog.togetter.com/gada_twt", target "_blank" ] [ text "2023/09/14 (Thu) 以降" ] ]
         ]
             ++ showTwilogsByDailySections shared app.data.recentDailyTwilogs
             ++ [ goToLatestMonth app.sharedData.twilogArchives, linksByMonths Nothing app.sharedData.twilogArchives ]
