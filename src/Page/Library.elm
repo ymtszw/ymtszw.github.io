@@ -529,7 +529,7 @@ kindleSearchBox { searchResults, searching } =
 
             _ ->
                 div [ class "search-results" ]
-                    [ small [] [ text ("約" ++ String.fromInt searchResults.estimatedTotalHits ++ "件ヒット") ]
+                    [ small [] [ text ("約" ++ String.fromInt searchResults.estimatedTotalHits ++ "件ヒット（最大100件で表示）") ]
                     , div
                         [ class "provider" ]
                         [ text "Powered by "
