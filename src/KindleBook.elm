@@ -93,7 +93,7 @@ searchBody : String -> Http.Body
 searchBody term =
     Http.jsonBody <|
         Json.Encode.object
-            [ ( "params", Json.Encode.string <| "query=" ++ Url.percentEncode term ++ "&hitsPerPage=10" )
+            [ ( "params", Json.Encode.string <| "query=" ++ Url.percentEncode term ++ "&hitsPerPage=100" )
             ]
 
 
