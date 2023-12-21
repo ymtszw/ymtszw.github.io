@@ -9,6 +9,7 @@ module Page.Index exposing
 import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Env
+import ExternalHtml
 import Head
 import Head.Seo as Seo
 import Helper exposing (iso8601Decoder)
@@ -21,6 +22,7 @@ import Pages.PageUrl
 import Route
 import Shared exposing (CmsArticleMetadata, seoBase)
 import Time
+import Url
 import View
 
 
@@ -41,6 +43,7 @@ type alias Data =
     , cmsArticles : List CmsArticleMetadata
     , zennArticles : List ZennArticleMetadata
     , qiitaArticles : List QiitaArticleMetadata
+    , sizumeArticles : List SizumeArticleMetadata
     , amazonAssociateTag : String
     }
 
@@ -65,6 +68,15 @@ type alias QiitaArticleMetadata =
     }
 
 
+type alias SizumeArticleMetadata =
+    { url : String
+    , bodyUpdatedAt : Time.Posix
+    , publishedAt : Time.Posix
+    , title : String
+    , excerptHtml : ExternalHtml.DecodedHtml
+    }
+
+
 page =
     Page.single
         { head = head
@@ -80,11 +92,12 @@ page =
 
 data : DataSource Data
 data =
-    DataSource.map5 Data
+    DataSource.map6 Data
         publicOriginalRepos
         Shared.cmsArticles
         publicZennArticles
         publicQiitaArticles
+        publicSizumeArticles
         (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
 
 
@@ -144,6 +157,31 @@ publicQiitaArticles =
     in
     Shared.miscGet "https://qiita.com/api/v2/users/ymtszw/items?per_page=100"
         (OptimizedDecoder.list articleMetadataDecoder)
+
+
+publicSizumeArticles =
+    let
+        baseUrl =
+            "https://sizu.me/ymtszw/posts/"
+
+        articleMetadataDecoder =
+            OptimizedDecoder.succeed SizumeArticleMetadata
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "slug" (OptimizedDecoder.map ((++) baseUrl) OptimizedDecoder.string))
+                |> OptimizedDecoder.andMap
+                    (OptimizedDecoder.oneOf
+                        [ OptimizedDecoder.at [ "bodyUpdatedAt", "iso" ] iso8601Decoder
+                        , OptimizedDecoder.at [ "firstPublishedAt", "iso" ] iso8601Decoder
+                        ]
+                    )
+                |> OptimizedDecoder.andMap (OptimizedDecoder.at [ "firstPublishedAt", "iso" ] iso8601Decoder)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" OptimizedDecoder.string)
+                |> OptimizedDecoder.andMap (OptimizedDecoder.field "excerptHtml" ExternalHtml.decoder)
+
+        input =
+            Url.percentEncode """{"0":{"userId":2707,"pageNumber":1}}"""
+    in
+    Shared.miscGet ("https://sizu.me/api/trpc/postList.index?batch=1&input=" ++ input)
+        (OptimizedDecoder.index 0 (OptimizedDecoder.at [ "result", "data", "posts" ] (OptimizedDecoder.list articleMetadataDecoder)))
 
 
 head : Page.StaticPayload Data RouteParams -> List Head.Tag

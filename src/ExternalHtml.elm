@@ -1,5 +1,6 @@
 module ExternalHtml exposing
-    ( decoder
+    ( DecodedHtml
+    , decoder
     , extractInlineTextFromHtml
     , render
     )
