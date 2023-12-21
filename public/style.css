@@ -267,7 +267,7 @@ Link Preview
   margin-right: 0.4em;
 }
 
-.link-preview table tr td small::after {
+.link-preview table tr td > small::after {
   content: "🗗";
   font-family: "Noto Sans Symbols 2", sans-serif;
   margin-left: 2px;
@@ -275,7 +275,7 @@ Link Preview
   height: 1em;
 }
 
-.link-preview blockquote:hover table tr td small {
+.link-preview blockquote:hover table tr td > small {
   border-bottom: 2px solid #4a4a4a;
 }
 

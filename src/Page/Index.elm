@@ -208,6 +208,31 @@ view _ _ _ app =
             [ View.imgLazy [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
             , Html.text "ymtszw's page"
             ]
+        , Html.h2 [] [ Html.text "しずかなインターネット", View.feedLink "https://sizu.me/ymtszw/rss" ]
+        , app.data.sizumeArticles
+            |> List.take 5
+            |> List.map
+                (\metadata ->
+                    Html.a
+                        [ Html.Attributes.href metadata.url
+                        , Html.Attributes.target "_blank"
+                        , Html.Attributes.class "link-preview"
+                        ]
+                        [ Html.blockquote [] <|
+                            [ Html.table [] <|
+                                [ Html.tr [] <|
+                                    [ Html.td [] <|
+                                        [ Html.strong [] [ Html.text metadata.title ]
+                                        , Html.p [] [ Html.small [] [ Html.text metadata.excerptHtml.excerpt ] ]
+                                        , Html.small [] [ Html.text (" [" ++ Shared.posixToYmd metadata.publishedAt ++ "]") ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                )
+            |> Html.div []
+            |> showless "sizume-articles"
         , Html.h2 [] [ Route.link Route.Articles [] [ Html.text "記事" ], View.feedLink "/articles/feed.xml" ]
         , app.data.cmsArticles
             |> List.filter .published
