@@ -83,7 +83,7 @@ cmsArticlePreview meta =
                 [ Html.tr [] <|
                     [ Html.td [] <|
                         [ Html.strong [] [ Html.text meta.title ]
-                        , Html.p [] [ Html.text ("[" ++ Shared.posixToYmd meta.publishedAt ++ "]") ]
+                        , Html.small [] [ Html.text ("[" ++ Shared.posixToYmd meta.publishedAt ++ "]") ]
                         ]
                     , case meta.image of
                         Just cmsImage ->
