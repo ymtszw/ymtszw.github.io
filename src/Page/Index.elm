@@ -223,7 +223,7 @@ view _ _ _ app =
                                 [ Html.tr [] <|
                                     [ Html.td [] <|
                                         [ Html.strong [] [ Html.text metadata.title ]
-                                        , Html.p [] [ Html.small [] [ Html.text metadata.excerptHtml.excerpt ] ]
+                                        , Html.p [] [ Html.text metadata.excerptHtml.excerpt ]
                                         , Html.small [] [ Html.text (" [" ++ Shared.posixToYmd metadata.publishedAt ++ "]") ]
                                         ]
                                     ]

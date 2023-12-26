@@ -267,12 +267,8 @@ Link Preview
   margin-right: 0.4em;
 }
 
-.link-preview table tr td > small::after {
-  content: "🗗";
-  font-family: "Noto Sans Symbols 2", sans-serif;
-  margin-left: 2px;
-  width: 1em;
-  height: 1em;
+.link-preview table tr td > p {
+  font-size: 75%;
 }
 
 .link-preview blockquote:hover table tr td > small {
