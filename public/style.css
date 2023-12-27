@@ -236,6 +236,10 @@ Link Preview
   border-color: #4a4a4a;
 }
 
+.link-preview table {
+  margin-bottom: 0;
+}
+
 .link-preview table tr td:first-child {
   width: 75%;
   max-width: 75%;
@@ -267,7 +271,8 @@ Link Preview
   margin-right: 0.4em;
 }
 
-.link-preview table tr td > p {
+.link-preview table tr td > p,
+.link-preview table tr td > div {
   font-size: 75%;
 }
 
