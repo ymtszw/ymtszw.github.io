@@ -11,6 +11,12 @@
     "postinstall": "elm-tooling install && patch-package",
     "start": "elm-pages dev --port 10101"
   },
+  "overrides": {
+    "elm-pages": {
+      "got": "11.8.6"
+    },
+    "undici": "5.28.2"
+  },
   "//": "elm-optimize-level-2 v2 and elm-pages v2 depends on deprecated TS v3 API",
   "devDependencies": {
     "algoliasearch": "^4.19.1",
