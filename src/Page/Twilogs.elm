@@ -486,7 +486,7 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
                             -- LinkPreviewから得られる情報を元に、アーカイブツイートのQuoteを擬似的に再現している。
                             let
                                 userName =
-                                    String.replace "さんはTwitterを使っています" "" pseudoQuote.title
+                                    LinkPreview.reconstructTwitterUserName pseudoQuote.title
 
                                 iconUrl =
                                     Maybe.withDefault placeholderAvatarUrl pseudoQuote.imageUrl
@@ -504,9 +504,6 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
                                         ]
                                     , pseudoQuote.description
                                         |> Maybe.withDefault ""
-                                        -- LinkPreviewではtweet descriptionに本文が入っているが、ダブルクォートされているので解除
-                                        |> String.dropLeft 1
-                                        |> String.dropRight 1
                                         |> Tweet.render
                                         |> div [ class "body" ]
                                     ]

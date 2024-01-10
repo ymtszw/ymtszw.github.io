@@ -1,4 +1,4 @@
-module LinkPreview exposing (Metadata, PseudoTweet, getMetadataOnDemand, isTweet, toPseudoTweet)
+module LinkPreview exposing (Metadata, PseudoTweet, getMetadataOnDemand, isTweet, reconstructTwitterUserName, toPseudoTweet)
 
 {-| LinkPreview API module.
 
@@ -136,7 +136,7 @@ isTweet { canonicalUrl } =
 
 
 tweetPermalinkRegex =
-    Maybe.withDefault Regex.never (Regex.fromString "https?://twitter\\.com/[^/]+/status/.+")
+    Maybe.withDefault Regex.never (Regex.fromString "https?://(x|twitter)\\.com/[^/]+/status/.+")
 
 
 type alias PseudoTweet =
@@ -152,7 +152,7 @@ toPseudoTweet : Metadata -> PseudoTweet
 toPseudoTweet meta =
     -- LinkPreviewから得られる情報を元に、アーカイブツイートなどを擬似的にTweet情報として再現している。
     { permalink = meta.canonicalUrl
-    , userName = String.replace "さんはTwitterを使っています" "" meta.title
+    , userName = reconstructTwitterUserName meta.title
     , screenName =
         -- 一度LinkPreviewで取得したTweet URL metadataのcanonicalUrlにはscreen name解決済みのURLが入っている
         -- e.g. https://twitter.com/gada_twt/status/1234567890123456789
@@ -170,9 +170,6 @@ toPseudoTweet meta =
     , body =
         meta.description
             |> Maybe.withDefault ""
-            -- LinkPreviewではtweet descriptionに本文が入っているが、ダブルクォートされているので解除
-            |> String.dropLeft 1
-            |> String.dropRight 1
     , firstAttachedImage =
         -- LinkPreviewで取得したTweet URL metadataのimageには、
         -- 1. テキストのみツイートならユーザのアイコン画像が
@@ -188,3 +185,32 @@ toPseudoTweet meta =
                         Just url
                 )
     }
+
+
+reconstructTwitterUserName : String -> String
+reconstructTwitterUserName title =
+    if String.startsWith "Xユーザーの" title then
+        -- "XユーザーのGada / ymtszw（@gada_twt）さん"
+        title
+            |> String.dropLeft (String.length "Xユーザーの")
+            |> String.dropRight (String.length "さん")
+            -- "Gada / ymtszw（@gada_twt）"
+            |> String.split "（"
+            -- ["Gada / ymtszw", "@gada_twt）"]
+            |> List.reverse
+            -- ["@gada_twt）", "Gada / ymtszw"]
+            |> List.tail
+            -- Just ["Gada / ymtszw"]
+            |> (\tail ->
+                    case tail of
+                        -- ["Gada / ymtszw"]
+                        Just tail_ ->
+                            -- "Gada / ymtszw"
+                            String.join "（" tail_
+
+                        Nothing ->
+                            title
+               )
+
+    else
+        title
