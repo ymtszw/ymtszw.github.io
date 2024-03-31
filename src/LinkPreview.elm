@@ -190,25 +190,25 @@ toPseudoTweet meta =
 reconstructTwitterUserName : String -> String
 reconstructTwitterUserName title =
     if String.startsWith "Xユーザーの" title then
-        -- "XユーザーのGada / ymtszw（@gada_twt）さん"
+        -- "XユーザーのGada（ymtszw）（@gada_twt）さん"
         title
             |> String.dropLeft (String.length "Xユーザーの")
             |> String.dropRight (String.length "さん")
-            -- "Gada / ymtszw（@gada_twt）"
+            -- "Gada（ymtszw）（@gada_twt）"
             |> String.split "（"
-            -- ["Gada / ymtszw", "@gada_twt）"]
+            -- ["Gada", "ymtszw）", "@gada_twt）"]
             |> List.reverse
-            -- ["@gada_twt）", "Gada / ymtszw"]
-            |> List.tail
-            -- Just ["Gada / ymtszw"]
-            |> (\tail ->
-                    case tail of
-                        -- ["Gada / ymtszw"]
-                        Just tail_ ->
-                            -- "Gada / ymtszw"
-                            String.join "（" tail_
+            -- ["@gada_twt）", "ymtszw）", "Gada"]
+            |> (\splitted ->
+                    case splitted of
+                        _ :: tail ->
+                            tail
+                                -- ["ymtszw）", "Gada"]
+                                |> List.reverse
+                                -- ["Gada", "ymtszw）"]
+                                |> String.join "（"
 
-                        Nothing ->
+                        _ ->
                             title
                )
 
