@@ -472,6 +472,8 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
         ( pseudoQuotes, linkPreviews ) =
             entitiesTcoUrl
                 |> List.Extra.uniqueBy .expandedUrl
+                -- Remove rich Tweet permalink from the list
+                |> List.filter (\{ expandedUrl } -> not (String.startsWith "https://twitter.com/i/web/status/" expandedUrl))
                 |> List.filterMap (\{ expandedUrl } -> Dict.get expandedUrl links)
                 |> List.partition (\{ canonicalUrl } -> Regex.contains tweetPermalinkRegex canonicalUrl)
 
@@ -542,7 +544,7 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
 
 
 tweetPermalinkRegex =
-    Maybe.withDefault Regex.never (Regex.fromString "https?://twitter\\.com/[^/]+/status/.+")
+    Maybe.withDefault Regex.never (Regex.fromString "https?://twitter\\.com/[^/]+/status/[^/]+(?!/)")
 
 
 appendMediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
