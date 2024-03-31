@@ -108,7 +108,8 @@ function dumpGroupedTwilogs() {
 
 const myAvatarUrl20230405 =
   "https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg";
-
+const placeholderAvatarUrl =
+  "https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png";
 async function makeTwilogJson(tweetFromCsv) {
   const url = new URL(tweetFromCsv.Url);
   // "/gada_twt/status/********************************" => ['', 'gada_twt', 'status', '********************************']
@@ -160,9 +161,9 @@ async function resolveUserInfo(screenName) {
     const profileUrl = `https://link-preview.ymtszw.workers.dev?q=https://twitter.com/${screenName}`;
     const metadata = await (await fetch(profileUrl)).json();
     const prefix = "Xユーザーの";
-    const suffix = /（@.+）さん/;
+    const suffix = /（@.+）さん( \/ X)?/;
     const UserName = metadata.title?.replace(prefix, "").replace(suffix, "");
-    const UserProfileImageUrl = metadata.image;
+    const UserProfileImageUrl = metadata.image || placeholderAvatarUrl;
     const userInfo = { UserName, UserProfileImageUrl };
     resolvedUserInfoCache[screenName] = userInfo;
     return userInfo;
