@@ -212,7 +212,7 @@ view _ shared m app =
 - 検索SaaSを使って検索機能提供
 """
         , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m
-        , h3 [ class "twilogs-day-header", id "#2023-09-14-onward" ] [ a [ href "https://twilog.togetter.com/gada_twt", target "_blank" ] [ text "2023/09/14 (Thu) 以降" ] ]
+        , h3 [ class "twilogs-day-header", id "#onward" ] [ a [ href "https://twilog.togetter.com/gada_twt", target "_blank" ] [ text "最新" ] ]
         ]
             ++ showTwilogsByDailySections shared app.data.recentDailyTwilogs
             ++ [ goToLatestMonth app.sharedData.twilogArchives, linksByMonths Nothing app.sharedData.twilogArchives ]
