@@ -16,7 +16,7 @@ jobs:
   commit-recent-twilogs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/cache@v3
         with:
           key: v1-${{ hashFiles('package-lock.json') }}-
