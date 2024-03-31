@@ -110,8 +110,17 @@ const myAvatarUrl20230405 =
   "https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg";
 
 async function makeTwilogJson(tweetFromCsv) {
-  // "StatusId", "Url", "CreatedAt", "Text"
-  const retweetDetails = await extractRetweetDetails(tweetFromCsv);
+  const url = new URL(tweetFromCsv.Url);
+  // "/gada_twt/status/********************************" => ['', 'gada_twt', 'status', '********************************']
+  const [_, screenName, _status, StatusId] = url.pathname.split("/");
+  const isRetweet = screenName !== "gada_twt";
+  const retweetDetails = await extractRetweetDetails(
+    tweetFromCsv,
+    isRetweet,
+    screenName,
+    StatusId
+  );
+  const urls = extractUrls(tweetFromCsv.Text, isRetweet);
   return {
     CreatedAt: new Date(tweetFromCsv.CreatedAt).toISOString(),
     Text: tweetFromCsv.Text.replaceAll("\r\n", "\n"),
@@ -119,27 +128,28 @@ async function makeTwilogJson(tweetFromCsv) {
     UserName: "Gada / ymtszw",
     UserProfileImageUrl: myAvatarUrl20230405,
     ...retweetDetails,
+    ...urls,
   };
 }
 
-async function extractRetweetDetails(tweetFromCsv) {
-  const url = new URL(tweetFromCsv.Url);
-  // "/gada_twt/status/********************************" => ['', 'gada_twt', 'status', '********************************']
-  const [_, screenName, _status, RetweetedStatusId] = url.pathname.split("/");
-  const isRetweet = screenName !== "gada_twt";
-  const userInfo = await resolveUserInfo(screenName);
+async function extractRetweetDetails(
+  tweetFromCsv,
+  isRetweet,
+  screenName,
+  StatusId
+) {
+  let otherRetweetProps = {};
+  if (isRetweet) {
+    const userInfo = await resolveUserInfo(screenName);
+    otherRetweetProps = {
+      RetweetedStatusId: StatusId,
+      RetweetedStatusFullText: tweetFromCsv.Text.replaceAll("\r\n", "\n"),
+      RetweetedStatusUserName: userInfo.UserName,
+      RetweetedStatusUserProfileImageUrl: userInfo.UserProfileImageUrl,
+    };
+  }
 
-  return {
-    Retweet: isRetweet ? "TRUE" : "FALSE",
-    RetweetedStatusId,
-    RetweetedStatusFullText: isRetweet
-      ? tweetFromCsv.Text.replaceAll("\r\n", "\n")
-      : "",
-    RetweetedStatusUserName: isRetweet ? userInfo.UserName : "",
-    RetweetedStatusUserProfileImageUrl: isRetweet
-      ? userInfo.UserProfileImageUrl
-      : "",
-  };
+  return { Retweet: isRetweet ? "TRUE" : "FALSE", ...otherRetweetProps };
 }
 
 const resolvedUserInfoCache = {};
@@ -150,13 +160,64 @@ async function resolveUserInfo(screenName) {
     const profileUrl = `https://link-preview.ymtszw.workers.dev?q=https://twitter.com/${screenName}`;
     const metadata = await (await fetch(profileUrl)).json();
     const prefix = "Xユーザーの";
-    const suffix = `（@${screenName}）さん`;
+    const suffix = /（@.+）さん/;
     const UserName = metadata.title?.replace(prefix, "").replace(suffix, "");
     const UserProfileImageUrl = metadata.image;
     const userInfo = { UserName, UserProfileImageUrl };
     resolvedUserInfoCache[screenName] = userInfo;
     return userInfo;
   }
+}
+
+/**
+ * @param {string} text
+ * @param {boolean} isRetweet
+ */
+function extractUrls(text, isRetweet) {
+  const groups = { urls: [], media: [] };
+  (text.match(new RegExp("https?://\\S+(?=\\s|$)", "g")) || []).forEach(
+    (url) => {
+      if (
+        url.match(
+          new RegExp("^https://twitter.com/[^/]+/status/[^/]+/photo/[^/]+$")
+        )
+      ) {
+        groups.media.push({
+          url,
+          type: "photo",
+          sourceUrl: "https://pbs.twimg.com/media/__NOT_LOADED__",
+          expandedUrl: url,
+        });
+      } else {
+        groups.urls.push(url);
+      }
+    }
+  );
+  return isRetweet
+    ? {
+        RetweetedStatusEntitiesUrlsUrls: groups.urls.join(",") || "",
+        RetweetedStatusEntitiesUrlsExpandedUrls: groups.urls.join(",") || "",
+        RetweetedStatusExtendedEntitiesMediaUrls:
+          groups.media.map((m) => m.url).join(",") || "",
+        RetweetedStatusExtendedEntitiesMediaTypes:
+          groups.media.map((m) => m.type).join(",") || "",
+        RetweetedStatusExtendedEntitiesMediaSourceUrls:
+          groups.media.map((m) => m.sourceUrl).join(",") || "",
+        RetweetedStatusExtendedEntitiesMediaExpandedUrls:
+          groups.media.map((m) => m.expandedUrl).join(",") || "",
+      }
+    : {
+        EntitiesUrlsUrls: groups.urls.join(",") || "",
+        EntitiesUrlsExpandedUrls: groups.urls.join(",") || "",
+        ExtendedEntitiesMediaUrls:
+          groups.media.map((m) => m.url).join(",") || "",
+        ExtendedEntitiesMediaTypes:
+          groups.media.map((m) => m.type).join(",") || "",
+        ExtendedEntitiesMediaSourceUrls:
+          groups.media.map((m) => m.sourceUrl).join(",") || "",
+        ExtendedEntitiesMediaExpandedUrls:
+          groups.media.map((m) => m.expandedUrl).join(",") || "",
+      };
 }
 
 export async function generateTwilogArchives() {
