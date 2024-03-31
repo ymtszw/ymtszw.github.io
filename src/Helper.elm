@@ -10,6 +10,7 @@ module Helper exposing
     , makeDisplayUrl
     , nonEmptyString
     , onChange
+    , preprocessMarkdown
     , toJapaneseDate
     , twitterProfileImageUrl
     , waitMsg
@@ -25,6 +26,7 @@ import OptimizedDecoder
 import Parser
 import Process
 import QS
+import Regex
 import Task
 import Time
 import Url
@@ -247,3 +249,18 @@ problemToString problem =
 
         Parser.BadRepeat ->
             "Bad repeat"
+
+
+preprocessMarkdown : String -> String
+preprocessMarkdown =
+    convertPlainUrlToAngledUrl
+
+
+convertPlainUrlToAngledUrl : String -> String
+convertPlainUrlToAngledUrl =
+    Regex.replace plainUrlPattern <|
+        \{ match } -> "[" ++ makeDisplayUrl match ++ "](" ++ match ++ ")"
+
+
+plainUrlPattern =
+    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|。)(?<!\\]:\\s+)https?://\\S+(?=\\s|$)")

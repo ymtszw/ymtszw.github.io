@@ -30,7 +30,7 @@ isTcoUrl =
 render : String -> List (Html msg)
 render rawText =
     rawText
-        -- Shorten remaining t.co URLs. Another URLs, if any, will be autolinked by Markdown.render
+        -- Shorten remaining t.co URLs. Another URLs, if any, will be autolinked by renderImpl
         |> Regex.replace tcoUrlInTweetRegex (\{ match } -> "[" ++ Helper.makeDisplayUrl match ++ "](" ++ match ++ ")")
         |> Regex.replace mentionRegex (\{ match } -> "[@" ++ String.dropLeft 1 match ++ "](https://twitter.com/" ++ String.dropLeft 1 match ++ ")")
         |> replaceHashtags ""
@@ -115,6 +115,7 @@ hashtagRegex =
 renderImpl : String -> List (Html msg)
 renderImpl str =
     str
+        |> Helper.preprocessMarkdown
         |> Markdown.Parser.parse
         |> Result.mapError Helper.deadEndsToString
         |> Result.andThen (Markdown.Renderer.render defaultHtmlRenderer)

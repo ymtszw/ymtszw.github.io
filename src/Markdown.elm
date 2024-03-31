@@ -19,7 +19,6 @@ import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
 import Maybe.Extra
 import OptimizedDecoder
-import Regex
 import Tweet
 import View
 
@@ -46,7 +45,7 @@ decoderInternal rawBody =
 
 parse : String -> Result String (List Markdown.Block.Block)
 parse input =
-    preprocessMarkdown input
+    Helper.preprocessMarkdown input
         |> Markdown.Parser.parse
         |> Result.map (List.map (Markdown.Block.walkInlines postprocessInline))
         |> Result.mapError (Helper.deadEndsToString >> (++) "Error while parsing Markdown!\n\n")
@@ -169,20 +168,6 @@ extractInlineBlockText block =
 
         Markdown.Block.ThematicBreak ->
             ""
-
-
-preprocessMarkdown : String -> String
-preprocessMarkdown =
-    convertPlainUrlToAngledUrl
-
-
-convertPlainUrlToAngledUrl =
-    Regex.replace plainUrlPattern <|
-        \{ match } -> "<" ++ match ++ ">"
-
-
-plainUrlPattern =
-    Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s)(?<!\\]:\\s+)https?://\\S+(?=\\s|$)")
 
 
 postprocessInline : Markdown.Block.Inline -> Markdown.Block.Inline

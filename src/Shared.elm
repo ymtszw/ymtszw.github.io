@@ -974,7 +974,7 @@ twilogDecoder maybeAmazonAssociateTag =
             case tw.quote of
                 Just quote ->
                     -- アーカイブツイートにはQuote情報がないので、TcoUrlをプレビューしてQuote表示の代替としたい。
-                    -- 一方、最近のツイートにはQuote情報があるので、TcoUrlとして含まれているQuoteのURLは除外する。
+                    -- 一方、Zapier経由で取得できたツイートにはQuote情報があるので、TcoUrlとして含まれているQuoteのURLは除外する。
                     { tw | entitiesTcoUrl = List.filter (\tcoUrl -> tcoUrl.url /= quote.permalinkUrl) tw.entitiesTcoUrl }
 
                 Nothing ->
