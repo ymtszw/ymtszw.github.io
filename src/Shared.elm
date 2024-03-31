@@ -116,6 +116,7 @@ type alias Model =
     { links : Dict String LinkPreview.Metadata
     , lightbox : Maybe View.LightboxMedia
     , storedLibraryKey : Maybe String
+    , navigationKey : Maybe Browser.Navigation.Key
     }
 
 
@@ -133,8 +134,8 @@ init :
             , pageUrl : Maybe Pages.PageUrl.PageUrl
             }
     -> ( Model, Cmd Msg )
-init _ flags _ =
-    ( { links = Dict.empty, lightbox = Nothing, storedLibraryKey = decodeStoredLibraryKey flags }
+init navKey flags _ =
+    ( { links = Dict.empty, lightbox = Nothing, storedLibraryKey = decodeStoredLibraryKey flags, navigationKey = navKey }
     , Cmd.none
     )
 
@@ -177,7 +178,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnPageChange req ->
-            case Maybe.andThen View.parseLightboxFragment req.fragment of
+            case Maybe.andThen (\fr -> View.parseLightboxFragment req fr) req.fragment of
                 (Just _) as lbMedia ->
                     ( { model | lightbox = lbMedia }, lockScrollPosition )
 
@@ -214,7 +215,7 @@ update msg model =
             )
 
         SharedMsg CloseLightbox ->
-            ( { model | lightbox = Nothing }, Cmd.none )
+            ( { model | lightbox = Nothing }, clearLightboxLink model )
 
         SharedMsg _ ->
             ( model, Cmd.none )
@@ -249,6 +250,22 @@ requestLinkPreviewSequentially amazonAssociateTag urls url =
         |> LinkPreview.getMetadataOnDemand amazonAssociateTag
         |> Task.attempt (Res_LinkPreview amazonAssociateTag urls)
         |> Cmd.map SharedMsg
+
+
+clearLightboxLink : Model -> Cmd msg
+clearLightboxLink m =
+    case Maybe.map2 Tuple.pair m.lightbox m.navigationKey of
+        Just ( lbMedia, key ) ->
+            let
+                internalUrl =
+                    lbMedia.originReq.path
+                        |> Pages.Url.fromPath
+                        |> Pages.Url.toString
+            in
+            Browser.Navigation.replaceUrl key internalUrl
+
+        Nothing ->
+            Cmd.none
 
 
 

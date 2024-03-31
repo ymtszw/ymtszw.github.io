@@ -14,6 +14,7 @@ module View exposing
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
+import Path exposing (Path)
 
 
 type alias View msg =
@@ -61,22 +62,23 @@ type alias LightboxMedia =
     { href : String
     , src : String
     , type_ : String
+    , originReq : { path : Path, query : Maybe String, fragment : Maybe String }
     }
 
 
-lightboxLink : LightboxMedia -> List (Html.Attribute msg) -> List (Html msg) -> Html msg
+lightboxLink : { href : String, src : String, type_ : String } -> List (Html.Attribute msg) -> List (Html msg) -> Html msg
 lightboxLink opts attrs kids =
     Html.a (Html.Attributes.href ("#lightbox:src(" ++ opts.src ++ "):href(" ++ opts.href ++ "):type(" ++ opts.type_ ++ ")") :: attrs) kids
 
 
-parseLightboxFragment : String -> Maybe LightboxMedia
-parseLightboxFragment fr =
+parseLightboxFragment : { path : Path, query : Maybe String, fragment : Maybe String } -> String -> Maybe LightboxMedia
+parseLightboxFragment originReq fr =
     if String.startsWith "lightbox:src(" fr then
         case String.split "):href(" (String.dropLeft 13 fr) of
             [ src, rest ] ->
                 case String.split "):type(" (String.dropRight 1 rest) of
                     [ href, type_ ] ->
-                        Just { href = href, src = src, type_ = type_ }
+                        Just { href = href, src = src, type_ = type_, originReq = originReq }
 
                     _ ->
                         Nothing
