@@ -1,5 +1,8 @@
 /**
- * Must be run as: npm run fetch_recent_twilogs
+ *
+ * XXX: DEPRECATED. Use `npm run import_twilogs` instead
+ *
+ * Must be run as: `npm run fetch_recent_twilogs`
  *
  * This script fetch CSV from $MY_TWILOG_CSV_URL and convert it to JSON,
  * then split it into daily chunks and save them to the data/ directory.
