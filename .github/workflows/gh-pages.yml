@@ -26,11 +26,11 @@ jobs:
     runs-on: ${{ contains(github.event.head_commit.message, '[self-hosted]') && 'self-hosted' || 'ubuntu-22.04' }}
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: master # Explicitly checkout master, since the ref may be updated within the caller workflows
           submodules: recursive
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           key: v4-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
           restore-keys: |
@@ -41,7 +41,7 @@ jobs:
             elm-stuff/
             .elm-pages/
             ~/.elm
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: "18"
       - run: npm ci
@@ -56,15 +56,13 @@ jobs:
           AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
           BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
           LIBRARY_KEY_SEED_HASH: ${{ secrets.LIBRARY_KEY_SEED_HASH }}
-      - uses: cloudflare/pages-action@v1
+      - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ymtszw-github-io
-          directory: ./dist
           # git連携していないPagesプロジェクトのデフォルトは、branchをmainと名付けると本番環境になる
-          branch: main
-      - uses: actions/upload-pages-artifact@v1
+          command: pages deploy --project-name=ymtszw-github-io --branch=main ./dist
+      - uses: actions/upload-pages-artifact@v3 # すでにCloudflare Pagesのymtszw.ccをcanonicalにしてあるが、古いリンクのためにGitHub Pages deployを残している
         with:
           path: ./dist
   deploy:
@@ -74,5 +72,5 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/deploy-pages@v2
+      - uses: actions/deploy-pages@v4
         id: deployment
