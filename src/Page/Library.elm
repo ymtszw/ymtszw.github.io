@@ -486,9 +486,11 @@ view _ _ m app =
     { title = "書架"
     , body =
         [ h1 [] [ text "書架" ]
-        , div [] <|
-            Markdown.parseAndRender Dict.empty <|
-                """
+        , details []
+            [ summary [] [ text "About" ]
+            , div [] <|
+                Markdown.parseAndRender Dict.empty <|
+                    """
 Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロントエンドがほしいと思っていたので自作し始めたページ。仕組み：
 
 - [Kindleのコンテンツ一覧ページ](https://www.amazon.co.jp/hz/mycd/digital-console/contentlist/booksAll/dateDsc/)をTampermonkeyスクリプトでスクレイプ
@@ -499,6 +501,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
 - **TODO**: レビュー機能＆レビュー自動記事化
 - **TODO**: DataSourceを暗号化→ロック解除時に復号
 """
+            ]
         , kindleData m app
         , div [ class "kindle-control", classList [ ( "locked", not m.unlocked ) ] ] <|
             kindleSearchBox m

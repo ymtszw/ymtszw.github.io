@@ -10,7 +10,7 @@ module Page.Articles exposing
 import DataSource exposing (DataSource)
 import Head
 import Head.Seo as Seo
-import Html exposing (div, h1, p, text)
+import Html exposing (details, div, h1, p, summary, text)
 import Html.Attributes
 import Page
 import Pages.PageUrl
@@ -64,7 +64,10 @@ view _ _ app =
     { title = "記事"
     , body =
         [ h1 [] [ text "記事", View.feedLink "/articles/feed.xml" ]
-        , p [] [ text "外部の技術記事プラットフォーム以外で書いた、自前CMSなどで管理している（主に）技術記事たち。なんとなく、個人の活動に属する記事がこっちにあることが多い。運用をやめた別ブログの記事やイベントの登壇資料なども良さげなのはサルベージしていく。" ]
+        , details []
+            [ summary [] [ text "About" ]
+            , p [] [ text "外部の技術記事プラットフォーム以外で書いた、自前CMSなどで管理している（主に）技術記事たち。なんとなく、個人の活動に属する記事がこっちにあることが多い。運用をやめた別ブログの記事やイベントの登壇資料なども良さげなのはサルベージしていく。" ]
+            ]
         , app.data.cmsArticles
             -- microCMSの記事は、publishされない限りはページビルドされないので、Draftページから見る必要がある。
             -- Markdownの記事は、publishedAt未設定の場合は未来の日付にfallbackするようにしてあるのでここで一覧表示からはfilterされるが、ページビルドはされる。

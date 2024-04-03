@@ -199,18 +199,20 @@ view _ shared m app =
     { title = "Twilog"
     , body =
         [ h1 [] [ text "Twilog" ]
-        , div [] <| Markdown.parseAndRender Dict.empty """
+        , details []
+            [ summary [] [ text "About" ]
+            , div [] <| Markdown.parseAndRender Dict.empty """
 2023年の各種Twitter騒動のときに遅れ馳せながらTwilogがどういうサービスか知り、Twitterを自動で日記化するという便利さに気づいたので自作し始めたページ。
 
-以下のような仕組みで実現できていたのだが、結局Twitter APIの締め付けは留まるところを知らず、データ取得の維持が大変になったので店じまい。
-その後は[再開したTwilog本家に任せることにした](https://twilog.togetter.com/gada_twt)。
+Zapierを起点としてTweetをGoogle Spreadsheetに蓄積→GitHub Actionsのscheduled workflowで定期的にCSV Endpointからデータを自動取得してwebページ化、という仕組みを実現していたのだが、結局Twitter APIの締め付けは留まるところを知らず、データ取得の維持が大変になったので店じまい。
 
-- Zapierを起点としてうまいことTweetを継続的に蓄積
-- それを自前でTwilogっぽくwebページ化
-- Twitter公式機能で取得したアーカイブから過去ページも追って作成
-    - <small>Twilog本家は再開後も過去４ヶ月以前まで遡ったデータ取得はできなくなってしまったので、幸い過去ページには価値が残った</small>
-- 検索SaaSを使って検索機能提供
+その後は本家Twilogが再開されたので利用を開始し、不定期にCSVダンプを手動取得→スクリプトでJSONデータに整形してwebページ化する体制になった。
+
+ZapierによるTweet取得以前のデータも、Twitter公式機能で取得したアーカイブから過去データを構成し、webページ化した。
+
+検索SaaSを使って検索機能も提供している。もともとMeilisearchで始めたが、後にfree tierがなくなったのでAlgoliaに移行した。
 """
+            ]
         , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m
         , h3 [ class "twilogs-day-header", id "#onward" ] [ a [ href "https://twilog.togetter.com/gada_twt", target "_blank" ] [ text "最新" ] ]
         ]
