@@ -161,18 +161,24 @@ listUrlsForPreviewSingleHelp links twilogs =
                 let
                     urlsFromReplies =
                         listUrlsForPreviewFromReplies links twilog.replies
+
+                    notLoadedMediaUrls { extendedEntitiesMedia } =
+                        extendedEntitiesMedia
+                            |> List.filter (\{ sourceUrl } -> String.endsWith "__NOT_LOADED__" sourceUrl)
+                            |> List.map .expandedUrl
                 in
-                -- TODO: resolve __NOT_LOADED__ sourceUrl of media
                 (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
+                    |> List.map .expandedUrl
+                    |> List.append (notLoadedMediaUrls twilog ++ (twilog.retweet |> Maybe.map notLoadedMediaUrls |> Maybe.withDefault []))
                     |> List.filterMap
-                        (\tcoUrl ->
+                        (\expandedUrl ->
                             -- list not-yet previewed URLs
-                            case Dict.get tcoUrl.expandedUrl links of
+                            case Dict.get expandedUrl links of
                                 Just _ ->
                                     Nothing
 
                                 Nothing ->
-                                    Just tcoUrl.expandedUrl
+                                    Just expandedUrl
                         )
                     |> List.append urlsFromReplies
             )
@@ -544,7 +550,7 @@ appendMediaGrid links status htmls =
         [] ->
             htmls
 
-        nonEmpty ->
+        nonEmptyMedia ->
             let
                 (TwitterStatusId idStr) =
                     status.id
@@ -552,33 +558,43 @@ appendMediaGrid links status htmls =
                 -- Show media based on type: "photo" | "video" | "animated_gif"
                 aMedia media =
                     let
-                        sourceUrl =
+                        maybeSourceUrl =
                             if String.endsWith "__NOT_LOADED__" media.sourceUrl then
-                                case Dict.get media.expandedUrl links |> Maybe.andThen .imageUrl of
-                                    Just actualSourceUrl ->
-                                        actualSourceUrl
+                                Dict.get media.expandedUrl links
+                                    |> Maybe.andThen .imageUrl
+                                    |> Maybe.andThen
+                                        (\actualSourceUrl ->
+                                            -- LinkPreview did not resolve in media file, rather than profile image of the retweeted user. Discard.
+                                            if String.contains "/profile_images/" actualSourceUrl then
+                                                Nothing
 
-                                    Nothing ->
-                                        media.sourceUrl
+                                            else
+                                                Just actualSourceUrl
+                                        )
 
                             else
-                                media.sourceUrl
+                                Just media.sourceUrl
                     in
-                    case media.type_ of
-                        "photo" ->
-                            lightboxLink { href = media.expandedUrl, src = sourceUrl, type_ = media.type_ } [] [ imgLazy [ src sourceUrl, alt ("Attached photo of status id: " ++ idStr) ] [] ]
+                    case ( media.type_, maybeSourceUrl ) of
+                        ( "photo", Just sourceUrl ) ->
+                            [ lightboxLink { href = media.expandedUrl, src = sourceUrl, type_ = media.type_ } [] [ imgLazy [ src sourceUrl, alt ("Attached photo of status id: " ++ idStr) ] [] ] ]
 
-                        "video" ->
+                        ( "video", Just sourceUrl ) ->
                             -- Looks like expanded_url is a thumbnail in simple Media object
-                            lightboxLink { href = media.expandedUrl, src = sourceUrl, type_ = media.type_ } [] [ figure [ class "video-thumbnail" ] [ imgLazy [ src sourceUrl, alt ("Thumbnail of attached video of status id: " ++ idStr) ] [] ] ]
+                            [ lightboxLink { href = media.expandedUrl, src = sourceUrl, type_ = media.type_ } [] [ figure [ class "video-thumbnail" ] [ imgLazy [ src sourceUrl, alt ("Thumbnail of attached video of status id: " ++ idStr) ] [] ] ] ]
 
-                        "animated_gif" ->
-                            lightboxLink { href = media.expandedUrl, src = sourceUrl, type_ = media.type_ } [] [ figure [ class "video-thumbnail" ] [ imgLazy [ src sourceUrl, alt ("Animated GIF attached to status id: " ++ idStr) ] [] ] ]
+                        ( "animated_gif", Just sourceUrl ) ->
+                            [ lightboxLink { href = media.expandedUrl, src = sourceUrl, type_ = media.type_ } [] [ figure [ class "video-thumbnail" ] [ imgLazy [ src sourceUrl, alt ("Animated GIF attached to status id: " ++ idStr) ] [] ] ] ]
 
                         _ ->
-                            text ""
+                            []
             in
-            htmls ++ [ div [ class "media-grid" ] <| List.map aMedia nonEmpty ]
+            case List.concatMap aMedia nonEmptyMedia of
+                [] ->
+                    htmls
+
+                nonEmptyRenderedImages ->
+                    htmls ++ [ div [ class "media-grid" ] nonEmptyRenderedImages ]
 
 
 
