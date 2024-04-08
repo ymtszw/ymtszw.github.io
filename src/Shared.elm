@@ -134,10 +134,22 @@ init :
             , pageUrl : Maybe Pages.PageUrl.PageUrl
             }
     -> ( Model, Cmd Msg )
-init navKey flags _ =
-    ( { links = Dict.empty, lightbox = Nothing, storedLibraryKey = decodeStoredLibraryKey flags, navigationKey = navKey }
-    , Cmd.none
-    )
+init navKey flags maybeUrl =
+    let
+        model =
+            { links = Dict.empty, lightbox = Nothing, storedLibraryKey = decodeStoredLibraryKey flags, navigationKey = navKey }
+    in
+    case Maybe.andThen (\url -> initLightBox url.path) maybeUrl of
+        (Just _) as lbMedia ->
+            ( { model | lightbox = lbMedia }, lockScrollPosition )
+
+        Nothing ->
+            ( model, Cmd.none )
+
+
+initLightBox : { path : Path, query : Maybe String, fragment : Maybe String } -> Maybe View.LightboxMedia
+initLightBox location =
+    Maybe.andThen (\fr -> View.parseLightboxFragment location fr) location.fragment
 
 
 decodeStoredLibraryKey flags =
@@ -178,7 +190,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnPageChange req ->
-            case Maybe.andThen (\fr -> View.parseLightboxFragment req fr) req.fragment of
+            case initLightBox req of
                 (Just _) as lbMedia ->
                     ( { model | lightbox = lbMedia }, lockScrollPosition )
 
