@@ -9,3 +9,19 @@ updates:
       dependabot:
         patterns:
           - "*"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      dependabot:
+        patterns:
+          - "*"
+  - package-ecosystem: "elm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      dependabot:
+        patterns:
+          - "*"
