@@ -7,7 +7,6 @@ module Page.Twilogs exposing
     , getRecentDays
     , linksByMonths
     , listUrlsForPreviewBulk
-    , listUrlsForPreviewSingle
     , page
     , showTwilogsByDailySections
     , twilogsOfTheDay
@@ -154,16 +153,6 @@ listUrlsForPreviewBulkHelp links recentDailyTwilogsFromOldest =
         |> List.Extra.unique
 
 
-listUrlsForPreviewSingle : Shared.Model -> String -> List Twilog -> Maybe Shared.Msg
-listUrlsForPreviewSingle { links } amazonAssociateTag twilogs =
-    case listUrlsForPreviewSingleHelp links twilogs of
-        [] ->
-            Nothing
-
-        urls ->
-            Just (Shared.SharedMsg (Shared.Req_LinkPreview amazonAssociateTag urls))
-
-
 listUrlsForPreviewSingleHelp : Dict String LinkPreview.Metadata -> List Twilog -> List String
 listUrlsForPreviewSingleHelp links twilogs =
     twilogs
@@ -173,7 +162,7 @@ listUrlsForPreviewSingleHelp links twilogs =
                     urlsFromReplies =
                         listUrlsForPreviewFromReplies links twilog.replies
                 in
-                -- TODO: Also list t.co URLs from twilog.text and twilog.retweet.fullText, if they do not have corresponding expandedUrls
+                -- TODO: resolve __NOT_LOADED__ sourceUrl of media
                 (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
                     |> List.filterMap
                         (\tcoUrl ->
@@ -324,10 +313,10 @@ aTwilog isCanonical links twilog =
                         |> Tweet.render
                         |> (case retweet.extendedEntitiesMedia of
                                 [] ->
-                                    appendMediaGrid twilog
+                                    appendMediaGrid links twilog
 
                                 _ ->
-                                    appendMediaGrid retweet
+                                    appendMediaGrid links retweet
                            )
                         |> appendQuote retweet.quote
                         -- Prioritize link-previews for retweet here, since twilog.entitiesTcoUrl can have duplicate entitiesTcoUrl
@@ -378,7 +367,7 @@ aTwilog isCanonical links twilog =
                         |> removePseudoQuoteUrl twilog.entitiesTcoUrl
                         |> replaceTcoUrls twilog.entitiesTcoUrl
                         |> Tweet.render
-                        |> appendMediaGrid twilog
+                        |> appendMediaGrid links twilog
                         |> appendQuote twilog.quote
                         |> appendLinkPreviews links twilog.entitiesTcoUrl
                         |> div [ class "body" ]
@@ -549,8 +538,8 @@ tweetPermalinkRegex =
     Maybe.withDefault Regex.never (Regex.fromString "https?://twitter\\.com/[^/]+/status/[^/]+(?!/)")
 
 
-appendMediaGrid : { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
-appendMediaGrid status htmls =
+appendMediaGrid : Dict String LinkPreview.Metadata -> { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
+appendMediaGrid links status htmls =
     case status.extendedEntitiesMedia of
         [] ->
             htmls
@@ -562,16 +551,29 @@ appendMediaGrid status htmls =
 
                 -- Show media based on type: "photo" | "video" | "animated_gif"
                 aMedia media =
+                    let
+                        sourceUrl =
+                            if String.endsWith "__NOT_LOADED__" media.sourceUrl then
+                                case Dict.get media.expandedUrl links |> Maybe.andThen .imageUrl of
+                                    Just actualSourceUrl ->
+                                        actualSourceUrl
+
+                                    Nothing ->
+                                        media.sourceUrl
+
+                            else
+                                media.sourceUrl
+                    in
                     case media.type_ of
                         "photo" ->
-                            lightboxLink { href = media.expandedUrl, src = media.sourceUrl, type_ = media.type_ } [] [ imgLazy [ src media.sourceUrl, alt ("Attached photo of status id: " ++ idStr) ] [] ]
+                            lightboxLink { href = media.expandedUrl, src = sourceUrl, type_ = media.type_ } [] [ imgLazy [ src sourceUrl, alt ("Attached photo of status id: " ++ idStr) ] [] ]
 
                         "video" ->
                             -- Looks like expanded_url is a thumbnail in simple Media object
-                            lightboxLink { href = media.expandedUrl, src = media.sourceUrl, type_ = media.type_ } [] [ figure [ class "video-thumbnail" ] [ imgLazy [ src media.sourceUrl, alt ("Thumbnail of attached video of status id: " ++ idStr) ] [] ] ]
+                            lightboxLink { href = media.expandedUrl, src = sourceUrl, type_ = media.type_ } [] [ figure [ class "video-thumbnail" ] [ imgLazy [ src sourceUrl, alt ("Thumbnail of attached video of status id: " ++ idStr) ] [] ] ]
 
                         "animated_gif" ->
-                            lightboxLink { href = media.expandedUrl, src = media.sourceUrl, type_ = media.type_ } [] [ figure [ class "video-thumbnail" ] [ imgLazy [ src media.sourceUrl, alt ("Animated GIF attached to status id: " ++ idStr) ] [] ] ]
+                            lightboxLink { href = media.expandedUrl, src = sourceUrl, type_ = media.type_ } [] [ figure [ class "video-thumbnail" ] [ imgLazy [ src sourceUrl, alt ("Animated GIF attached to status id: " ++ idStr) ] [] ] ]
 
                         _ ->
                             text ""
