@@ -36,6 +36,7 @@ module Shared exposing
     )
 
 import Browser.Dom
+import Browser.Events
 import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Env
@@ -77,7 +78,7 @@ template =
     , update = update
     , view = view
     , data = data
-    , subscriptions = \_ _ -> Sub.none
+    , subscriptions = subscriptions
     , onPageChange = Just OnPageChange
     }
 
@@ -278,6 +279,28 @@ clearLightboxLink m =
 
         Nothing ->
             Cmd.none
+
+
+subscriptions : Path -> Model -> Sub Msg
+subscriptions _ m =
+    case m.lightbox of
+        Just _ ->
+            let
+                escKeyDecoder =
+                    Json.Decode.field "key" Json.Decode.string
+                        |> Json.Decode.andThen
+                            (\code ->
+                                if code == "Escape" then
+                                    Json.Decode.succeed (SharedMsg CloseLightbox)
+
+                                else
+                                    Json.Decode.fail "Not an Escape key"
+                            )
+            in
+            Browser.Events.onKeyDown escKeyDecoder
+
+        Nothing ->
+            Sub.none
 
 
 
