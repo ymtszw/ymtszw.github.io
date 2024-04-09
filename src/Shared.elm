@@ -56,6 +56,7 @@ import Json.Decode
 import Json.Encode
 import LinkPreview
 import List.Extra
+import Maybe.Extra
 import MimeType exposing (MimeImage(..), MimeType(..))
 import OptimizedDecoder
 import Pages
@@ -271,9 +272,7 @@ clearLightboxLink m =
         Just ( lbMedia, key ) ->
             let
                 internalUrl =
-                    lbMedia.originReq.path
-                        |> Pages.Url.fromPath
-                        |> Pages.Url.toString
+                    Path.toAbsolute lbMedia.originReq.path ++ Maybe.Extra.unwrap "" ((++) "?") lbMedia.originReq.query
             in
             Browser.Navigation.replaceUrl key internalUrl
 
