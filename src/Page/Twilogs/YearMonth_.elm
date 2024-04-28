@@ -11,6 +11,7 @@ import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Env
 import DataSource.Glob
+import Debounce exposing (Debounce)
 import Dict exposing (Dict)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
@@ -18,12 +19,15 @@ import Head.Seo as Seo
 import Helper
 import Html exposing (Html, nav, strong, text)
 import Html.Attributes exposing (class)
+import Json.Decode
+import Json.Encode
 import List.Extra
 import Page
 import Page.Twilogs
 import Pages.PageUrl
 import Process
 import Route
+import RuntimePorts
 import Shared exposing (RataDie, Twilog, seoBase)
 import Task
 import TwilogSearch
@@ -33,6 +37,7 @@ import View
 type alias Model =
     { twilogSearch : TwilogSearch.Model
     , linksInTwilogs : Dict TwitterStatusIdStr (List String)
+    , debounce : Debounce Json.Encode.Value
     }
 
 
@@ -44,6 +49,8 @@ type Msg
     = InitiateLinkPreviewPopulation
     | NoOp
     | TwilogSearchMsg TwilogSearch.Msg
+    | ReceiveFromJs Json.Encode.Value
+    | DebounceMsg Debounce.Msg
 
 
 type alias RouteParams =
@@ -66,7 +73,7 @@ page =
         |> Page.buildWithSharedState
             { init = init
             , update = update
-            , subscriptions = \_ _ _ _ _ -> Sub.none
+            , subscriptions = \_ _ _ _ _ -> RuntimePorts.fromJs ReceiveFromJs
             , view = view
             }
 
@@ -75,6 +82,7 @@ init : x -> y -> Page.StaticPayload Data RouteParams -> ( Model, Cmd Msg )
 init _ _ app =
     ( { twilogSearch = TwilogSearch.init app.data.searchSecrets
       , linksInTwilogs = Dict.empty
+      , debounce = Debounce.init
       }
     , Helper.initMsg InitiateLinkPreviewPopulation
     )
@@ -164,6 +172,51 @@ update url _ shared app msg model =
                     TwilogSearch.update twMsg model.twilogSearch
             in
             ( { model | twilogSearch = twilogSearch_ }, Cmd.map TwilogSearchMsg cmd, Nothing )
+
+        ReceiveFromJs v ->
+            let
+                ( debounce_, cmd ) =
+                    Debounce.push debounceConfig v model.debounce
+            in
+            ( { model | debounce = debounce_ }, cmd, Nothing )
+
+        DebounceMsg dMsg ->
+            let
+                ( debounce_, cmd ) =
+                    Debounce.update debounceConfig (Debounce.takeLast findTweetsInViewport) dMsg model.debounce
+            in
+            ( { model | debounce = debounce_ }, cmd, Nothing )
+
+
+debounceConfig =
+    { strategy = Debounce.later 200
+    , transform = DebounceMsg
+    }
+
+
+type alias Viewport =
+    { height : Float, top : Float, bottom : Float }
+
+
+findTweetsInViewport : Json.Encode.Value -> Cmd Msg
+findTweetsInViewport v =
+    case Json.Decode.decodeValue viewportDecoder v of
+        Ok viewport ->
+            let
+                _ =
+                    Debug.log "viewport" viewport
+            in
+            Cmd.none
+
+        Err _ ->
+            Cmd.none
+
+
+viewportDecoder =
+    Json.Decode.map3 Viewport
+        (Json.Decode.field "viewportHeight" Json.Decode.float)
+        (Json.Decode.field "viewportTop" Json.Decode.float)
+        (Json.Decode.field "viewportBottom" Json.Decode.float)
 
 
 view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
