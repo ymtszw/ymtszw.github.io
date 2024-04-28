@@ -38,6 +38,15 @@ type alias Metadata =
     }
 
 
+fallbackOnBadStatus : String -> Int -> Metadata
+fallbackOnBadStatus url statusCode =
+    { title = String.fromInt statusCode ++ " / プレビューできません"
+    , description = Just url
+    , imageUrl = Just ("https://http.cat/" ++ String.fromInt statusCode)
+    , canonicalUrl = url
+    }
+
+
 {-| Using personal link preview service. <https://github.com/ymtszw/link-preview>
 -}
 linkPreviewApiEndpoint url =
@@ -123,6 +132,9 @@ getMetadataOnDemand amazonAssociateTag url =
                             OptimizedDecoder.decodeString (linkPreviewDecoder url) body
                                 |> Result.map (\meta -> { meta | canonicalUrl = Helper.makeAmazonUrl amazonAssociateTag meta.canonicalUrl })
                                 |> Result.mapError OptimizedDecoder.errorToString
+
+                        Http.BadStatus_ { statusCode } _ ->
+                            Ok (fallbackOnBadStatus url statusCode)
 
                         _ ->
                             Err "something failed"
