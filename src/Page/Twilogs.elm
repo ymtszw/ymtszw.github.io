@@ -40,7 +40,8 @@ import View exposing (imgLazy, lightboxLink)
 
 
 type alias Model =
-    TwilogSearch.Model
+    { twilogSearch : TwilogSearch.Model
+    }
 
 
 type Msg
@@ -65,7 +66,7 @@ page =
         , data = data
         }
         |> Page.buildWithSharedState
-            { init = \_ _ app -> ( TwilogSearch.init app.data.searchSecrets, Helper.initMsg InitiateLinkPreviewPopulation )
+            { init = \_ _ app -> ( { twilogSearch = TwilogSearch.init app.data.searchSecrets }, Helper.initMsg InitiateLinkPreviewPopulation )
             , update = update
             , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
@@ -124,10 +125,10 @@ update _ _ shared app msg model =
 
         TwilogSearchMsg twMsg ->
             let
-                ( model_, cmd ) =
-                    TwilogSearch.update twMsg model
+                ( twilogSearch_, cmd ) =
+                    TwilogSearch.update twMsg model.twilogSearch
             in
-            ( model_
+            ( { model | twilogSearch = twilogSearch_ }
             , Cmd.map TwilogSearchMsg cmd
             , Nothing
             )
@@ -208,7 +209,7 @@ ZapierによるTweet取得以前のデータも、Twitter公式機能で取得�
 検索SaaSを使って検索機能も提供している。もともとMeilisearchで始めたが、後にfree tierがなくなったのでAlgoliaに移行した。
 """
             ]
-        , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m
+        , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m.twilogSearch
         , h3 [ class "twilogs-day-header", id "#onward" ] [ a [ href "https://twilog.togetter.com/gada_twt", target "_blank" ] [ text "最新" ] ]
         ]
             ++ showTwilogsByDailySections shared app.data.recentDailyTwilogs
