@@ -1,22 +1,27 @@
 module Page.Twilogs exposing
     ( Data
     , Model
-    , Msg
+    , Msg(..)
     , RouteParams
     , aTwilog
+    , findTweetsInOrAfterViewport
     , getRecentDays
     , linksByMonths
     , listUrlsForPreviewBulk
     , page
     , showTwilogsByDailySections
+    , subscriptions
     , twilogsOfTheDay
+    , update
     )
 
+import Browser.Dom
 import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Env
 import DataSource.Glob
 import Date
+import Debounce exposing (Debounce)
 import Dict exposing (Dict)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
@@ -25,6 +30,8 @@ import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Keyed
+import Json.Decode
+import Json.Encode
 import LinkPreview
 import List.Extra
 import Markdown
@@ -33,7 +40,9 @@ import Pages.PageUrl
 import Path
 import Regex
 import Route
+import RuntimePorts
 import Shared exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..), seoBase)
+import Task
 import Tweet
 import TwilogSearch exposing (searchBox)
 import View exposing (imgLazy, lightboxLink)
@@ -42,6 +51,7 @@ import View exposing (imgLazy, lightboxLink)
 type alias Model =
     { twilogSearch : TwilogSearch.Model
     , linksInTwilogs : Dict TwitterStatusIdStr (List String)
+    , debounce : Debounce Json.Encode.Value
     }
 
 
@@ -50,8 +60,11 @@ type alias TwitterStatusIdStr =
 
 
 type Msg
-    = InitiateLinkPreviewPopulation
+    = NoOp
     | TwilogSearchMsg TwilogSearch.Msg
+    | ReceiveFromJs Json.Encode.Value
+    | DebounceMsg Debounce.Msg
+    | RequestLinkPreview TwitterStatusIdStr
 
 
 type alias RouteParams =
@@ -59,7 +72,7 @@ type alias RouteParams =
 
 
 type alias Data =
-    { recentDailyTwilogs : Dict RataDie (List Twilog)
+    { twilogsFromOldest : Dict RataDie (List Twilog)
     , searchSecrets : TwilogSearch.Secrets
     , amazonAssociateTag : String
     }
@@ -73,17 +86,22 @@ page =
         |> Page.buildWithSharedState
             { init = init
             , update = update
-            , subscriptions = \_ _ _ _ _ -> Sub.none
+            , subscriptions = subscriptions
             , view = view
             }
 
 
-init : x -> y -> Page.StaticPayload Data RouteParams -> ( Model, Cmd Msg )
-init _ _ app =
+init : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data routeParams -> ( Model, Cmd Msg )
+init _ shared app =
+    let
+        linksInTwilogs =
+            listUrlsForPreviewBulk shared.links app.data.twilogsFromOldest
+    in
     ( { twilogSearch = TwilogSearch.init app.data.searchSecrets
-      , linksInTwilogs = Dict.empty
+      , linksInTwilogs = linksInTwilogs
+      , debounce = Debounce.init
       }
-    , Helper.initMsg InitiateLinkPreviewPopulation
+    , findTweetsInOrAfterViewport (Dict.keys linksInTwilogs) shared.initialViewport
     )
 
 
@@ -118,7 +136,7 @@ getRecentDays days =
         |> DataSource.map (List.sort >> List.reverse >> List.take days)
 
 
-head : Page.StaticPayload Data RouteParams -> List Head.Tag
+head : Page.StaticPayload Data routeParams -> List Head.Tag
 head _ =
     Seo.summaryLarge
         { seoBase
@@ -128,34 +146,55 @@ head _ =
         |> Seo.website
 
 
-update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
+update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data routeParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
 update _ _ shared app msg model =
     case msg of
-        InitiateLinkPreviewPopulation ->
-            ( { model | linksInTwilogs = listUrlsForPreviewBulk shared.links app.data.recentDailyTwilogs }
-            , Cmd.none
-            , Nothing
-            )
+        NoOp ->
+            ( model, Cmd.none, Nothing )
 
         TwilogSearchMsg twMsg ->
             let
                 ( twilogSearch_, cmd ) =
                     TwilogSearch.update twMsg model.twilogSearch
             in
-            ( { model | twilogSearch = twilogSearch_ }
-            , Cmd.map TwilogSearchMsg cmd
-            , Nothing
-            )
+            ( { model | twilogSearch = twilogSearch_ }, Cmd.map TwilogSearchMsg cmd, Nothing )
+
+        ReceiveFromJs v ->
+            let
+                ( debounce_, cmd ) =
+                    Debounce.push debounceConfig v model.debounce
+            in
+            ( { model | debounce = debounce_ }, cmd, Nothing )
+
+        DebounceMsg dMsg ->
+            let
+                ( debounce_, cmd ) =
+                    Debounce.update debounceConfig (Debounce.takeLast (decodeViewportAndFindTweets (Dict.keys model.linksInTwilogs))) dMsg model.debounce
+            in
+            ( { model | debounce = debounce_ }, cmd, Nothing )
+
+        RequestLinkPreview tweetId ->
+            let
+                isNotFetched url_ =
+                    case Dict.get url_ shared.links of
+                        Just _ ->
+                            False
+
+                        Nothing ->
+                            True
+            in
+            case Dict.get tweetId model.linksInTwilogs |> Maybe.withDefault [] |> List.filter isNotFetched of
+                [] ->
+                    ( model, Cmd.none, Nothing )
+
+                notFetchedUrls ->
+                    ( model, Cmd.none, Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag notFetchedUrls)) )
 
 
-
--- listUrlsForPreviewBulk : Shared.Model -> String -> Dict RataDie (List Twilog) -> Maybe Shared.Msg
--- listUrlsForPreviewBulk { links } amazonAssociateTag recentDailyTwilogs =
---     case listUrlsForPreviewBulk links recentDailyTwilogs of
---         [] ->
---             Nothing
---         urls ->
---             Just (Shared.SharedMsg (Shared.Req_LinkPreview amazonAssociateTag urls))
+debounceConfig =
+    { strategy = Debounce.later 200
+    , transform = DebounceMsg
+    }
 
 
 listUrlsForPreviewBulk : Dict String LinkPreview.Metadata -> Dict RataDie (List Twilog) -> Dict TwitterStatusIdStr (List String)
@@ -206,7 +245,55 @@ listUrlsForPreviewFromReplies links replies =
     listUrlsForPreviewImpl links (List.map (\(Reply twilog) -> twilog) replies)
 
 
-view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
+decodeViewportAndFindTweets : List String -> Json.Encode.Value -> Cmd Msg
+decodeViewportAndFindTweets tweetIds v =
+    case Json.Decode.decodeValue Shared.viewportDecoder v of
+        Ok viewport ->
+            findTweetsInOrAfterViewport tweetIds viewport
+
+        Err _ ->
+            Cmd.none
+
+
+findTweetsInOrAfterViewport : List String -> Shared.Viewport -> Cmd Msg
+findTweetsInOrAfterViewport tweetIds viewport =
+    let
+        retrieveTweetIdInViewport tweetId =
+            Browser.Dom.getElement ("tweet-" ++ tweetId)
+                |> Task.andThen
+                    (\found ->
+                        let
+                            -- 注：screen topに原点があるので、下方向に向かって値が増える
+                            foundElementTop =
+                                found.element.y
+
+                            foundElementBottom =
+                                found.element.y + found.element.height
+
+                            -- ある程度下方のTweetも先読み対象とするために、viewportを仮想的に１画面分、下方に拡張
+                            virtualViewportBottom =
+                                viewport.bottom + viewport.height
+                        in
+                        if (viewport.top <= foundElementBottom) && (foundElementTop <= virtualViewportBottom) then
+                            Task.succeed (RequestLinkPreview tweetId)
+
+                        else
+                            Task.succeed NoOp
+                    )
+                |> Task.onError (\_ -> Task.succeed NoOp)
+                |> Task.perform identity
+    in
+    tweetIds
+        |> List.map retrieveTweetIdInViewport
+        |> Cmd.batch
+
+
+subscriptions : Maybe Pages.PageUrl.PageUrl -> routeParams -> Path.Path -> Model -> Shared.Model -> Sub Msg
+subscriptions _ _ _ _ _ =
+    RuntimePorts.fromJs ReceiveFromJs
+
+
+view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data routeParams -> View.View Msg
 view _ shared m app =
     { title = "Twilog"
     , body =
@@ -228,7 +315,7 @@ ZapierによるTweet取得以前のデータも、Twitter公式機能で取得�
         , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m.twilogSearch
         , h3 [ class "twilogs-day-header", id "#onward" ] [ a [ href "https://twilog.togetter.com/gada_twt", target "_blank" ] [ text "最新" ] ]
         ]
-            ++ showTwilogsByDailySections shared app.data.recentDailyTwilogs
+            ++ showTwilogsByDailySections shared app.data.twilogsFromOldest
             ++ [ goToLatestMonth app.sharedData.twilogArchives, linksByMonths Nothing app.sharedData.twilogArchives ]
     }
 
@@ -240,9 +327,9 @@ ZapierによるTweet取得以前のデータも、Twitter公式機能で取得�
 
 
 showTwilogsByDailySections : Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
-showTwilogsByDailySections shared recentDailyTwilogs =
+showTwilogsByDailySections shared twilogsFromOldest =
     -- foldl to traverse from the oldest
-    Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared rataDie twilogs :: acc) [] recentDailyTwilogs
+    Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared rataDie twilogs :: acc) [] twilogsFromOldest
 
 
 twilogDailySection : Shared.Model -> RataDie -> List Twilog -> Html msg

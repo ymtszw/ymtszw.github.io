@@ -7,25 +7,21 @@ module Page.Twilogs.YearMonth_ exposing
     )
 
 import Browser.Dom
-import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Env
 import DataSource.Glob
-import Debounce exposing (Debounce)
+import Debounce
 import Dict exposing (Dict)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
 import Head.Seo as Seo
 import Html exposing (Html, nav, strong, text)
 import Html.Attributes exposing (class)
-import Json.Decode
-import Json.Encode
 import List.Extra
 import Page
-import Page.Twilogs
+import Page.Twilogs exposing (..)
 import Pages.PageUrl
 import Route
-import RuntimePorts
 import Shared exposing (RataDie, Twilog, seoBase)
 import Task
 import TwilogSearch
@@ -33,22 +29,11 @@ import View
 
 
 type alias Model =
-    { twilogSearch : TwilogSearch.Model
-    , linksInTwilogs : Dict TwitterStatusIdStr (List String)
-    , debounce : Debounce Json.Encode.Value
-    }
+    Page.Twilogs.Model
 
 
-type alias TwitterStatusIdStr =
-    String
-
-
-type Msg
-    = NoOp
-    | TwilogSearchMsg TwilogSearch.Msg
-    | ReceiveFromJs Json.Encode.Value
-    | DebounceMsg Debounce.Msg
-    | RequestLinkPreview TwitterStatusIdStr
+type alias Msg =
+    Page.Twilogs.Msg
 
 
 type alias RouteParams =
@@ -56,7 +41,7 @@ type alias RouteParams =
 
 
 type alias Data =
-    { dailyTwilogsFromOldest : Dict RataDie (List Twilog)
+    { twilogsFromOldest : Dict RataDie (List Twilog)
     , searchSecrets : TwilogSearch.Secrets
     , amazonAssociateTag : String
     }
@@ -70,17 +55,17 @@ page =
         }
         |> Page.buildWithSharedState
             { init = init
-            , update = update
-            , subscriptions = \_ _ _ _ _ -> RuntimePorts.fromJs ReceiveFromJs
+            , update = Page.Twilogs.update
+            , subscriptions = Page.Twilogs.subscriptions
             , view = view
             }
 
 
-init : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data RouteParams -> ( Model, Cmd Msg )
+init : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data routeParams -> ( Model, Cmd Msg )
 init url shared app =
     let
         linksInTwilogs =
-            Page.Twilogs.listUrlsForPreviewBulk shared.links app.data.dailyTwilogsFromOldest
+            Page.Twilogs.listUrlsForPreviewBulk shared.links app.data.twilogsFromOldest
     in
     ( { twilogSearch = TwilogSearch.init app.data.searchSecrets
       , linksInTwilogs = linksInTwilogs
@@ -88,10 +73,11 @@ init url shared app =
       }
     , case Maybe.andThen .fragment url of
         Just id ->
+            -- アーカイブページ独自処理; フラグメント指定されたTweetがあればそのTweetまでスクロール
             scrollToTargetTweet id
 
         Nothing ->
-            findTweetsInOrAfterViewport (Dict.keys linksInTwilogs) shared.initialViewport
+            Page.Twilogs.findTweetsInOrAfterViewport (Dict.keys linksInTwilogs) shared.initialViewport
     )
 
 
@@ -158,100 +144,6 @@ head app =
             }
 
 
-update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
-update _ _ shared app msg model =
-    case msg of
-        NoOp ->
-            ( model, Cmd.none, Nothing )
-
-        TwilogSearchMsg twMsg ->
-            let
-                ( twilogSearch_, cmd ) =
-                    TwilogSearch.update twMsg model.twilogSearch
-            in
-            ( { model | twilogSearch = twilogSearch_ }, Cmd.map TwilogSearchMsg cmd, Nothing )
-
-        ReceiveFromJs v ->
-            let
-                ( debounce_, cmd ) =
-                    Debounce.push debounceConfig v model.debounce
-            in
-            ( { model | debounce = debounce_ }, cmd, Nothing )
-
-        DebounceMsg dMsg ->
-            let
-                ( debounce_, cmd ) =
-                    Debounce.update debounceConfig (Debounce.takeLast (decodeViewportAndFindTweets (Dict.keys model.linksInTwilogs))) dMsg model.debounce
-            in
-            ( { model | debounce = debounce_ }, cmd, Nothing )
-
-        RequestLinkPreview tweetId ->
-            let
-                isNotFetched url_ =
-                    case Dict.get url_ shared.links of
-                        Just _ ->
-                            False
-
-                        Nothing ->
-                            True
-            in
-            case Dict.get tweetId model.linksInTwilogs |> Maybe.withDefault [] |> List.filter isNotFetched of
-                [] ->
-                    ( model, Cmd.none, Nothing )
-
-                notFetchedUrls ->
-                    ( model, Cmd.none, Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag notFetchedUrls)) )
-
-
-debounceConfig =
-    { strategy = Debounce.later 200
-    , transform = DebounceMsg
-    }
-
-
-decodeViewportAndFindTweets : List String -> Json.Encode.Value -> Cmd Msg
-decodeViewportAndFindTweets tweetIds v =
-    case Json.Decode.decodeValue Shared.viewportDecoder v of
-        Ok viewport ->
-            findTweetsInOrAfterViewport tweetIds viewport
-
-        Err _ ->
-            Cmd.none
-
-
-findTweetsInOrAfterViewport : List String -> Shared.Viewport -> Cmd Msg
-findTweetsInOrAfterViewport tweetIds viewport =
-    let
-        retrieveTweetIdInViewport tweetId =
-            Browser.Dom.getElement ("tweet-" ++ tweetId)
-                |> Task.andThen
-                    (\found ->
-                        let
-                            -- 注：screen topに原点があるので、下方向に向かって値が増える
-                            foundElementTop =
-                                found.element.y
-
-                            foundElementBottom =
-                                found.element.y + found.element.height
-
-                            -- ある程度下方のTweetも先読み対象とするために、viewportを仮想的に１画面分、下方に拡張
-                            virtualViewportBottom =
-                                viewport.bottom + viewport.height
-                        in
-                        if (viewport.top <= foundElementBottom) && (foundElementTop <= virtualViewportBottom) then
-                            Task.succeed (RequestLinkPreview tweetId)
-
-                        else
-                            Task.succeed NoOp
-                    )
-                |> Task.onError (\_ -> Task.succeed NoOp)
-                |> Task.perform identity
-    in
-    tweetIds
-        |> List.map retrieveTweetIdInViewport
-        |> Cmd.batch
-
-
 view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
 view _ shared m app =
     { title = app.routeParams.yearMonth ++ "のTwilog"
@@ -259,7 +151,7 @@ view _ shared m app =
         -- show navigation links to previous and next days
         prevNextNavigation app.routeParams app.sharedData.twilogArchives
             :: TwilogSearch.searchBox TwilogSearchMsg (Page.Twilogs.aTwilog False Dict.empty) m.twilogSearch
-            :: Page.Twilogs.showTwilogsByDailySections shared app.data.dailyTwilogsFromOldest
+            :: Page.Twilogs.showTwilogsByDailySections shared app.data.twilogsFromOldest
             ++ [ prevNextNavigation app.routeParams app.sharedData.twilogArchives
                , Page.Twilogs.linksByMonths (Just app.routeParams.yearMonth) app.sharedData.twilogArchives
                ]
