@@ -65,46 +65,50 @@ function makeYearMonthDay(createdAt) {
   ].join("-");
 }
 
-function dumpGroupedTwilogs() {
-  Object.entries(groupedByYearMonthDay).forEach(
-    async ([yearMonthDay, twilogs]) => {
-      const [year, month, day] = yearMonthDay.split("-");
-      const dir = `data/${year}/${month}`;
-      const file = `${dir}/${day}-twilogs.json`;
-      await mkdir(dir, { recursive: true });
-      const sanitizedTwilogs = await Promise.all(twilogs.map(makeTwilogJson));
-      if (existsSync(file)) {
-        const currentData = JSON.parse(await readFile(file));
-        const mergedData = sanitizedTwilogs
-          .reduce((acc, twilog) => {
-            // Update `acc` array element by `twilog` if it has the same `StatusId`, otherwise append `twilog` to `acc`
-            const index = acc.findIndex((t) => t.StatusId === twilog.StatusId);
-            if (index >= 0) {
-              acc[index] = twilog;
-            } else {
-              acc.push(twilog);
-            }
-            return acc;
-          }, currentData)
-          .sort((a, b) => a.StatusId.localeCompare(b.StatusId))
-          .map(JSON.stringify)
-          .join("\n,\n");
-        console.log("Merging:", file);
-        return writeFile(file, "[\n" + mergedData + "\n]\n");
-      } else {
-        const data = sanitizedTwilogs
-          .sort((a, b) => a.StatusId.localeCompare(b.StatusId))
-          .map(JSON.stringify)
-          .join("\n,\n");
-        console.log("Writing:", file);
-        return writeFile(file, "[\n" + data + "\n]\n");
+async function dumpGroupedTwilogs() {
+  await Promise.all(
+    Object.entries(groupedByYearMonthDay).map(
+      async ([yearMonthDay, twilogs]) => {
+        const [year, month, day] = yearMonthDay.split("-");
+        const dir = `data/${year}/${month}`;
+        const file = `${dir}/${day}-twilogs.json`;
+        await mkdir(dir, { recursive: true });
+        const sanitizedTwilogs = await Promise.all(twilogs.map(makeTwilogJson));
+        if (existsSync(file)) {
+          const currentData = JSON.parse(await readFile(file));
+          const mergedData = sanitizedTwilogs
+            .reduce((acc, twilog) => {
+              // Update `acc` array element by `twilog` if it has the same `StatusId`, otherwise append `twilog` to `acc`
+              const index = acc.findIndex(
+                (t) => t.StatusId === twilog.StatusId
+              );
+              if (index >= 0) {
+                acc[index] = smartlyMergeTwilogs(acc[index], twilog);
+              } else {
+                acc.push(twilog);
+              }
+              return acc;
+            }, currentData)
+            .sort((a, b) => a.StatusId.localeCompare(b.StatusId))
+            .map(JSON.stringify)
+            .join("\n,\n");
+          console.log("Merging:", file);
+          return writeFile(file, "[\n" + mergedData + "\n]\n");
+        } else {
+          const data = sanitizedTwilogs
+            .sort((a, b) => a.StatusId.localeCompare(b.StatusId))
+            .map(JSON.stringify)
+            .join("\n,\n");
+          console.log("Writing:", file);
+          return writeFile(file, "[\n" + data + "\n]\n");
+        }
       }
-    }
+    )
   );
   if (lastIdCursor !== previousIdCursor) {
     console.log("Writing updated ID cursor:", lastIdCursor);
-    writeFile("data/TWILOGS_CSV_ID_CURSOR", lastIdCursor);
-    generateTwilogArchives();
+    await writeFile("data/TWILOGS_CSV_ID_CURSOR", lastIdCursor);
+    return generateTwilogArchives();
   } else {
     console.log("No new twilogs to import");
   }
