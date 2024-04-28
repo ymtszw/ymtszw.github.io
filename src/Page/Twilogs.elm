@@ -271,6 +271,8 @@ findTweetsInOrAfterViewport tweetIds viewport =
                                 found.element.y + found.element.height
 
                             -- ある程度下方のTweetも先読み対象とするために、viewportを仮想的に１画面分、下方に拡張
+                            -- 同じことを上方にやってもいいのだが、画面外のレイアウトシフトのせいで
+                            -- viewport内の要素がスクロールと逆方向に押しやられるのは体験が悪いので断念している
                             virtualViewportBottom =
                                 viewport.bottom + viewport.height
                         in
