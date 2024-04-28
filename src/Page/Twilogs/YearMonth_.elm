@@ -31,7 +31,13 @@ import View
 
 
 type alias Model =
-    TwilogSearch.Model
+    { twilogSearch : TwilogSearch.Model
+    , linksInTwilogs : Dict TwitterStatusIdStr (List String)
+    }
+
+
+type alias TwitterStatusIdStr =
+    String
 
 
 type Msg
@@ -58,11 +64,20 @@ page =
         , data = data
         }
         |> Page.buildWithSharedState
-            { init = \_ _ app -> ( TwilogSearch.init app.data.searchSecrets, Helper.initMsg InitiateLinkPreviewPopulation )
+            { init = init
             , update = update
             , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
             }
+
+
+init : x -> y -> Page.StaticPayload Data RouteParams -> ( Model, Cmd Msg )
+init _ _ app =
+    ( { twilogSearch = TwilogSearch.init app.data.searchSecrets
+      , linksInTwilogs = Dict.empty
+      }
+    , Helper.initMsg InitiateLinkPreviewPopulation
+    )
 
 
 routes : DataSource (List RouteParams)
@@ -124,7 +139,7 @@ update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -
 update url _ shared app msg model =
     case msg of
         InitiateLinkPreviewPopulation ->
-            ( model
+            ( { model | linksInTwilogs = Page.Twilogs.listUrlsForPreviewBulk shared.links app.data.dailyTwilogsFromOldest }
             , case url.fragment of
                 Just id ->
                     -- LinkPreviewの読み込みなどでlayout shiftが少しあるので、雑にちょっと待つ
@@ -137,7 +152,7 @@ update url _ shared app msg model =
 
                 _ ->
                     Cmd.none
-            , Page.Twilogs.listUrlsForPreviewBulk shared app.data.amazonAssociateTag app.data.dailyTwilogsFromOldest
+            , Nothing
             )
 
         NoOp ->
@@ -145,10 +160,10 @@ update url _ shared app msg model =
 
         TwilogSearchMsg twMsg ->
             let
-                ( model_, cmd ) =
-                    TwilogSearch.update twMsg model
+                ( twilogSearch_, cmd ) =
+                    TwilogSearch.update twMsg model.twilogSearch
             in
-            ( model_, Cmd.map TwilogSearchMsg cmd, Nothing )
+            ( { model | twilogSearch = twilogSearch_ }, Cmd.map TwilogSearchMsg cmd, Nothing )
 
 
 view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
@@ -157,7 +172,7 @@ view _ shared m app =
     , body =
         -- show navigation links to previous and next days
         prevNextNavigation app.routeParams app.sharedData.twilogArchives
-            :: TwilogSearch.searchBox TwilogSearchMsg (Page.Twilogs.aTwilog False Dict.empty) m
+            :: TwilogSearch.searchBox TwilogSearchMsg (Page.Twilogs.aTwilog False Dict.empty) m.twilogSearch
             :: Page.Twilogs.showTwilogsByDailySections shared app.data.dailyTwilogsFromOldest
             ++ [ prevNextNavigation app.routeParams app.sharedData.twilogArchives
                , Page.Twilogs.linksByMonths (Just app.routeParams.yearMonth) app.sharedData.twilogArchives
