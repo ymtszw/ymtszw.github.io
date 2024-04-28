@@ -188,6 +188,7 @@ function extractUrls(text, isRetweet) {
     (url) => {
       if (
         url.match(
+          // https://twitter.com/DmOhashi/status/1784441345631019011/photo/1
           new RegExp("^https://twitter.com/[^/]+/status/[^/]+/photo/[^/]+$")
         )
       ) {
@@ -195,6 +196,18 @@ function extractUrls(text, isRetweet) {
           url,
           type: "photo",
           sourceUrl: "https://pbs.twimg.com/media/__NOT_LOADED__",
+          expandedUrl: url,
+        });
+      } else if (
+        url.match(
+          // https://twitter.com/RC_REJECT/status/1784147725048762798/video/1
+          new RegExp("^https://twitter.com/[^/]+/status/[^/]+/video/[^/]+$")
+        )
+      ) {
+        groups.media.push({
+          url,
+          type: "video",
+          sourceUrl: "https://pbs.twimg.com/amplify_video_thumb/__NOT_LOADED__",
           expandedUrl: url,
         });
       } else {
@@ -227,6 +240,33 @@ function extractUrls(text, isRetweet) {
         ExtendedEntitiesMediaExpandedUrls:
           groups.media.map((m) => m.expandedUrl).join(",") || "",
       };
+}
+
+/**
+ * Use New entities EXCEPT profile images if they are placeholders.
+ * The link-preview service and twitter servers sometimes fail to fetch the latest information.
+ *
+ * @param {object} Old Twilog object
+ * @param {object} New Twilog object
+ * @returns Twilog object
+ */
+function smartlyMergeTwilogs(Old, New) {
+  const ret = New;
+  if (
+    ret.UserProfileImageUrl !== Old.UserProfileImageUrl &&
+    ret.UserProfileImageUrl === placeholderAvatarUrl
+  ) {
+    ret.UserProfileImageUrl = Old.UserProfileImageUrl;
+  }
+  if (
+    ret.RetweetedStatusUserProfileImageUrl !==
+      Old.RetweetedStatusUserProfileImageUrl &&
+    ret.RetweetedStatusUserProfileImageUrl === placeholderAvatarUrl
+  ) {
+    ret.RetweetedStatusUserProfileImageUrl =
+      Old.RetweetedStatusUserProfileImageUrl;
+  }
+  return ret;
 }
 
 export async function generateTwilogArchives() {
