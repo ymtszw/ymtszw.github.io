@@ -41,7 +41,12 @@ import View exposing (imgLazy, lightboxLink)
 
 type alias Model =
     { twilogSearch : TwilogSearch.Model
+    , linksInTwilogs : Dict TwitterStatusIdStr (List String)
     }
+
+
+type alias TwitterStatusIdStr =
+    String
 
 
 type Msg
@@ -66,11 +71,20 @@ page =
         , data = data
         }
         |> Page.buildWithSharedState
-            { init = \_ _ app -> ( { twilogSearch = TwilogSearch.init app.data.searchSecrets }, Helper.initMsg InitiateLinkPreviewPopulation )
+            { init = init
             , update = update
             , subscriptions = \_ _ _ _ _ -> Sub.none
             , view = view
             }
+
+
+init : x -> y -> Page.StaticPayload Data RouteParams -> ( Model, Cmd Msg )
+init _ _ app =
+    ( { twilogSearch = TwilogSearch.init app.data.searchSecrets
+      , linksInTwilogs = Dict.empty
+      }
+    , Helper.initMsg InitiateLinkPreviewPopulation
+    )
 
 
 data : DataSource Data
@@ -118,9 +132,9 @@ update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -
 update _ _ shared app msg model =
     case msg of
         InitiateLinkPreviewPopulation ->
-            ( model
+            ( { model | linksInTwilogs = listUrlsForPreviewBulk shared.links app.data.recentDailyTwilogs }
             , Cmd.none
-            , listUrlsForPreviewBulk shared app.data.amazonAssociateTag app.data.recentDailyTwilogs
+            , Nothing
             )
 
         TwilogSearchMsg twMsg ->
@@ -134,60 +148,62 @@ update _ _ shared app msg model =
             )
 
 
-listUrlsForPreviewBulk : Shared.Model -> String -> Dict RataDie (List Twilog) -> Maybe Shared.Msg
-listUrlsForPreviewBulk { links } amazonAssociateTag recentDailyTwilogs =
-    case listUrlsForPreviewBulkHelp links recentDailyTwilogs of
-        [] ->
-            Nothing
 
-        urls ->
-            Just (Shared.SharedMsg (Shared.Req_LinkPreview amazonAssociateTag urls))
+-- listUrlsForPreviewBulk : Shared.Model -> String -> Dict RataDie (List Twilog) -> Maybe Shared.Msg
+-- listUrlsForPreviewBulk { links } amazonAssociateTag recentDailyTwilogs =
+--     case listUrlsForPreviewBulk links recentDailyTwilogs of
+--         [] ->
+--             Nothing
+--         urls ->
+--             Just (Shared.SharedMsg (Shared.Req_LinkPreview amazonAssociateTag urls))
 
 
-listUrlsForPreviewBulkHelp : Dict String LinkPreview.Metadata -> Dict RataDie (List Twilog) -> List String
-listUrlsForPreviewBulkHelp links recentDailyTwilogsFromOldest =
+listUrlsForPreviewBulk : Dict String LinkPreview.Metadata -> Dict RataDie (List Twilog) -> Dict TwitterStatusIdStr (List String)
+listUrlsForPreviewBulk links recentDailyTwilogsFromOldest =
     Dict.values recentDailyTwilogsFromOldest
         |> List.concat
         -- Make it newest first
         |> List.reverse
-        |> listUrlsForPreviewSingleHelp links
-        |> List.Extra.unique
+        |> listUrlsForPreviewImpl links
+        |> Dict.fromList
 
 
-listUrlsForPreviewSingleHelp : Dict String LinkPreview.Metadata -> List Twilog -> List String
-listUrlsForPreviewSingleHelp links twilogs =
-    twilogs
-        |> List.concatMap
-            (\twilog ->
-                let
-                    urlsFromReplies =
-                        listUrlsForPreviewFromReplies links twilog.replies
+listUrlsForPreviewImpl : Dict String LinkPreview.Metadata -> List Twilog -> List ( TwitterStatusIdStr, List String )
+listUrlsForPreviewImpl links =
+    List.map
+        (\twilog ->
+            let
+                urlsFromReplies =
+                    listUrlsForPreviewFromReplies links twilog.replies
+                        |> List.concatMap Tuple.second
+                        |> List.Extra.unique
 
-                    notLoadedMediaUrls { extendedEntitiesMedia } =
-                        extendedEntitiesMedia
-                            |> List.filter (\{ sourceUrl } -> String.endsWith "__NOT_LOADED__" sourceUrl)
-                            |> List.map .expandedUrl
-                in
-                (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
-                    |> List.map .expandedUrl
-                    |> List.append (notLoadedMediaUrls twilog ++ (twilog.retweet |> Maybe.map notLoadedMediaUrls |> Maybe.withDefault []))
-                    |> List.filterMap
-                        (\expandedUrl ->
-                            -- list not-yet previewed URLs
-                            case Dict.get expandedUrl links of
-                                Just _ ->
-                                    Nothing
+                notLoadedMediaUrls { extendedEntitiesMedia } =
+                    extendedEntitiesMedia
+                        |> List.filter (\{ sourceUrl } -> String.endsWith "__NOT_LOADED__" sourceUrl)
+                        |> List.map .expandedUrl
+            in
+            (twilog.entitiesTcoUrl ++ (twilog.retweet |> Maybe.map .entitiesTcoUrl |> Maybe.withDefault []))
+                |> List.map .expandedUrl
+                |> List.append (notLoadedMediaUrls twilog ++ (twilog.retweet |> Maybe.map notLoadedMediaUrls |> Maybe.withDefault []))
+                |> List.filterMap
+                    (\expandedUrl ->
+                        -- list not-yet previewed URLs
+                        case Dict.get expandedUrl links of
+                            Just _ ->
+                                Nothing
 
-                                Nothing ->
-                                    Just expandedUrl
-                        )
-                    |> List.append urlsFromReplies
-            )
-        |> List.Extra.unique
+                            Nothing ->
+                                Just expandedUrl
+                    )
+                |> List.append urlsFromReplies
+                |> List.Extra.unique
+                |> Tuple.pair twilog.idStr
+        )
 
 
 listUrlsForPreviewFromReplies links replies =
-    listUrlsForPreviewSingleHelp links (List.map (\(Reply twilog) -> twilog) replies)
+    listUrlsForPreviewImpl links (List.map (\(Reply twilog) -> twilog) replies)
 
 
 view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
