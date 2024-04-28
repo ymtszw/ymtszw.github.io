@@ -102,7 +102,7 @@ function dumpGroupedTwilogs() {
     }
   );
   console.log("Writing updated ID cursor:", lastIdCursor);
-  // writeFile("data/TWILOGS_CSV_ID_CURSOR", lastIdCursor);
+  writeFile("data/TWILOGS_CSV_ID_CURSOR", lastIdCursor);
   generateTwilogArchives();
 }
 
