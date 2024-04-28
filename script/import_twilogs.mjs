@@ -101,9 +101,13 @@ function dumpGroupedTwilogs() {
       }
     }
   );
-  console.log("Writing updated ID cursor:", lastIdCursor);
-  writeFile("data/TWILOGS_CSV_ID_CURSOR", lastIdCursor);
-  generateTwilogArchives();
+  if (lastIdCursor !== previousIdCursor) {
+    console.log("Writing updated ID cursor:", lastIdCursor);
+    writeFile("data/TWILOGS_CSV_ID_CURSOR", lastIdCursor);
+    generateTwilogArchives();
+  } else {
+    console.log("No new twilogs to import");
+  }
 }
 
 const myAvatarUrl20230405 =
