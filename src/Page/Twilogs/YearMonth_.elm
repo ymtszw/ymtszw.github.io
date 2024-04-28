@@ -16,7 +16,6 @@ import Dict exposing (Dict)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
 import Head.Seo as Seo
-import Helper
 import Html exposing (Html, nav, strong, text)
 import Html.Attributes exposing (class)
 import Json.Decode
@@ -25,7 +24,6 @@ import List.Extra
 import Page
 import Page.Twilogs
 import Pages.PageUrl
-import Process
 import Route
 import RuntimePorts
 import Shared exposing (RataDie, Twilog, seoBase)
@@ -46,11 +44,11 @@ type alias TwitterStatusIdStr =
 
 
 type Msg
-    = InitiateLinkPreviewPopulation
-    | NoOp
+    = NoOp
     | TwilogSearchMsg TwilogSearch.Msg
     | ReceiveFromJs Json.Encode.Value
     | DebounceMsg Debounce.Msg
+    | RequestLinkPreview TwitterStatusIdStr
 
 
 type alias RouteParams =
@@ -78,14 +76,31 @@ page =
             }
 
 
-init : x -> y -> Page.StaticPayload Data RouteParams -> ( Model, Cmd Msg )
-init _ _ app =
+init : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data RouteParams -> ( Model, Cmd Msg )
+init url shared app =
+    let
+        linksInTwilogs =
+            Page.Twilogs.listUrlsForPreviewBulk shared.links app.data.dailyTwilogsFromOldest
+    in
     ( { twilogSearch = TwilogSearch.init app.data.searchSecrets
-      , linksInTwilogs = Dict.empty
+      , linksInTwilogs = linksInTwilogs
       , debounce = Debounce.init
       }
-    , Helper.initMsg InitiateLinkPreviewPopulation
+    , case Maybe.andThen .fragment url of
+        Just id ->
+            scrollToTargetTweet id
+
+        Nothing ->
+            findTweetsInOrAfterViewport (Dict.keys linksInTwilogs) shared.initialViewport
     )
+
+
+scrollToTargetTweet id =
+    Browser.Dom.getElement id
+        -- ヘッダー分を大雑把に差し引いてスクロール（注：yは下方向に向かって値が増える）
+        |> Task.andThen (\e -> Browser.Dom.setViewport 0 (e.element.y - 100))
+        |> Task.onError (\_ -> Task.succeed ())
+        |> Task.perform (\_ -> NoOp)
 
 
 routes : DataSource (List RouteParams)
@@ -144,25 +159,8 @@ head app =
 
 
 update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
-update url _ shared app msg model =
+update _ _ shared app msg model =
     case msg of
-        InitiateLinkPreviewPopulation ->
-            ( { model | linksInTwilogs = Page.Twilogs.listUrlsForPreviewBulk shared.links app.data.dailyTwilogsFromOldest }
-            , case url.fragment of
-                Just id ->
-                    -- LinkPreviewの読み込みなどでlayout shiftが少しあるので、雑にちょっと待つ
-                    Process.sleep 500
-                        |> Task.andThen (\() -> Browser.Dom.getElement id)
-                        -- ヘッダー分を大雑把に加えてスクロール
-                        |> Task.andThen (\e -> Browser.Dom.setViewport 0 (e.element.y + 50))
-                        |> Task.onError (\_ -> Task.succeed ())
-                        |> Task.perform (\_ -> NoOp)
-
-                _ ->
-                    Cmd.none
-            , Nothing
-            )
-
         NoOp ->
             ( model, Cmd.none, Nothing )
 
@@ -183,9 +181,26 @@ update url _ shared app msg model =
         DebounceMsg dMsg ->
             let
                 ( debounce_, cmd ) =
-                    Debounce.update debounceConfig (Debounce.takeLast findTweetsInViewport) dMsg model.debounce
+                    Debounce.update debounceConfig (Debounce.takeLast (decodeViewportAndFindTweets (Dict.keys model.linksInTwilogs))) dMsg model.debounce
             in
             ( { model | debounce = debounce_ }, cmd, Nothing )
+
+        RequestLinkPreview tweetId ->
+            let
+                isNotFetched url_ =
+                    case Dict.get url_ shared.links of
+                        Just _ ->
+                            False
+
+                        Nothing ->
+                            True
+            in
+            case Dict.get tweetId model.linksInTwilogs |> Maybe.withDefault [] |> List.filter isNotFetched of
+                [] ->
+                    ( model, Cmd.none, Nothing )
+
+                notFetchedUrls ->
+                    ( model, Cmd.none, Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag notFetchedUrls)) )
 
 
 debounceConfig =
@@ -194,29 +209,47 @@ debounceConfig =
     }
 
 
-type alias Viewport =
-    { height : Float, top : Float, bottom : Float }
-
-
-findTweetsInViewport : Json.Encode.Value -> Cmd Msg
-findTweetsInViewport v =
-    case Json.Decode.decodeValue viewportDecoder v of
+decodeViewportAndFindTweets : List String -> Json.Encode.Value -> Cmd Msg
+decodeViewportAndFindTweets tweetIds v =
+    case Json.Decode.decodeValue Shared.viewportDecoder v of
         Ok viewport ->
-            let
-                _ =
-                    Debug.log "viewport" viewport
-            in
-            Cmd.none
+            findTweetsInOrAfterViewport tweetIds viewport
 
         Err _ ->
             Cmd.none
 
 
-viewportDecoder =
-    Json.Decode.map3 Viewport
-        (Json.Decode.field "viewportHeight" Json.Decode.float)
-        (Json.Decode.field "viewportTop" Json.Decode.float)
-        (Json.Decode.field "viewportBottom" Json.Decode.float)
+findTweetsInOrAfterViewport : List String -> Shared.Viewport -> Cmd Msg
+findTweetsInOrAfterViewport tweetIds viewport =
+    let
+        retrieveTweetIdInViewport tweetId =
+            Browser.Dom.getElement ("tweet-" ++ tweetId)
+                |> Task.andThen
+                    (\found ->
+                        let
+                            -- 注：screen topに原点があるので、下方向に向かって値が増える
+                            foundElementTop =
+                                found.element.y
+
+                            foundElementBottom =
+                                found.element.y + found.element.height
+
+                            -- ある程度下方のTweetも先読み対象とするために、viewportを仮想的に１画面分、下方に拡張
+                            virtualViewportBottom =
+                                viewport.bottom + viewport.height
+                        in
+                        if (viewport.top <= foundElementBottom) && (foundElementTop <= virtualViewportBottom) then
+                            Task.succeed (RequestLinkPreview tweetId)
+
+                        else
+                            Task.succeed NoOp
+                    )
+                |> Task.onError (\_ -> Task.succeed NoOp)
+                |> Task.perform identity
+    in
+    tweetIds
+        |> List.map retrieveTweetIdInViewport
+        |> Cmd.batch
 
 
 view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
