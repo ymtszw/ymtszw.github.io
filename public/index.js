@@ -38,6 +38,11 @@ export default {
   flags: function () {
     return {
       libraryKey: localStorage.getItem("LibraryKey"),
+      viewport: {
+        viewportHeight: window.innerHeight,
+        viewportTop: window.scrollY,
+        viewportBottom: window.scrollY + window.innerHeight,
+      },
     };
   },
 };

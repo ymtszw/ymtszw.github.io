@@ -13,6 +13,7 @@ module Shared exposing
     , Twilog
     , TwitterStatusId(..)
     , TwitterUserId(..)
+    , Viewport
     , cmsArticles
     , cmsGet
     , cmsImageDecoder
@@ -33,6 +34,7 @@ module Shared exposing
     , twilogArchives
     , twilogDecoder
     , unixOrigin
+    , viewportDecoder
     )
 
 import Browser.Dom
@@ -119,6 +121,7 @@ type alias Model =
     , lightbox : Maybe View.LightboxMedia
     , storedLibraryKey : Maybe String
     , navigationKey : Maybe Browser.Navigation.Key
+    , initialViewport : Viewport
     }
 
 
@@ -139,7 +142,7 @@ init :
 init navKey flags maybeUrl =
     let
         model =
-            { links = Dict.empty, lightbox = Nothing, storedLibraryKey = decodeStoredLibraryKey flags, navigationKey = navKey }
+            { links = Dict.empty, lightbox = Nothing, storedLibraryKey = decodeStoredLibraryKey flags, navigationKey = navKey, initialViewport = decodeInitialViewport flags }
     in
     case Maybe.andThen (\url -> initLightBox url.path) maybeUrl of
         (Just _) as lbMedia ->
@@ -162,6 +165,33 @@ decodeStoredLibraryKey flags =
         Pages.Flags.BrowserFlags v ->
             Json.Decode.decodeValue (Json.Decode.field "libraryKey" (OptimizedDecoder.decoder nonEmptyString)) v
                 |> Result.toMaybe
+
+
+decodeInitialViewport flags =
+    let
+        fallback =
+            -- 富豪的に、ちょっと大きめのスクリーンをfallbackとして仮定する
+            { height = 1500, top = 0, bottom = 0 }
+    in
+    case flags of
+        Pages.Flags.PreRenderFlags ->
+            fallback
+
+        Pages.Flags.BrowserFlags v ->
+            Json.Decode.decodeValue (Json.Decode.field "viewport" viewportDecoder) v
+                |> Result.withDefault fallback
+
+
+type alias Viewport =
+    { height : Float, top : Float, bottom : Float }
+
+
+viewportDecoder : Json.Decode.Decoder Viewport
+viewportDecoder =
+    Json.Decode.map3 Viewport
+        (Json.Decode.field "viewportHeight" Json.Decode.float)
+        (Json.Decode.field "viewportTop" Json.Decode.float)
+        (Json.Decode.field "viewportBottom" Json.Decode.float)
 
 
 
