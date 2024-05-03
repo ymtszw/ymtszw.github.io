@@ -473,6 +473,7 @@ siteBuildStatus =
             [ Html.Attributes.src "https://github.com/ymtszw/ymtszw.github.io/actions/workflows/gh-pages.yml/badge.svg"
             , Html.Attributes.alt "Build status badge of the site"
             , Html.Attributes.height 20
+            , Html.Attributes.width 152
             ]
             []
         ]
@@ -483,6 +484,8 @@ twitterLink =
         [ View.imgLazy
             [ Html.Attributes.src "https://img.shields.io/twitter/follow/gada_twt.svg?style=social"
             , Html.Attributes.alt "Twitter: gada_twt"
+            , Html.Attributes.height 20
+            , Html.Attributes.width 123
             ]
             []
         ]
