@@ -36,6 +36,7 @@ head _ =
       Head.metaName "google-site-verification" (Head.raw "Bby4JbWa2r4u77WnDC7sWGQbmIWji1Z5cQwCTAXr0Sg")
     , Head.sitemapLink "/sitemap.xml"
     , Head.rssLink "/articles/feed.xml"
+    , Head.rootLanguage siteLanguage
     ]
 
 
@@ -54,7 +55,11 @@ manifest _ =
             ]
         }
         |> Manifest.withShortName "ymtszw"
-        |> Manifest.withLang (LanguageTag.build { emptySubtags | region = Just LanguageTag.Country.jp } LanguageTag.Language.ja)
+        |> Manifest.withLang siteLanguage
+
+
+siteLanguage =
+    LanguageTag.build { emptySubtags | region = Just LanguageTag.Country.jp } LanguageTag.Language.ja
 
 
 canonicalUrl : String
