@@ -205,7 +205,7 @@ view _ _ _ app =
     { title = ""
     , body =
         [ Html.h1 []
-            [ View.imgLazy [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=750&h=250", Html.Attributes.width 750, Html.Attributes.height 250, Html.Attributes.alt "Mt. Asama Header Image" ] []
+            [ View.imgLazy [ Html.Attributes.src <| Shared.ogpHeaderImageUrl ++ "?w=684&h=228", Html.Attributes.width 684, Html.Attributes.height 228, Html.Attributes.alt "Mt. Asama Header Image" ] []
             , Html.text "ymtszw's page"
             ]
         , Html.h2 [] [ Html.text "しずかなインターネット", View.feedLink "https://sizu.me/ymtszw/rss" ]
