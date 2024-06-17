@@ -60,7 +60,7 @@ process.argv.slice(2).forEach(async (changedArchivePath) => {
 
 // Sanity check
 const candidates = ["elm", "東京", "長野", "Siiibo"];
-testSearch(candidates[Math.floor(Math.random() * candidates.length)]);
+await testSearch(candidates[Math.floor(Math.random() * candidates.length)]);
 
 async function testSearch(term) {
   const res = await index.search(term, {
