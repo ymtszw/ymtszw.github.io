@@ -169,8 +169,9 @@ async function resolveUserInfo(screenName) {
     const profileUrl = `https://link-preview.ymtszw.workers.dev?q=https://twitter.com/${screenName}`;
     const metadata = await (await fetch(profileUrl)).json();
     const prefix = "Xユーザーの";
-    const suffix = /（@.+）さん( \/ X)?/;
-    const UserName = metadata.title?.replace(prefix, "").replace(suffix, "");
+    const suffix = /（@.*）さん( \/ X)?/;
+    const UserName =
+      metadata.title?.replace(prefix, "").replace(suffix, "") || screenName;
     const UserProfileImageUrl = metadata.image || placeholderAvatarUrl;
     const userInfo = { UserName, UserProfileImageUrl };
     resolvedUserInfoCache[screenName] = userInfo;
