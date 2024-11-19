@@ -190,7 +190,7 @@ function extractUrls(text, isRetweet) {
       if (
         url.match(
           // https://twitter.com/DmOhashi/status/1784441345631019011/photo/1
-          new RegExp("^https://twitter.com/[^/]+/status/[^/]+/photo/[^/]+$")
+          new RegExp("^https://(twitter|x).com/[^/]+/status/[^/]+/photo/[^/]+$")
         )
       ) {
         groups.media.push({
@@ -202,7 +202,7 @@ function extractUrls(text, isRetweet) {
       } else if (
         url.match(
           // https://twitter.com/RC_REJECT/status/1784147725048762798/video/1
-          new RegExp("^https://twitter.com/[^/]+/status/[^/]+/video/[^/]+$")
+          new RegExp("^https://(twitter|x).com/[^/]+/status/[^/]+/video/[^/]+$")
         )
       ) {
         groups.media.push({
