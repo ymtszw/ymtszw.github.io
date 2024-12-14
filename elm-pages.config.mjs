@@ -1,5 +1,4 @@
 import { defineConfig } from "vite";
-import adapter from "elm-pages/adapter/netlify.js";
 
 export default {
   vite: defineConfig({}),
@@ -16,3 +15,12 @@ export default {
     return !file.endsWith(".css");
   },
 };
+
+async function adapter({
+  renderFunctionFilePath,
+  routePatterns,
+  apiRoutePatterns,
+}) {
+  console.log("Running empty adapter");
+  return;
+}
