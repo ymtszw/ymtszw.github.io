@@ -318,7 +318,7 @@ ZapierによるTweet取得以前のデータも、Twitter公式機能で取得�
         , h3 [ class "twilogs-day-header", id "#onward" ] [ a [ href "https://twilog.togetter.com/gada_twt", target "_blank" ] [ text "最新" ] ]
         ]
             ++ showTwilogsByDailySections shared app.data.twilogsFromOldest
-            ++ [ goToLatestMonth app.sharedData.twilogArchives, linksByMonths Nothing app.sharedData.twilogArchives ]
+            ++ [ goToLatestMonth app.sharedData.twilogArchives app.data.twilogsFromOldest, linksByMonths Nothing app.sharedData.twilogArchives ]
     }
 
 
@@ -709,18 +709,24 @@ appendMediaGrid links status htmls =
 -----------------
 
 
-goToLatestMonth : List TwilogArchiveYearMonth -> Html msg
-goToLatestMonth twilogArchives =
-    case twilogArchives of
-        [] ->
+goToLatestMonth : List TwilogArchiveYearMonth -> Dict RataDie (List Twilog) -> Html msg
+goToLatestMonth twilogArchives twilogsFromOldest =
+    case ( twilogArchives, Dict.toList twilogsFromOldest ) of
+        ( latestYearMonth :: _, ( _, oldestTwilog :: _ ) :: _ ) ->
+            -- Similar to Page.Twilogs.YearMonth_.prevNextNavigation
+            -- ただしここでは最新月へのリンクのみがページ下部（twilogsFromOldestを最後までスクロールした先）にあるので、
+            -- 遷移先はoldestTwilogのidを指定することで自然な位置を保つ
+            let
+                pathToLatestMonth =
+                    Path.toAbsolute (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = latestYearMonth }))
+            in
+            nav [ class "prev-next-navigation" ]
+                [ a [ href <| pathToLatestMonth ++ "#tweet-" ++ oldestTwilog.idStr ] [ strong [] [ text "← 最新月" ] ]
+                ]
+
+        ( _, _ ) ->
             -- Should not happen
             text ""
-
-        latestYearMonth :: _ ->
-            -- Similar to Page.Twilogs.YearMonth_.prevNextNavigation
-            nav [ class "prev-next-navigation" ]
-                [ Route.link (Route.Twilogs__YearMonth_ { yearMonth = latestYearMonth }) [] [ strong [] [ text "← 最新月" ] ]
-                ]
 
 
 linksByMonths : Maybe String -> List TwilogArchiveYearMonth -> Html msg
