@@ -1,4 +1,4 @@
-module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
+module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, route)
 
 import BackendTask exposing (BackendTask)
 import FatalError exposing (FatalError)
@@ -21,7 +21,7 @@ type alias Msg =
 
 
 type alias RouteParams =
-    { slug : String }
+    { articleId : String }
 
 
 route : StatelessRoute RouteParams Data ActionData
@@ -37,7 +37,7 @@ route =
 pages : BackendTask FatalError (List RouteParams)
 pages =
     BackendTask.succeed
-        [ { slug = "hello" }
+        [ { articleId = "hello" }
         ]
 
 

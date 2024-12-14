@@ -7,10 +7,10 @@ import Head.Seo as Seo
 import Html
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
-import UrlPath
 import Route
 import RouteBuilder exposing (App, StatelessRoute)
 import Shared
+import UrlPath
 import View exposing (View)
 
 
@@ -82,7 +82,7 @@ view app shared =
         , Html.p []
             [ Html.text <| "The message is: " ++ app.data.message
             ]
-        , Route.Blog__Slug_ { slug = "hello" }
+        , Route.Articles__ArticleId_ { articleId = "hello" }
             |> Route.link [] [ Html.text "My blog post" ]
         ]
     }
