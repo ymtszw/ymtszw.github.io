@@ -8,6 +8,7 @@ import Html
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
 import Route
+import Route.Articles.ArticleId_ as ArticleId_
 import RouteBuilder exposing (App, StatelessRoute)
 import Shared
 import UrlPath
@@ -28,6 +29,7 @@ type alias RouteParams =
 
 type alias Data =
     { message : String
+    , articleIds : List String
     }
 
 
@@ -47,8 +49,8 @@ route =
 data : BackendTask FatalError Data
 data =
     BackendTask.succeed Data
-        |> BackendTask.andMap
-            (BackendTask.succeed "Hello!")
+        |> BackendTask.andMap (BackendTask.succeed "Hello!")
+        |> BackendTask.andMap (ArticleId_.pages |> BackendTask.map (List.map .articleId))
 
 
 head :
@@ -82,7 +84,14 @@ view app shared =
         , Html.p []
             [ Html.text <| "The message is: " ++ app.data.message
             ]
-        , Route.Articles__ArticleId_ { articleId = "hello" }
-            |> Route.link [] [ Html.text "My blog post" ]
+        , app.data.articleIds
+            |> List.map
+                (\articleId ->
+                    Html.li []
+                        [ Route.Articles__ArticleId_ { articleId = articleId }
+                            |> Route.link [] [ Html.text articleId ]
+                        ]
+                )
+            |> Html.ul []
         ]
     }
