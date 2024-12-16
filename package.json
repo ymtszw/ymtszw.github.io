@@ -25,7 +25,6 @@
     "elm-optimize-level-2": "^0.2",
     "elm-pages": "^2.1",
     "elm-review": "^2.9",
-    "elm-test": "^0.19.1-revision12",
     "elm-tooling": "^1.4",
     "node-fetch": "^3.3",
     "patch-package": "^8.0",
