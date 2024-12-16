@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  pull_request:
   workflow_call:
   workflow_dispatch:
   repository_dispatch:
@@ -45,6 +46,7 @@ jobs:
         with:
           node-version-file: ".tool-versions"
       - run: npm ci
+      - run: npm run test
       - run: npm run build
         shell: bash
         env:
@@ -57,16 +59,19 @@ jobs:
           BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
           LIBRARY_KEY_SEED_HASH: ${{ secrets.LIBRARY_KEY_SEED_HASH }}
       - uses: cloudflare/wrangler-action@v3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # git連携していないPagesプロジェクトのデフォルトは、branchをmainと名付けると本番環境になる
           command: pages deploy --project-name=ymtszw-github-io --branch=main ./dist
       - uses: actions/upload-pages-artifact@v3 # すでにCloudflare Pagesのymtszw.ccをcanonicalにしてあるが、古いリンクのためにGitHub Pages deployを残している
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         with:
           path: ./dist
   deploy:
     needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
