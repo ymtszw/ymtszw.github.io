@@ -46,7 +46,7 @@ jobs:
         with:
           node-version-file: ".tool-versions"
       - run: npm ci
-      - run: npm run test
+      - run: npm test
       - run: npm run build
         shell: bash
         env:
