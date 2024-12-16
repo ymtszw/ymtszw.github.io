@@ -10,7 +10,8 @@
     "import_archived_tweets": "TZ=Asia/Tokyo node script/import_archived_tweets.js",
     "import_twilogs": "TZ=Asia/Tokyo node script/import_twilogs.mjs",
     "postinstall": "elm-tooling install && patch-package",
-    "start": "elm-pages dev --port 10101"
+    "start": "elm-pages dev --port 10101",
+    "test": "elm-test-rs"
   },
   "overrides": {
     "elm-pages": {
@@ -25,7 +26,6 @@
     "elm-optimize-level-2": "^0.2",
     "elm-pages": "^2.1",
     "elm-review": "^2.9",
-    "elm-test": "^0.19.1-revision12",
     "elm-tooling": "^1.4",
     "node-fetch": "^3.3",
     "patch-package": "^8.0",
