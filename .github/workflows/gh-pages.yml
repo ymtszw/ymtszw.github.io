@@ -59,19 +59,19 @@ jobs:
           BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
           LIBRARY_KEY_SEED_HASH: ${{ secrets.LIBRARY_KEY_SEED_HASH }}
       - uses: cloudflare/wrangler-action@v3
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # git連携していないPagesプロジェクトのデフォルトは、branchをmainと名付けると本番環境になる
           command: pages deploy --project-name=ymtszw-github-io --branch=main ./dist
       - uses: actions/upload-pages-artifact@v3 # すでにCloudflare Pagesのymtszw.ccをcanonicalにしてあるが、古いリンクのためにGitHub Pages deployを残している
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
         with:
           path: ./dist
   deploy:
     needs: test-and-build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
