@@ -3,7 +3,7 @@ title: "Elm-jp 2023でelm-pagesについて話したことなど"
 description: |
   そういえば報告書いてなかったので。オフライン開催のElm-jp 2023でelm-pagesについて話した記録。
   あと、このサイトの記事をgit管理Markdownファイルでも入稿できるようにした。
-publishedAt: 2023-06-06T19:00:00.000+09:00
+publishedAt: "2023-06-06T19:00:00.000+09:00"
 ---
 
 タイトル通りだが、[Elm-jp 2023](https://elm-jp.connpass.com/event/280401/)でelm-pagesの基本的な概念について話した。

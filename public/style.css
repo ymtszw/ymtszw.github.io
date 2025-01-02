@@ -1,0 +1,1127 @@
+/*
+
+Symbol font
+
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css");
+@import url("https://unpkg.com/sakura.css/css/sakura.css");
+
+/*
+
+Global
+
+*/
+html,
+body {
+  scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-color: #93ce5799;
+  text-decoration-thickness: 30%;
+  text-decoration-skip-ink: none;
+}
+h2 {
+  text-decoration-style: solid;
+  text-decoration-thickness: 20%;
+}
+h3 {
+  text-decoration-style: dashed;
+  text-decoration-thickness: 15%;
+}
+h4 {
+  text-decoration-style: dashed;
+  text-decoration-thickness: 10%;
+}
+h5 {
+  text-decoration-style: dotted;
+  text-decoration-thickness: 10%;
+}
+h6 {
+  text-decoration-style: dotted;
+  text-decoration-thickness: 7%;
+}
+
+p {
+  text-align: left;
+}
+
+img.feed {
+  width: 24px;
+  height: 24px;
+  margin-top: unset;
+  margin-bottom: unset;
+}
+
+.inline > p {
+  display: inline;
+  margin-top: unset;
+  margin-bottom: unset;
+}
+
+p img,
+header img,
+footer img {
+  margin-bottom: unset;
+}
+
+a[target="_blank"]:not(.link-preview):not(.has-image)::after {
+  content: "🗗";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  margin-left: 2px;
+  margin-right: 1px;
+  width: 1em;
+  height: 1em;
+}
+
+a.has-image {
+  display: contents;
+}
+
+a.has-image:hover {
+  border-bottom: unset;
+}
+
+*:target {
+  /* Yellow-ish highlight background on target text */
+  background-color: #fff9d7 !important;
+}
+
+.link-ish {
+  /* Imitate Sakura.css's link text style */
+  color: #1d7484;
+}
+a:visited > .link-ish {
+  color: #144f5a;
+}
+.link-ish:hover {
+  color: #982c61 !important;
+}
+
+/* Navigation for site metadata such as build status badge and author follow link.
+No excess margins, slightly gapped, centered horizontally
+*/
+nav.meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+nav.meta > a {
+  display: contents;
+}
+
+nav.scroll-buttons {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  right: 10px;
+  bottom: 10px;
+}
+
+nav.prev-next-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 10px 0 15px;
+  height: 1.5em;
+}
+
+/* Lightbox image popup */
+body:has(.lightbox) {
+  overflow: hidden;
+}
+.lightbox {
+  position: fixed;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000b0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.lightbox::after {
+  content: "✕";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  position: absolute;
+  display: block;
+  top: 0;
+  right: 0;
+  width: 50px;
+  height: 50px;
+  font-size: 50px;
+  line-height: 50px;
+  color: #909090;
+  cursor: pointer;
+}
+.lightbox a {
+  display: contents;
+}
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+}
+
+/*
+
+Show All/Less Container
+
+*/
+
+input[type="checkbox"].showless-toggle {
+  display: none;
+}
+
+input[type="checkbox"].showless-toggle + * {
+  transition: all 0.3s ease-out;
+  max-height: 250px;
+  margin-bottom: 0;
+  padding-bottom: 50px;
+  overflow: hidden;
+}
+
+input[type="checkbox"].showless-toggle:checked + * {
+  /* This value have to be manually adjusted */
+  max-height: 2000px;
+}
+
+label.showless-button {
+  position: relative;
+  display: block;
+  margin: -50px 0 0;
+  height: 50px;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  /* body background color from sakura.css */
+  background: linear-gradient(
+    to bottom,
+    #f9f9f900,
+    #f9f9f980 10%,
+    #f9f9f9ff 30%,
+    #f9f9f9ff
+  );
+}
+
+input[type="checkbox"].showless-toggle ~ label.showless-button::before {
+  content: "🔽 Show More";
+  line-height: 50px;
+}
+
+input[type="checkbox"].showless-toggle:checked ~ label.showless-button::before {
+  content: "🔼 Show Less";
+}
+
+/*
+
+Link Preview
+
+*/
+
+.link-preview blockquote:hover {
+  border-color: #4a4a4a;
+}
+
+.link-preview table {
+  margin-bottom: 0;
+}
+
+.link-preview table tr td:first-child {
+  width: 75%;
+  max-width: 75%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+.link-preview table tr td:last-child {
+  width: 25%;
+  max-width: 25%;
+  min-width: 25%;
+  vertical-align: top;
+}
+
+.link-preview table tr td strong {
+  display: -webkit-box;
+  width: 100%;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-align: left;
+}
+
+.link-preview table tr td strong img {
+  width: 1em;
+  height: 1em;
+  margin-bottom: 0;
+  margin-right: 0.4em;
+}
+
+.link-preview table tr td > p,
+.link-preview table tr td > div {
+  font-size: 75%;
+}
+
+.link-preview blockquote:hover table tr td > small {
+  border-bottom: 2px solid #4a4a4a;
+}
+
+/*
+
+Twilogs
+
+Tweet-like style on top of Sakura.css
+
+*/
+
+.twilogs-day-header {
+  /* Sticky daily section header */
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  padding: 10px;
+  background: #f9f9f9;
+}
+
+.tweet {
+  position: relative;
+  font-size: 0.75em;
+  background: #f9f9f9;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px 0;
+}
+.tweet:first-child {
+  margin-top: 0;
+}
+
+/* raw twilog-data viewer */
+.tweet > input[type="checkbox"] {
+  position: absolute;
+  right: 0.5em;
+  top: 0.5em;
+  cursor: pointer;
+  opacity: 0.1;
+  outline: none !important;
+}
+.tweet > input[type="checkbox"]:checked {
+  opacity: 0.8;
+}
+.tweet > input[type="checkbox"] ~ .twilog-data {
+  display: none;
+  white-space: pre-wrap;
+  font-family: "Cica", Courier, "Courier New", monospace;
+}
+.tweet > input[type="checkbox"] ~ label {
+  display: none;
+}
+.tweet > input[type="checkbox"]:checked ~ .twilog-data {
+  display: block;
+}
+.tweet > input[type="checkbox"]:checked ~ label {
+  display: block;
+  cursor: pointer;
+}
+.tweet > input[type="checkbox"]:checked ~ :not(.twilog-data):not(label) {
+  display: none;
+}
+
+.thread {
+  position: relative;
+  margin: 10px 0;
+}
+
+.reply {
+  position: relative;
+  padding-left: 1.1em;
+}
+
+/* In thread, tweets are rendered without gap, and only first and last children get rounded corners */
+.reply::before {
+  content: "↳";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  display: block;
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  width: 1em;
+  height: 1em;
+  color: #999;
+}
+
+/* tweets or retweets' headers */
+.tweet header {
+  display: flex;
+  align-items: center;
+}
+.tweet header a {
+  display: contents;
+}
+
+/* tweets or retweets' avatars, rounded squared */
+.tweet header img:first-child {
+  width: 1.3em;
+  height: 1.3em;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+/* retweets' special textual label above their contents */
+.tweet > .retweet-label,
+.tweet > .reply-label {
+  font-size: 0.7em;
+  color: #999;
+  margin-bottom: 5px;
+}
+
+/* retweet icon using noto sans symbol font */
+.tweet > .retweet-label::before {
+  content: "🔁";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  margin-right: 5px;
+}
+
+/* tweets or retweets' text body */
+.tweet .body {
+  white-space: pre-wrap;
+  margin: 0;
+  padding: 0;
+}
+
+/* paragraphs in tweets or retweets' text body */
+.tweet .body p {
+  margin: 0;
+  padding: 0;
+  word-break: break-all;
+}
+
+/* blockquote inside tweets or retweets' text body; loosely resembles Sakura's default blockquote style but deemphasized. slightly gapped */
+.tweet .body blockquote {
+  color: #4a4a4a;
+  border-left: 3px solid #eaeaea;
+  margin: 5px 0;
+  padding: 5px 10px;
+  font-size: 0.9em;
+}
+
+/* code block inside tweets or retweets' text body; */
+.tweet .body pre {
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  margin: 5px 0;
+  padding: 5px 10px;
+}
+
+/* list container inside tweets or retweets' text body; only slightly gapped */
+.tweet .body ul,
+.tweet .body ol {
+  margin: 5px 0;
+}
+
+/* list items inside tweets or retweets' text body; gap canceled */
+.tweet .body li {
+  margin: 0;
+  padding: 0;
+}
+
+/* tweets or retweets' timestamp */
+.tweet time {
+  font-size: 0.8em;
+  color: #999;
+  margin-bottom: 5px;
+}
+
+/* Cancel all new-tab links styles within .tweet */
+.tweet a[target="_blank"]::after {
+  content: unset !important;
+}
+
+/* Subtle underline on links of status URLs */
+.tweet > a:hover {
+  border-bottom: 1px solid #4a4a4a;
+}
+
+a:has(> .tweet) {
+  display: contents;
+  color: unset;
+}
+a:hover > .tweet {
+  /* change background color slightly, so that user can recognize links */
+  background: #f5f5f5;
+}
+
+/* Grid container of media (photo|video|animated_gif), at-most 2x2 grid.
+*/
+.tweet .media-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: minmax(auto, 150px);
+  grid-gap: 2px;
+  margin: 5px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  /* subtle box-shadow and background-color */
+  box-shadow: 0 0 0 1px #eaeaea;
+  background-color: #eaeaea;
+}
+
+.tweet .media-grid > *:last-child:nth-child(2n + 1) {
+  grid-column-end: span 2;
+}
+/* Link in .media-grid must not have underline and margins */
+.tweet .media-grid a {
+  border-bottom: none;
+}
+
+/* Images in .media-grid must not have margins */
+.tweet .media-grid img {
+  margin: 0;
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+}
+
+/* Show video icon overlay using Noto Symbol fonts */
+:is(.tweet .media-grid, .lightbox) figure.video-thumbnail {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+:is(.tweet .media-grid, .lightbox) figure.video-thumbnail::after {
+  content: "▶";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-size: 3em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  padding-top: 0.2em;
+  padding-left: 0.4em;
+  box-sizing: border-box;
+}
+
+.tweet .link-preview {
+  display: grid;
+  grid-template-columns: auto auto;
+  max-height: 150px;
+  margin: 5px 0;
+  /* Subtle border */
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.tweet .media-grid ~ a > .link-preview {
+  max-height: 75px;
+}
+.tweet .link-preview img {
+  width: 100%;
+  height: 100%;
+  max-height: 150px;
+  object-fit: cover;
+}
+.tweet .media-grid ~ a > .link-preview img {
+  max-height: 75px;
+}
+.tweet .link-preview div {
+  padding: 5px 10px;
+}
+.tweet .link-preview div:not(:first-child) {
+  border-left: 1px solid #eaeaea;
+}
+.tweet .link-preview div header {
+  margin: 5px 0;
+}
+.tweet .link-preview div p {
+  font-size: 0.8em;
+}
+.tweet a > .link-preview {
+  /* apply Sakura's normal text color */
+  color: #4a4a4a;
+}
+.tweet a:hover > .link-preview {
+  /* change background color slightly, so that user can recognize links */
+  background: #f5f5f5;
+}
+
+/* Twilog archive menu by year-month.
+
+Each year-month makes details container with year-month text in summary,
+and a list of available days in the body.
+*/
+nav.twilog-archive-navigation {
+  margin: 1.3em 0;
+}
+
+/* 他で使う場合にもtwilog-archive-navigation配下で使っていたスタイルをベースとして援用 */
+details {
+  margin: 5px 0;
+}
+
+details summary {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #4a4a4a;
+  cursor: pointer;
+}
+details[open] > summary {
+  /* Somewhat bright border-bottom, in-line with Sakura's link style */
+  border-bottom: 2px solid #4a4a4a;
+}
+
+nav.twilog-archive-navigation details details {
+  margin-left: 20px;
+}
+
+nav.twilog-archive-navigation ul {
+  columns: 2 auto;
+  margin: 0;
+  padding: 5px;
+  list-style-position: inside;
+  font-size: 0.9em;
+}
+nav.twilog-archive-navigation ul li {
+  margin: 0;
+  padding: 0;
+}
+/* Fancy list marker for twilog archive menu items */
+nav.twilog-archive-navigation ul li::marker {
+  content: "📅";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  color: #999;
+  letter-spacing: 5px;
+}
+nav.twilog-archive-navigation ul li.selected {
+  font-weight: bold;
+}
+nav.twilog-archive-navigation ul li.selected::after {
+  content: "◀";
+  display: inline;
+  width: 1em;
+  height: 1em;
+}
+
+/* Twilog search container */
+.search {
+  position: relative;
+}
+.spinner::before {
+  position: absolute;
+  display: inline-block;
+  vertical-align: middle;
+  content: "";
+  margin-left: 0.2em;
+  width: 0.5em;
+  height: 0.5em;
+  transform: translate(-50%, -50%);
+  border: 5px solid #aeaeae;
+  border-radius: 50%;
+  border-top-color: #1d7484;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+.search input[type="search"] {
+  width: 15em;
+  margin-bottom: 0;
+  transition: all 0.3s ease-in-out;
+}
+.search:focus-within input[type="search"] {
+  width: 100%;
+}
+/* Twilog search results dropdown */
+.search .search-results {
+  display: none;
+}
+.search:focus-within .search-results {
+  display: block;
+  position: absolute;
+  left: 0;
+  width: 95%;
+  max-height: 400px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  z-index: 2;
+  /* Shadow behind dropdown */
+  box-shadow: 5px 5px 5px #eaeaea;
+}
+.search .search-results button.jump-to-button {
+  display: block;
+  width: 100%;
+  padding: unset;
+  margin: unset;
+  text-align: left;
+  line-height: unset;
+  border: none;
+  background: none;
+  color: unset;
+  font-size: unset;
+  font-family: unset;
+}
+.search .search-results .tweet:hover,
+.search .search-results .jump-to-button:focus .tweet {
+  /* yellow */
+  background-color: #fff9c4;
+  cursor: pointer;
+}
+.search .search-results .provider {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: right;
+  /* off color */
+  color: #999;
+  font-size: 0.8em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  & img {
+    display: inline;
+    vertical-align: middle;
+    height: 1em;
+    margin: 0;
+  }
+}
+
+/* 書架 */
+body:has(.locked) {
+  max-height: 100vh;
+  overflow-y: hidden;
+}
+.locked {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+}
+.kindle-data {
+  font-size: 0.6em;
+}
+.kindle-data details {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.kindle-data details[open] > summary {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background-color: #f9f9f9;
+}
+.kindle-data thead > th {
+  color: #fff;
+  background-color: #408fdf;
+
+  /* elm-sortable-table */
+  &:has(span) {
+    cursor: pointer;
+  }
+}
+.kindle-data tbody > tr:nth-child(even) {
+  background-color: #eaeaea;
+}
+
+.kindle-control {
+  font-size: 14px;
+}
+.kindle-control > select {
+  margin-top: 10px;
+  font-weight: bold;
+}
+.kindle-filterable-tag {
+  display: inline-block;
+  border-radius: 1em;
+  margin-left: 0.1em;
+  padding: 5px 10px;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  color: #f9f9f9;
+  border-color: #1d7484;
+  background-color: #1d7484;
+}
+button.kindle-filterable-tag:focus {
+  border-color: #144f5a;
+  background-color: #144f5a;
+}
+button.kindle-filterable-tag::after {
+  display: inline-block;
+  content: "＋";
+  font-weight: bold;
+  margin-left: 0.5em;
+  transform: scale(1.2);
+  transition: transform 1s ease-in-out;
+}
+button.kindle-filterable-tag.active {
+  color: #fff;
+  background-color: #982c61;
+  border-color: #982c61;
+}
+button.kindle-filterable-tag.active:hover {
+  background-color: #95225a;
+}
+button.kindle-filterable-tag.active::after {
+  transform: scale(1.2) rotate(45deg);
+}
+
+.kindle-bookshelf {
+  margin: 1em auto 30vh;
+}
+.kindle-bookshelf .has-image {
+  display: inline-block;
+}
+.kindle-bookshelf-image {
+  vertical-align: top;
+  width: 50px;
+  min-height: 70px;
+  margin-bottom: 30px;
+  transition: transform 0.2s ease-in-out;
+}
+.kindle-bookshelf-image:hover {
+  transform: scale(1.5);
+}
+.series-bookmark {
+  position: absolute;
+  z-index: -1;
+  background-color: #1d7484;
+  color: #f5f5f5;
+  font-size: 8px;
+  box-sizing: border-box;
+  max-width: 200px;
+  padding: 0 0.5em 0 1em;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transform: translate(-100%, -100%);
+  border-top-left-radius: 0.5lh;
+  border-bottom-left-radius: 0.5lh;
+}
+.series-bookmark[data-count="3"] {
+  max-width: 150px;
+}
+.series-bookmark[data-count="2"] {
+  max-width: 100px;
+}
+.series-bookmark[data-count="1"] {
+  max-width: 50px;
+}
+.kindle-bookshelf-navigation {
+  margin-bottom: 1em;
+}
+.kindle-bookshelf-navigation > :not(:first-child) {
+  margin-left: 0.5em;
+}
+
+.kindle-popover {
+  display: block;
+  visibility: hidden;
+  opacity: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  max-width: 80vw;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px #999;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s ease-out;
+  transform: translateY(100%);
+}
+.kindle-popover:not([hidden]) {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+.kindle-popover > header {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  padding: 0 0.5em;
+  cursor: pointer;
+}
+.kindle-popover > header::after {
+  content: "✕";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  display: contents;
+}
+.kindle-popover > header:hover {
+  background-color: #eaeaea;
+}
+.kindle-popover > main {
+  display: flex;
+  padding-top: 0.5em;
+  padding: 0;
+  width: 100%;
+  gap: 1em;
+}
+.kindle-popover > main > :is(.prev-volume, .next-volume) {
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  width: 40px;
+  padding: 60px 3px;
+  box-sizing: border-box;
+}
+.kindle-popover > main > :is(.prev-volume, .next-volume).active:hover {
+  background-color: #eaeaea;
+  cursor: pointer;
+}
+.kindle-book-details {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+@media (max-width: 699px) {
+  .kindle-popover {
+    max-width: 95vw;
+  }
+  .kindle-popover > main {
+    gap: 0.2em;
+  }
+  .kindle-book-details {
+    max-height: 85vh;
+    flex-direction: column;
+  }
+}
+.kindle-book-details img {
+  width: 150px;
+  object-fit: contain;
+  align-self: center; /* Small screenでいい感じになる */
+}
+.kindle-book-details > div {
+  flex-grow: 1;
+}
+.kindle-book-details > div > h5 {
+  margin-top: 0;
+  word-break: break-all;
+}
+.kindle-book-details > div > .cloud-reader-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 0 0.5em;
+  line-height: 2em;
+  color: #f9f9f9;
+  background-color: #408fdf;
+  border-radius: 5px;
+}
+.kindle-book-details > div > .cloud-reader-link:hover {
+  border-bottom: initial;
+  background-color: #2a84dd;
+}
+.kindle-book-details > div > .cloud-reader-link::before {
+  content: "📚";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  margin-right: 0.2em;
+}
+.kindle-book-details > div > .cloud-reader-link::after {
+  content: "";
+  display: none;
+}
+.kindle-book-details > div > .kindle-book-edit-button {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  margin-left: 10px;
+  line-height: 1.5em;
+  height: 1.5em;
+  width: 1.5em;
+  padding: 0;
+  border-radius: 2px;
+  border-style: solid;
+  border-width: 2px;
+  background-color: transparent;
+  color: #144f5a;
+}
+.kindle-book-details > div > .kindle-book-edit-button::after {
+  content: "🖉";
+  font-size: 1.5em;
+}
+.kindle-popover
+  > main
+  > article
+  > div
+  > .kindle-book-edit-button:is(:hover, :focus) {
+  color: #982c61;
+}
+.kindle-popover
+  > main
+  > article
+  > div
+  > .kindle-book-edit-button.active::after {
+  content: "✔";
+}
+input[type="text"].kindle-book-edit-input {
+  width: 100%;
+}
+.kindle-book-details > div > ul {
+  font-size: 14px;
+}
+.kindle-library-lock {
+  flex-grow: 1;
+}
+.kindle-library-lock > form {
+  margin: 15vh auto;
+  width: fit-content;
+}
+.kindle-library-lock > form::before {
+  content: "🔐";
+  display: inline-block;
+  position: absolute;
+  font-size: 4em;
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  transform: translate(-100%, -50%) rotate(10deg);
+}
+
+.kindle-review-editor {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 10px;
+  left: 0;
+  bottom: 0;
+  width: 600px;
+  max-width: 80vw;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px #999;
+  border-top-right-radius: 10px;
+  overflow: hidden;
+
+  & > input[type="text"] {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.markdown-editor {
+  position: relative;
+  font-size: 1.5rem;
+  line-height: 1.8;
+
+  & > .background {
+    overflow: hidden;
+    visibility: hidden;
+    box-sizing: border-box;
+    padding: 10px;
+    margin: 0;
+    min-height: 120px;
+    max-height: 40vh;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    border: 1px solid;
+
+    @media (max-height: 699px) {
+      max-height: 25vh;
+    }
+  }
+
+  & > textarea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 10px;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    font: inherit;
+    letter-spacing: inherit;
+    resize: none;
+  }
+
+  & > textarea:focus {
+    box-shadow: 0 0 0 1px #144f5a;
+    outline: 0;
+  }
+}
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  vertical-align: bottom;
+  width: 54px;
+  height: 28px;
+  margin: 0;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #909090;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #f9f9f9;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #1d7484;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #144f5a;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+input:disabled + .slider {
+  cursor: not-allowed;
+}
+
+input:disabled + .slider::before {
+  background-color: #aeaeae;
+}

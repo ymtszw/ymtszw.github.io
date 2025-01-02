@@ -3,21 +3,26 @@ module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, pages, 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
 import BackendTask.Glob as Glob
+import CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata)
+import DateOrDateTime exposing (DateOrDateTime(..))
+import Dict exposing (Dict)
+import ExternalHtml
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html
-import Html.Parser
-import Iso8601
+import Html.Attributes
 import Json.Decode as Decode
-import Markdown.Block
-import Pages
-import Pages.Url
+import Json.Decode.Extra as Decode
+import LinkPreview
+import List.Extra
+import Markdown
 import PagesMsg exposing (PagesMsg)
+import Route
 import RouteBuilder exposing (App, StatelessRoute)
 import Shared
-import Time
-import View exposing (View)
+import Site
+import View exposing (View, formatPosix)
 
 
 type alias Model =
@@ -44,41 +49,15 @@ route =
 
 pages : BackendTask FatalError (List RouteParams)
 pages =
-    Glob.succeed RouteParams
-        |> Glob.match (Glob.literal "articles/")
-        |> Glob.capture Glob.wildcard
-        |> Glob.match (Glob.literal ".md")
-        |> Glob.toBackendTask
+    CmsData.allMetadata
+        |> BackendTask.map (List.map (.contentId >> RouteParams))
 
 
 type alias Data =
     { article : CmsArticle
+    , prevArticleMeta : Maybe CmsArticleMetadata
+    , nextArticleMeta : Maybe CmsArticleMetadata
     }
-
-
-type alias CmsArticle =
-    { contentId : String
-    , published : Bool
-    , publishedAt : Time.Posix
-    , revisedAt : Time.Posix
-    , title : String
-
-    -- , image : Maybe Shared.CmsImage
-    , body : ExternalView
-    , type_ : String
-    }
-
-
-type alias ExternalView =
-    { parsed : HtmlOrMarkdown
-    , excerpt : String
-    , links : List String
-    }
-
-
-type HtmlOrMarkdown
-    = Html (List Html.Parser.Node)
-    | Markdown (List Markdown.Block.Block)
 
 
 type alias ActionData =
@@ -87,72 +66,181 @@ type alias ActionData =
 
 data : RouteParams -> BackendTask FatalError Data
 data { articleId } =
+    CmsData.allMetadata
+        |> BackendTask.andThen
+            (\allMetadata ->
+                case List.Extra.find (\meta -> meta.contentId == articleId) allMetadata of
+                    Just matchedMeta ->
+                        (case matchedMeta.source of
+                            MicroCms ->
+                                microCmsArticleData matchedMeta
+
+                            MarkdownFile ->
+                                markdownArticleData matchedMeta
+                                    |> BackendTask.allowFatal
+                        )
+                            |> BackendTask.map
+                                (\article ->
+                                    let
+                                        ( prevArticleMeta, nextArticleMeta ) =
+                                            findNextAndPrevArticleMeta article allMetadata
+                                    in
+                                    { article = article
+                                    , prevArticleMeta = prevArticleMeta
+                                    , nextArticleMeta = nextArticleMeta
+                                    }
+                                )
+
+                    Nothing ->
+                        BackendTask.fail (FatalError.build { title = "Not found", body = "Article not found: " ++ articleId })
+            )
+
+
+microCmsArticleData meta =
+    CmsData.cmsGet ("https://ymtszw.microcms.io/api/v1/articles/" ++ meta.contentId)
+        (cmsArticleBodyDecoder (CmsArticle meta))
+
+
+cmsArticleBodyDecoder : (ExternalView -> String -> CmsArticle) -> Decode.Decoder CmsArticle
+cmsArticleBodyDecoder cont =
+    let
+        mapFromExternalHtml { parsed, excerpt, links } =
+            ExternalView (Html parsed) excerpt links
+    in
+    Decode.oneOf
+        [ Decode.succeed cont
+            |> Decode.andMap (Decode.field "html" (Decode.map mapFromExternalHtml ExternalHtml.decoder))
+            |> Decode.andMap (Decode.succeed "html")
+        , Decode.succeed cont
+            |> Decode.andMap (Decode.field "markdown" (Decode.map mapFromMarkdown Markdown.decoder))
+            |> Decode.andMap (Decode.succeed "markdown")
+        ]
+
+
+mapFromMarkdown { parsed, excerpt, links } =
+    ExternalView (Markdown parsed) excerpt links
+
+
+markdownArticleData meta =
     let
         cmsArticleDecoder markdownBody =
-            Decode.oneOf
-                [ Decode.field "publishedAt" Iso8601.decoder
-                , -- 未来の日付にfallbackして記事一覧ページに表示させないようにする
-                  Decode.succeed (Time.millisToPosix (Time.posixToMillis Pages.builtAt + 72 * 60 * 60 * 1000))
-                ]
+            markdownBody
+                |> Markdown.decoderInternal
+                |> Decode.map mapFromMarkdown
                 |> Decode.andThen
-                    (\publishedAt ->
-                        Decode.map2
-                            (\title revisedAt ->
-                                { contentId = articleId
-                                , title = title
-                                , published = Time.posixToMillis publishedAt <= Time.posixToMillis Pages.builtAt
-                                , publishedAt = publishedAt
-                                , revisedAt = revisedAt |> Maybe.withDefault publishedAt
-                                , body =
-                                    { parsed = Markdown []
-                                    , excerpt = "TODO: " ++ markdownBody
-                                    , links = []
-                                    }
-                                , type_ = "markdown"
-                                }
-                            )
-                            (Decode.field "title" Decode.string)
-                            (Decode.maybe (Decode.field "revisedAt" Iso8601.decoder))
+                    (\decodedBody ->
+                        Decode.succeed
+                            { meta = meta
+                            , body = decodedBody
+                            , type_ = "markdown"
+                            }
                     )
     in
-    BackendTask.File.bodyWithFrontmatter cmsArticleDecoder ("articles/" ++ articleId ++ ".md")
-        |> BackendTask.allowFatal
-        |> BackendTask.map
-            (\article ->
-                { article = article
-                }
-            )
+    BackendTask.File.bodyWithFrontmatter cmsArticleDecoder ("articles/" ++ meta.contentId ++ ".md")
+
+
+findNextAndPrevArticleMeta : CmsArticle -> List CmsArticleMetadata -> ( Maybe CmsArticleMetadata, Maybe CmsArticleMetadata )
+findNextAndPrevArticleMeta currentArticle cmsArticlesFromLatest =
+    let
+        publishedArticles =
+            List.filter .published cmsArticlesFromLatest
+    in
+    case List.Extra.splitWhen (\a -> a.contentId == currentArticle.meta.contentId) publishedArticles of
+        Just ( newer, _ :: older ) ->
+            ( List.Extra.last newer, List.head older )
+
+        _ ->
+            -- Entry from latest, if query doesn't match'
+            ( Nothing, List.head publishedArticles )
 
 
 head :
     App Data ActionData RouteParams
     -> List Head.Tag
 head app =
-    Seo.summary
-        { canonicalUrlOverride = Nothing
-        , siteName = "elm-pages"
-        , image =
-            { url = Pages.Url.external "TODO"
-            , alt = "elm-pages logo"
-            , dimensions = Nothing
-            , mimeType = Nothing
+    Site.seoBase
+        |> Seo.article
+            { tags = []
+            , section = Nothing
+            , publishedTime = Just (DateTime app.data.article.meta.publishedAt)
+            , modifiedTime = Just (DateTime app.data.article.meta.revisedAt)
+            , expirationTime = Nothing
             }
-        , description = "TODO"
-        , locale = Nothing
-        , title = "TODO title" -- metadata.title -- TODO
-        }
-        |> Seo.website
 
 
-view :
-    App Data ActionData RouteParams
-    -> Shared.Model
-    -> View (PagesMsg Msg)
-view app sharedModel =
-    { title = app.data.article.title
+view : App Data ActionData RouteParams -> Shared.Model -> View (PagesMsg Msg)
+view app _ =
+    { title = app.data.article.meta.title
     , body =
-        [ Html.text app.data.article.title
-        , Html.br [] []
-        , Html.text app.data.article.contentId
+        let
+            timestamp =
+                Html.small [] <|
+                    if app.data.article.meta.published then
+                        Html.text ("公開: " ++ formatPosix app.data.article.meta.publishedAt)
+                            :: (if app.data.article.meta.revisedAt /= app.data.article.meta.publishedAt then
+                                    [ Html.text (" (更新: " ++ formatPosix app.data.article.meta.revisedAt ++ ")") ]
+
+                                else
+                                    []
+                               )
+
+                    else
+                        [ Html.text <| "未公開 (articles/" ++ app.data.article.meta.contentId ++ ".md)" ]
+        in
+        [ prevNextNavigation app.data
+        , Html.header [] [ timestamp ]
+
+        -- , renderArticle shared.links app.data.article
+        , renderArticle Dict.empty app.data.article
+        , Html.div [] [ timestamp ]
+        , prevNextNavigation app.data
         ]
     }
+
+
+renderArticle :
+    Dict String LinkPreview.Metadata
+    ->
+        { a
+            | meta :
+                { meta
+                    | title : String
+                    , image : Maybe CmsImage
+                }
+            , body : ExternalView
+        }
+    -> Html.Html msg
+renderArticle links contents =
+    Html.article [] <|
+        (case contents.meta.image of
+            Just cmsImage ->
+                [ Html.figure [] [ View.imgLazy [ Html.Attributes.src cmsImage.url, Html.Attributes.width cmsImage.width, Html.Attributes.height cmsImage.height, Html.Attributes.alt "Article Header Image" ] [] ] ]
+
+            Nothing ->
+                []
+        )
+            ++ Html.h1 [] [ Html.text contents.meta.title ]
+            :: (case contents.body.parsed of
+                    Html parsed ->
+                        ExternalHtml.render links parsed
+
+                    Markdown parsed ->
+                        Markdown.render links parsed
+               )
+
+
+prevNextNavigation : Data -> Html.Html msg
+prevNextNavigation data_ =
+    let
+        toLink maybeArticleMeta child =
+            case maybeArticleMeta of
+                Just articleMeta ->
+                    Route.Articles__ArticleId_ { articleId = articleMeta.contentId } |> Route.link [] [ Html.strong [] [ child ] ]
+
+                Nothing ->
+                    child
+    in
+    Html.nav [ Html.Attributes.class "prev-next-navigation" ]
+        [ toLink data_.prevArticleMeta <| Html.text "← 前"
+        , toLink data_.nextArticleMeta <| Html.text "次 →"
+        ]

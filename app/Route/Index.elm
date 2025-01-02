@@ -5,13 +5,12 @@ import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html
-import Pages.Url
 import PagesMsg exposing (PagesMsg)
 import Route
 import Route.Articles.ArticleId_ as ArticleId_
 import RouteBuilder exposing (App, StatelessRoute)
 import Shared
-import UrlPath
+import Site
 import View exposing (View)
 
 
@@ -56,20 +55,8 @@ data =
 head :
     App Data ActionData RouteParams
     -> List Head.Tag
-head app =
-    Seo.summary
-        { canonicalUrlOverride = Nothing
-        , siteName = "elm-pages"
-        , image =
-            { url = [ "images", "icon-png.png" ] |> UrlPath.join |> Pages.Url.fromPath
-            , alt = "elm-pages logo"
-            , dimensions = Nothing
-            , mimeType = Nothing
-            }
-        , description = "Welcome to elm-pages!"
-        , locale = Nothing
-        , title = "elm-pages is running"
-        }
+head _ =
+    Site.seoBase
         |> Seo.website
 
 
@@ -77,8 +64,8 @@ view :
     App Data ActionData RouteParams
     -> Shared.Model
     -> View (PagesMsg Msg)
-view app shared =
-    { title = "elm-pages is running"
+view app _ =
+    { title = Site.title
     , body =
         [ Html.h1 [] [ Html.text "elm-pages is up and running!" ]
         , Html.p []

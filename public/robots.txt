@@ -1,0 +1,7 @@
+# Googleによるrobots.txtのドキュメント
+# https://developers.google.com/search/docs/crawling-indexing/robots/create-robots-txt?hl=ja
+
+User-agent: *
+Disallow: /articles/draft/
+Disallow: /reviews/draft/
+Allow: /
