@@ -6,7 +6,7 @@ gen/
 .elm-pages
 functions/server-render
 functions/render
-
+.env
 
 # Local Netlify folder
 .netlify

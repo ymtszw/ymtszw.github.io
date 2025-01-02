@@ -1,3 +1,4 @@
 {
-  "elmLS.elmPath": "node_modules/.bin/lamdera"
+  "elmLS.elmPath": "node_modules/.bin/lamdera",
+  "elmLS.elmReviewDiagnostics": "warning"
 }
