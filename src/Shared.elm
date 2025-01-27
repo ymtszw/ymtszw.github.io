@@ -49,7 +49,7 @@ import Date
 import Dict exposing (Dict)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head.Seo
-import Helper exposing (iso8601Decoder, nonEmptyString)
+import Helper exposing (dataSourceWith, iso8601Decoder, makeReq, nonEmptyString)
 import Html
 import Html.Attributes
 import Html.Events
@@ -64,7 +64,6 @@ import OptimizedDecoder
 import Pages
 import Pages.Flags
 import Pages.PageUrl
-import Pages.Secrets
 import Pages.Url
 import Path exposing (Path)
 import Route
@@ -745,37 +744,37 @@ dumpTwilog =
 
 githubGet : String -> OptimizedDecoder.Decoder a -> DataSource a
 githubGet url decoder =
-    DataSource.Http.request
-        (Pages.Secrets.with "GITHUB_TOKEN" <|
-            Pages.Secrets.succeed <|
-                \githubToken ->
+    dataSourceWith (DataSource.Env.load "GITHUB_TOKEN") <|
+        \githubToken ->
+            DataSource.Http.request
+                (makeReq
                     { url = url
                     , method = "GET"
                     , headers = [ ( "Authorization", "token " ++ githubToken ) ]
                     , body = DataSource.Http.emptyBody
                     }
-        )
-        decoder
+                )
+                decoder
 
 
 cmsGet : String -> OptimizedDecoder.Decoder a -> DataSource a
 cmsGet url decoder =
-    DataSource.Http.request
-        (Pages.Secrets.with "MICROCMS_API_KEY" <|
-            Pages.Secrets.succeed <|
-                \microCmsApiKey ->
+    dataSourceWith (DataSource.Env.load "MICROCMS_API_KEY") <|
+        \microCmsApiKey ->
+            DataSource.Http.request
+                (makeReq
                     { url = url
                     , method = "GET"
                     , headers = [ ( "X-MICROCMS-API-KEY", microCmsApiKey ) ]
                     , body = DataSource.Http.emptyBody
                     }
-        )
-        decoder
+                )
+                decoder
 
 
 miscGet : String -> OptimizedDecoder.Decoder a -> DataSource a
 miscGet url decoder =
-    DataSource.Http.get (Pages.Secrets.succeed url) decoder
+    DataSource.Http.get (makeReq url) decoder
 
 
 type alias CmsArticleMetadata =

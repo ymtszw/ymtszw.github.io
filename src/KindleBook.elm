@@ -5,7 +5,7 @@ import DataSource.Env
 import DataSource.Http
 import Date exposing (Date)
 import Dict exposing (Dict)
-import Helper exposing (dataSourceWith, decodeWith, iso8601Decoder, japaneseDateDecoder, nonEmptyString)
+import Helper exposing (dataSourceWith, decodeWith, iso8601Decoder, japaneseDateDecoder, makeReq, nonEmptyString)
 import Http
 import Iso8601
 import Json.Decode
@@ -13,7 +13,6 @@ import Json.Encode
 import KindleBookTitle exposing (kindleBookTitle)
 import List.Extra
 import OptimizedDecoder
-import Pages.Secrets as Secrets
 import Regex
 import Task exposing (Task)
 import Time exposing (Posix)
@@ -219,21 +218,20 @@ get1000FromAlgolia ids =
             -- DataSourceではReferrer制限のないadminKeyを使う
             dataSourceWith (DataSource.Env.load "ALGOLIA_ADMIN_KEY") <|
                 \adminKey ->
+                    let
+                        request id =
+                            Json.Encode.object
+                                [ ( "indexName", Json.Encode.string "ymtszw-kindle" )
+                                , ( "objectID", Json.Encode.string id )
+                                ]
+                    in
                     DataSource.Http.request
-                        (Secrets.succeed
-                            (let
-                                request id =
-                                    Json.Encode.object
-                                        [ ( "indexName", Json.Encode.string "ymtszw-kindle" )
-                                        , ( "objectID", Json.Encode.string id )
-                                        ]
-                             in
-                             { method = "POST"
-                             , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
-                             , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", adminKey ) ]
-                             , body = DataSource.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
-                             }
-                            )
+                        (makeReq
+                            { method = "POST"
+                            , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
+                            , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", adminKey ) ]
+                            , body = DataSource.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
+                            }
                         )
                         (OptimizedDecoder.field "results" (OptimizedDecoder.list kindleBookDecoder))
 
@@ -241,7 +239,7 @@ get1000FromAlgolia ids =
 getFromGist : OptimizedDecoder.Decoder a -> DataSource a
 getFromGist decoder =
     dataSourceWith (DataSource.Env.load "BOOKS_JSON_URL") <|
-        \booksJsonUrl -> DataSource.Http.get (Secrets.succeed booksJsonUrl) decoder
+        \booksJsonUrl -> DataSource.Http.get (makeReq booksJsonUrl) decoder
 
 
 kindleBookDecoder : OptimizedDecoder.Decoder KindleBook

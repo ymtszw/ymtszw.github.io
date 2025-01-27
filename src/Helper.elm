@@ -8,6 +8,7 @@ module Helper exposing
     , japaneseDateDecoder
     , makeAmazonUrl
     , makeDisplayUrl
+    , makeReq
     , nonEmptyString
     , onChange
     , preprocessMarkdown
@@ -23,6 +24,7 @@ import Html.Events
 import Iso8601
 import Json.Decode
 import OptimizedDecoder
+import Pages.Secrets
 import Parser
 import Process
 import QS
@@ -36,6 +38,16 @@ import Url.Builder exposing (string)
 dataSourceWith : DataSource a -> (a -> DataSource b) -> DataSource b
 dataSourceWith a b =
     DataSource.andThen b a
+
+
+{-| elm-pages v2のPages.Secrets APIがあまり素性が良くないので、v3アップグレードまでの間グルーする関数をこのmoduleから提供しておく
+
+基本的に、`Pages.Secrets.with`を使わず`DataSource.Env.load`を使うと、この関数と組み合わせながらきれいに移行できるはず
+
+-}
+makeReq : req -> Pages.Secrets.Value req
+makeReq =
+    Pages.Secrets.succeed
 
 
 decodeWith : OptimizedDecoder.Decoder a -> (a -> OptimizedDecoder.Decoder b) -> OptimizedDecoder.Decoder b
