@@ -1,5 +1,6 @@
 module Helper exposing
-    ( deadEndToString
+    ( dataSourceWith
+    , deadEndToString
     , deadEndsToString
     , decodeWith
     , initMsg
@@ -10,12 +11,17 @@ module Helper exposing
     , nonEmptyString
     , onChange
     , preprocessMarkdown
+    , requireEnv
     , toJapaneseDate
     , twitterProfileImageUrl
     , waitMsg
     )
 
+import BackendTask exposing (BackendTask)
+import BackendTask.Env
 import Date exposing (Date)
+import Effect exposing (Effect)
+import FatalError exposing (FatalError)
 import Html
 import Html.Events
 import Json.Decode as Decode
@@ -27,6 +33,20 @@ import Site exposing (seoBase)
 import Task
 import Url
 import Url.Builder exposing (string)
+
+
+dataSourceWith : BackendTask FatalError a -> (a -> BackendTask FatalError b) -> BackendTask FatalError b
+dataSourceWith a b =
+    BackendTask.andThen b a
+
+
+{-| v3の`BackendTask.Env.expect`は以前自前実装していた`DataSource.Env`を置き換えられて便利だが、
+最初から`FatalError`を返すAPIが提供されなかったので結局自前で補う。
+-}
+requireEnv : String -> BackendTask FatalError String
+requireEnv key =
+    BackendTask.Env.expect key
+        |> BackendTask.allowFatal
 
 
 decodeWith : Decode.Decoder a -> (a -> Decode.Decoder b) -> Decode.Decoder b
@@ -84,14 +104,14 @@ nonEmptyString =
             )
 
 
-initMsg : msg -> Cmd msg
+initMsg : msg -> Effect msg
 initMsg =
-    Task.perform identity << Task.succeed
+    Task.succeed >> Task.perform identity >> Effect.fromCmd
 
 
-waitMsg : Float -> msg -> Cmd msg
+waitMsg : Float -> msg -> Effect msg
 waitMsg ms msg =
-    Task.perform (\() -> msg) (Process.sleep ms)
+    Task.perform (\() -> msg) (Process.sleep ms) |> Effect.fromCmd
 
 
 makeDisplayUrl : String -> String

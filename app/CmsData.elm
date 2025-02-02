@@ -1,11 +1,11 @@
 module CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata, cmsGet)
 
 import BackendTask exposing (BackendTask)
-import BackendTask.Env
 import BackendTask.File
 import BackendTask.Glob
 import BackendTask.Http
 import FatalError exposing (FatalError)
+import Helper exposing (requireEnv)
 import Html.Parser
 import Iso8601
 import Json.Decode as Decode
@@ -142,8 +142,7 @@ microCmsMetadata =
 
 cmsGet : String -> Decode.Decoder a -> BackendTask FatalError a
 cmsGet url decoder =
-    BackendTask.Env.expect "MICROCMS_API_KEY"
-        |> BackendTask.allowFatal
+    requireEnv "MICROCMS_API_KEY"
         |> BackendTask.andThen
             (\microCmsApiKey ->
                 BackendTask.Http.getWithOptions
