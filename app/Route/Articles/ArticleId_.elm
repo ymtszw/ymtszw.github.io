@@ -1,8 +1,7 @@
-module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, pages, route)
+module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, data, pages, route)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
-import BackendTask.Glob as Glob
 import CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata)
 import DateOrDateTime exposing (DateOrDateTime(..))
 import Dict exposing (Dict)
