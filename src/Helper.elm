@@ -6,6 +6,7 @@ module Helper exposing
     , japaneseDateDecoder
     , makeAmazonUrl
     , makeDisplayUrl
+    , makeTitle
     , nonEmptyString
     , onChange
     , preprocessMarkdown
@@ -22,6 +23,7 @@ import Parser
 import Process
 import QS
 import Regex
+import Site exposing (seoBase)
 import Task
 import Url
 import Url.Builder exposing (string)
@@ -253,3 +255,13 @@ convertPlainUrlToAngledUrl =
 
 plainUrlPattern =
     Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|。)(?<!\\]:\\s+)https?://\\S+(?=\\s|$)")
+
+
+makeTitle : String -> String
+makeTitle pageTitle =
+    case pageTitle of
+        "" ->
+            seoBase.siteName
+
+        nonEmpty ->
+            nonEmpty ++ " | " ++ seoBase.siteName

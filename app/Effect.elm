@@ -1,16 +1,36 @@
-module Effect exposing (Effect(..), batch, fromCmd, map, none, perform)
+module Effect exposing
+    ( Effect, batch, fromCmd, map, none, perform
+    , replaceUrl
+    )
 
-{-|
+{-| Main.elmから呼び出されるEffect module.
+
+dillonkearns/elm-formなど、serverRender関連で特定のパッケージを使うことを前提にAPI設計・scaffoldされているが、使わない場合は部分的に削除して問題ない。
+
+その場合にも下記callback interfaceの型は保たれる必要があり、困ったら内部実装である[ProgramConfig]型を参考にする。
+
+[ProgramConfig]: https://github.com/dillonkearns/elm-pages/blob/10.2.0/src/Pages/ProgramConfig.elm#L108-L125
+
+
+## Callback interface
+
+Scaffold時点でexposeされている以下の型と関数は必須。中身の実装は自由に変更可能。
 
 @docs Effect, batch, fromCmd, map, none, perform
+
+
+## Global Side Effects
+
+`Browser.application`でのみ使える`Browser.Navigation.Key`を使った副作用など、アプリケーショングローバルな副作用はこのレイヤーで実装できるような設計となっている。
+
+@docs replaceUrl
 
 -}
 
 import Browser.Navigation
-import Form
 import Http
-import Json.Decode as Decode
 import Pages.Fetcher
+import Pages.FormData exposing (FormData)
 import Url exposing (Url)
 
 
@@ -19,24 +39,7 @@ type Effect msg
     = None
     | Cmd (Cmd msg)
     | Batch (List (Effect msg))
-    | GetStargazers (Result Http.Error Int -> msg)
-    | SetField { formId : String, name : String, value : String }
-    | FetchRouteData
-        { data : Maybe FormData
-        , toMsg : Result Http.Error Url -> msg
-        }
-    | Submit
-        { values : FormData
-        , toMsg : Result Http.Error Url -> msg
-        }
-    | SubmitFetcher (Pages.Fetcher.Fetcher msg)
-
-
-{-| -}
-type alias RequestInfo =
-    { contentType : String
-    , body : String
-    }
+    | ReplaceUrl String
 
 
 {-| -}
@@ -57,6 +60,11 @@ fromCmd =
     Cmd
 
 
+replaceUrl : String -> Effect msg
+replaceUrl =
+    ReplaceUrl
+
+
 {-| -}
 map : (a -> b) -> Effect a -> Effect b
 map fn effect =
@@ -70,28 +78,8 @@ map fn effect =
         Batch list ->
             Batch (List.map (map fn) list)
 
-        GetStargazers toMsg ->
-            GetStargazers (toMsg >> fn)
-
-        FetchRouteData fetchInfo ->
-            FetchRouteData
-                { data = fetchInfo.data
-                , toMsg = fetchInfo.toMsg >> fn
-                }
-
-        Submit fetchInfo ->
-            Submit
-                { values = fetchInfo.values
-                , toMsg = fetchInfo.toMsg >> fn
-                }
-
-        SetField info ->
-            SetField info
-
-        SubmitFetcher fetcher ->
-            fetcher
-                |> Pages.Fetcher.map fn
-                |> SubmitFetcher
+        ReplaceUrl url ->
+            ReplaceUrl url
 
 
 {-| -}
@@ -123,33 +111,8 @@ perform ({ fromPageMsg, key } as helpers) effect =
         Cmd cmd ->
             Cmd.map fromPageMsg cmd
 
-        SetField info ->
-            helpers.setField info
-
         Batch list ->
             Cmd.batch (List.map (perform helpers) list)
 
-        GetStargazers toMsg ->
-            Http.get
-                { url =
-                    "https://api.github.com/repos/dillonkearns/elm-pages"
-                , expect = Http.expectJson (toMsg >> fromPageMsg) (Decode.field "stargazers_count" Decode.int)
-                }
-
-        FetchRouteData fetchInfo ->
-            helpers.fetchRouteData
-                fetchInfo
-
-        Submit record ->
-            helpers.submit record
-
-        SubmitFetcher record ->
-            helpers.runFetcher record
-
-
-type alias FormData =
-    { fields : List ( String, String )
-    , method : Form.Method
-    , action : String
-    , id : Maybe String
-    }
+        ReplaceUrl url ->
+            Browser.Navigation.replaceUrl key url

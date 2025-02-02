@@ -109,18 +109,19 @@ makeSitemapEntries getStaticRoutes =
             case route of
                 -- About ->
                 --     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
-                -- Articles ->
-                --     Shared.cmsArticles
-                --         |> BackendTask.andThen
-                --             (\articles ->
-                --                 articles
-                --                     |> List.filter .published
-                --                     |> List.head
-                --                     |> Maybe.map (.revisedAt >> Iso8601.fromTime)
-                --                     |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
-                --                     |> routeSource
-                --             )
-                --         |> Just
+                Articles ->
+                    CmsData.allMetadata
+                        |> BackendTask.andThen
+                            (\articles ->
+                                articles
+                                    |> List.filter .published
+                                    |> List.head
+                                    |> Maybe.map (.revisedAt >> Iso8601.fromTime)
+                                    |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
+                                    |> routeSource
+                            )
+                        |> Just
+
                 -- Articles__Draft ->
                 --     Nothing
                 Articles__ArticleId_ routeParam ->

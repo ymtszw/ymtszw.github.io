@@ -57,6 +57,11 @@ type CmsSource
     | MarkdownFile
 
 
+{-| Markdown記事と外部CMS記事すべてのメタデータ。
+
+最新の記事が先頭に来るようにソートされている。
+
+-}
 allMetadata : BackendTask FatalError (List CmsArticleMetadata)
 allMetadata =
     BackendTask.map2 (++) markdownMetadata microCmsMetadata

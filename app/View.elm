@@ -1,16 +1,21 @@
 module View exposing
     ( LightboxMedia
     , View
+    , feedLink
     , formatPosix
     , imgLazy
     , lightboxLink
     , map
+    , markdownEditor
     , parseLightboxFragment
+    , placeholder
     , posixToYmd
+    , toggleSwitch
     )
 
-import Html exposing (Html)
-import Html.Attributes
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput)
 import Time exposing (Month(..))
 import UrlPath exposing (UrlPath)
 
@@ -28,6 +33,29 @@ map fn doc =
     { title = doc.title
     , body = List.map (Html.map fn) doc.body
     }
+
+
+placeholder : String -> View msg
+placeholder moduleName =
+    { title = "Placeholder - " ++ moduleName
+    , body = [ Html.text moduleName ]
+    }
+
+
+feedLink : String -> Html msg
+feedLink linkTo =
+    Html.a
+        [ Html.Attributes.href linkTo
+        , Html.Attributes.target "_blank"
+        , Html.Attributes.class "has-image"
+        ]
+        [ imgLazy
+            [ Html.Attributes.src "/feed.png"
+            , Html.Attributes.alt "feed icon"
+            , Html.Attributes.class "feed"
+            ]
+            []
+        ]
 
 
 imgLazy : List (Html.Attribute msg) -> List (Html msg) -> Html msg
@@ -65,6 +93,25 @@ parseLightboxFragment originReq fr =
 
     else
         Nothing
+
+
+markdownEditor : (String -> msg) -> String -> Html msg
+markdownEditor tagger val =
+    -- https://qiita.com/tsmd/items/fce7bf1f65f03239eef0
+    div
+        [ class "markdown-editor" ]
+        [ div [ class "background", attribute "aria-hidden" "true" ] [ text (val ++ "\u{200B}") ]
+        , textarea
+            [ onInput tagger
+            , value val
+            ]
+            []
+        ]
+
+
+toggleSwitch : List (Attribute msg) -> List (Html msg) -> Html msg
+toggleSwitch attrs _ =
+    label [ class "switch" ] [ input (type_ "checkbox" :: attrs) [], span [ class "slider" ] [] ]
 
 
 posixToYmd : Time.Posix -> String
