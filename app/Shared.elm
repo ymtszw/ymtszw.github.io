@@ -266,10 +266,11 @@ view _ page shared sharedTagger pageView =
                 List.intersperse (Html.text " / ") <|
                     List.map (\kid -> Html.strong [] [ kid ]) <|
                         case Maybe.withDefault Route.Index page.route of
-                            -- Route.About ->
-                            --     [ Route.link Route.Index [] [ Html.text "Index" ]
-                            --     , Html.text "このサイトについて"
-                            --     ]
+                            Route.About ->
+                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                , Html.text "このサイトについて"
+                                ]
+
                             Route.Articles ->
                                 [ Route.Index |> Route.link [] [ Html.text "Index" ]
                                 , Html.text "記事"
@@ -366,8 +367,8 @@ sitemap =
     Html.nav [] <|
         List.intersperse (Html.text " | ")
             [ Html.text ""
+            , Route.About |> Route.link [] [ Html.text "このサイトについて" ]
 
-            -- , Route.link Route.About [] [ Html.text "このサイトについて" ]
             -- , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
             , Route.Articles |> Route.link [] [ Html.text "記事" ]
 

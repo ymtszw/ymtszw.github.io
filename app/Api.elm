@@ -107,8 +107,9 @@ makeSitemapEntries getStaticRoutes =
                         }
             in
             case route of
-                -- About ->
-                --     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
+                About ->
+                    Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
+
                 Articles ->
                     CmsData.allMetadata
                         |> BackendTask.andThen
