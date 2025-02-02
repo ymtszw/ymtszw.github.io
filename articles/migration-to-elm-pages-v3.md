@@ -26,7 +26,7 @@ v2リポジトリのPage moduleを一つずつ移管してインクリメンタ�
     "elmLS.elmPath": "node_modules/.bin/lamdera"
     ```
 - 開発ツールとしてViteを使うようになった
-  - `public/index.js`が`index.ts`になったが、Vite軽油で自然にTypeScriptにも対応
+  - `public/index.js`が`index.ts`になったが、Vite経由で自然にTypeScriptにも対応
 - Elm projectとしてのディレクトリ構造が変更になった
   - "Page" moduleは"Route" moduleに変更された（動的routeに対応したので、それを見据えた命名変更）
   - `app/`ディレクトリが加わり、Route moduleの実装はこちらに置くようになった
@@ -55,8 +55,8 @@ v2リポジトリのPage moduleを一つずつ移管してインクリメンタ�
 - `OptimizedDecoder`を用いたあれこれはLamderaの導入によって発展解消され、普通の`Json.Decode`が使えるようになった
 - `Pages.Secrets`で環境変数を取り込んで`DataSource.Http`などで使っていた部分が、上記２つの組み合わせで`BackendTask.Env`に発展的に変更された
 - Route module内から副作用を発行するときは`Cmd`ではなく`Effect`を使うようになった
-  - よくある中間層パターン
-  - `Effect.elm`はユーザランドにあるので、ここで`Effect.perform`を実装してアプリ内共通の副作用を追加することもできる
+  - よくある中間層パターン（cf. [elm-spa](https://www.elm-spa.dev/guide/03-pages#pageadvanced), [elm-land](https://elm.land/concepts/effect.html), [ConcourseCI](https://github.com/concourse/concourse/blob/master/web/elm/src/Message/Effects.elm)）
+  - `Effect.elm`はユーザランドにあるので、ここで`Effect.perform`を改造してアプリ内共通の副作用を追加することもできる
   - `Browser.Navigation.Key`は`Effect.perform`内でのみ利用できるので、keyを利用する`Browser.Navigation`の副作用は`Effect`として実装する構造になった
 - Route moduleの`view`関数の`Msg`具体型は`PagesMsg Msg`とラップする構造になった
 - `Route.link`の引数順序が変わった
@@ -71,3 +71,12 @@ v2リポジトリのPage moduleを一つずつ移管してインクリメンタ�
     -- 多分Pipelineで書きやすくしている？
     Route.Index |> Route.link [ Attr.class "class" ] [ Html.text "child"]
     ```
+
+## （今のところ）Undocumentedな変更点
+
+- Route moduleの`init`関数で`Maybe PageUrl`にランタイムアクセスできなくなった
+  - ついでに`QueryParams` moduleも提供されなくなった
+  - 一方、`Shared.init`では引き続き利用できる
+  - したがってquery parameterなどのURL要素にランタイムにアクセスしたい場合、`Shared.init`の時点で必要なものを`Shared.Model`に取り込んでおいて使う
+  - おそらくだが、query parameterを第一義的にはserver renderingにおけるペイロードの受渡手段として使うためのAPI再設計が想定にある？あまりちゃんと調べていない
+    - 関連issue: <https://github.com/dillonkearns/elm-pages/issues/509>

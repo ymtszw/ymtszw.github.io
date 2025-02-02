@@ -123,8 +123,9 @@ makeSitemapEntries getStaticRoutes =
                             )
                         |> Just
 
-                -- Articles__Draft ->
-                --     Nothing
+                Articles__Draft ->
+                    Nothing
+
                 Articles__ArticleId_ routeParam ->
                     Route.Articles.ArticleId_.data routeParam
                         |> BackendTask.andThen (\data -> routeSource (Iso8601.fromTime data.article.meta.revisedAt))

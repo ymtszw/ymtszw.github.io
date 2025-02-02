@@ -48,6 +48,7 @@ type alias Model =
     , lightbox : Maybe View.LightboxMedia
     , storedLibraryKey : Maybe String
     , initialViewport : Viewport
+    , queryParams : Dict String (List String)
     }
 
 
@@ -67,7 +68,12 @@ init :
 init flags maybeUrl =
     let
         model =
-            { links = Dict.empty, lightbox = Nothing, storedLibraryKey = decodeStoredLibraryKey flags, initialViewport = decodeInitialViewport flags }
+            { links = Dict.empty
+            , lightbox = Nothing
+            , storedLibraryKey = decodeStoredLibraryKey flags
+            , initialViewport = decodeInitialViewport flags
+            , queryParams = maybeUrl |> Maybe.andThen .pageUrl |> Maybe.map .query |> Maybe.withDefault Dict.empty
+            }
     in
     case Maybe.andThen (\url -> initLightBox url.path) maybeUrl of
         (Just _) as lbMedia ->
@@ -282,10 +288,11 @@ view _ page shared sharedTagger pageView =
                                 -- , Route.link Route.Articles [] [ Html.text "記事" ]
                                 ]
 
-                            -- Route.Articles__Draft ->
-                            --     [ Route.link Route.Index [] [ Html.text "Index" ]
-                            --     , Html.text "記事（下書き）"
-                            --     ]
+                            Route.Articles__Draft ->
+                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                , Html.text "記事（下書き）"
+                                ]
+
                             -- Route.Library ->
                             --     [ Route.link Route.Index [] [ Html.text "Index" ]
                             --     , Html.text "書架"
