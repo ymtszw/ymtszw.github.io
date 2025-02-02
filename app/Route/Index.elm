@@ -49,7 +49,7 @@ data : BackendTask FatalError Data
 data =
     BackendTask.succeed Data
         |> BackendTask.andMap (BackendTask.succeed "Hello!")
-        |> BackendTask.andMap (ArticleId_.pages |> BackendTask.map (List.map .articleId))
+        |> BackendTask.andMap (ArticleId_.publishedPages |> BackendTask.map (List.map .articleId))
 
 
 head :
