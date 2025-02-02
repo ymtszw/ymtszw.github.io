@@ -93,13 +93,12 @@ template =
 
 type alias Data =
     { twilogArchives : List TwilogArchiveYearMonth
-    , githubToken : String
     }
 
 
 data : DataSource Data
 data =
-    DataSource.map2 Data twilogArchives (DataSource.Env.load "GITHUB_TOKEN")
+    DataSource.map Data twilogArchives
 
 
 twilogArchives : DataSource (List TwilogArchiveYearMonth)
