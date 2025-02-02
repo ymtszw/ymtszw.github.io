@@ -1,4 +1,4 @@
-module CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata, cmsGet)
+module CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata, cmsArticlePublishedAtDecoder, cmsGet, cmsImageDecoder)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File

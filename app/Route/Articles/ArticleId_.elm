@@ -1,4 +1,4 @@
-module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, data, pages, publishedPages, route)
+module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, cmsArticleBodyDecoder, data, pages, publishedPages, renderArticle, route)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
