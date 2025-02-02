@@ -103,12 +103,11 @@ markdownMetadata =
 
 cmsArticlePublishedAtDecoder : Decode.Decoder Time.Posix
 cmsArticlePublishedAtDecoder =
-    -- Decode.oneOf
-    --     [ Decode.field "publishedAt" Iso8601.decoder
-    --     , -- 未来の日付にfallbackして記事一覧ページに表示させないようにする
-    --       Decode.succeed (Time.millisToPosix (Time.posixToMillis Pages.builtAt + 72 * 60 * 60 * 1000))
-    --     ]
-    Decode.field "publishedAt" Iso8601.decoder
+    Decode.oneOf
+        [ Decode.field "publishedAt" Iso8601.decoder
+        , -- 未来の日付にfallbackして記事一覧ページに表示させないようにする
+          Decode.succeed (Time.millisToPosix (Time.posixToMillis Pages.builtAt + 240 * 60 * 60 * 1000))
+        ]
 
 
 cmsImageDecoder : Decode.Decoder CmsImage
