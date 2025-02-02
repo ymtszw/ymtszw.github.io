@@ -1,4 +1,4 @@
-module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, data, pages, route)
+module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, data, pages, publishedPages, route)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
@@ -52,6 +52,12 @@ pages =
         |> BackendTask.map (List.map (.contentId >> RouteParams))
 
 
+publishedPages : BackendTask FatalError (List RouteParams)
+publishedPages =
+    CmsData.allMetadata
+        |> BackendTask.map (List.filter .published >> List.map (.contentId >> RouteParams))
+
+
 type alias Data =
     { article : CmsArticle
     , prevArticleMeta : Maybe CmsArticleMetadata
@@ -70,25 +76,24 @@ data { articleId } =
             (\allMetadata ->
                 case List.Extra.find (\meta -> meta.contentId == articleId) allMetadata of
                     Just matchedMeta ->
-                        (case matchedMeta.source of
-                            MicroCms ->
-                                microCmsArticleData matchedMeta
+                        let
+                            buildArticleData article =
+                                let
+                                    ( next, prev ) =
+                                        findNextAndPrevArticleMeta article allMetadata
+                                in
+                                { article = article
+                                , prevArticleMeta = prev
+                                , nextArticleMeta = next
+                                }
+                        in
+                        BackendTask.map buildArticleData <|
+                            case matchedMeta.source of
+                                MicroCms ->
+                                    microCmsArticleData matchedMeta
 
-                            MarkdownFile ->
-                                markdownArticleData matchedMeta
-                                    |> BackendTask.allowFatal
-                        )
-                            |> BackendTask.map
-                                (\article ->
-                                    let
-                                        ( prevArticleMeta, nextArticleMeta ) =
-                                            findNextAndPrevArticleMeta article allMetadata
-                                    in
-                                    { article = article
-                                    , prevArticleMeta = prevArticleMeta
-                                    , nextArticleMeta = nextArticleMeta
-                                    }
-                                )
+                                MarkdownFile ->
+                                    markdownArticleData matchedMeta
 
                     Nothing ->
                         BackendTask.fail (FatalError.build { title = "Not found", body = "Article not found: " ++ articleId })
@@ -136,6 +141,7 @@ markdownArticleData meta =
                     )
     in
     BackendTask.File.bodyWithFrontmatter cmsArticleDecoder ("articles/" ++ meta.contentId ++ ".md")
+        |> BackendTask.allowFatal
 
 
 findNextAndPrevArticleMeta : CmsArticle -> List CmsArticleMetadata -> ( Maybe CmsArticleMetadata, Maybe CmsArticleMetadata )
