@@ -5,10 +5,12 @@ import BackendTask.File
 import CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata)
 import DateOrDateTime exposing (DateOrDateTime(..))
 import Dict exposing (Dict)
+import Effect exposing (Effect)
 import ExternalHtml
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
+import Helper exposing (dataSourceWith, requireEnv)
 import Html
 import Html.Attributes
 import Json.Decode as Decode
@@ -18,7 +20,7 @@ import List.Extra
 import Markdown
 import PagesMsg exposing (PagesMsg)
 import Route
-import RouteBuilder exposing (App, StatelessRoute)
+import RouteBuilder exposing (App, StatefulRoute)
 import Shared
 import Site
 import View exposing (View, formatPosix)
@@ -28,22 +30,23 @@ type alias Model =
     {}
 
 
-type alias Msg =
-    ()
-
-
 type alias RouteParams =
     { articleId : String }
 
 
-route : StatelessRoute RouteParams Data ActionData
+route : StatefulRoute RouteParams Data ActionData Model Msg
 route =
     RouteBuilder.preRender
         { head = head
         , pages = pages
         , data = data
         }
-        |> RouteBuilder.buildNoState { view = view }
+        |> RouteBuilder.buildWithSharedState
+            { init = \_ _ -> ( {}, Helper.initMsg InitiateLinkPreviewPopulation )
+            , update = update
+            , subscriptions = \_ _ _ _ -> Sub.none
+            , view = view
+            }
 
 
 pages : BackendTask FatalError (List RouteParams)
@@ -62,6 +65,7 @@ type alias Data =
     { article : CmsArticle
     , prevArticleMeta : Maybe CmsArticleMetadata
     , nextArticleMeta : Maybe CmsArticleMetadata
+    , amazonAssociateTag : String
     }
 
 
@@ -71,33 +75,34 @@ type alias ActionData =
 
 data : RouteParams -> BackendTask FatalError Data
 data { articleId } =
-    CmsData.allMetadata
-        |> BackendTask.andThen
-            (\allMetadata ->
-                case List.Extra.find (\meta -> meta.contentId == articleId) allMetadata of
-                    Just matchedMeta ->
-                        let
-                            buildArticleData article =
-                                let
-                                    ( next, prev ) =
-                                        findNextAndPrevArticleMeta article allMetadata
-                                in
-                                { article = article
-                                , prevArticleMeta = prev
-                                , nextArticleMeta = next
-                                }
-                        in
-                        BackendTask.map buildArticleData <|
-                            case matchedMeta.source of
-                                MicroCms ->
-                                    microCmsArticleData matchedMeta
+    dataSourceWith (requireEnv "AMAZON_ASSOCIATE_TAG") <|
+        \amazonAssociateTag ->
+            dataSourceWith CmsData.allMetadata <|
+                \allMetadata ->
+                    case List.Extra.find (\meta -> meta.contentId == articleId) allMetadata of
+                        Just matchedMeta ->
+                            let
+                                buildArticleData article =
+                                    let
+                                        ( next, prev ) =
+                                            findNextAndPrevArticleMeta article allMetadata
+                                    in
+                                    { article = article
+                                    , prevArticleMeta = prev
+                                    , nextArticleMeta = next
+                                    , amazonAssociateTag = amazonAssociateTag
+                                    }
+                            in
+                            BackendTask.map buildArticleData <|
+                                case matchedMeta.source of
+                                    MicroCms ->
+                                        microCmsArticleData matchedMeta
 
-                                MarkdownFile ->
-                                    markdownArticleData matchedMeta
+                                    MarkdownFile ->
+                                        markdownArticleData matchedMeta
 
-                    Nothing ->
-                        BackendTask.fail (FatalError.build { title = "Not found", body = "Article not found: " ++ articleId })
-            )
+                        Nothing ->
+                            BackendTask.fail (FatalError.build { title = "Not found", body = "Article not found: " ++ articleId })
 
 
 microCmsArticleData meta =
@@ -159,6 +164,20 @@ findNextAndPrevArticleMeta currentArticle cmsArticlesFromLatest =
             ( Nothing, List.head publishedArticles )
 
 
+type Msg
+    = InitiateLinkPreviewPopulation
+
+
+update : App Data ActionData RouteParams -> Shared.Model -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
+update app _ msg model =
+    case msg of
+        InitiateLinkPreviewPopulation ->
+            ( model
+            , Effect.none
+            , Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag app.data.article.body.links))
+            )
+
+
 head :
     App Data ActionData RouteParams
     -> List Head.Tag
@@ -173,8 +192,8 @@ head app =
             }
 
 
-view : App Data ActionData RouteParams -> Shared.Model -> View (PagesMsg Msg)
-view app _ =
+view : App Data ActionData RouteParams -> Shared.Model -> Model -> View (PagesMsg Msg)
+view app shared _ =
     { title = app.data.article.meta.title
     , body =
         let
@@ -194,9 +213,7 @@ view app _ =
         in
         [ prevNextNavigation app.data
         , Html.header [] [ timestamp ]
-
-        -- , renderArticle shared.links app.data.article
-        , renderArticle Dict.empty app.data.article
+        , renderArticle shared.links app.data.article
         , Html.div [] [ timestamp ]
         , prevNextNavigation app.data
         ]
