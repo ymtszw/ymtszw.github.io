@@ -5,7 +5,7 @@ import BackendTask.File
 import BackendTask.Glob
 import BackendTask.Http
 import FatalError exposing (FatalError)
-import Helper exposing (requireEnv)
+import Helper exposing (dataSourceWith, requireEnv)
 import Html.Parser
 import Iso8601
 import Json.Decode as Decode
@@ -142,17 +142,15 @@ microCmsMetadata =
 
 cmsGet : String -> Decode.Decoder a -> BackendTask FatalError a
 cmsGet url decoder =
-    requireEnv "MICROCMS_API_KEY"
-        |> BackendTask.andThen
-            (\microCmsApiKey ->
-                BackendTask.Http.getWithOptions
-                    { url = url
-                    , headers = [ ( "X-MICROCMS-API-KEY", microCmsApiKey ) ]
-                    , expect = BackendTask.Http.expectJson decoder
-                    , cachePath = Nothing
-                    , cacheStrategy = Nothing
-                    , retries = Just 3
-                    , timeoutInMs = Just 10000
-                    }
-                    |> BackendTask.allowFatal
-            )
+    dataSourceWith (requireEnv "MICROCMS_API_KEY") <|
+        \microCmsApiKey ->
+            BackendTask.Http.getWithOptions
+                { url = url
+                , headers = [ ( "X-MICROCMS-API-KEY", microCmsApiKey ) ]
+                , expect = BackendTask.Http.expectJson decoder
+                , cachePath = Nothing
+                , cacheStrategy = Nothing
+                , retries = Just 3
+                , timeoutInMs = Just 10000
+                }
+                |> BackendTask.allowFatal

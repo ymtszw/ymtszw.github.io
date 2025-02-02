@@ -2,6 +2,7 @@ module Helper exposing
     ( dataSourceWith
     , deadEndToString
     , deadEndsToString
+    , decodeFromResult
     , decodeWith
     , initMsg
     , japaneseDateDecoder
@@ -54,16 +55,21 @@ decodeWith a b =
     Decode.andThen b a
 
 
+{-| v2では`OptimizedDecoder.fromResult`があったが、v3ではないので自前で実装。
+-}
+decodeFromResult : Result String a -> Decode.Decoder a
+decodeFromResult result =
+    case result of
+        Ok a ->
+            Decode.succeed a
+
+        Err err ->
+            Decode.fail err
+
+
 japaneseDateDecoder : Decode.Decoder Date
 japaneseDateDecoder =
-    decodeWith nonEmptyString <|
-        \str ->
-            case fromJapaneseDate str of
-                Ok date ->
-                    Decode.succeed date
-
-                Err err ->
-                    Decode.fail err
+    decodeWith nonEmptyString (fromJapaneseDate >> decodeFromResult)
 
 
 fromJapaneseDate : String -> Result String Date
