@@ -2,5 +2,6 @@
   "search.exclude": {
     "data/": true,
     "html-parser/": true
-  }
+  },
+  "elmLS.elmTestPath": "node_modules/.bin/elm-test-rs"
 }
