@@ -4,6 +4,7 @@ export default {
   vite: defineConfig({
     build: {
       chunkSizeWarningLimit: 3_000,
+      cssMinify: "esbuild",
     },
   }),
   adapter,
