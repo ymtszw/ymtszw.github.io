@@ -30,7 +30,11 @@ h6 {
   text-decoration-thickness: 30%;
   text-decoration-skip-ink: none;
 }
+h1 {
+  line-height: 1.5;
+}
 h2 {
+  line-height: 1.4;
   text-decoration-style: solid;
   text-decoration-thickness: 20%;
 }
@@ -259,6 +263,7 @@ Link Preview
   display: -webkit-box;
   width: 100%;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   overflow: hidden;
   text-align: left;
