@@ -1,3 +1,6 @@
+import "highlight.js/styles/atom-one-light.min.css";
+import hljs from "highlight.js";
+
 type ElmPagesInit = {
   load: (elmLoaded: Promise<unknown>) => Promise<void>;
   flags: unknown;
@@ -24,10 +27,16 @@ const config: ElmPagesInit = {
   load: async function (elmLoaded) {
     const app = (await elmLoaded) as App;
     console.log("App loaded", app);
-    app.ports.toJs.subscribe((data: { tag: string; value: string }) => {
+
+    window.addEventListener("DOMContentLoaded", highlightCodeBlocks);
+
+    app.ports.toJs.subscribe((data: { tag: string; value?: string }) => {
       switch (data.tag) {
+        case "TriggerHighlightJs":
+          highlightCodeBlocks();
+          break;
         case "StoreLibraryKey":
-          localStorage.setItem("LibraryKey", data.value);
+          data.value && localStorage.setItem("LibraryKey", data.value);
           console.log("LibraryKey stored");
           break;
         default:
@@ -35,24 +44,25 @@ const config: ElmPagesInit = {
       }
     });
 
-    let ticking = 0;
-    window.addEventListener(
-      "scroll",
-      (event) => {
-        if (ticking > 5) {
-          window.requestAnimationFrame(() => {
-            app.ports.fromJs.send({
-              viewportHeight: window.innerHeight,
-              viewportTop: window.scrollY,
-              viewportBottom: window.scrollY + window.innerHeight,
-            });
-            ticking = 0;
-          });
-        }
-        ticking += 1;
-      },
-      { passive: true }
-    );
+    // TODO
+    // let ticking = 0;
+    // window.addEventListener(
+    //   "scroll",
+    //   (event) => {
+    //     if (ticking > 5) {
+    //       window.requestAnimationFrame(() => {
+    //         app.ports.fromJs.send({
+    //           viewportHeight: window.innerHeight,
+    //           viewportTop: window.scrollY,
+    //           viewportBottom: window.scrollY + window.innerHeight,
+    //         });
+    //         ticking = 0;
+    //       });
+    //     }
+    //     ticking += 1;
+    //   },
+    //   { passive: true }
+    // );
   },
   flags: function () {
     return {
@@ -64,6 +74,15 @@ const config: ElmPagesInit = {
       },
     };
   },
+};
+
+const highlightCodeBlocks = () => {
+  requestAnimationFrame(() => {
+    document.querySelectorAll("pre code").forEach((el) => {
+      console.log("Highlighting", el);
+      hljs.highlightElement(el as HTMLElement);
+    });
+  });
 };
 
 export default config;

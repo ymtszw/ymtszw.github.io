@@ -29,7 +29,7 @@ template =
     , view = view
     , data = data
     , subscriptions = subscriptions
-    , onPageChange = Nothing
+    , onPageChange = Just OnPageChange
     }
 
 
@@ -155,10 +155,10 @@ update msg model =
         OnPageChange req ->
             case initLightBox req of
                 (Just _) as lbMedia ->
-                    ( { model | lightbox = lbMedia }, lockScrollPosition )
+                    ( { model | lightbox = lbMedia }, Effect.batch [ lockScrollPosition, Effect.triggerHighlightJs ] )
 
                 Nothing ->
-                    ( model, Effect.none )
+                    ( model, Effect.triggerHighlightJs )
 
         SharedMsg (Req_LinkPreview amazonAssociateTag (url :: urls)) ->
             ( model, requestLinkPreviewSequentially amazonAssociateTag urls url )
