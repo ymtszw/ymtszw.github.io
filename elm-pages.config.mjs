@@ -5,6 +5,7 @@ export default {
     build: {
       chunkSizeWarningLimit: 3_000,
       cssMinify: "esbuild",
+      minify: "esbuild",
     },
   }),
   adapter,
