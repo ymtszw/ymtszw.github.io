@@ -1,7 +1,11 @@
 import { defineConfig } from "vite";
 
 export default {
-  vite: defineConfig({}),
+  vite: defineConfig({
+    build: {
+      chunkSizeWarningLimit: 3_000,
+    },
+  }),
   adapter,
   headTagsTemplate(context) {
     return `
