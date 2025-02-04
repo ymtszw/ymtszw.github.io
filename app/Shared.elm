@@ -148,6 +148,8 @@ type SharedMsg
     | ScrollToTop
     | ScrollToBottom
     | CloseLightbox
+      --| v3ではclient-sideでquery parameterを使ったroutingが今のところできない。SharedMsgで擬似的にworkaroundする
+    | PushQueryParam String String
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -156,10 +158,10 @@ update msg model =
         OnPageChange req ->
             case initLightBox req of
                 (Just _) as lbMedia ->
-                    ( { model | lightbox = lbMedia }, Effect.batch [ lockScrollPosition, triggerHighlightJs ] )
+                    ( { model | lightbox = lbMedia, queryParams = parseQuery req }, Effect.batch [ lockScrollPosition, triggerHighlightJs ] )
 
                 Nothing ->
-                    ( model, triggerHighlightJs )
+                    ( { model | queryParams = parseQuery req }, triggerHighlightJs )
 
         SharedMsg (Req_LinkPreview amazonAssociateTag (url :: urls)) ->
             ( model, requestLinkPreviewSequentially amazonAssociateTag urls url )
@@ -194,8 +196,18 @@ update msg model =
         SharedMsg CloseLightbox ->
             ( { model | lightbox = Nothing }, clearLightboxLink model )
 
+        SharedMsg (PushQueryParam key value) ->
+            ( { model | queryParams = Dict.insert key [ value ] model.queryParams }, Effect.none )
+
         SharedMsg _ ->
             ( model, Effect.none )
+
+
+parseQuery : { a | query : Maybe String } -> Dict String (List String)
+parseQuery req =
+    req.query
+        |> Maybe.withDefault ""
+        |> Pages.PageUrl.parseQueryParams
 
 
 {-| Viewportを現在と全く同じ位置に明示的にセットする

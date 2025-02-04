@@ -9,7 +9,7 @@ import Helper exposing (onChange, requireEnv)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onCheck, onClick)
-import KindleBook exposing (ASIN, KindleBook, kindleBooks)
+import KindleBook exposing (ASIN, KindleBook, allBooksFromAlgolia)
 import LinkPreview
 import Markdown
 import Maybe.Extra
@@ -55,7 +55,7 @@ type alias Data =
 data : BackendTask FatalError Data
 data =
     BackendTask.map3 Data
-        kindleBooks
+        allBooksFromAlgolia
         (requireEnv "AMAZON_ASSOCIATE_TAG")
         KindleBook.secrets
 
@@ -94,7 +94,7 @@ init app shared =
             )
 
         Nothing ->
-            ( Model Nothing "タイトル" sample Nothing Nothing True, Effect.none )
+            ( Model Nothing "タイトル" sample Nothing Nothing True, Helper.initMsg RuntimeInit )
 
 
 bookToModel : KindleBook -> Model
@@ -124,6 +124,10 @@ type Msg
     | SetReviewMarkdown String
     | Save
     | Publish Bool
+      --| HACK v3ではclient sideでquery parameterにアクセスしづらくなり、他ページからの遷移時のinitではquery parameterを使った初期化処理が動かない。
+      --| （ページを直接訪問したときには動作する）
+      --| 代わりにinitMsgを飛ばしてupdateで初期化する。
+    | RuntimeInit
 
 
 update :
@@ -132,7 +136,7 @@ update :
     -> Msg
     -> Model
     -> ( Model, Effect Msg, Maybe Shared.Msg )
-update app _ msg m =
+update app shared msg m =
     case msg of
         Res_refreshKindleBookOnDemand (Ok book) ->
             bookToModel book
@@ -191,6 +195,18 @@ update app _ msg m =
                 Effect.none
             , Nothing
             )
+
+        RuntimeInit ->
+            case getStaticBook shared.queryParams app.data.kindleBooks of
+                Just book ->
+                    ( bookToModel book
+                    , KindleBook.getOnDemand Res_refreshKindleBookOnDemand app.data.secrets book.id |> Effect.fromCmd
+                    , Nothing
+                    )
+
+                Nothing ->
+                    -- RuntimeInitの無限ループを防ぐため、updateでもbookを解決できなかったら諦める
+                    ( Model Nothing "タイトル" sample Nothing Nothing True, Effect.none, Nothing )
 
 
 requestLinkPreview amazonAssociateTag body =
