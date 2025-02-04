@@ -1,4 +1,4 @@
-module Site exposing (config, image144, locale, seoBase, tagline, title)
+module Site exposing (config, locale, ogpHeaderImageUrl, seoBase, tagline, title)
 
 import BackendTask exposing (BackendTask)
 import FatalError exposing (FatalError)
@@ -45,7 +45,7 @@ seoBase =
     Head.Seo.summaryLarge
         { canonicalUrlOverride = Nothing
         , siteName = title
-        , image = image144
+        , image = ogpImage
         , description = tagline
         , locale = Just locale
         , title = title
@@ -71,10 +71,15 @@ locale =
     ( LanguageTag.Language.ja, LanguageTag.Region.jp )
 
 
-image144 : Head.Seo.Image
-image144 =
-    { url = Pages.Url.external "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4bbee72905cf4e5fa4a55d9de0d9593b/icon-square.png?w=144&h=144"
+ogpImage : Head.Seo.Image
+ogpImage =
+    { url = Pages.Url.external <| ogpHeaderImageUrl ++ "?w=900&h=300"
     , alt = "Image of Mt.Asama"
-    , dimensions = Just { width = 144, height = 144 }
+    , dimensions = Just { width = 900, height = 300 }
     , mimeType = Just (MimeType.Image MimeType.Png)
     }
+
+
+ogpHeaderImageUrl : String
+ogpHeaderImageUrl =
+    "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4a220ee277a54bd4a7cf59a2c423b096/header1500x500.jpg"
