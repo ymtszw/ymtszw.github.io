@@ -25,14 +25,15 @@ module Helper exposing
 import BackendTask exposing (BackendTask)
 import BackendTask.Env
 import Date exposing (Date)
+import Dict
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Html
 import Html.Events
 import Json.Decode as Decode
+import Pages.PageUrl
 import Parser
 import Process
-import QS
 import Regex
 import Site exposing (seoBase)
 import Task
@@ -195,14 +196,24 @@ embedTag : String -> Url.Url -> String
 embedTag amazonAssociateTag url =
     url.query
         |> Maybe.withDefault ""
-        |> QS.parse QS.config
-        |> (\qs ->
-                { url
-                    | query =
-                        QS.setStr "tag" amazonAssociateTag qs
-                            |> QS.serialize (QS.config |> QS.addQuestionMark False)
-                            |> Just
-                }
+        |> Pages.PageUrl.parseQueryParams
+        |> Dict.insert "tag" [ amazonAssociateTag ]
+        |> (\qp ->
+                let
+                    reducer k v acc =
+                        case v of
+                            value :: _ ->
+                                acc ++ "&" ++ k ++ "=" ++ Url.percentEncode value
+
+                            [] ->
+                                acc
+                in
+                case Dict.foldl reducer "" qp of
+                    "" ->
+                        url
+
+                    query ->
+                        { url | query = Just query }
            )
         |> Url.toString
 

@@ -1,4 +1,4 @@
-module KindleBook exposing (ASIN, KindleBook, SearchResult, Secrets, SeriesName, emptyResult, getOnDemand, kindleBooks, putOnDemand, putOnDemandTask, search, secrets)
+module KindleBook exposing (ASIN, KindleBook, SearchResult, Secrets, SeriesName, allBooksFromAlgolia, emptyResult, getOnDemand, putOnDemand, putOnDemandTask, search, secrets)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Http
@@ -180,8 +180,8 @@ Algolia側のデータはスクレイピングデータを格納したあと、
 正規化（人力注釈）機能で更新されている情報が増えているかもしれない。
 
 -}
-kindleBooks : BackendTask FatalError (Dict ASIN KindleBook)
-kindleBooks =
+allBooksFromAlgolia : BackendTask FatalError (Dict ASIN KindleBook)
+allBooksFromAlgolia =
     let
         idsDecoder =
             Decode.dict (Decode.succeed ())
