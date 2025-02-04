@@ -291,8 +291,7 @@ view _ page shared sharedTagger pageView =
 
                             Route.Articles__ArticleId_ _ ->
                                 [ Route.Index |> Route.link [] [ Html.text "Index" ]
-
-                                -- , Route.link Route.Articles [] [ Html.text "記事" ]
+                                , Route.Articles |> Route.link [] [ Html.text "記事" ]
                                 ]
 
                             Route.Articles__Draft ->
@@ -300,14 +299,16 @@ view _ page shared sharedTagger pageView =
                                 , Html.text "記事（下書き）"
                                 ]
 
-                            -- Route.Library ->
-                            --     [ Route.link Route.Index [] [ Html.text "Index" ]
-                            --     , Html.text "書架"
-                            --     ]
-                            -- Route.Reviews__Draft ->
-                            --     [ Route.link Route.Index [] [ Html.text "Index" ]
-                            --     , Html.text "レビュー（下書き）"
-                            --     ]
+                            Route.Library ->
+                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                , Html.text "書架"
+                                ]
+
+                            Route.Reviews__Draft ->
+                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                , Html.text "レビュー（下書き）"
+                                ]
+
                             -- Route.Twilogs ->
                             --     [ Route.link Route.Index [] [ Html.text "Index" ]
                             --     , Html.text "Twilog"
@@ -385,8 +386,7 @@ sitemap =
 
             -- , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
             , Route.Articles |> Route.link [] [ Html.text "記事" ]
-
-            -- , Route.link Route.Library [] [ Html.text "書架" ]
+            , Route.Library |> Route.link [] [ Html.text "書架" ]
             , Html.text ""
             ]
 

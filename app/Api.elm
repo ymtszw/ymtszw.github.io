@@ -131,11 +131,13 @@ makeSitemapEntries getStaticRoutes =
                         |> BackendTask.andThen (\data -> routeSource (Iso8601.fromTime data.article.meta.revisedAt))
                         |> Just
 
-                -- Library ->
-                --     -- 書架ページは自分専用で検索に載せないが、書架ページでレビューを投稿すると一般公開記事が生成される仕組み
-                --     Nothing
-                -- Reviews__Draft ->
-                --     Nothing
+                Library ->
+                    -- 書架ページは自分専用で検索に載せないが、書架ページでレビューを投稿すると一般公開記事が生成される仕組み
+                    Nothing
+
+                Reviews__Draft ->
+                    Nothing
+
                 -- Twilogs ->
                 --     Shared.twilogArchives
                 --         |> BackendTask.andThen
