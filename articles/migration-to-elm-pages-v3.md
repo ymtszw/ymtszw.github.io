@@ -124,3 +124,7 @@ v2リポジトリのPage moduleを一つずつ移管してインクリメンタ�
   - したがってquery parameterなどのURL要素にランタイムにアクセスしたい場合、`Shared.init`の時点で必要なものを`Shared.Model`に取り込んでおいて使う
   - おそらくだが、query parameterを第一義的にはserver renderingにおけるペイロードの受渡手段として使うためのAPI再設計が想定にある？あまりちゃんと調べていない
     - 関連issue: <https://github.com/dillonkearns/elm-pages/issues/509>
+- 同一ページ内でquery parameterやfragmentだけを変更したURLにリンクし、ユーザがそのリンクをクリックしたとき、Route moduleの`init`に処理が渡らなくなった
+  - 結果として、query parameterやfragmentに状態をもたせることによるクライアント側での表示変更が難しくなった
+  - 関連issue: <https://github.com/dillonkearns/elm-pages/issues/479>, <https://github.com/dillonkearns/elm-pages/issues/509>
+  - なんらかworkaroundがありそうな気はするので調査中

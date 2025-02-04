@@ -1,6 +1,6 @@
 module Effect exposing
     ( Effect, batch, fromCmd, map, none, perform
-    , replaceUrl, runtimePortsToJs
+    , replaceUrl, pushUrl, runtimePortsToJs
     )
 
 {-| Main.elmから呼び出されるEffect module.
@@ -23,7 +23,7 @@ Scaffold時点でexposeされている以下の型と関数は必須。中身の
 
 `Browser.application`でのみ使える`Browser.Navigation.Key`を使った副作用や、`RuntimePorts`の利用など、アプリケーショングローバルな副作用はこのレイヤーで実装できるような設計となっている。
 
-@docs replaceUrl, runtimePortsToJs
+@docs replaceUrl, pushUrl, runtimePortsToJs
 
 -}
 
@@ -42,6 +42,7 @@ type Effect msg
     | Cmd (Cmd msg)
     | Batch (List (Effect msg))
     | ReplaceUrl String
+    | PushUrl String
     | RuntimePortsToJs Json.Encode.Value
 
 
@@ -68,6 +69,11 @@ replaceUrl =
     ReplaceUrl
 
 
+pushUrl : String -> Effect msg
+pushUrl =
+    PushUrl
+
+
 runtimePortsToJs : Json.Encode.Value -> Effect msg
 runtimePortsToJs =
     RuntimePortsToJs
@@ -88,6 +94,9 @@ map fn effect =
 
         ReplaceUrl url ->
             ReplaceUrl url
+
+        PushUrl url ->
+            PushUrl url
 
         RuntimePortsToJs v ->
             RuntimePortsToJs v
@@ -127,6 +136,9 @@ perform ({ fromPageMsg, key } as helpers) effect =
 
         ReplaceUrl url ->
             Browser.Navigation.replaceUrl key url
+
+        PushUrl url ->
+            Browser.Navigation.pushUrl key url
 
         RuntimePortsToJs v ->
             RuntimePorts.toJs v
