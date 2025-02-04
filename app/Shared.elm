@@ -10,6 +10,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Json.Decode
+import Json.Encode
 import LinkPreview
 import Maybe.Extra
 import Pages
@@ -155,10 +156,10 @@ update msg model =
         OnPageChange req ->
             case initLightBox req of
                 (Just _) as lbMedia ->
-                    ( { model | lightbox = lbMedia }, Effect.batch [ lockScrollPosition, Effect.triggerHighlightJs ] )
+                    ( { model | lightbox = lbMedia }, Effect.batch [ lockScrollPosition, triggerHighlightJs ] )
 
                 Nothing ->
-                    ( model, Effect.triggerHighlightJs )
+                    ( model, triggerHighlightJs )
 
         SharedMsg (Req_LinkPreview amazonAssociateTag (url :: urls)) ->
             ( model, requestLinkPreviewSequentially amazonAssociateTag urls url )
@@ -213,6 +214,12 @@ lockScrollPosition =
         |> Task.perform (always NoOp)
         |> Cmd.map SharedMsg
         |> Effect.fromCmd
+
+
+triggerHighlightJs : Effect Msg
+triggerHighlightJs =
+    Json.Encode.object [ ( "tag", Json.Encode.string "TriggerHighlightJs" ) ]
+        |> Effect.runtimePortsToJs
 
 
 {-| Runtimeにリンクプレビューを要求する。

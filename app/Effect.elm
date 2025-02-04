@@ -1,6 +1,6 @@
 module Effect exposing
     ( Effect, batch, fromCmd, map, none, perform
-    , replaceUrl, triggerHighlightJs
+    , replaceUrl, runtimePortsToJs
     )
 
 {-| Main.elmから呼び出されるEffect module.
@@ -23,7 +23,7 @@ Scaffold時点でexposeされている以下の型と関数は必須。中身の
 
 `Browser.application`でのみ使える`Browser.Navigation.Key`を使った副作用や、`RuntimePorts`の利用など、アプリケーショングローバルな副作用はこのレイヤーで実装できるような設計となっている。
 
-@docs replaceUrl, triggerHighlightJs
+@docs replaceUrl, runtimePortsToJs
 
 -}
 
@@ -42,7 +42,7 @@ type Effect msg
     | Cmd (Cmd msg)
     | Batch (List (Effect msg))
     | ReplaceUrl String
-    | TriggerHighlightJs
+    | RuntimePortsToJs Json.Encode.Value
 
 
 {-| -}
@@ -68,9 +68,9 @@ replaceUrl =
     ReplaceUrl
 
 
-triggerHighlightJs : Effect msg
-triggerHighlightJs =
-    TriggerHighlightJs
+runtimePortsToJs : Json.Encode.Value -> Effect msg
+runtimePortsToJs =
+    RuntimePortsToJs
 
 
 {-| -}
@@ -89,8 +89,8 @@ map fn effect =
         ReplaceUrl url ->
             ReplaceUrl url
 
-        TriggerHighlightJs ->
-            TriggerHighlightJs
+        RuntimePortsToJs v ->
+            RuntimePortsToJs v
 
 
 {-| -}
@@ -128,5 +128,5 @@ perform ({ fromPageMsg, key } as helpers) effect =
         ReplaceUrl url ->
             Browser.Navigation.replaceUrl key url
 
-        TriggerHighlightJs ->
-            RuntimePorts.toJs (Json.Encode.object [ ( "tag", Json.Encode.string "TriggerHighlightJs" ) ])
+        RuntimePortsToJs v ->
+            RuntimePorts.toJs v
