@@ -4,6 +4,7 @@ import ApiRoute exposing (ApiRoute)
 import BackendTask exposing (BackendTask)
 import CmsData
 import FatalError exposing (FatalError)
+import Helper exposing (dataSourceWith)
 import Html exposing (Html)
 import Iso8601
 import Pages
@@ -12,6 +13,7 @@ import Route.Articles.ArticleId_
 import Rss
 import Site
 import Sitemap
+import TwilogData
 
 
 routes :
@@ -111,25 +113,23 @@ makeSitemapEntries getStaticRoutes =
                     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
 
                 Articles ->
-                    CmsData.allMetadata
-                        |> BackendTask.andThen
-                            (\articles ->
+                    Just <|
+                        dataSourceWith CmsData.allMetadata <|
+                            \articles ->
                                 articles
                                     |> List.filter .published
                                     |> List.head
                                     |> Maybe.map (.revisedAt >> Iso8601.fromTime)
                                     |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
                                     |> routeSource
-                            )
-                        |> Just
 
                 Articles__Draft ->
                     Nothing
 
                 Articles__ArticleId_ routeParam ->
-                    Route.Articles.ArticleId_.data routeParam
-                        |> BackendTask.andThen (\data -> routeSource (Iso8601.fromTime data.article.meta.revisedAt))
-                        |> Just
+                    Just <|
+                        dataSourceWith (Route.Articles.ArticleId_.data routeParam) <|
+                            \data -> routeSource (Iso8601.fromTime data.article.meta.revisedAt)
 
                 Library ->
                     -- 書架ページは自分専用で検索に載せないが、書架ページでレビューを投稿すると一般公開記事が生成される仕組み
@@ -138,19 +138,19 @@ makeSitemapEntries getStaticRoutes =
                 Reviews__Draft ->
                     Nothing
 
-                -- Twilogs ->
-                --     Shared.twilogArchives
-                --         |> BackendTask.andThen
-                --             (\twilogArchives ->
-                --                 twilogArchives
-                --                     |> List.head
-                --                     |> Maybe.map (\yearMonth -> yearMonth ++ "-01")
-                --                     |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
-                --                     |> routeSource
-                --             )
-                --         |> Just
-                -- Twilogs__YearMonth_ routeParam ->
-                --     Just <| routeSource routeParam.yearMonth
+                Twilogs ->
+                    Just <|
+                        dataSourceWith TwilogData.twilogArchives <|
+                            \twilogArchives ->
+                                twilogArchives
+                                    |> List.head
+                                    |> Maybe.map (\yearMonth -> yearMonth ++ "-01")
+                                    |> Maybe.withDefault (Iso8601.fromTime Pages.builtAt)
+                                    |> routeSource
+
+                Twilogs__YearMonth_ routeParam ->
+                    Just <| routeSource routeParam.yearMonth
+
                 Index ->
                     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
     in
