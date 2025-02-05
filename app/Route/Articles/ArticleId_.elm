@@ -10,7 +10,7 @@ import ExternalHtml
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
-import Helper exposing (dataSourceWith, requireEnv)
+import Helper exposing (dataSourceWith, formatPosix, requireEnv)
 import Html
 import Html.Attributes
 import Json.Decode as Decode
@@ -23,7 +23,7 @@ import Route
 import RouteBuilder exposing (App, StatefulRoute)
 import Shared
 import Site
-import View exposing (View, formatPosix)
+import View exposing (View)
 
 
 type alias Model =

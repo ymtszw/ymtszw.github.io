@@ -13,7 +13,7 @@ import CmsData exposing (CmsArticleMetadata)
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
-import Helper
+import Helper exposing (posixToYmd)
 import Html exposing (details, div, h1, p, summary, text)
 import Html.Attributes
 import PagesMsg exposing (PagesMsg)
@@ -96,7 +96,7 @@ cmsArticlePreview meta =
                     [ Html.tr [] <|
                         [ Html.td [] <|
                             [ Html.strong [] [ Html.text meta.title ]
-                            , Html.small [] [ Html.text ("[" ++ View.posixToYmd meta.publishedAt ++ "]") ]
+                            , Html.small [] [ Html.text ("[" ++ posixToYmd meta.publishedAt ++ "]") ]
                             ]
                         , case meta.image of
                             Just cmsImage ->
