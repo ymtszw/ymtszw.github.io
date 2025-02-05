@@ -185,7 +185,7 @@ async function resolveUserInfo(screenName) {
  */
 function extractUrls(text, isRetweet) {
   const groups = { urls: [], media: [] };
-  (text.match(new RegExp("https?://\\S+(?=\\s|$)", "g")) || []).forEach(
+  (text.match(new RegExp("https?://[\\w/:%#$&?~.=+-]+", "g")) || []).forEach(
     (url) => {
       if (
         url.match(
