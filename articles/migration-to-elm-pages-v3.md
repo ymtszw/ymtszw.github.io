@@ -48,6 +48,7 @@ v2リポジトリのPage moduleを一つずつ移管してインクリメンタ�
 - Route moduleでは必須のexportが増え、一部内容も変更になった
   - `ActionData`型が必須になった（プレースホルダーは`{}`）
   - `page`関数は`route`関数に変更された
+  - 逆に`preRender` routeの`routes`関数は`pages`に変更された
   - `Model`型のプレースホルダーは`()`から`{}`に変更された
   - `Msg`型のプレースホルダーは`Never`から`()`に変更された
 - `Path` moduleは`UrlPath` moduleに変更された
