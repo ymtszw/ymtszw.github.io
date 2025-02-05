@@ -1,10 +1,11 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), Viewport, template, viewportDecoder)
 
 import BackendTask exposing (BackendTask)
 import Browser.Dom
 import Dict exposing (Dict)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
+import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Helper exposing (makeTitle, nonEmptyString)
 import Html exposing (Html)
 import Html.Attributes
@@ -19,6 +20,7 @@ import Pages.PageUrl exposing (PageUrl)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
 import Task
+import TwilogData
 import UrlPath exposing (UrlPath)
 import View exposing (View)
 
@@ -35,7 +37,7 @@ template =
 
 
 type alias Data =
-    ()
+    { twilogArchives : List TwilogArchiveYearMonth }
 
 
 
@@ -50,6 +52,7 @@ type alias Model =
     , storedLibraryKey : Maybe String
     , initialViewport : Viewport
     , queryParams : Dict String (List String)
+    , fragment : Maybe String
     }
 
 
@@ -74,6 +77,7 @@ init flags maybeUrl =
             , storedLibraryKey = decodeStoredLibraryKey flags
             , initialViewport = decodeInitialViewport flags
             , queryParams = maybeUrl |> Maybe.andThen .pageUrl |> Maybe.map .query |> Maybe.withDefault Dict.empty
+            , fragment = maybeUrl |> Maybe.andThen .pageUrl |> Maybe.andThen .fragment
             }
     in
     case Maybe.andThen (\url -> initLightBox url.path) maybeUrl of
@@ -270,7 +274,8 @@ subscriptions _ _ =
 
 data : BackendTask FatalError Data
 data =
-    BackendTask.succeed ()
+    BackendTask.map Data
+        TwilogData.twilogArchives
 
 
 view :
@@ -321,15 +326,17 @@ view _ page shared sharedTagger pageView =
                                 , Html.text "レビュー（下書き）"
                                 ]
 
-                            -- Route.Twilogs ->
-                            --     [ Route.link Route.Index [] [ Html.text "Index" ]
-                            --     , Html.text "Twilog"
-                            --     ]
-                            -- Route.Twilogs__YearMonth_ { yearMonth } ->
-                            --     [ Route.link Route.Index [] [ Html.text "Index" ]
-                            --     , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
-                            --     , Html.text yearMonth
-                            --     ]
+                            Route.Twilogs ->
+                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                , Html.text "Twilog"
+                                ]
+
+                            Route.Twilogs__YearMonth_ { yearMonth } ->
+                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                , Route.Twilogs |> Route.link [] [ Html.text "Twilog" ]
+                                , Html.text yearMonth
+                                ]
+
                             Route.Index ->
                                 [ Html.text "Index"
                                 ]
@@ -363,7 +370,7 @@ view _ page shared sharedTagger pageView =
 
 
 siteBuiltAt =
-    Html.small [] [ Html.text (View.formatPosix Pages.builtAt) ]
+    Html.small [] [ Html.text (Helper.formatPosix Pages.builtAt) ]
 
 
 siteBuildStatus =
@@ -395,8 +402,7 @@ sitemap =
         List.intersperse (Html.text " | ")
             [ Html.text ""
             , Route.About |> Route.link [] [ Html.text "このサイトについて" ]
-
-            -- , Route.link Route.Twilogs [] [ Html.text "Twilog" ]
+            , Route.Twilogs |> Route.link [] [ Html.text "Twilog" ]
             , Route.Articles |> Route.link [] [ Html.text "記事" ]
             , Route.Library |> Route.link [] [ Html.text "書架" ]
             , Html.text ""

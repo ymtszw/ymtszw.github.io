@@ -11,6 +11,7 @@ module Helper exposing
     , makeAmazonUrl
     , makeDisplayUrl
     , makeTitle
+    , monthToPaddedNumber
     , nonEmptyString
     , onChange
     , posixToYmd
@@ -374,3 +375,44 @@ jst =
 unixOrigin : Time.Posix
 unixOrigin =
     Time.millisToPosix 0
+
+
+monthToPaddedNumber : String -> String
+monthToPaddedNumber monStr =
+    case monStr of
+        "Jan" ->
+            "01"
+
+        "Feb" ->
+            "02"
+
+        "Mar" ->
+            "03"
+
+        "Apr" ->
+            "04"
+
+        "May" ->
+            "05"
+
+        "Jun" ->
+            "06"
+
+        "Jul" ->
+            "07"
+
+        "Aug" ->
+            "08"
+
+        "Sep" ->
+            "09"
+
+        "Oct" ->
+            "10"
+
+        "Nov" ->
+            "11"
+
+        _ ->
+            -- Dec
+            "12"
