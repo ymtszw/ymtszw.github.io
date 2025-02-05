@@ -1,0 +1,7 @@
+[
+{"CreatedAt":"Thu Oct 11 01:06:55 +0000 2018","Text":"Message types carrying new state https://t.co/7HyExHo1Sb\n\nupdateの中で冗長な状態判定を書かなくていいようにMsgに必要十分な情報を押し込むのは重要なidiomだと自分も思っているが、TEAの性質上、Msgの発火が遅れる可能性がある場合、このidiomを使ってもModel-Msg間で状態不整合が起きうる的な話","StatusId":"1050190977971810304","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/7HyExHo1Sb","EntitiesUrlsExpandedUrls":"https://discourse.elm-lang.org/t/message-types-carrying-new-state/2177/5?u=ymtszw","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Oct 11 01:12:08 +0000 2018","Text":"そのとおりなんだけど、膨張しがちなupdateの可読性・一覧性を保つためにupdate内の処理を平坦にするのはかなり重要という感覚がある。\nまあ、バランスだよねって言えばそれまで","StatusId":"1050192289367093248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1050190977971810304","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Oct 11 13:10:37 +0000 2018","Text":"@gachinabe @kameo1048 釣りトーナメント商品の靴で飛べる","StatusId":"1050373101677109248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1050369964245278721","InReplyToUserId":"181197476","Retweet":"FALSE"}
+]

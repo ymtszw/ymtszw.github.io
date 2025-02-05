@@ -1,0 +1,21 @@
+[
+{"CreatedAt":"Wed Aug 28 15:34:17 +0000 2019","Text":"@kmizu その文脈でいうと、0.19ではunreachableな枝をDebug.todoで受ける手法で、実行時例外を経由して対話的に実装するスタイルも可能ですよ。これは普通によくやっている人を見ます。\n0.18では同じことをDebug.crashで表現していて、ライブラリ含めて使用可能だったので移行時によく俎上に上がっていました","StatusId":"1166735763423129607","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1166734765405327360","InReplyToUserId":"4027691","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 28 15:36:29 +0000 2019","Text":"@kmizu Debug.todoはoptimizeビルド（リリースビルド）ではコンパイラがエラーにしてしまうというcaveatはありますが、実用上はそれほど影響ないです。","StatusId":"1166736315846516736","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1166735763423129607","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 28 15:42:56 +0000 2019","Text":"@kmizu 私が前職でScala開発していたときも、Should Not Happn枝を実行時例外で受ける手法は普通にやっていたので、一般的だと思います。Elmの場合、そのままリリースしてSentryなどでstacktraceを回収してもいいし、リリース時にはfallback valueなどで置き換えて丸めるとかですかねー。","StatusId":"1166737941797801984","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1166736846560227328","InReplyToUserId":"4027691","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 28 15:45:52 +0000 2019","Text":"Erlangの世界ではLet it crashというよく誤解される言葉があるんだけど、例外が軽量プロセス単位でisolateされているので（実際はプロセスツリーのグラフを伝搬することがありうるけど）、このような実行時例外を経由して対話的に実装を進める手法が自然にできるというのが真意だと思ってる","StatusId":"1166738676522475520","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 28 15:53:11 +0000 2019","Text":"@kmizu 言語開発者の意図・示唆をどのへんに感じるかですね。例外を実装プロセスの一部として利用するというのは特に否定されてはいなくて、実はDebug.todoという名前自体がそれをadvocateしていたりしますね（todoということは、その枝がトリガーしたら何らか実装の修正が必要、を意味する）","StatusId":"1166740519793254401","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1166738693010288640","InReplyToUserId":"4027691","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 28 16:13:07 +0000 2019","Text":"@kmizu 実際にそこそこ書いたあとの感覚としては、\"No Runtime Exception\"ははっきり言って大した意味はないです。確かにoptimizeビルドを通してあれば、コンパイラやコアライブラリのバグを踏まなければ実行時例外まずおきませんけど、踏むときは踏むし、それ以前に実装バグはありうるし。","StatusId":"1166745534033358851","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1166743050808254464","InReplyToUserId":"4027691","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Aug 28 16:17:30 +0000 2019","Text":"@kmizu 私もマーケティングワードだと思っています。まあ一方で、（コンパイラやコアライブラリのバグ除けば）狙わなければ実行時例外がまず起きないというのは一応事実ではあるので、安心感は間違いなく高いって程度ですね","StatusId":"1166746637038784512","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1166746011718389760","InReplyToUserId":"4027691","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 29 11:13:08 +0000 2019","Text":"ClassicだとShmの色はピンクでPalと共通だったのか\nMethod配信はどれもダンジョンgrindになってしまった","StatusId":"1167032431745986560","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 29 11:19:55 +0000 2019","Text":"Swiftyもやっとるやん","StatusId":"1167034135950413826","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Aug 29 11:51:14 +0000 2019","Text":"@Ndanka ちゃんとしてー","StatusId":"1167042020298280960","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1167041788558770176","InReplyToUserId":"138507504","Retweet":"FALSE"}
+]

@@ -1,0 +1,13 @@
+[
+{"CreatedAt":"Thu Jan 10 17:57:46 +0000 2019","Text":"油断するとRank1多相を要求するコードを書こうとしてしまうin Elm","StatusId":"1083422664209776640","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jan 10 18:01:25 +0000 2019","Text":"なまじPhantom Typeは使えるから、「おッ、これtag部分使ったらうまいこといけ・・・なかったわ」ってなる","StatusId":"1083423582561099776","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1083422664209776640","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Jan 11 01:48:38 +0000 2019","Text":"このバグ、治ってないっぽいな。今だとhttps://t.co/0BoXD7wvCJ.onClickになってるけど現象は同じだ。\n\nMouse.clicks subscription created *and executed* following click event - Learn - Elm Discourse https://t.co/tQiiOp2FPa","StatusId":"1083541161422204928","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/0BoXD7wvCJ,https://t.co/tQiiOp2FPa","EntitiesUrlsExpandedUrls":"http://Browser.Events,https://discourse.elm-lang.org/t/mouse-clicks-subscription-created-and-executed-following-click-event/1067","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Jan 11 01:49:15 +0000 2019","Text":"状態遷移後即subscribeせず、1step余計に状態を用意して、onAnimationFrameでmsg発火してその1stepを進めてからsubscribeすれば回避できるが、気に入らないのは間違いない。","StatusId":"1083541313700618240","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1083541161422204928","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Jan 11 02:25:31 +0000 2019","Text":"RT @bicycle_panda: アンディ・マレー、今季限りでの現役引退を発表 元世界ランキング1位（ＡＦＰ＝時事） - Yahoo!ニュース\nまじかー https://t.co/SrQzecJfYr","StatusId":"1083550441391022080","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/SrQzecJfYr","EntitiesUrlsExpandedUrls":"https://headlines.yahoo.co.jp/hl?a=20190111-00000010-jij_afp-spo","Retweet":"TRUE","RetweetedStatusFullText":"アンディ・マレー、今季限りでの現役引退を発表 元世界ランキング1位（ＡＦＰ＝時事） - Yahoo!ニュース\nまじかー https://t.co/SrQzecJfYr","RetweetedStatusId":"1083550441391022080","RetweetedStatusUserName":"パンダ","RetweetedStatusUserProfileImageUrl":"https://link-preview.ymtszw.workers.dev?tw-profile-icon=bicycle_panda"}
+,
+{"CreatedAt":"Fri Jan 11 14:57:42 +0000 2019","Text":"オフラインシングル(マップ永続)でゲーム再開ありだとあんま盛り上がらなくないかこれ","StatusId":"1083739736244539392","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

@@ -1,0 +1,21 @@
+[
+{"CreatedAt":"Tue Dec 18 05:25:02 +0000 2018","Text":"MDNを検索エンジン登録することからweb frontendの開発が始まるといってもなんら過言ではない","StatusId":"1074898309037182976","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Dec 18 05:41:08 +0000 2018","Text":"&lt;func&gt; : innerState -&gt; OuterState\n\nとか\n\n&lt;func&gt; : innerMsg -&gt; OuterMsg\n\nとかいったコンストラクタ関数のことは私もtaggerと書く。もともとtagged union typeだったのでそこから来てるってのもありそう","StatusId":"1074902363284992000","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Dec 18 12:23:04 +0000 2018","Text":"Pure-Elm Markdown Parser、とりあえず触った。ひとまず中間表現(ノードツリー)に対してカスタマイズを加える部分は把握したのでシンタックスの追加まではできるようになった。\nelm-ui向けにノードツリー -&gt; Element msgの関数を時前実装するかどうかが悩みどころだ","StatusId":"1075003511052496898","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Dec 18 12:25:32 +0000 2018","Text":"pablohirafuji/elm-markdown\nhttps://t.co/9fZ9nlMqJl\n\n提供されてるview関数にオプションをいっぱい差し込んで改造すべきか、それともまるごと自作か。\nまるごとは面倒なんだけど、まわりのelm-uiと調和させるのもそれはそれで面倒そうである。","StatusId":"1075004134225395712","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1075003511052496898","InReplyToUserId":"352840258","EntitiesUrlsUrls":"https://t.co/9fZ9nlMqJl","EntitiesUrlsExpandedUrls":"https://github.com/pablohirafuji/elm-markdown/tree/2.0.5","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Dec 18 12:41:17 +0000 2018","Text":"@jinjor できますが、問題は周囲のスタイルと調和させたり、レイアウトの制約をHtmlの内側にも効かせたりすることですね","StatusId":"1075008095229640705","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1075007517598470149","InReplyToUserId":"14205987","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Dec 18 12:58:57 +0000 2018","Text":"熱くならないで、、、","StatusId":"1075012542135558145","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Dec 18 13:22:42 +0000 2018","Text":"@jinjor でも面倒かけたくないので外側からstyle nodeあてがって無理くり閉じ込める方向性になりそうな予感はしている","StatusId":"1075018520931356672","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1075008375128154112","InReplyToUserId":"14205987","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Dec 18 13:50:57 +0000 2018","Text":"@jinjor ちなみに、どのタイミングでparseしていますか？扱うテキストもDOMも多いので、Block () () までparseしたものを保管して、その後はrenderのみという使い方にしようかと画策しています","StatusId":"1075025626749267973","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1075025002720681984","InReplyToUserId":"14205987","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Dec 18 13:51:49 +0000 2018","Text":"@jinjor 対する案としてはStringで保管しておいて、view関数内でparse &amp; renderですが","StatusId":"1075025845356355584","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1075025626749267973","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Dec 18 13:53:00 +0000 2018","Text":"@jinjor ツリーでかくてもlazy効けばそれでもいいのか","StatusId":"1075026145102331904","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1075025925400457216","InReplyToUserId":"14205987","Retweet":"FALSE"}
+]

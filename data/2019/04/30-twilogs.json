@@ -1,0 +1,13 @@
+[
+{"CreatedAt":"Tue Apr 30 00:18:36 +0000 2019","Text":"先週のわたモテ読むの忘れてたから今読んだんだけど、最後のコマでツボった","StatusId":"1123018782048305153","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Apr 30 11:29:51 +0000 2019","Text":"自己を凝縮した過ごし方で平成を終えることに誇りを感じる。\n\n朝寝て夜起きた。","StatusId":"1123187706211721218","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Apr 30 12:14:21 +0000 2019","Text":"Elixirとmixは言語とそのビルドツールとしてイケてる方だと思ってるけど、compile-time configとruntime config (さらに\"release\"-time config), library-introduced configとroot application configのようにconfig周りが複雑で、作法も統一されてない問題があったので、天下統一に向かってほしい https://t.co/JMjXVLtqLe","StatusId":"1123198905892474880","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/JMjXVLtqLe","EntitiesUrlsExpandedUrls":"https://twitter.com/melponn/status/1123196178588323840","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Apr 30 12:14:26 +0000 2019","Text":"RT @melponn: Elixir の新機能、mix release が追加されて、release のために Mix に依存しない Config モジュールが新しく作られたっぽい。Mix.Config は deprecated になるみたいだけど、soft deprecat…","StatusId":"1123198925907750913","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"Elixir の新機能、mix release が追加されて、release のために Mix に依存しない Config モジュールが新しく作られたっぽい。Mix.Config は deprecated になるみたいだけど、soft deprecat…","RetweetedStatusId":"1123198925907750913","RetweetedStatusUserName":"めるぽん.cpp","RetweetedStatusUserProfileImageUrl":"https://link-preview.ymtszw.workers.dev?tw-profile-icon=melponn"}
+,
+{"CreatedAt":"Tue Apr 30 13:55:28 +0000 2019","Text":"musca3天才でしょ","StatusId":"1123224351442997248","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Apr 30 14:11:36 +0000 2019","Text":"@cubbit2 意外と普通に速いので、rendering/layoutingと比べてボトルネックにもならなそうだった","StatusId":"1123228411155980288","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1123227948411047936","InReplyToUserId":"770264552864821248","Retweet":"FALSE"}
+]

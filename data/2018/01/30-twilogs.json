@@ -1,0 +1,31 @@
+[
+{"CreatedAt":"Mon Jan 29 15:24:43 +0000 2018","Text":"hordeだと今OrgにSylvanasがいるけど、クリックしまくって苛つかせると「Windrunner3姉妹でお前が一番好きなのはSylvanasだよな？当然そうだよな？」というありがたい台詞が聞ける","StatusId":"957997945470595073","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 00:47:13 +0000 2018","Text":"@ababupdownba @TobiasGSmollett Elixirは元々Rubyシンタックス寄せだったので関数呼び出しの括弧をカジュアルに省略できるようになっているんだけど、曖昧性が生じて微妙なのと無名関数周りの文法が特殊になるという欠点を抱えている。\n最近の潮流は基本的に括弧を省略しない","StatusId":"958139504325419008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958136416034177024","InReplyToUserId":"94293281","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 00:50:12 +0000 2018","Text":"@ababupdownba @TobiasGSmollett 括弧を省略することが限定的に是とされるのはマクロでDSL的な文法を構成しているケースくらい。\n関数については1.4以降は基本的には省略しないのが作法で、コンパイル時に警告も出るようになった。ホイホイ省略しているコード例は基本的には古いもの。","StatusId":"958140251775557632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958139504325419008","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 00:51:44 +0000 2018","Text":"@ababupdownba @TobiasGSmollett 一個でも省略しないし、なんなら0個でもしません。その辺はML系とは雰囲気がちょっと違う","StatusId":"958140639262130176","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958139847448846336","InReplyToUserId":"94293281","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 00:56:34 +0000 2018","Text":"@ababupdownba @TobiasGSmollett パイプはコンパイラが言ってる通りで解決可能な関数・マクロ呼び出しなら大体なんでもできるけど、無名関数に関しては変数にバインドしてfoo.()でコールする必要があるはず。\ncaseとかifとかにもパイプできるがそんなに積極的に勧めはしない","StatusId":"958141855585062912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958140479295471616","InReplyToUserId":"94293281","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 01:10:19 +0000 2018","Text":"青木ヤクルト電撃復帰！７年ぶり日本球界　３年総額１０億円 #SmartNews \n\nエイオキ帰ってくる https://t.co/hokf2XnMzV","StatusId":"958145317412642816","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/hokf2XnMzV","EntitiesUrlsExpandedUrls":"https://www.sponichi.co.jp/baseball/news/2018/01/30/kiji/20180130s00001173030000c.html","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 01:26:33 +0000 2018","Text":"@ababupdownba elixir schoolってlinkとかmonitorも載ってました？","StatusId":"958149402484400128","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958147940379279361","InReplyToUserId":"94293281","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 01:28:02 +0000 2018","Text":"@ababupdownba 結構ちゃんとしてるんだ","StatusId":"958149776045846528","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958149645313585154","InReplyToUserId":"94293281","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 02:08:57 +0000 2018","Text":"@ababupdownba 弊社Cowboy（ErlangのHttpServer）ベースの独自フレームワーク使ってるので普段あまり他のフレームワーク使いませんが、Trotって初めて見ましたね。\nPlug/Cowboyナマで使うケースはままあります。","StatusId":"958160073519284224","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958155723392692224","InReplyToUserId":"94293281","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 02:10:05 +0000 2018","Text":"@ababupdownba Phoenixが重厚長大すぎるのは多くの人が抱いてる印象だと思います。悪いフレームワークじゃないですが。Elmのbootstrapもできるし。","StatusId":"958160357184294913","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958160073519284224","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 02:10:50 +0000 2018","Text":"Awesomeはこちら\nhttps://t.co/QEmJw3S2zf","StatusId":"958160547538649088","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/QEmJw3S2zf","EntitiesUrlsExpandedUrls":"https://github.com/h4cc/awesome-elixir","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 02:13:13 +0000 2018","Text":"@ababupdownba middleware機構もあるのでまさに、と言いたいところだけどRackほど高機能でもない気はする。まあそんな感じに捉えておいていいと思います。","StatusId":"958161143528275968","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958160880461467648","InReplyToUserId":"94293281","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 02:15:08 +0000 2018","Text":"awesome久しぶりに見たけどPhoenix以外でまともに開発されてるフレームワークがないんだな。。。言語開発と主要フレームワークの開発連携が深いと他が育たないのだろうか","StatusId":"958161629585186817","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 04:22:43 +0000 2018","Text":"@miyamo_madoka 弊社に運用中の実装ありまっせ。社内ツールですが。\n私は一応保守担当の一人ではあるけどもうあんまり書ける気がしない。Elixirへの移植も進んでいる。","StatusId":"958193734360866817","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"958191292369944578","InReplyToUserId":"2362695512","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 30 04:27:05 +0000 2018","Text":"https://t.co/8u6VP96wZp、早くも書いたら百％マサカリが飛んできそうなトピックしか残っていない。なんかトピック浮かんだら足すけど","StatusId":"958194835336261633","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/8u6VP96wZp","EntitiesUrlsExpandedUrls":"http://scrapbox.io/elm-jp","Retweet":"FALSE"}
+]

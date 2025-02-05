@@ -1,0 +1,9 @@
+[
+{"CreatedAt":"Fri Dec 29 16:11:34 +0000 2017","Text":"ElmでUTC時刻を得るスマートな方法を探し求めた末、結局elm-lang/coreのmasterのTimeに行き着いた","StatusId":"946775709686538240","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 29 16:14:21 +0000 2017","Text":"将来的にDateは廃止されてTime moduleのみになり、Zoneの扱い方とかも標準が整備されるっぽいので、ここを眺めながらなんとなく揃えておこう","StatusId":"946776411565461504","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"946775709686538240","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Dec 29 22:52:00 +0000 2017","Text":"RT @chloeyuki: TVゲーム「Call Of Duty」のプレイ中に喧嘩になったプレイヤーが偽の住所を曝して「これが自分の住所だ、度胸があるなら何かやってみろ」→相手が更にそれを曝して「コイツの家に警察特殊部隊SWATを送ってやれ」→SWAT、指定された場所にあった…","StatusId":"946876484597121026","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"TVゲーム「Call Of Duty」のプレイ中に喧嘩になったプレイヤーが偽の住所を曝して「これが自分の住所だ、度胸があるなら何かやってみろ」→相手が更にそれを曝して「コイツの家に警察特殊部隊SWATを送ってやれ」→SWAT、指定された場所にあった…","RetweetedStatusId":"946876484597121026","RetweetedStatusUserName":"chloeyuki","RetweetedStatusUserProfileImageUrl":"https://link-preview.ymtszw.workers.dev?tw-profile-icon=chloeyuki"}
+,
+{"CreatedAt":"Fri Dec 29 22:56:42 +0000 2017","Text":"俺もかなりフェイク臭いとは思っているけど、リンクちょっと辿ったくらいでは判断がつかなかったのでRT","StatusId":"946877666686205952","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

@@ -1,0 +1,19 @@
+[
+{"CreatedAt":"Tue Jan 29 04:40:07 +0000 2019","Text":"グッとガッツポーズしただけでビルドを通すイチロー","StatusId":"1090107296040988673","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 29 05:47:20 +0000 2019","Text":"@s01 アキヨドでレオポルドの静電容量方式のやつ触りましたが、結構よかつたです。あれのバリエーション増えて欲しい","StatusId":"1090124214412107781","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToUserId":"5708182","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 29 06:30:32 +0000 2019","Text":"なかなかな内容だ。\n\nDeNAを退職しました。 https://t.co/SRE0soRf3l","StatusId":"1090135085829873664","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/SRE0soRf3l","EntitiesUrlsExpandedUrls":"https://anond.hatelabo.jp/20190118015501","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 29 06:31:49 +0000 2019","Text":"RT @sac_ring: あーちん（高1）はテスト前になると自宅で友達5〜6人とLINEのグループ通話をつなぎっぱなしで勉強しているんだけど、つながっていても無言でときどき唐突に「これってさー」などと話しかけ、ノートのスクショを送りあってわからないところを解決していて現代…と…","StatusId":"1090135407398801408","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"あーちん（高1）はテスト前になると自宅で友達5〜6人とLINEのグループ通話をつなぎっぱなしで勉強しているんだけど、つながっていても無言でときどき唐突に「これってさー」などと話しかけ、ノートのスクショを送りあってわからないところを解決していて現代…と…","RetweetedStatusId":"1090135407398801408","RetweetedStatusUserName":"桜林 直子（サクちゃん）","RetweetedStatusUserProfileImageUrl":"https://link-preview.ymtszw.workers.dev?tw-profile-icon=sac_ring"}
+,
+{"CreatedAt":"Tue Jan 29 06:31:52 +0000 2019","Text":"RT @sac_ring: しかもリビングでスピーカー通話をしているので、知らずにあーちんに話しかけたらスマホから「いつもお世話になってまーす」と友達が挨拶してきたりしてとても愉快☺️","StatusId":"1090135420107538434","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"TRUE","RetweetedStatusFullText":"しかもリビングでスピーカー通話をしているので、知らずにあーちんに話しかけたらスマホから「いつもお世話になってまーす」と友達が挨拶してきたりしてとても愉快☺️","RetweetedStatusId":"1090135420107538434","RetweetedStatusUserName":"桜林 直子（サクちゃん）","RetweetedStatusUserProfileImageUrl":"https://link-preview.ymtszw.workers.dev?tw-profile-icon=sac_ring"}
+,
+{"CreatedAt":"Tue Jan 29 07:19:39 +0000 2019","Text":"elm-language-serverに貢献してVSCodeへの移住を図るのはあり得るな","StatusId":"1090147445017796608","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 29 09:38:26 +0000 2019","Text":"一直線にアプリを作るときはコンポーネントとか考えなくてもいいし、1ファイルに5000行ぶち込んでも別にコンパイラは平気なんだけど、リファクタリングしたくなったり、複数人開発のためにコード分離したくなったりしてくると自然と作り出す。それでいいと思う","StatusId":"1090182370261532673","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 29 09:46:44 +0000 2019","Text":"最近はView部分でそれをやるためにAtomic Designの枠組みを導入しつつ、DIっぽい感じでAPI設計していったら、実データ入りの本番appとは綺麗に独立分離したモックアップを表示させながらviewだけ独立開発できる仕組みがなんか出来上がってた。","StatusId":"1090184459335299072","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Jan 29 13:07:18 +0000 2019","Text":"@elseven 完全に勢いだよねあれ","StatusId":"1090234933564456962","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1090229616902434816","InReplyToUserId":"14558715","Retweet":"FALSE"}
+]

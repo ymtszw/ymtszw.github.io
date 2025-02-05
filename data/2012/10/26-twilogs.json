@@ -1,0 +1,7 @@
+[
+{"CreatedAt":"Fri Oct 26 03:23:45 +0000 2012","Text":"\"other players to tap Alani in the Vale of Eternal Blossoms while the Sky Crystal is being channeled\" fixされたようだけど実際に起ったのかな。起こってたら悲劇だな","StatusId":"261669418222878720","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Oct 26 05:56:38 +0000 2012","Text":"@Quantren Log読む限り各PetrificationはDebuff扱いで来てるっぽいけどこれをWAでtrackできるってことなんかな。少なくともデフォルトUIのBuffFrameにはPetrificationのDebuffは表示されないようになってたんだけど","StatusId":"261707891415871488","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToUserId":"844215600","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Oct 26 12:29:49 +0000 2012","Text":"@Quantren Custom TriggerでCOMBAT_LOG_EVENT_UNFILTEREDに対してトリガーさせればトラックできた。BuffFrameはUNIT_AURAを待ってるっぽいけどPetriはLOGは放たれるけどAURAは放たれないようになってるらしい","StatusId":"261806840646623232","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"261759741674528768","InReplyToUserId":"844215600","Retweet":"FALSE"}
+]

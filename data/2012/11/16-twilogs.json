@@ -1,0 +1,5 @@
+[
+{"CreatedAt":"Fri Nov 16 07:54:54 +0000 2012","Text":"イベントタイプにSPELL_RESURRECTてのがあったのかー。以前SPELL_CAST_SUCCESSで頑張ってトラックしようとしてダメだったけど、こっち使えばできるかもな","StatusId":"269347801253675008","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Nov 16 08:02:09 +0000 2012","Text":"Soulstoneって、キャスト開始時はspellID=20707(Soulstone)なのに完了時は95750(Soulstone Resurrection)になってるんだけどこれは死者に対して使ったときは死者用のスキルがログに残るからってことなのか","StatusId":"269349624656060418","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

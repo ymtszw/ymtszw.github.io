@@ -1,0 +1,39 @@
+[
+{"CreatedAt":"Fri Oct 12 15:08:29 +0000 2018","Text":"Farm night。今週からAlt入り\nhttps://t.co/vMeudLEw8m\n#ut_wow","StatusId":"1050765154424520704","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/vMeudLEw8m","EntitiesUrlsExpandedUrls":"https://www.warcraftlogs.com/reports/m2ngpWQRxLGtFPbY/","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Oct 12 18:15:13 +0000 2018","Text":"実践的低レベルプログラミング https://t.co/xVmMk5fUvO","StatusId":"1050812144336306177","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/xVmMk5fUvO","EntitiesUrlsExpandedUrls":"https://tanakamura.github.io/pllp/docs/","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Oct 12 20:34:18 +0000 2018","Text":"今更だけど、Windows環境で、\n\n* Nodejs LTSをインストーラで入れる\n* Yarnをインストーラで入れる\n* Powershell/cmdでyarn global add elm@0.19 elm-test@0.19 elm-format\n\nこれでも普通に問題なかった。今まではElmのインストーラで入れる→elm-format.exeはGitHubから拾ってきて配置してた","StatusId":"1050847147040489472","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Oct 12 20:35:18 +0000 2018","Text":"(WIndowsのAtomからElmjutsuなどを経由してElm開発するためのツールチェーンの整備方法の話)","StatusId":"1050847400544194561","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1050847147040489472","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 01:59:55 +0000 2018","Text":"@kusunoki666 @Celebium よーし松代大本営再稼働しよ","StatusId":"1050929091300347904","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1050928859170795520","InReplyToUserId":"86380961","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 04:19:19 +0000 2018","Text":"よろしくおねがいします。\n#elm_tokyo","StatusId":"1050964171628601344","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 04:20:43 +0000 2018","Text":"RT @as_masa: 資料もう一回 #elm_tokyo\nhttps://t.co/2MqKUeyGEq","StatusId":"1050964525128724480","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/2MqKUeyGEq","EntitiesUrlsExpandedUrls":"https://github.com/asmasa/elm-hands-on","Retweet":"TRUE","RetweetedStatusFullText":"資料もう一回 #elm_tokyo\nhttps://t.co/2MqKUeyGEq","RetweetedStatusId":"1050964525128724480","RetweetedStatusUserName":"NUMA","RetweetedStatusUserProfileImageUrl":"https://link-preview.ymtszw.workers.dev?tw-profile-icon=as_masa"}
+,
+{"CreatedAt":"Sat Oct 13 04:36:08 +0000 2018","Text":"整備途上ですが、elm-jpを紹介しておきます。 https://t.co/fJ3cKuPS8t \nDiscordではいろいろな議論やtipsの紹介、ビギナー向け質問部屋などもありますので気軽に参加ください。\n(ヤギなのは、今日いらっしゃいませんが盛んにElmの普及活動をしている @arowM_  さんちのマスコットです) #elm_tokyo","StatusId":"1050968407091204097","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/fJ3cKuPS8t","EntitiesUrlsExpandedUrls":"https://elm-lang.jp/","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 04:51:55 +0000 2018","Text":"ブラウザに表示したelm reactorの画面でコンパイルエラーが出ていたら、まずは落ち着いて読んでみてください。Elmのコンパイラはかなり丁寧に色々説明して導いてくれます\n#elm_tokyo","StatusId":"1050972375922032640","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 05:18:17 +0000 2018","Text":"step3補足: 型変数の話は深掘りしていくとそれなりに難しい部分でもあるので、型注釈の読み方がよくわからない関数があるとか、コンパイルエラーの意味がよくわからないとかいったことがあったらどんどん質問ください\n#elm_tokyo","StatusId":"1050979012091113472","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 05:22:10 +0000 2018","Text":"step3補足: 「Listについて\n同じ型の要素 を複数保持できる」\n^^^^^^^^^^^^^^\n\nこれはちょっと重要な点です。例えばJSのArrayでは[false, 1, \"2\"]を作れますが、Elmでは[ False, 1, \"2\" ]は作れません。\n#elm_tokyo","StatusId":"1050979990618046464","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 05:33:08 +0000 2018","Text":"step2の補足: レコード型をtype aliasで定義した時の話です\n#elm_tokyo https://t.co/8g53v4Bsuy","StatusId":"1050982751619317760","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/8g53v4Bsuy","EntitiesUrlsExpandedUrls":"https://twitter.com/jinjor/status/1050981978357428224","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 05:43:20 +0000 2018","Text":"「どんな型の値も入るList」は作れません。が、カスタムタイプを使って、「色々なパターンがありうる型の値が入っているList」を作ることができます。雑に書くと、\n\ntype Varied = S String | I Int | B Bool\n\ntype alias VariedList = List Varied\n\nのようなことをします。\n#elm_tokyo https://t.co/sddm6RAzfA","StatusId":"1050985317719658501","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/sddm6RAzfA","EntitiesUrlsExpandedUrls":"https://twitter.com/k_yamaz/status/1050984328669188096","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 06:02:48 +0000 2018","Text":"もくもくタイムはこちらのレポジトリをcloneして進めてください\nhttps://t.co/vYPhVMrF8e\n#elm_tokyo","StatusId":"1050990215458828290","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/vYPhVMrF8e","EntitiesUrlsExpandedUrls":"https://github.com/asmasa/elm-chat","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 06:37:39 +0000 2018","Text":"#elm_tokyo https://t.co/DXyG5AZgr7","StatusId":"1050998986209775618","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/DXyG5AZgr7","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DpXl-b4V4AABC3n.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1050998986209775618/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 07:36:27 +0000 2018","Text":"VSCodeで普段開発してないので詳しくないですが、vscode-elmはElm 0.19だと自動補完がまだ不十分かもしれないです。0.19は先月リリースされたばかりなので、いろいろと対応待ちです。\nAtomの場合、Elmjutsuというプラグインがおすすめで、0.19に対応済みです。\n#elm_tokyo","StatusId":"1051013782577664001","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 08:29:06 +0000 2018","Text":"楽天社内でelm-ui(旧style-elements)を使った開発をしている話。楽天の共通スタイルに沿ったUI要素を簡単に生成できるフレームワーク（兼UIカタログ）をelm-uiで作り、社内開発者で共有してる。すごいよく出来てるように見える #elm_tokyo","StatusId":"1051027032568672256","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 08:37:50 +0000 2018","Text":"@jinjor さんのユーザストーリーマッピングツールの話(2回め\n#elm_tokyo","StatusId":"1051029232980086784","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToUserId":"14205987","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Oct 13 08:55:35 +0000 2018","Text":"最後に @ababupdownba さんによるelm-jpの紹介でした。 #elm_tokyo","StatusId":"1051033699960086528","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

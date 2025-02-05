@@ -1,0 +1,23 @@
+[
+{"CreatedAt":"Sat Nov 03 16:52:40 +0000 2018","Text":"どうやらTCOのために幅優先探索していたのを、深さ優先探索にしないときれいにエラーを出力できない気がしてきたぞ","StatusId":"1058763904627568640","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Nov 03 21:15:09 +0000 2018","Text":"ClassicはAddon禁止 https://t.co/ZQDQihVOCR","StatusId":"1058829961966964737","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/ZQDQihVOCR","EntitiesUrlsExpandedUrls":"https://twitter.com/Wowhead/status/1058829831717044224","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Nov 03 21:18:49 +0000 2018","Text":"コンテンツは当時のパッチサイクルを再現するような形で順次開放 https://t.co/iUWC5tkfCJ","StatusId":"1058830883384225792","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/iUWC5tkfCJ","EntitiesUrlsExpandedUrls":"https://twitter.com/Wowhead/status/1058830674973515777","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sat Nov 03 22:02:08 +0000 2018","Text":"@MaditusTweet どうだろうね","StatusId":"1058841784229359616","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1058841559347544064","InReplyToUserId":"170192738","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 04 05:04:06 +0000 2018","Text":"@bicycle_panda 多分あれがfixされたパッチがベース","StatusId":"1058947974275846144","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1058928035280248832","InReplyToUserId":"7008482","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 04 07:40:54 +0000 2018","Text":"@feenal これの普通の使ってるけど、L字良さそうや","StatusId":"1058987436787740672","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1058986476354981889","InReplyToUserId":"61047377","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 04 10:20:10 +0000 2018","Text":"Immortalがaggroとってる間にDiablo3をオーバーホールする計画が極秘裏に進行中だから見てろよ","StatusId":"1059027517749714944","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 04 11:00:04 +0000 2018","Text":"マウスによるscroll以外の、アプリケーションロジックに基づくscroll(e.g. 今見えてない部分の要素にボタンクリックやキーボード操作でフォーカス、とか)にanimationつけたいけどめんどくさいだろうなあと思ってたが、chromeとfirefoxはscroll-behaviorで一発だった。もうこれでいいや","StatusId":"1059037557223092225","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 04 11:00:17 +0000 2018","Text":"https://t.co/HWx5N0gF09","StatusId":"1059037610767671296","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1059037557223092225","InReplyToUserId":"352840258","EntitiesUrlsUrls":"https://t.co/HWx5N0gF09","EntitiesUrlsExpandedUrls":"https://developer.mozilla.org/ja/docs/Web/CSS/scroll-behavior","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 04 11:31:13 +0000 2018","Text":"Elm + ElmUIだし、多少割り引いて考えていいとは思ってるけど、流石にオーダーが違うと考えるよね https://t.co/YbArU3DKAO","StatusId":"1059045395597221888","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","ExtendedEntitiesMediaUrls":"https://t.co/YbArU3DKAO","ExtendedEntitiesMediaSourceUrls":"https://pbs.twimg.com/media/DrJ8Ko-VAAA81XT.jpg","ExtendedEntitiesMediaTypes":"photo","ExtendedEntitiesMediaExpandedUrls":"https://twitter.com/gada_twt/status/1059045395597221888/photo/1","Retweet":"FALSE"}
+,
+{"CreatedAt":"Sun Nov 04 11:42:33 +0000 2018","Text":"elm-analyse/compiler warningがないと未使用importの除去が手作業になるので辛いのはすでに書いたけど、もう一つの別のオプションとして関数とかのlexical scope内部での限定importに対応してもらってもいい","StatusId":"1059048249623961600","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

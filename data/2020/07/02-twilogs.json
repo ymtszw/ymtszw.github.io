@@ -1,0 +1,17 @@
+[
+{"CreatedAt":"Wed Jul 01 15:43:03 +0000 2020","Text":"退職（およびスラド編集長からの退任）のご挨拶 | hylomの日記 | スラド https://t.co/sFSzB4pwBn","StatusId":"1278353432512851969","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/sFSzB4pwBn","EntitiesUrlsExpandedUrls":"https://srad.jp/~hylom/journal/640078/","Retweet":"FALSE"}
+,
+{"CreatedAt":"Wed Jul 01 16:27:32 +0000 2020","Text":"approvers/RADWIMPS: 君の then-then-then 世は Promise で Future https://t.co/WGueOh5TO3 \n\nUTF8関数/メソッド名対応してる言語結構多いんだな（いやコンパイル通ってるのか知らんが","StatusId":"1278364628305633280","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/WGueOh5TO3","EntitiesUrlsExpandedUrls":"https://github.com/approvers/RADWIMPS","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jul 02 10:11:48 +0000 2020","Text":"@miyamo_madoka cubbitさんが得意そうである","StatusId":"1278632457441382400","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1278626029821587456","InReplyToUserId":"2362695512","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jul 02 12:24:07 +0000 2020","Text":"TIL: git rebase中にもcommit hooksが動く。","StatusId":"1278665755676958721","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jul 02 12:24:49 +0000 2020","Text":"ゆえにcommit hookにちょっとした量の処理が入ってるなら、git rev-parse --abbrev-ref HEADの結果が\"HEAD\"かどうかなどを基準に除外したほうが良さげ","StatusId":"1278665934622740481","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1278665755676958721","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jul 02 13:40:31 +0000 2020","Text":"【一問一答】マヅコの知らない「異常検知」の世界 - Qiita https://t.co/OKFBCMkyby \n\n最近全然触っておらぬ","StatusId":"1278684984857911297","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/OKFBCMkyby","EntitiesUrlsExpandedUrls":"https://qiita.com/shinmura0/items/a2917d1e81a1d4e5aabe","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jul 02 13:42:35 +0000 2020","Text":"【2020年夏】imgタグにはwidthとheight属性を書くのがいいらしい | Rriver https://t.co/9gBuvZAz3I \n\nそれはそう、なんだけど、自前画像ではなくユーザアップロードの画像の場合、事前にアス比やwidth/heightを読み取り＆保存しておく仕組みが必要になって難易度上がるのよね。","StatusId":"1278685505001938947","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/9gBuvZAz3I","EntitiesUrlsExpandedUrls":"https://parashuto.com/rriver/development/img-size-attributes-are-back","Retweet":"FALSE"}
+,
+{"CreatedAt":"Thu Jul 02 13:44:12 +0000 2020","Text":"クライアント側でやる、サーバ側でやる、Cloudinaryのような3rd partyにやらせる、と選択肢も複数あって、それぞれの場合にどのようなsolutionを使うのかの知見が欲しい。","StatusId":"1278685911346081793","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"1278685505001938947","InReplyToUserId":"352840258","Retweet":"FALSE"}
+]

@@ -1,0 +1,5 @@
+[
+{"CreatedAt":"Thu Nov 01 22:47:35 +0000 2018","Text":"作り込みを進め、サンプルデータを増やすごとにどんどん動作が重くなるのは仕方ないといえば仕方ないのだがデバッグが大変だなあと思っていたところに、初心に帰ってLighthouse診断かけたらいろいろ教えてくれて頭が下がる","StatusId":"1058128447514435584","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Fri Nov 02 10:32:54 +0000 2018","Text":"ElmUI触ってしばらく、今更だけど、マジックナンバのたぐいを片っ端から定数化・あるいは関数化するだけで相当見通しが良くなる。使い始めは雑にadhocにpadding 5とか書いちゃうんだけど(それで問題なくレイアウトされるんだけど)、早めにやっといたほうが絶対にいい","StatusId":"1058305944344420352","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]

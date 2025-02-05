@@ -1,0 +1,17 @@
+[
+{"CreatedAt":"Tue Mar 27 08:15:56 +0000 2018","Text":"carouselすごくきれいに作れたから今日は満足","StatusId":"978546148561448960","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Mar 27 11:39:49 +0000 2018","Text":"Key単位でpreventDefault()するかどうか分岐するようなkeydown handlerって今のElmで書けるのかな。具体的には、自動補完リストを表示しているときのEnterはpreventDefaultして補完を実行しつつ、リストを消すだけにしたい。リストが消えた状態でのEnterは通常通りform送信","StatusId":"978597455167086593","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Mar 27 11:53:28 +0000 2018","Text":"@arowM_ andThenでdecode結果に基づいてfailさせれば、Msgが発火されない≒Msg発火のときに一緒に実行される予定だったpreventDefaultが実行されないことになる、のでdefaultに進むってことですかね？これうまいですね。多分これでできそう","StatusId":"978600889022799872","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"978599256184340482","InReplyToUserId":"196001868","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Mar 27 11:59:18 +0000 2018","Text":"なるほどこれか https://t.co/d5YR2HJ7kL","StatusId":"978602357444435969","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/d5YR2HJ7kL","EntitiesUrlsExpandedUrls":"https://twitter.com/miyamo_madoka/status/978601821689102336","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Mar 27 12:20:17 +0000 2018","Text":"elm-keyboard-eventに、まさにこの目的のdecoderヘルパーがあった。\n\nhttps://t.co/iio4vQR25R","StatusId":"978607639667007489","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","EntitiesUrlsUrls":"https://t.co/iio4vQR25R","EntitiesUrlsExpandedUrls":"http://package.elm-lang.org/packages/Gizra/elm-keyboard-event/1.0.0/Keyboard-Event#considerKeyboardEvent","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Mar 27 12:22:35 +0000 2018","Text":"あとはキーコンビネーションをいい感じに記述できるイディオムが欲しいなあ。\nmacではDown, Upに加えてCtrl + n, Ctrl + pもlistenしたいぞ","StatusId":"978608217243623425","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"978607639667007489","InReplyToUserId":"352840258","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Mar 27 13:45:05 +0000 2018","Text":"@phocaenidae solomon gearでBFFつくればOK!!","StatusId":"978628980264742912","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"978628723573366784","InReplyToUserId":"140497731","Retweet":"FALSE"}
+,
+{"CreatedAt":"Tue Mar 27 13:47:01 +0000 2018","Text":"結局[ [Up], [Ctrl Nothing, P], [Down], [Ctrl Nothing, N] ]のようなリストでキーコンビネーションを記述することで、無事emacs-like keybindingにも対応できた。思ったよりいい感じになって満足","StatusId":"978629467110219777","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"978608217243623425","InReplyToUserId":"352840258","Retweet":"FALSE"}
+]

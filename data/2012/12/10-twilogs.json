@@ -1,0 +1,9 @@
+[
+{"CreatedAt":"Mon Dec 10 12:58:58 +0000 2012","Text":"@jaijai_lt これって、Index=4を指定して使ってるAddonがかち合った場合に問題は起こったりしない？ 気にせず中身書き換えて使ってくれる？","StatusId":"278121628125253632","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"278112403059777536","InReplyToUserId":"838806062","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 10 13:22:22 +0000 2012","Text":"@jaijai_lt epgpLM_MLの中に1ヶ所だけpreferredIndex=3指定してるとこあったね","StatusId":"278127518966501376","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"278125549262614529","InReplyToUserId":"838806062","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 10 13:33:30 +0000 2012","Text":"@jaijai_lt つまりpreferredIndex=3or4の1行だけ追加する場合、そのindexのdialogがもう表示されてる状態で別のaddonが同じdialogを使おうとしたら回避してIndex=1を使いに行っちゃうから、その後鰤UIが怒る可能性はまだあるって感じ？","StatusId":"278130319511666688","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","InReplyToStatusId":"278128292442300416","InReplyToUserId":"838806062","Retweet":"FALSE"}
+,
+{"CreatedAt":"Mon Dec 10 13:43:32 +0000 2012","Text":"WeakAuras.lua開いたら唐突にAAが貼ってあってビビった","StatusId":"278132845581570048","UserName":"Gada / ymtszw","UserProfileImageUrl":"https://pbs.twimg.com/profile_images/1520432647868391430/4b2AUYjC_normal.jpg","Retweet":"FALSE"}
+]
