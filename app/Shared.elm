@@ -152,8 +152,9 @@ type SharedMsg
     | ScrollToTop
     | ScrollToBottom
     | CloseLightbox
-      --| v3ではclient-sideでquery parameterを使ったroutingが今のところできない。SharedMsgで擬似的にworkaroundする
+      --| v3ではclient-sideでquery parameter/fragmentを使ったroutingが今のところできない。SharedMsgで擬似的にworkaroundする
     | PushQueryParam String String
+    | PushFragment String
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -202,6 +203,9 @@ update msg model =
 
         SharedMsg (PushQueryParam key value) ->
             ( { model | queryParams = Dict.insert key [ value ] model.queryParams }, Effect.none )
+
+        SharedMsg (PushFragment value) ->
+            ( { model | fragment = Just value }, Effect.none )
 
         SharedMsg _ ->
             ( model, Effect.none )

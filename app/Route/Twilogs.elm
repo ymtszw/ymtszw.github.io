@@ -10,6 +10,7 @@ module Route.Twilogs exposing
     , linksByMonths
     , listUrlsForPreviewBulk
     , route
+    , scrollToTargetTweet
     , showTwilogsByDailySections
     , subscriptions
     , twilogsOfTheDay
@@ -30,6 +31,7 @@ import Head.Seo as Seo
 import Helper exposing (requireEnv)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Html.Keyed
 import Json.Decode
 import Json.Encode
@@ -68,6 +70,11 @@ type Msg
     | ReceiveFromJs Json.Encode.Value
     | DebounceMsg Debounce.Msg
     | RequestLinkPreview TwitterStatusIdStr
+      --| HACK v3ではclient sideでquery parameterにアクセスしづらくなり、他ページからの遷移時のinitではquery parameterを使った初期化処理が動かない。
+      --| （ページを直接訪問したときには動作する）
+      --| 代わりにinitMsgを飛ばしてupdateで再度初期化を試みる。
+    | RuntimeInit
+    | ForceTweetId String
 
 
 type alias RouteParams =
@@ -166,6 +173,7 @@ update app shared msg model =
             ( { model | twilogSearch = twilogSearch_ }, Effect.map TwilogSearchMsg cmd, Nothing )
 
         ReceiveFromJs v ->
+            -- Portから送られてくるデータには複数パターンありうるが、今のところスクロールイベントに起因するviewport情報が送られてくる。Debounceして使う
             let
                 ( debounce_, cmd ) =
                     Debounce.push debounceConfig v model.debounce
@@ -175,6 +183,7 @@ update app shared msg model =
         DebounceMsg dMsg ->
             let
                 ( debounce_, cmd ) =
+                    -- Debounceによって、最終的にスクロールが停止したときのviewportに対し decodeViewportAndFindTweets を実行することになる
                     Debounce.update debounceConfig (Debounce.takeLast (decodeViewportAndFindTweets (Dict.keys model.linksInTwilogs))) dMsg model.debounce
             in
             ( { model | debounce = debounce_ }, Effect.fromCmd cmd, Nothing )
@@ -195,6 +204,22 @@ update app shared msg model =
 
                 notFetchedUrls ->
                     ( model, Effect.none, Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag notFetchedUrls)) )
+
+        RuntimeInit ->
+            ( model
+            , case shared.fragment of
+                Just id ->
+                    -- v3で、ページ遷移後に遅延してfragmentを読み込んでスクロールするアーカイブページ専用処理。
+                    -- update関数共用のために不可避的にこちらに設置
+                    scrollToTargetTweet id
+
+                Nothing ->
+                    findTweetsInOrAfterViewport (Dict.keys model.linksInTwilogs) shared.initialViewport |> Effect.fromCmd
+            , Nothing
+            )
+
+        ForceTweetId id ->
+            ( model, Effect.none, Just <| Shared.SharedMsg <| Shared.PushFragment id )
 
 
 debounceConfig =
@@ -296,6 +321,16 @@ findTweetsInOrAfterViewport tweetIds viewport =
     tweetIds
         |> List.map retrieveTweetIdInViewport
         |> Cmd.batch
+
+
+scrollToTargetTweet : String -> Effect Msg
+scrollToTargetTweet id =
+    Browser.Dom.getElement id
+        -- ヘッダー分を大雑把に差し引いてスクロール（注：yは下方向に向かって値が増える）
+        |> Task.andThen (\e -> Browser.Dom.setViewport 0 (e.element.y - 100))
+        |> Task.onError (\_ -> Task.succeed ())
+        |> Task.perform (\_ -> NoOp)
+        |> Effect.fromCmd
 
 
 subscriptions : routeParams -> UrlPath -> Shared.Model -> Model -> Sub Msg
@@ -718,7 +753,7 @@ appendMediaGrid links status htmls =
 -----------------
 
 
-goToLatestMonth : List TwilogArchiveYearMonth -> Dict RataDie (List Twilog) -> Html msg
+goToLatestMonth : List TwilogArchiveYearMonth -> Dict RataDie (List Twilog) -> Html Msg
 goToLatestMonth twilogArchives twilogsFromOldest =
     case ( twilogArchives, Dict.toList twilogsFromOldest ) of
         ( latestYearMonth :: _, ( _, oldestTwilog :: _ ) :: _ ) ->
@@ -728,9 +763,12 @@ goToLatestMonth twilogArchives twilogsFromOldest =
             let
                 pathToLatestMonth =
                     UrlPath.toAbsolute (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = latestYearMonth }))
+
+                id =
+                    "tweet-" ++ oldestTwilog.idStr
             in
             nav [ class "prev-next-navigation" ]
-                [ a [ href <| pathToLatestMonth ++ "#tweet-" ++ oldestTwilog.idStr ] [ strong [] [ text "← 最新月" ] ]
+                [ a [ href <| pathToLatestMonth ++ "#" ++ id, onClick (ForceTweetId id) ] [ strong [] [ text "← 最新月" ] ]
                 ]
 
         ( _, _ ) ->

@@ -9,7 +9,6 @@ module Route.Twilogs.YearMonth_ exposing
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Glob
-import Browser.Dom
 import Debounce
 import Dict exposing (Dict)
 import Effect exposing (Effect)
@@ -27,7 +26,6 @@ import Route.Twilogs
 import RouteBuilder exposing (App)
 import Shared
 import Site exposing (seoBase)
-import Task
 import TwilogData exposing (RataDie, Twilog)
 import TwilogSearch
 import View
@@ -83,20 +81,12 @@ init app shared =
     , case shared.fragment of
         Just id ->
             -- アーカイブページ独自処理; フラグメント指定されたTweetがあればそのTweetまでスクロール
-            scrollToTargetTweet id
+            Route.Twilogs.scrollToTargetTweet id
 
         Nothing ->
-            Route.Twilogs.findTweetsInOrAfterViewport (Dict.keys linksInTwilogs) shared.initialViewport |> Effect.fromCmd
+            -- HACK v3では、別ページからの遷移時、initで最新のURL変更を検知できないので、遅延評価する
+            Helper.initMsg Route.Twilogs.RuntimeInit
     )
-
-
-scrollToTargetTweet id =
-    Browser.Dom.getElement id
-        -- ヘッダー分を大雑把に差し引いてスクロール（注：yは下方向に向かって値が増える）
-        |> Task.andThen (\e -> Browser.Dom.setViewport 0 (e.element.y - 100))
-        |> Task.onError (\_ -> Task.succeed ())
-        |> Task.perform (\_ -> Route.Twilogs.NoOp)
-        |> Effect.fromCmd
 
 
 pages : BackendTask FatalError (List RouteParams)

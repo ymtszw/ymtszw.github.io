@@ -48,7 +48,7 @@ const config: ElmPagesInit = {
     window.addEventListener(
       "scroll",
       (event) => {
-        if (ticking > 5) {
+        if (ticking > 10) {
           window.requestAnimationFrame(() => {
             app.ports.fromJs.send({
               viewportHeight: window.innerHeight,

@@ -286,6 +286,7 @@ type Msg
     | AuthorsTableMsg Table.State
     | LabelsTableMsg Table.State
     | Res_refreshKindleBookOnDemand (Result String KindleBook)
+      --| v3ではclient-sideでquery parameter/fragmentを使ったroutingが今のところできない。副作用を併用し、SharedMsg経由で擬似的にworkaroundする
     | ForceNewPage Int
     | ForceReviewDraftId ASIN
 
