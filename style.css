@@ -625,7 +625,10 @@ nav.twilog-archive-navigation ul li.selected::after {
 
 /* Twilog search container */
 .search {
-  position: relative;
+  position: sticky;
+  top: 10px;
+  text-align: right;
+  z-index: 5;
 }
 .spinner::before {
   position: absolute;
