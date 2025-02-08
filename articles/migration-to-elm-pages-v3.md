@@ -122,10 +122,9 @@ v2リポジトリのPage moduleを一つずつ移管してインクリメンタ�
 - Route moduleの`init`関数で`Maybe PageUrl`にランタイムアクセスできなくなった
   - ついでに`QueryParams` moduleも提供されなくなった
   - 一方、`Shared.init`では引き続き利用できる
-  - したがってquery parameterなどのURL要素にランタイムにアクセスしたい場合、`Shared.init`の時点で必要なものを`Shared.Model`に取り込んでおいて使う
-  - おそらくだが、query parameterを第一義的にはserver renderingにおけるペイロードの受渡手段として使うためのAPI再設計が想定にある？あまりちゃんと調べていない
-    - 関連issue: <https://github.com/dillonkearns/elm-pages/issues/509>
-- 同一ページ内でquery parameterやfragmentだけを変更したURLにリンクし、ユーザがそのリンクをクリックしたとき、Route moduleの`init`に処理が渡らなくなった
+  - したがってquery parameterなどのURL要素にランタイムにアクセスしたい場合、`Shared.init`および`Shared.template.onPageChange`で必要なものを`Shared.Model`に取り込んでおいて使う
+- （上記と関連するが、）同一ページ内でquery parameterやfragmentだけを変更したURLにリンクし、ユーザがそのリンクをクリックしたとき、Route moduleの`init`に処理が渡らなくなった
   - 結果として、query parameterやfragmentに状態をもたせることによるクライアント側での表示変更が難しくなった
   - 関連issue: <https://github.com/dillonkearns/elm-pages/issues/479>, <https://github.com/dillonkearns/elm-pages/issues/509>
-  - なんらかworkaroundがありそうな気はするので調査中
+  - Issue上で議論したが、基本的にはAPI再設計に伴う考慮漏れであって、おそらく今後新規APIとして経路が用意される
+    - ただし、`init`を再呼び出しする形ではなく、専用のハンドラー関数を実装する形になる。これは`init`はRoute進入時に1回だけ実行されることを前提としている（＝冪等でない）既存コードを尊重する措置

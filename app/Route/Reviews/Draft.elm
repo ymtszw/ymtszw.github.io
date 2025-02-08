@@ -126,7 +126,7 @@ type Msg
     | Publish Bool
       --| HACK v3ではclient sideでquery parameterにアクセスしづらくなり、他ページからの遷移時のinitではquery parameterを使った初期化処理が動かない。
       --| （ページを直接訪問したときには動作する）
-      --| 代わりにinitMsgを飛ばしてupdateで初期化する。
+      --| 代わりにinitMsgを飛ばしてupdateで再度初期化を試みる。
     | RuntimeInit
 
 
