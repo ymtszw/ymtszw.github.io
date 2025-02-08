@@ -236,7 +236,7 @@ lockScrollPosition =
         |> Effect.fromCmd
 
 
-triggerHighlightJs : Effect Msg
+triggerHighlightJs : Effect msg
 triggerHighlightJs =
     Json.Encode.object [ ( "tag", Json.Encode.string "TriggerHighlightJs" ) ]
         |> Effect.runtimePortsToJs
