@@ -22,7 +22,7 @@ import PagesMsg exposing (PagesMsg)
 import Route
 import RouteBuilder exposing (App, StatefulRoute)
 import Shared
-import Site
+import Site exposing (seoBase)
 import View exposing (View)
 
 
@@ -182,7 +182,11 @@ head :
     App Data ActionData RouteParams
     -> List Head.Tag
 head app =
-    Site.seoBase
+    { seoBase
+        | title = Helper.makeTitle app.data.article.meta.title
+        , description = app.data.article.body.excerpt
+        , image = Maybe.withDefault seoBase.image (Maybe.map CmsData.makeSeoImageFromCmsImage app.data.article.meta.image)
+    }
         |> Seo.article
             { tags = []
             , section = Nothing

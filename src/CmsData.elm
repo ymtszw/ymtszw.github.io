@@ -1,4 +1,4 @@
-module CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata, cmsArticlePublishedAtDecoder, cmsGet, cmsImageDecoder)
+module CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata, cmsArticlePublishedAtDecoder, cmsGet, cmsImageDecoder, makeSeoImageFromCmsImage)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
@@ -6,6 +6,7 @@ import BackendTask.File.Extra
 import BackendTask.Glob
 import BackendTask.Http
 import FatalError exposing (FatalError)
+import Head.Seo
 import Helper exposing (dataSourceWith, requireEnv)
 import Html.Parser
 import Iso8601
@@ -13,6 +14,8 @@ import Json.Decode as Decode
 import Json.Decode.Extra as Decode
 import Markdown.Block
 import Pages
+import Pages.Url
+import Site
 import Time
 
 
@@ -180,3 +183,22 @@ cmsGet url decoder =
                 , timeoutInMs = Just 10000
                 }
                 |> BackendTask.allowFatal
+
+
+makeSeoImageFromCmsImage : CmsImage -> Head.Seo.Image
+makeSeoImageFromCmsImage cmsImage =
+    { url =
+        if String.startsWith "http" cmsImage.url then
+            Pages.Url.external cmsImage.url
+
+        else
+            Pages.Url.external <|
+                if String.startsWith "/" cmsImage.url then
+                    Site.canonicalUrl ++ "/" ++ String.dropLeft 1 cmsImage.url
+
+                else
+                    Site.canonicalUrl ++ "/" ++ cmsImage.url
+    , alt = "Article Header Image"
+    , dimensions = Just { width = cmsImage.width, height = cmsImage.height }
+    , mimeType = Nothing
+    }
