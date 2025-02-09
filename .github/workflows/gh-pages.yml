@@ -1,0 +1,82 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+  repository_dispatch:
+    types:
+      - on-demand-build
+  schedule:
+    - cron: "51 16 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: ${{ contains(github.event.head_commit.message, '[self-hosted]') && 'self-hosted' || 'ubuntu-22.04' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master # Explicitly checkout master, since the ref may be updated within the caller workflows
+          submodules: recursive
+      - uses: actions/cache@v4
+        with:
+          key: v4-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
+          restore-keys: |
+            v4-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            v4-${{ runner.arch }}-${{ runner.os }}-
+          path: |
+            node_modules/
+            elm-stuff/
+            .elm-pages/
+            ~/.elm
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".tool-versions"
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
+          ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+          ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
+          ALGOLIA_SEARCH_KEY: ${{ secrets.ALGOLIA_SEARCH_KEY }}
+          AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
+          BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
+          LIBRARY_KEY_SEED_HASH: ${{ secrets.LIBRARY_KEY_SEED_HASH }}
+      # TODO: v3移行時まで封印
+      # - uses: cloudflare/wrangler-action@v3
+      #   if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
+      #   with:
+      #     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      #     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      #     # git連携していないPagesプロジェクトのデフォルトは、branchをmainと名付けると本番環境になる
+      #     command: pages deploy --project-name=ymtszw-github-io --branch=main ./dist
+      # - uses: actions/upload-pages-artifact@v3 # すでにCloudflare Pagesのymtszw.ccをcanonicalにしてあるが、古いリンクのためにGitHub Pages deployを残している
+      #   if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
+      #   with:
+      #     path: ./dist
+  # deploy:
+  #   needs: test-and-build
+  #   if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - uses: actions/deploy-pages@v4
+  #       id: deployment

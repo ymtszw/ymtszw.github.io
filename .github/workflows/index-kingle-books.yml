@@ -1,0 +1,46 @@
+name: Index Kindle Books
+
+on:
+  repository_dispatch:
+    types:
+      - index-kindle-books
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: index-kindle-books
+  cancel-in-progress: false
+
+jobs:
+  index-kindle-books:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          key: v1-${{ hashFiles('package-lock.json') }}-
+          restore-keys: |
+            v1-
+          path: |
+            node_modules
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".tool-versions"
+      - run: npm ci
+      - run: npm run build_kindle_search_index
+        env:
+          BOOKS_JSON_URL: ${{ secrets.BOOKS_JSON_URL }}
+          ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+          ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
+  # TODO: v3移行時まで封印
+  # deploy:
+  #   needs: index-kindle-books
+  #   uses: ./.github/workflows/gh-pages.yml
+  #   secrets: inherit
+  #   permissions:
+  #     contents: read
+  #     pages: write
+  #     id-token: write
