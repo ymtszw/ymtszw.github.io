@@ -1,0 +1,4 @@
+# gitignoreするが、VSCodeの検索対象には含める
+!.elm-pages/
+.elm-pages/cache
+.elm-pages/http-response-cache

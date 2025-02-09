@@ -1,6 +1,7 @@
 {
   "elmLS.elmPath": "node_modules/.bin/lamdera",
   "elmLS.elmReviewDiagnostics": "warning",
+  "elmLS.elmTestPath": "node_modules/.bin/elm-test-rs",
   "markdownlint.config": {
     "default": true,
     "MD031": false, // blanks-around-fences: リストの描画に影響が出る実装が多い
