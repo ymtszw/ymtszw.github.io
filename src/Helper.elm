@@ -43,7 +43,7 @@ import Url
 import Url.Builder exposing (string)
 
 
-dataSourceWith : BackendTask FatalError a -> (a -> BackendTask FatalError b) -> BackendTask FatalError b
+dataSourceWith : BackendTask error a -> (a -> BackendTask error b) -> BackendTask error b
 dataSourceWith a b =
     BackendTask.andThen b a
 
