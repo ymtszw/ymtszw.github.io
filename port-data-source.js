@@ -30,4 +30,20 @@ module.exports = {
       birthtime: result.birthtime,
     };
   },
+  /**
+   * Implementation of `DataSource.File.Extra.getImageDimensions`
+   *
+   * @param { string } fileName
+   * @returns { Promise<{ width: number, height: number }> }
+   */
+  getImageDimensions: async function (fileName) {
+    const imageSizeFromFile = require("image-size");
+    const dimensions = await imageSizeFromFile(
+      `public/${fileName.replace(/^\//, "")}`
+    );
+    return {
+      width: dimensions.width,
+      height: dimensions.height,
+    };
+  },
 };

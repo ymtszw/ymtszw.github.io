@@ -27,6 +27,7 @@
     "elm-pages": "^2.1",
     "elm-review": "^2.9",
     "elm-tooling": "^1.4",
+    "image-size": "^1.2.0",
     "node-fetch": "^3.3",
     "patch-package": "^8.0",
     "wrangler": "^3.41"

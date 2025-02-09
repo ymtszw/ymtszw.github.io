@@ -43,6 +43,7 @@ import Browser.Navigation
 import DataSource exposing (DataSource)
 import DataSource.Env
 import DataSource.File
+import DataSource.File.Extra
 import DataSource.Glob
 import DataSource.Http
 import Date
@@ -819,7 +820,7 @@ markdownArticles : DataSource (List CmsArticleMetadata)
 markdownArticles =
     let
         markdownMetadataDecoder =
-            OptimizedDecoder.map4
+            OptimizedDecoder.map3
                 (\title publishedAt revisedAt image slug ->
                     { contentId = slug
                     , published = Time.posixToMillis publishedAt <= Time.posixToMillis Pages.builtAt
@@ -837,7 +838,6 @@ markdownArticles =
                     ]
                 )
                 (OptimizedDecoder.maybe (OptimizedDecoder.field "revisedAt" iso8601Decoder))
-                (OptimizedDecoder.maybe (OptimizedDecoder.field "image" cmsImageDecoder))
     in
     DataSource.Glob.succeed Tuple.pair
         |> DataSource.Glob.captureFilePath
@@ -850,11 +850,32 @@ markdownArticles =
                 files
                     |> List.map
                         (\( path, slug ) ->
-                            DataSource.File.onlyFrontmatter markdownMetadataDecoder path
-                                |> DataSource.andMap (DataSource.succeed slug)
+                            dataSourceWith (resolveSelfHostedImage path) <|
+                                \maybeImage ->
+                                    DataSource.File.onlyFrontmatter markdownMetadataDecoder path
+                                        |> DataSource.andMap (DataSource.succeed maybeImage)
+                                        |> DataSource.andMap (DataSource.succeed slug)
                         )
                     |> DataSource.combine
             )
+
+
+resolveSelfHostedImage : String -> DataSource (Maybe CmsImage)
+resolveSelfHostedImage path =
+    let
+        markdownArticleImageFilePathDecoder =
+            OptimizedDecoder.field "image" OptimizedDecoder.string
+                |> OptimizedDecoder.maybe
+    in
+    dataSourceWith (DataSource.File.onlyFrontmatter markdownArticleImageFilePathDecoder path) <|
+        \maybeImagePath ->
+            case maybeImagePath of
+                Just imagePath ->
+                    DataSource.File.Extra.getImageDimensions imagePath
+                        |> DataSource.map (\dim -> Just { url = imagePath, width = dim.width, height = dim.height })
+
+                Nothing ->
+                    DataSource.succeed Nothing
 
 
 cmsImageDecoder : OptimizedDecoder.Decoder CmsImage

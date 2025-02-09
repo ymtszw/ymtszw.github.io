@@ -1,4 +1,4 @@
-module DataSource.File.Extra exposing (Stat, stat)
+module DataSource.File.Extra exposing (Stat, getImageDimensions, stat)
 
 import DataSource exposing (DataSource)
 import DataSource.Port
@@ -22,3 +22,14 @@ stat fileName =
             (OptimizedDecoder.field "birthtime" iso8601Decoder)
             (OptimizedDecoder.field "mtime" iso8601Decoder)
             (OptimizedDecoder.field "size" OptimizedDecoder.int)
+
+
+{-| Get the dimensions of an image file in `public/` directory.
+-}
+getImageDimensions : String -> DataSource { width : Int, height : Int }
+getImageDimensions fileName =
+    DataSource.Port.get "getImageDimensions" (Json.Encode.string fileName) <|
+        OptimizedDecoder.map2
+            (\width height -> { width = width, height = height })
+            (OptimizedDecoder.field "width" OptimizedDecoder.int)
+            (OptimizedDecoder.field "height" OptimizedDecoder.int)

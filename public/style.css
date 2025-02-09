@@ -30,7 +30,11 @@ h6 {
   text-decoration-thickness: 30%;
   text-decoration-skip-ink: none;
 }
+h1 {
+  line-height: 1.5;
+}
 h2 {
+  line-height: 1.4;
   text-decoration-style: solid;
   text-decoration-thickness: 20%;
 }
@@ -72,6 +76,10 @@ p img,
 header img,
 footer img {
   margin-bottom: unset;
+}
+
+figure:has(img) {
+  text-align: center;
 }
 
 a[target="_blank"]:not(.link-preview):not(.has-image)::after {
@@ -142,7 +150,7 @@ body:has(.lightbox) {
 }
 .lightbox {
   position: fixed;
-  z-index: 2;
+  z-index: 10;
   top: 0;
   left: 0;
   width: 100%;
@@ -259,6 +267,7 @@ Link Preview
   display: -webkit-box;
   width: 100%;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   overflow: hidden;
   text-align: left;
@@ -620,7 +629,10 @@ nav.twilog-archive-navigation ul li.selected::after {
 
 /* Twilog search container */
 .search {
-  position: relative;
+  position: sticky;
+  top: 10px;
+  text-align: right;
+  z-index: 5;
 }
 .spinner::before {
   position: absolute;
