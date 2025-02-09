@@ -9,7 +9,7 @@
     "fetch_recent_twilogs": "TZ=Asia/Tokyo node script/fetch_recent_twilogs.mjs; [ -n \"$(git status --porcelain data/)\" ] && git add data/ src/Generated/ && git commit -m \"ci: fetched recent twilogs ($(date))\"",
     "import_archived_tweets": "TZ=Asia/Tokyo node script/import_archived_tweets.js",
     "import_twilogs": "TZ=Asia/Tokyo node script/import_twilogs.mjs",
-    "postinstall": "elm-tooling install",
+    "postinstall": "elm-tooling install && elm-pages gen",
     "start": "elm-pages dev --debug",
     "test": "elm-test-rs"
   },
