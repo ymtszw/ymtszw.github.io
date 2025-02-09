@@ -1,4 +1,4 @@
-module Site exposing (config, tagline, title)
+module Site exposing (canonicalUrl, config, tagline, title)
 
 import DataSource
 import Head

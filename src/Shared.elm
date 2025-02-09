@@ -366,7 +366,17 @@ ogpHeaderImageUrl =
 
 makeSeoImageFromCmsImage : CmsImage -> Head.Seo.Image
 makeSeoImageFromCmsImage cmsImage =
-    { url = Pages.Url.external cmsImage.url
+    { url =
+        if String.startsWith "http" cmsImage.url then
+            Pages.Url.external cmsImage.url
+
+        else
+            Pages.Url.external <|
+                if String.startsWith "/" cmsImage.url then
+                    Site.canonicalUrl ++ "/" ++ String.dropLeft 1 cmsImage.url
+
+                else
+                    Site.canonicalUrl ++ "/" ++ cmsImage.url
     , alt = "Article Header Image"
     , dimensions = Just { width = cmsImage.width, height = cmsImage.height }
     , mimeType = Nothing
