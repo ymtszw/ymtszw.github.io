@@ -12,6 +12,8 @@ export default {
   headTagsTemplate(context) {
     return `
 <link rel="stylesheet" href="/style.css" />
+<link rel="preconnect" href="https://fonts.gstatic.com" />
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" />
 <meta name="generator" content="elm-pages v${context.cliVersion}" />
 `;
   },
