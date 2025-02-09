@@ -1,4 +1,4 @@
-module Site exposing (config, locale, ogpHeaderImageUrl, seoBase, tagline, title)
+module Site exposing (canonicalUrl, config, locale, manifest, ogpHeaderImageUrl, seoBase, tagline, title)
 
 import BackendTask exposing (BackendTask)
 import FatalError exposing (FatalError)
@@ -8,7 +8,9 @@ import LanguageTag exposing (emptySubtags)
 import LanguageTag.Language
 import LanguageTag.Region
 import MimeType
+import Pages.Manifest as Manifest
 import Pages.Url
+import Route
 import SiteConfig exposing (SiteConfig)
 
 
@@ -35,9 +37,32 @@ head =
       Head.metaName "google-site-verification" (Head.raw "Bby4JbWa2r4u77WnDC7sWGQbmIWji1Z5cQwCTAXr0Sg")
     , Head.sitemapLink "/sitemap.xml"
     , Head.rssLink "/articles/feed.xml"
+    , Head.manifestLink "/manifest.json"
     , Head.rootLanguage language
     ]
         |> BackendTask.succeed
+
+
+manifest : Manifest.Config
+manifest =
+    Manifest.init
+        { name = title
+        , description = tagline
+        , startUrl = Route.Index |> Route.toPath
+        , icons =
+            [ { src = Pages.Url.external "https://images.microcms-assets.io/assets/032d3ec87506420baf0093fac244c29b/4bbee72905cf4e5fa4a55d9de0d9593b/icon-square.png?w=144&h=144"
+              , sizes = [ ( 144, 144 ) ]
+              , mimeType = Just MimeType.Png
+              , purposes = [ Manifest.IconPurposeAny ]
+              }
+            ]
+        }
+        |> Manifest.withShortName "ymtszw"
+        |> Manifest.withLang siteLanguage
+
+
+siteLanguage =
+    LanguageTag.build { emptySubtags | region = Just LanguageTag.Region.jp } LanguageTag.Language.ja
 
 
 seoBase : Head.Seo.Common

@@ -8,6 +8,7 @@ import Helper exposing (dataSourceWith)
 import Html exposing (Html)
 import Iso8601
 import Pages
+import Pages.Manifest as Manifest
 import Route exposing (Route(..))
 import Route.Articles.ArticleId_
 import Rss
@@ -23,6 +24,7 @@ routes :
 routes getStaticRoutes _ =
     [ rss <| BackendTask.map (List.map makeArticleRssItem) builtArticles
     , sitemap <| makeSitemapEntries getStaticRoutes
+    , manifest
     ]
 
 
@@ -157,3 +159,10 @@ makeSitemapEntries getStaticRoutes =
     getStaticRoutes
         |> BackendTask.map (List.filterMap build)
         |> BackendTask.resolve
+
+
+manifest : ApiRoute.ApiRoute ApiRoute.Response
+manifest =
+    Site.manifest
+        |> BackendTask.succeed
+        |> Manifest.generator Site.canonicalUrl
