@@ -2,6 +2,7 @@ module CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
+import BackendTask.File.Extra
 import BackendTask.Glob
 import BackendTask.Http
 import FatalError exposing (FatalError)
@@ -71,9 +72,9 @@ allMetadata =
 markdownMetadata : BackendTask FatalError (List CmsArticleMetadata)
 markdownMetadata =
     let
-        markdownMetadataDecoder slug =
-            Decode.map4
-                (\title publishedAt revisedAt image ->
+        markdownMetadataDecoder =
+            Decode.map3
+                (\title publishedAt revisedAt image slug ->
                     { contentId = slug
                     , published = Time.posixToMillis publishedAt <= Time.posixToMillis Pages.builtAt
                     , publishedAt = publishedAt
@@ -86,7 +87,6 @@ markdownMetadata =
                 (Decode.field "title" Decode.string)
                 cmsArticlePublishedAtDecoder
                 (Decode.maybe (Decode.field "revisedAt" Iso8601.decoder))
-                (Decode.maybe (Decode.field "image" cmsImageDecoder))
     in
     BackendTask.Glob.succeed Tuple.pair
         |> BackendTask.Glob.captureFilePath
@@ -99,10 +99,36 @@ markdownMetadata =
                 files
                     |> List.map
                         (\( path, slug ) ->
-                            BackendTask.File.onlyFrontmatter (markdownMetadataDecoder slug) path
-                                |> BackendTask.allowFatal
+                            dataSourceWith (resolveSelfHostedImage path) <|
+                                \maybeImage ->
+                                    BackendTask.File.onlyFrontmatter markdownMetadataDecoder path
+                                        |> BackendTask.andMap (BackendTask.succeed maybeImage)
+                                        |> BackendTask.andMap (BackendTask.succeed slug)
+                                        |> BackendTask.allowFatal
                         )
                     |> BackendTask.combine
+            )
+
+
+resolveSelfHostedImage : String -> BackendTask FatalError (Maybe CmsImage)
+resolveSelfHostedImage path =
+    let
+        markdownArticleImageFilePathDecoder =
+            Decode.field "image" Decode.string
+                |> Decode.maybe
+    in
+    BackendTask.File.onlyFrontmatter markdownArticleImageFilePathDecoder path
+        |> BackendTask.allowFatal
+        |> BackendTask.andThen
+            (\maybeImagePath ->
+                case maybeImagePath of
+                    Just imagePath ->
+                        BackendTask.File.Extra.getImageDimensions imagePath
+                            |> BackendTask.map (\dim -> Just { url = imagePath, width = dim.width, height = dim.height })
+                            |> BackendTask.allowFatal
+
+                    Nothing ->
+                        BackendTask.succeed Nothing
             )
 
 
