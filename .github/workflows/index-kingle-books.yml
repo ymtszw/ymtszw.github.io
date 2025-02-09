@@ -38,7 +38,7 @@ jobs:
   # TODO: v3移行時まで封印
   # deploy:
   #   needs: index-kindle-books
-  #   uses: ./.github/workflows/gh-pages.yml
+  #   uses: ./.github/workflows/build-test-deploy.yml
   #   secrets: inherit
   #   permissions:
   #     contents: read
