@@ -19,6 +19,8 @@ v2リポジトリのPage moduleを一つずつ移管してインクリメンタ�
 特に、**v2で静的サイトを作っていて、基本的にはv3でも静的サイトのまままず移行したい**という意図で進める。
 個人的な印象として、この需要は大きいと感じている。記事末尾では**v3移行後の開発体験やビルドパフォーマンス**なども触れる。
 
+(English version article [here](/articles/migration-to-elm-pages-v3-en))
+
 ## 大前提
 
 - [Lamderaコンパイラ](https://lamdera.com/)を使うようになった
@@ -26,7 +28,7 @@ v2リポジトリのPage moduleを一つずつ移管してインクリメンタ�
   - `npm install`によって降ってくるので、ビルドするだけなら手元環境に手を入れる必要はない
   - ElmLSを使っている場合、Lamderaコンパイラを使うようにworkspace設定を追加する
     ```jsonc
-    # .vscode/settings.jsonの例
+    // .vscode/settings.jsonの例
     "elmLS.elmPath": "node_modules/.bin/lamdera"
     ```
 - 開発ツールとしてViteを使うようになった
