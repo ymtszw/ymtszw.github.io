@@ -14,7 +14,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Parser exposing (Node(..))
 import Http
-import OptimizedDecoder
+import Json.Decode as Decode
+import Json.Decode.Extra as Decode
 import Regex
 import Task exposing (Task)
 import Url
@@ -53,10 +54,10 @@ linkPreviewApiEndpoint url =
     "https://link-preview.ymtszw.workers.dev/?q=" ++ Url.percentEncode url
 
 
-linkPreviewDecoder : String -> OptimizedDecoder.Decoder Metadata
+linkPreviewDecoder : String -> Decode.Decoder Metadata
 linkPreviewDecoder requestUrl =
-    OptimizedDecoder.field "url" OptimizedDecoder.string
-        |> OptimizedDecoder.andThen
+    Decode.field "url" Decode.string
+        |> Decode.andThen
             (\canonicalUrl ->
                 let
                     -- canonicalUrl does not include fragment, so we need to append it back from requestUrl
@@ -79,12 +80,12 @@ linkPreviewDecoder requestUrl =
                             str
                 in
                 -- If upstream requestUrl returned status >= 400, link-preview service returns error, failing this decoder
-                OptimizedDecoder.succeed Metadata
+                Decode.succeed Metadata
                     -- Treat HTML without title (such as "301 moved permanently" page) as empty.
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.field "title" nonEmptyString)
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "description" (OptimizedDecoder.map truncate OptimizedDecoder.string))
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.optionalField "image" (OptimizedDecoder.map (resolveUrl canonicalUrl) nonEmptyString))
-                    |> OptimizedDecoder.andMap (OptimizedDecoder.succeed canonicalUrlWithFragment)
+                    |> Decode.andMap (Decode.field "title" nonEmptyString)
+                    |> Decode.andMap (Decode.optionalField "description" (Decode.map truncate Decode.string))
+                    |> Decode.andMap (Decode.optionalField "image" (Decode.map (resolveUrl canonicalUrl) nonEmptyString))
+                    |> Decode.andMap (Decode.succeed canonicalUrlWithFragment)
             )
 
 
@@ -129,9 +130,9 @@ getMetadataOnDemand amazonAssociateTag url =
                 \response ->
                     case response of
                         Http.GoodStatus_ _ body ->
-                            OptimizedDecoder.decodeString (linkPreviewDecoder url) body
+                            Decode.decodeString (linkPreviewDecoder url) body
                                 |> Result.map (\meta -> { meta | canonicalUrl = Helper.makeAmazonUrl amazonAssociateTag meta.canonicalUrl })
-                                |> Result.mapError OptimizedDecoder.errorToString
+                                |> Result.mapError Decode.errorToString
 
                         Http.BadStatus_ { statusCode } _ ->
                             Ok (fallbackOnBadStatus url statusCode)

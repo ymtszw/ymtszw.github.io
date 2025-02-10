@@ -1,16 +1,16 @@
-module Page.Library exposing (Data, Model, Msg, page)
+module Route.Library exposing (ActionData, Data, Model, Msg, route)
 
+import BackendTask exposing (BackendTask)
 import Browser.Dom
-import Browser.Navigation
 import Color
-import DataSource exposing (DataSource)
-import DataSource.Env
 import Date
 import Debounce exposing (Debounce)
 import Dict exposing (Dict)
+import Effect exposing (Effect)
+import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
-import Helper exposing (dataSourceWith, onChange)
+import Helper exposing (dataSourceWith, onChange, requireEnv)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -18,16 +18,16 @@ import Html.Keyed
 import Identicon
 import Json.Decode
 import Json.Encode
-import KindleBook exposing (ASIN, KindleBook, SeriesName, kindleBooks)
+import KindleBook exposing (ASIN, KindleBook, SeriesName)
 import List.Extra
 import Markdown
 import Murmur3
-import Page exposing (PageWithState, StaticPayload)
-import Pages.PageUrl exposing (PageUrl)
+import PagesMsg exposing (PagesMsg)
 import Route
-import RuntimePorts
+import RouteBuilder exposing (App, StatefulRoute)
 import Set exposing (Set)
-import Shared exposing (seoBase)
+import Shared
+import Site exposing (seoBase)
 import Table
 import Task
 import Url.Builder
@@ -38,13 +38,17 @@ type alias RouteParams =
     {}
 
 
-page : PageWithState RouteParams Data Model Msg
-page =
-    Page.single
+type alias ActionData =
+    {}
+
+
+route : StatefulRoute RouteParams Data ActionData Model Msg
+route =
+    RouteBuilder.single
         { head = head
         , data = data
         }
-        |> Page.buildWithLocalState
+        |> RouteBuilder.buildWithSharedState
             { init = init
             , update = update
             , subscriptions = \_ _ _ _ -> Sub.none
@@ -63,14 +67,14 @@ type alias Data =
     }
 
 
-data : DataSource Data
+data : BackendTask FatalError Data
 data =
     dataSourceWith libraryKeySeedHash <|
         \lksh ->
             -- TODO lkshを元にderivedKeyを作り、鍵として蔵書DBの中身を対称暗号化しておけば、
             -- index.htmlを読み込んだ時点では真に保護されたページを実現できる
-            kindleBooks
-                |> DataSource.map
+            KindleBook.allBooksFromAlgolia
+                |> BackendTask.map
                     (\booksByAsin ->
                         let
                             ( authors, labels ) =
@@ -78,21 +82,21 @@ data =
                         in
                         Data (groupBySeriesName booksByAsin) (Dict.size booksByAsin) authors labels
                     )
-                |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
-                |> DataSource.andMap (DataSource.succeed lksh)
-                |> DataSource.andMap KindleBook.secrets
+                |> BackendTask.andMap (requireEnv "AMAZON_ASSOCIATE_TAG")
+                |> BackendTask.andMap (BackendTask.succeed lksh)
+                |> BackendTask.andMap KindleBook.secrets
 
 
-libraryKeySeedHash : DataSource ( Int, Int )
+libraryKeySeedHash : BackendTask FatalError ( Int, Int )
 libraryKeySeedHash =
-    dataSourceWith (DataSource.Env.load "LIBRARY_KEY_SEED_HASH") <|
+    dataSourceWith (requireEnv "LIBRARY_KEY_SEED_HASH") <|
         \s ->
             case String.split "." s |> List.filterMap String.toInt of
                 [ seed, hash ] ->
-                    DataSource.succeed ( seed, hash )
+                    BackendTask.succeed ( seed, hash )
 
                 _ ->
-                    DataSource.fail "LIBRARY_KEY_SEED_HASH is invalid"
+                    BackendTask.fail (FatalError.fromString "LIBRARY_KEY_SEED_HASH is invalid")
 
 
 countByAuthorsAndLabels : Dict ASIN KindleBook -> ( Dict String Int, Dict String Int )
@@ -226,11 +230,11 @@ stringToSortKey str =
             TITLE
 
 
-init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Cmd Msg )
-init maybePageUrl shared app =
+init : App Data ActionData RouteParams -> Shared.Model -> ( Model, Effect Msg )
+init app shared =
     ( { sortKey = DATE_DESC
       , filter = noFilter
-      , page = getPage maybePageUrl
+      , page = getPage shared.queryParams
       , searchResults = KindleBook.emptyResult
       , searching = False
       , searchTerm = Debounce.init
@@ -244,22 +248,15 @@ init maybePageUrl shared app =
       , authorsTableState = Table.initialSort ""
       , labelsTableState = Table.initialSort ""
       }
-    , Cmd.none
+    , Effect.none
     )
 
 
-getPage : Maybe PageUrl -> Int
-getPage maybePageUrl =
-    maybePageUrl
-        |> Maybe.andThen .fragment
-        |> Maybe.andThen
-            (\fr ->
-                if String.startsWith "page=" fr then
-                    Just (String.dropLeft 5 fr)
-
-                else
-                    Nothing
-            )
+getPage : Dict String (List String) -> Int
+getPage queryParams =
+    queryParams
+        |> Dict.get "page"
+        |> Maybe.andThen List.head
         |> Maybe.andThen String.toInt
         |> Maybe.map (\num -> num - 1)
         |> Maybe.withDefault 0
@@ -289,42 +286,45 @@ type Msg
     | AuthorsTableMsg Table.State
     | LabelsTableMsg Table.State
     | Res_refreshKindleBookOnDemand (Result String KindleBook)
+      --| v3ではclient-sideでquery parameter/fragmentを使ったroutingが今のところできない。副作用を併用し、SharedMsg経由で擬似的にworkaroundする
+    | ForceNewPage Int
+    | ForceReviewDraftId ASIN
 
 
-update : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Cmd Msg )
-update _ _ _ app msg ({ filter } as m) =
+update : App Data ActionData RouteParams -> Shared.Model -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
+update app _ msg ({ filter } as m) =
     case msg of
         SetSortKey sk ->
-            ( { m | sortKey = stringToSortKey sk }, Cmd.none )
+            ( { m | sortKey = stringToSortKey sk }, Effect.none, Nothing )
 
         ToggleAuthorFilter switch author ->
-            ( { m | filter = { filter | authors = toggle switch author filter.authors } }, Cmd.none )
+            ( { m | filter = { filter | authors = toggle switch author filter.authors } }, Effect.none, Nothing )
 
         ToggleLabelFilter switch author ->
-            ( { m | filter = { filter | labels = toggle switch author filter.labels } }, Cmd.none )
+            ( { m | filter = { filter | labels = toggle switch author filter.labels } }, Effect.none, Nothing )
 
         SetSearchTerm "" ->
-            ( { m | searchResults = KindleBook.emptyResult, searchTerm = Debounce.init }, Cmd.none )
+            ( { m | searchResults = KindleBook.emptyResult, searchTerm = Debounce.init }, Effect.none, Nothing )
 
         SetSearchTerm input ->
             let
                 ( newDebounce, cmd ) =
                     Debounce.push debounceConfig input m.searchTerm
             in
-            ( { m | searching = True, searchTerm = newDebounce }, cmd )
+            ( { m | searching = True, searchTerm = newDebounce }, Effect.fromCmd cmd, Nothing )
 
         DebounceMsg dMsg ->
             let
                 ( newDebounce, cmd ) =
                     Debounce.update debounceConfig (Debounce.takeLast (KindleBook.search Res_SearchKindle app.data.secrets)) dMsg m.searchTerm
             in
-            ( { m | searchTerm = newDebounce }, cmd )
+            ( { m | searchTerm = newDebounce }, Effect.fromCmd cmd, Nothing )
 
         Res_SearchKindle (Ok searchResults) ->
-            ( { m | searchResults = searchResults, searching = False }, Cmd.none )
+            ( { m | searchResults = searchResults, searching = False }, Effect.none, Nothing )
 
         Res_SearchKindle (Err _) ->
-            ( { m | searching = False }, Cmd.none )
+            ( { m | searching = False }, Effect.none, Nothing )
 
         ToggleKindlePopover (Just selected) ->
             if m.popoverOpened then
@@ -332,11 +332,12 @@ update _ _ _ app msg ({ filter } as m) =
                 ( { m | popoverOpened = False, editingBook = Nothing }
                 , if m.selectedBook == Just selected then
                     -- 同じ本を選択した場合、単に閉じて終了
-                    Cmd.none
+                    Effect.none
 
                   else
                     -- 違う本を選択した場合、内容が切り替わったことをわかりやすくするために一瞬閉じるだけで、次の枝ですぐ開く
                     Helper.waitMsg 50 msg
+                , Nothing
                 )
 
             else
@@ -344,11 +345,12 @@ update _ _ _ app msg ({ filter } as m) =
                 , -- 人力注釈やレビューでKindleBookはruntimeに更新されている可能性がある
                   -- しばらく時間が経てばstatic buildにも反映されるが、それまではオンデマンドで取得しないとstaleデータが見え続ける
                   -- このページではPopoverを開いたタイミングで更新する
-                  KindleBook.getOnDemand Res_refreshKindleBookOnDemand app.data.secrets (Tuple.second selected)
+                  KindleBook.getOnDemand Res_refreshKindleBookOnDemand app.data.secrets (Tuple.second selected) |> Effect.fromCmd
+                , Nothing
                 )
 
         ToggleKindlePopover Nothing ->
-            ( { m | popoverOpened = False, editingBook = Nothing }, Cmd.none )
+            ( { m | popoverOpened = False, editingBook = Nothing }, Effect.none, Nothing )
 
         EditKindleBook editingBook ->
             case ( m.selectedBook, m.editingBook, editingBook ) of
@@ -380,45 +382,48 @@ update _ _ _ app msg ({ filter } as m) =
                             , selectedBook = Just ( editing.seriesName, editing.id )
                             , decryptedKindleBooks = Dict.update previousSeriesName (Maybe.andThen updater) m.decryptedKindleBooks
                         }
-                    , KindleBook.putOnDemand Res_refreshKindleBookOnDemand app.data.secrets editing
+                    , KindleBook.putOnDemand Res_refreshKindleBookOnDemand app.data.secrets editing |> Effect.fromCmd
+                    , Nothing
                     )
 
                 _ ->
-                    ( { m | editingBook = editingBook }, Cmd.none )
+                    ( { m | editingBook = editingBook }, Effect.none, Nothing )
 
         UnlockLibrary pw ->
             if unlockLibrary app.data.libraryKeySeedHash pw then
                 ( { m | unlocked = True }
-                , RuntimePorts.toJs <|
+                , Effect.runtimePortsToJs <|
                     Json.Encode.object
                         [ ( "tag", Json.Encode.string "StoreLibraryKey" )
                         , ( "value", Json.Encode.string pw )
                         ]
+                , Nothing
                 )
 
             else
-                ( m, Cmd.none )
+                ( m, Effect.none, Nothing )
 
         LockLibrary ->
             ( { m | unlocked = False }
-            , Cmd.batch
-                [ RuntimePorts.toJs <|
+            , Effect.batch
+                [ Effect.runtimePortsToJs <|
                     Json.Encode.object
                         [ ( "tag", Json.Encode.string "StoreLibraryKey" )
                         , ( "value", Json.Encode.string "" )
                         ]
-                , Browser.Dom.setViewport 0 0 |> Task.perform (\_ -> ToggleKindlePopover Nothing)
+                , Browser.Dom.setViewport 0 0 |> Task.perform (\_ -> ToggleKindlePopover Nothing) |> Effect.fromCmd
                 ]
+            , Nothing
             )
 
         SeriesTableMsg state ->
-            ( { m | seriesTableState = state }, Cmd.none )
+            ( { m | seriesTableState = state }, Effect.none, Nothing )
 
         AuthorsTableMsg state ->
-            ( { m | authorsTableState = state }, Cmd.none )
+            ( { m | authorsTableState = state }, Effect.none, Nothing )
 
         LabelsTableMsg state ->
-            ( { m | labelsTableState = state }, Cmd.none )
+            ( { m | labelsTableState = state }, Effect.none, Nothing )
 
         Res_refreshKindleBookOnDemand (Ok book) ->
             let
@@ -441,10 +446,16 @@ update _ _ _ app msg ({ filter } as m) =
                             -- 人力注釈でシリーズ名を編集した後にread after writeすると新規シリーズが生まれることがある
                             Just [ book ]
             in
-            ( { m | decryptedKindleBooks = Dict.update book.seriesName updater m.decryptedKindleBooks }, Cmd.none )
+            ( { m | decryptedKindleBooks = Dict.update book.seriesName updater m.decryptedKindleBooks }, Effect.none, Nothing )
 
         Res_refreshKindleBookOnDemand (Err _) ->
-            ( m, Cmd.none )
+            ( m, Effect.none, Nothing )
+
+        ForceNewPage newPageNum ->
+            ( { m | page = newPageNum - 1 }, Effect.none, Just <| Shared.SharedMsg <| Shared.PushQueryParam "page" <| String.fromInt newPageNum )
+
+        ForceReviewDraftId asin ->
+            ( m, Effect.none, Just <| Shared.SharedMsg <| Shared.PushQueryParam "id" asin )
 
 
 toggle : Bool -> comparable -> Set comparable -> Set comparable
@@ -463,26 +474,23 @@ debounceConfig =
 
 
 head :
-    StaticPayload Data RouteParams
+    App Data ActionData RouteParams
     -> List Head.Tag
 head _ =
-    (Seo.summaryLarge
-        { seoBase
-            | title = Shared.makeTitle "書架"
-            , description = "Kindle蔵書リスト。基本的には自分用のページで検索にも載せないが、レビュー機能を持ち、レビューを投稿するとシリーズ単位で一般公開記事化される仕組み"
-        }
+    { seoBase
+        | title = Helper.makeTitle "書架"
+        , description = "Kindle蔵書リスト。基本的には自分用のページで検索にも載せないが、レビュー機能を持ち、レビューを投稿するとシリーズ単位で一般公開記事化される仕組み"
+    }
         |> Seo.website
-    )
-        ++ [ Head.metaName "robots" (Head.raw "noindex,nofollow,noarchive,nocache") ]
+        |> (++) [ Head.metaName "robots" (Head.raw "noindex,nofollow,noarchive,nocache") ]
 
 
 view :
-    Maybe PageUrl
+    App Data ActionData RouteParams
     -> Shared.Model
     -> Model
-    -> StaticPayload Data RouteParams
-    -> View Msg
-view _ _ m app =
+    -> View (PagesMsg Msg)
+view app _ m =
     { title = "書架"
     , body =
         [ h1 [] [ text "書架" ]
@@ -514,6 +522,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
         , div [ class "kindle-popover", hidden m.unlocked ] kindleLibraryLock
         ]
     }
+        |> View.map PagesMsg.fromMsg
 
 
 kindleSearchBox : Model -> Html Msg
@@ -641,7 +650,8 @@ bookshelfNavigation m seriesGroupedBy50 =
                 u [] [ text (String.fromInt pageNum) ]
 
             else
-                a [ href ("#page=" ++ String.fromInt pageNum) ] [ strong [] [ text (String.fromInt pageNum) ] ]
+                -- FIXME v3では同一ページ内でquery stringを変えたリンク遷移をしたとき、ページのinitに処理が戻ってこなくなった。自前でinit相当の処理を呼び出す必要がある
+                a [ href ("?page=" ++ String.fromInt pageNum), onClick (ForceNewPage pageNum) ] [ strong [] [ text (String.fromInt pageNum) ] ]
     in
     nav [ class "kindle-bookshelf-navigation" ] <|
         List.map (navButton False) heads
@@ -654,7 +664,7 @@ bookshelfNavigation m seriesGroupedBy50 =
                )
 
 
-kindleData : Model -> StaticPayload Data RouteParams -> Html Msg
+kindleData : Model -> App Data ActionData RouteParams -> Html Msg
 kindleData m app =
     details [ class "kindle-data", classList [ ( "locked", not m.unlocked ) ] ]
         [ summary [] [ text <| "蔵書数: " ++ String.fromInt app.data.numberOfBooks ]
@@ -913,7 +923,7 @@ kindlePopover amazonAssociateTag decryptedKindleBooks f openedBook maybeEditingB
                                                 , ( "巻数", edit (\s -> String.toInt s |> Maybe.map (\i -> { editingBook | volume = i }) |> Maybe.withDefault editingBook) (String.fromInt editingBook.volume) )
                                                 , ( "レーベル", edit (\s -> { editingBook | label = Just s }) (Maybe.withDefault "" editingBook.label) )
                                                 , ( "購入日", text (Helper.toJapaneseDate editingBook.acquiredDate) )
-                                                , ( "レビュー", a [ href reviewUrl ] [ text "書く" ] )
+                                                , ( "レビュー", a [ href reviewUrl, onClick (ForceReviewDraftId book.id) ] [ text "書く" ] )
                                                 ]
                                         ]
 

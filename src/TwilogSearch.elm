@@ -1,21 +1,22 @@
 module TwilogSearch exposing (Model, Msg, Secrets, init, searchBox, secrets, update)
 
+import BackendTask exposing (BackendTask)
 import Browser.Navigation
-import DataSource exposing (DataSource)
-import DataSource.Env
 import Date
 import Debounce exposing (Debounce)
+import Effect exposing (Effect)
+import FatalError exposing (FatalError)
+import Helper exposing (requireEnv)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http
-import Json.Decode
+import Json.Decode as Decode
 import Json.Encode
-import OptimizedDecoder
-import Path
 import Route
-import Shared exposing (Twilog, TwitterStatusId(..))
+import TwilogData exposing (Twilog, TwitterStatusId(..))
 import Url
+import UrlPath
 import View exposing (imgLazy)
 
 
@@ -25,11 +26,11 @@ type alias Secrets =
     }
 
 
-secrets : DataSource Secrets
+secrets : BackendTask FatalError Secrets
 secrets =
-    DataSource.map2 Secrets
-        (DataSource.Env.load "ALGOLIA_APP_ID")
-        (DataSource.Env.load "ALGOLIA_SEARCH_KEY")
+    BackendTask.map2 Secrets
+        (requireEnv "ALGOLIA_APP_ID")
+        (requireEnv "ALGOLIA_SEARCH_KEY")
 
 
 type alias Model =
@@ -72,12 +73,12 @@ type Msg
     | JumpToHitTwilog String
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
         SetSearchTerm "" ->
             ( { model | searchResults = emptyResult, searchTerm = Debounce.init }
-            , Cmd.none
+            , Effect.none
             )
 
         SetSearchTerm input ->
@@ -86,7 +87,7 @@ update msg model =
                     Debounce.push debounceConfig input model.searchTerm
             in
             ( { model | searching = True, searchTerm = newDebounce }
-            , cmd
+            , Effect.fromCmd cmd
             )
 
         DebounceMsg dMsg ->
@@ -95,22 +96,22 @@ update msg model =
                     Debounce.update debounceConfig (Debounce.takeLast (searchTwilogs Res_SearchTwilogs model)) dMsg model.searchTerm
             in
             ( { model | searchTerm = newDebounce }
-            , cmd
+            , Effect.fromCmd cmd
             )
 
         Res_SearchTwilogs (Ok searchResults) ->
             ( { model | searchResults = searchResults, searching = False }
-            , Cmd.none
+            , Effect.none
             )
 
         Res_SearchTwilogs (Err _) ->
             ( { model | searching = False }
-            , Cmd.none
+            , Effect.none
             )
 
         JumpToHitTwilog permalink ->
             ( model
-            , Browser.Navigation.load permalink
+            , Browser.Navigation.load permalink |> Effect.fromCmd
             )
 
 
@@ -145,15 +146,11 @@ searchBody term =
             ]
 
 
-searchResultDecoder : String -> Json.Decode.Decoder SearchTwilogsResult
+searchResultDecoder : String -> Decode.Decoder SearchTwilogsResult
 searchResultDecoder term =
-    let
-        hitTwilogDecoder =
-            OptimizedDecoder.decoder (Shared.twilogDecoder Nothing)
-    in
-    Json.Decode.map2 (SearchTwilogsResult term)
-        (Json.Decode.field "hits" (Json.Decode.list hitTwilogDecoder))
-        (Json.Decode.field "nbHits" Json.Decode.int)
+    Decode.map2 (SearchTwilogsResult term)
+        (Decode.field "hits" (Decode.list (TwilogData.twilogDecoder Nothing)))
+        (Decode.field "nbHits" Decode.int)
 
 
 
@@ -185,7 +182,7 @@ searchBox tagger renderer { searchResults, searching } =
                                     button [ class "jump-to-button", onClick (tagger (JumpToHitTwilog pathWithFragment)) ] [ rendered ]
 
                                 pathWithFragment =
-                                    (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth }) |> Path.toAbsolute) ++ "#tweet-" ++ twilog.idStr
+                                    (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth }) |> UrlPath.toAbsolute) ++ "#tweet-" ++ twilog.idStr
 
                                 yearMonth =
                                     String.dropRight 3 (Date.toIsoString twilog.createdDate)

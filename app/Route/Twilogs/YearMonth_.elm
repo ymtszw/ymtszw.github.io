@@ -1,39 +1,42 @@
-module Page.Twilogs.YearMonth_ exposing
-    ( Data
+module Route.Twilogs.YearMonth_ exposing
+    ( ActionData
+    , Data
     , Model
     , Msg
     , RouteParams
-    , page
+    , route
     )
 
-import Browser.Dom
-import DataSource exposing (DataSource)
-import DataSource.Env
-import DataSource.Glob
+import BackendTask exposing (BackendTask)
+import BackendTask.Glob
 import Debounce
 import Dict exposing (Dict)
+import Effect exposing (Effect)
+import FatalError exposing (FatalError)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
 import Head.Seo as Seo
+import Helper exposing (requireEnv)
 import Html exposing (Html, nav, strong, text)
 import Html.Attributes exposing (class)
 import List.Extra
-import Page
-import Page.Twilogs exposing (..)
-import Pages.PageUrl
+import PagesMsg exposing (PagesMsg)
 import Route
-import Shared exposing (RataDie, Twilog, seoBase)
-import Task
+import Route.Twilogs
+import RouteBuilder exposing (App)
+import Shared
+import Site exposing (seoBase)
+import TwilogData exposing (RataDie, Twilog)
 import TwilogSearch
 import View
 
 
 type alias Model =
-    Page.Twilogs.Model
+    Route.Twilogs.Model
 
 
 type alias Msg =
-    Page.Twilogs.Msg
+    Route.Twilogs.Msg
 
 
 type alias RouteParams =
@@ -47,94 +50,90 @@ type alias Data =
     }
 
 
-page =
-    Page.prerender
+type alias ActionData =
+    {}
+
+
+route =
+    RouteBuilder.preRender
         { head = head
-        , routes = routes
+        , pages = pages
         , data = data
         }
-        |> Page.buildWithSharedState
+        |> RouteBuilder.buildWithSharedState
             { init = init
-            , update = Page.Twilogs.update
-            , subscriptions = Page.Twilogs.subscriptions
+            , update = Route.Twilogs.update
+            , subscriptions = Route.Twilogs.subscriptions
             , view = view
             }
 
 
-init : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data routeParams -> ( Model, Cmd Msg )
-init url shared app =
+init : App Data ActionData routeParams -> Shared.Model -> ( Model, Effect Msg )
+init app shared =
     let
         linksInTwilogs =
-            Page.Twilogs.listUrlsForPreviewBulk shared.links app.data.twilogsFromOldest
+            Route.Twilogs.listUrlsForPreviewBulk shared.links app.data.twilogsFromOldest
     in
     ( { twilogSearch = TwilogSearch.init app.data.searchSecrets
       , linksInTwilogs = linksInTwilogs
       , debounce = Debounce.init
       }
-    , case Maybe.andThen .fragment url of
+    , case shared.fragment of
         Just id ->
             -- アーカイブページ独自処理; フラグメント指定されたTweetがあればそのTweetまでスクロール
-            scrollToTargetTweet id
+            Route.Twilogs.scrollToTargetTweet id
 
         Nothing ->
-            Page.Twilogs.findTweetsInOrAfterViewport (Dict.keys linksInTwilogs) shared.initialViewport
+            -- HACK v3では、別ページからの遷移時、initで最新のURL変更を検知できないので、遅延評価する
+            Helper.initMsg Route.Twilogs.RuntimeInit
     )
 
 
-scrollToTargetTweet id =
-    Browser.Dom.getElement id
-        -- ヘッダー分を大雑把に差し引いてスクロール（注：yは下方向に向かって値が増える）
-        |> Task.andThen (\e -> Browser.Dom.setViewport 0 (e.element.y - 100))
-        |> Task.onError (\_ -> Task.succeed ())
-        |> Task.perform (\_ -> NoOp)
+pages : BackendTask FatalError (List RouteParams)
+pages =
+    BackendTask.map (List.map RouteParams) TwilogData.twilogArchives
 
 
-routes : DataSource (List RouteParams)
-routes =
-    DataSource.map (List.map RouteParams) Shared.twilogArchives
-
-
-data : RouteParams -> DataSource Data
+data : RouteParams -> BackendTask FatalError Data
 data routeParams =
     getAvailableDays routeParams.yearMonth
-        |> DataSource.andThen
+        |> BackendTask.andThen
             (\dateStrings ->
                 dateStrings
                     -- PERF: ここにList.takeを挟んで処理する日数を減らすと顕著にページあたり処理時間が減少する（ほぼ線形？）
                     -- 逆に、他の共通部分等を効率化しても線形な処理時間削減が見られないので、
                     -- Twilogページのビルド時間への寄与が大きいのはやはりページあたりdecode対象データ量が原因と言えそう。
                     -- elm-pages v3でISR的なアプローチを適用したいとすればここ
-                    |> List.map Shared.makeTwilogsJsonPath
-                    |> Shared.dailyTwilogsFromOldest
-                    |> DataSource.map Data
+                    |> List.map TwilogData.makeTwilogsJsonPath
+                    |> TwilogData.dailyTwilogsFromOldest
+                    |> BackendTask.map Data
             )
-        |> DataSource.andMap TwilogSearch.secrets
-        |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
+        |> BackendTask.andMap TwilogSearch.secrets
+        |> BackendTask.andMap (requireEnv "AMAZON_ASSOCIATE_TAG")
 
 
-getAvailableDays : String -> DataSource (List String)
+getAvailableDays : String -> BackendTask FatalError (List String)
 getAvailableDays yearMonth =
     case String.split "-" yearMonth of
         [ year, month ] ->
-            DataSource.Glob.succeed (\day -> String.join "-" [ year, month, day ])
-                |> DataSource.Glob.match (DataSource.Glob.literal ("data/" ++ year ++ "/" ++ month ++ "/"))
-                |> DataSource.Glob.capture DataSource.Glob.wildcard
-                |> DataSource.Glob.match (DataSource.Glob.literal "-twilogs.json")
-                |> DataSource.Glob.toDataSource
+            BackendTask.Glob.succeed (\day -> String.join "-" [ year, month, day ])
+                |> BackendTask.Glob.match (BackendTask.Glob.literal ("data/" ++ year ++ "/" ++ month ++ "/"))
+                |> BackendTask.Glob.capture BackendTask.Glob.wildcard
+                |> BackendTask.Glob.match (BackendTask.Glob.literal "-twilogs.json")
+                |> BackendTask.Glob.toBackendTask
                 -- Make newest first
-                |> DataSource.map (List.sort >> List.reverse)
+                |> BackendTask.map (List.sort >> List.reverse)
 
         _ ->
-            DataSource.fail ("Invalid year-month " ++ yearMonth)
+            BackendTask.fail <| FatalError.fromString <| "Invalid year-month " ++ yearMonth
 
 
-head : Page.StaticPayload Data RouteParams -> List Head.Tag
+head : App Data ActionData RouteParams -> List Head.Tag
 head app =
-    Seo.summaryLarge
-        { seoBase
-            | title = Shared.makeTitle (app.routeParams.yearMonth ++ "のTwilog")
-            , description = app.routeParams.yearMonth ++ "のTwilog"
-        }
+    { seoBase
+        | title = Helper.makeTitle (app.routeParams.yearMonth ++ "のTwilog")
+        , description = app.routeParams.yearMonth ++ "のTwilog"
+    }
         |> Seo.article
             { tags = []
             , section = Nothing
@@ -144,18 +143,19 @@ head app =
             }
 
 
-view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data RouteParams -> View.View Msg
-view _ shared m app =
+view : App Data ActionData RouteParams -> Shared.Model -> Model -> View.View (PagesMsg Msg)
+view app shared m =
     { title = app.routeParams.yearMonth ++ "のTwilog"
     , body =
         -- show navigation links to previous and next days
         prevNextNavigation app.routeParams app.sharedData.twilogArchives
-            :: TwilogSearch.searchBox TwilogSearchMsg (Page.Twilogs.aTwilog False Dict.empty) m.twilogSearch
-            :: Page.Twilogs.showTwilogsByDailySections shared app.data.twilogsFromOldest
+            :: TwilogSearch.searchBox Route.Twilogs.TwilogSearchMsg (Route.Twilogs.aTwilog False Dict.empty) m.twilogSearch
+            :: Route.Twilogs.showTwilogsByDailySections shared app.data.twilogsFromOldest
             ++ [ prevNextNavigation app.routeParams app.sharedData.twilogArchives
-               , Page.Twilogs.linksByMonths (Just app.routeParams.yearMonth) app.sharedData.twilogArchives
+               , Route.Twilogs.linksByMonths (Just app.routeParams.yearMonth) app.sharedData.twilogArchives
                ]
     }
+        |> View.map PagesMsg.fromMsg
 
 
 prevNextNavigation : RouteParams -> List TwilogArchiveYearMonth -> Html msg
@@ -164,7 +164,7 @@ prevNextNavigation { yearMonth } twilogArchives =
         toLink maybeYearMonth child =
             case maybeYearMonth of
                 Just yearMonth_ ->
-                    Route.link (Route.Twilogs__YearMonth_ { yearMonth = yearMonth_ }) [] [ strong [] [ child ] ]
+                    Route.Twilogs__YearMonth_ { yearMonth = yearMonth_ } |> Route.link [] [ strong [] [ child ] ]
 
                 Nothing ->
                     child

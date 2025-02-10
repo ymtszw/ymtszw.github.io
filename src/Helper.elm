@@ -2,69 +2,81 @@ module Helper exposing
     ( dataSourceWith
     , deadEndToString
     , deadEndsToString
+    , decodeFromResult
     , decodeWith
+    , formatPosix
     , initMsg
-    , iso8601Decoder
     , japaneseDateDecoder
+    , jst
     , makeAmazonUrl
     , makeDisplayUrl
-    , makeReq
+    , makeTitle
+    , monthToPaddedNumber
     , nonEmptyString
     , onChange
+    , posixToYmd
     , preprocessMarkdown
+    , requireEnv
     , toJapaneseDate
     , twitterProfileImageUrl
+    , unixOrigin
     , waitMsg
     )
 
-import DataSource exposing (DataSource)
+import BackendTask exposing (BackendTask)
+import BackendTask.Env
 import Date exposing (Date)
+import Dict
+import Effect exposing (Effect)
+import FatalError exposing (FatalError)
 import Html
 import Html.Events
-import Iso8601
-import Json.Decode
-import OptimizedDecoder
-import Pages.Secrets
+import Json.Decode as Decode
+import Pages.PageUrl
 import Parser
 import Process
-import QS
 import Regex
+import Site exposing (seoBase)
 import Task
-import Time
+import Time exposing (Month(..))
 import Url
 import Url.Builder exposing (string)
 
 
-dataSourceWith : DataSource a -> (a -> DataSource b) -> DataSource b
+dataSourceWith : BackendTask error a -> (a -> BackendTask error b) -> BackendTask error b
 dataSourceWith a b =
-    DataSource.andThen b a
+    BackendTask.andThen b a
 
 
-{-| elm-pages v2のPages.Secrets APIがあまり素性が良くないので、v3アップグレードまでの間グルーする関数をこのmoduleから提供しておく
-
-基本的に、`Pages.Secrets.with`を使わず`DataSource.Env.load`を使うと、この関数と組み合わせながらきれいに移行できるはず
-
+{-| v3の`BackendTask.Env.expect`は以前自前実装していた`DataSource.Env`を置き換えられて便利だが、
+最初から`FatalError`を返すAPIが提供されなかったので結局自前で補う。
 -}
-makeReq : req -> Pages.Secrets.Value req
-makeReq =
-    Pages.Secrets.succeed
+requireEnv : String -> BackendTask FatalError String
+requireEnv key =
+    BackendTask.Env.expect key
+        |> BackendTask.allowFatal
 
 
-decodeWith : OptimizedDecoder.Decoder a -> (a -> OptimizedDecoder.Decoder b) -> OptimizedDecoder.Decoder b
+decodeWith : Decode.Decoder a -> (a -> Decode.Decoder b) -> Decode.Decoder b
 decodeWith a b =
-    OptimizedDecoder.andThen b a
+    Decode.andThen b a
 
 
-iso8601Decoder : OptimizedDecoder.Decoder Time.Posix
-iso8601Decoder =
-    OptimizedDecoder.andThen (Iso8601.toTime >> Result.mapError (\_ -> "Invalid ISO8601 timestamp") >> OptimizedDecoder.fromResult) OptimizedDecoder.string
+{-| v2では`OptimizedDecoder.fromResult`があったが、v3ではないので自前で実装。
+-}
+decodeFromResult : Result String a -> Decode.Decoder a
+decodeFromResult result =
+    case result of
+        Ok a ->
+            Decode.succeed a
+
+        Err err ->
+            Decode.fail err
 
 
-japaneseDateDecoder : OptimizedDecoder.Decoder Date
+japaneseDateDecoder : Decode.Decoder Date
 japaneseDateDecoder =
-    decodeWith nonEmptyString <|
-        OptimizedDecoder.fromResult
-            << fromJapaneseDate
+    decodeWith nonEmptyString (fromJapaneseDate >> decodeFromResult)
 
 
 fromJapaneseDate : String -> Result String Date
@@ -92,27 +104,27 @@ toJapaneseDate date =
         ++ "日"
 
 
-nonEmptyString : OptimizedDecoder.Decoder String
+nonEmptyString : Decode.Decoder String
 nonEmptyString =
-    OptimizedDecoder.string
-        |> OptimizedDecoder.andThen
+    Decode.string
+        |> Decode.andThen
             (\s ->
                 if String.isEmpty s then
-                    OptimizedDecoder.fail "String is empty"
+                    Decode.fail "String is empty"
 
                 else
-                    OptimizedDecoder.succeed s
+                    Decode.succeed s
             )
 
 
-initMsg : msg -> Cmd msg
+initMsg : msg -> Effect msg
 initMsg =
-    Task.perform identity << Task.succeed
+    Task.succeed >> Task.perform identity >> Effect.fromCmd
 
 
-waitMsg : Float -> msg -> Cmd msg
+waitMsg : Float -> msg -> Effect msg
 waitMsg ms msg =
-    Task.perform (\() -> msg) (Process.sleep ms)
+    Task.perform (\() -> msg) (Process.sleep ms) |> Effect.fromCmd
 
 
 makeDisplayUrl : String -> String
@@ -185,14 +197,24 @@ embedTag : String -> Url.Url -> String
 embedTag amazonAssociateTag url =
     url.query
         |> Maybe.withDefault ""
-        |> QS.parse QS.config
-        |> (\qs ->
-                { url
-                    | query =
-                        QS.setStr "tag" amazonAssociateTag qs
-                            |> QS.serialize (QS.config |> QS.addQuestionMark False)
-                            |> Just
-                }
+        |> Pages.PageUrl.parseQueryParams
+        |> Dict.insert "tag" [ amazonAssociateTag ]
+        |> (\qp ->
+                let
+                    reducer k v acc =
+                        case v of
+                            value :: _ ->
+                                acc ++ "&" ++ k ++ "=" ++ Url.percentEncode value
+
+                            [] ->
+                                acc
+                in
+                case Dict.foldl reducer "" qp of
+                    "" ->
+                        url
+
+                    query ->
+                        { url | query = Just query }
            )
         |> Url.toString
 
@@ -204,7 +226,7 @@ twitterProfileImageUrl screenName =
 
 onChange : (String -> msg) -> Html.Attribute msg
 onChange handler =
-    Html.Events.stopPropagationOn "change" (Json.Decode.map (\a -> ( a, True )) (Json.Decode.map handler Html.Events.targetValue))
+    Html.Events.stopPropagationOn "change" (Decode.map (\a -> ( a, True )) (Decode.map handler Html.Events.targetValue))
 
 
 deadEndsToString : List { a | row : Int, col : Int, problem : Parser.Problem } -> String
@@ -276,3 +298,121 @@ convertPlainUrlToAngledUrl =
 
 plainUrlPattern =
     Maybe.withDefault Regex.never (Regex.fromString "(?<=^|\\s|。)(?<!\\]:\\s+)https?://\\S+(?=\\s|$)")
+
+
+makeTitle : String -> String
+makeTitle pageTitle =
+    case pageTitle of
+        "" ->
+            seoBase.siteName
+
+        nonEmpty ->
+            nonEmpty ++ " | " ++ seoBase.siteName
+
+
+posixToYmd : Time.Posix -> String
+posixToYmd posix =
+    String.fromInt (Time.toYear jst posix)
+        ++ "年"
+        ++ (case Time.toMonth jst posix of
+                Jan ->
+                    "1月"
+
+                Feb ->
+                    "2月"
+
+                Mar ->
+                    "3月"
+
+                Apr ->
+                    "4月"
+
+                May ->
+                    "5月"
+
+                Jun ->
+                    "6月"
+
+                Jul ->
+                    "7月"
+
+                Aug ->
+                    "8月"
+
+                Sep ->
+                    "9月"
+
+                Oct ->
+                    "10月"
+
+                Nov ->
+                    "11月"
+
+                Dec ->
+                    "12月"
+           )
+        ++ String.fromInt (Time.toDay jst posix)
+        ++ "日"
+
+
+formatPosix : Time.Posix -> String
+formatPosix posix =
+    posixToYmd posix
+        ++ " "
+        ++ String.padLeft 2 '0' (String.fromInt (Time.toHour jst posix))
+        ++ ":"
+        ++ String.padLeft 2 '0' (String.fromInt (Time.toMinute jst posix))
+        ++ ":"
+        ++ String.padLeft 2 '0' (String.fromInt (Time.toSecond jst posix))
+        ++ " JST"
+
+
+jst : Time.Zone
+jst =
+    Time.customZone (9 * 60) []
+
+
+unixOrigin : Time.Posix
+unixOrigin =
+    Time.millisToPosix 0
+
+
+monthToPaddedNumber : String -> String
+monthToPaddedNumber monStr =
+    case monStr of
+        "Jan" ->
+            "01"
+
+        "Feb" ->
+            "02"
+
+        "Mar" ->
+            "03"
+
+        "Apr" ->
+            "04"
+
+        "May" ->
+            "05"
+
+        "Jun" ->
+            "06"
+
+        "Jul" ->
+            "07"
+
+        "Aug" ->
+            "08"
+
+        "Sep" ->
+            "09"
+
+        "Oct" ->
+            "10"
+
+        "Nov" ->
+            "11"
+
+        _ ->
+            -- Dec
+            "12"

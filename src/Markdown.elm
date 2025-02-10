@@ -12,13 +12,14 @@ import Dict exposing (Dict)
 import Helper
 import Html
 import Html.Attributes
+import Json.Decode as Decode
+import Json.Decode.Extra as Decode
 import LinkPreview
 import Markdown.Block
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
 import Maybe.Extra
-import OptimizedDecoder
 import Tweet
 import View
 
@@ -30,17 +31,17 @@ type alias DecodedMarkdown =
     }
 
 
-decoder : OptimizedDecoder.Decoder DecodedMarkdown
+decoder : Decode.Decoder DecodedMarkdown
 decoder =
-    OptimizedDecoder.string
-        |> OptimizedDecoder.andThen decoderInternal
+    Decode.string
+        |> Decode.andThen decoderInternal
 
 
-decoderInternal : String -> OptimizedDecoder.Decoder DecodedMarkdown
+decoderInternal : String -> Decode.Decoder DecodedMarkdown
 decoderInternal rawBody =
     parse rawBody
-        |> OptimizedDecoder.fromResult
-        |> OptimizedDecoder.map (\nodes -> { parsed = nodes, excerpt = excerpt nodes, links = enumerateLinks nodes })
+        |> Decode.fromResult
+        |> Decode.map (\nodes -> { parsed = nodes, excerpt = excerpt nodes, links = enumerateLinks nodes })
 
 
 parse : String -> Result String (List Markdown.Block.Block)

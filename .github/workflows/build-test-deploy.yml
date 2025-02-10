@@ -1,4 +1,4 @@
-name: GitHub Pages
+name: Test, Build and Deploy
 
 on:
   push:
@@ -33,10 +33,10 @@ jobs:
           submodules: recursive
       - uses: actions/cache@v4
         with:
-          key: v4-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
+          key: v5-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
           restore-keys: |
-            v4-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
-            v4-${{ runner.arch }}-${{ runner.os }}-
+            v5-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            v5-${{ runner.arch }}-${{ runner.os }}-
           path: |
             node_modules/
             elm-stuff/

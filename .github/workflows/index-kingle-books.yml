@@ -37,7 +37,7 @@ jobs:
           ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
   deploy:
     needs: index-kindle-books
-    uses: ./.github/workflows/gh-pages.yml
+    uses: ./.github/workflows/build-test-deploy.yml
     secrets: inherit
     permissions:
       contents: read

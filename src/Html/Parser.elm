@@ -20,7 +20,7 @@ you need to parse HTML... This section is for you!
 
 -}
 
-import Dict exposing (Dict)
+import Dict
 import Hex
 import Html.Parser.NamedCharacterReferences as NamedCharacterReferences
 import Parser exposing ((|.), (|=), Parser)

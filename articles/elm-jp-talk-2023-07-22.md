@@ -2,7 +2,7 @@
 title: "Elm-jp Online #3でelm-reviewについて解説した"
 description: |
   例によって報告記事
-publishedAt: 2023-07-23T00:00:00.000+09:00
+publishedAt: "2023-07-23T00:00:00.000+09:00"
 ---
 
 こちらで発表した。

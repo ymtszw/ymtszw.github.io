@@ -1,5 +1,6 @@
-module Page.Twilogs exposing
-    ( Data
+module Route.Twilogs exposing
+    ( ActionData
+    , Data
     , Model
     , Msg(..)
     , RouteParams
@@ -8,43 +9,47 @@ module Page.Twilogs exposing
     , getRecentDays
     , linksByMonths
     , listUrlsForPreviewBulk
-    , page
+    , route
+    , scrollToTargetTweet
     , showTwilogsByDailySections
     , subscriptions
     , twilogsOfTheDay
     , update
     )
 
+import BackendTask exposing (BackendTask)
+import BackendTask.Glob
 import Browser.Dom
-import Browser.Navigation
-import DataSource exposing (DataSource)
-import DataSource.Env
-import DataSource.Glob
 import Date
 import Debounce exposing (Debounce)
 import Dict exposing (Dict)
+import Effect exposing (Effect)
+import FatalError exposing (FatalError)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
 import Head.Seo as Seo
-import Helper
+import Helper exposing (requireEnv)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Html.Keyed
 import Json.Decode
 import Json.Encode
 import LinkPreview
 import List.Extra
 import Markdown
-import Page
-import Pages.PageUrl
-import Path
+import PagesMsg exposing (PagesMsg)
 import Regex
 import Route
+import RouteBuilder exposing (App)
 import RuntimePorts
-import Shared exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..), seoBase)
+import Shared
+import Site exposing (seoBase)
 import Task
 import Tweet
+import TwilogData exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, TwitterStatusId(..))
 import TwilogSearch exposing (searchBox)
+import UrlPath exposing (UrlPath)
 import View exposing (imgLazy, lightboxLink)
 
 
@@ -65,6 +70,11 @@ type Msg
     | ReceiveFromJs Json.Encode.Value
     | DebounceMsg Debounce.Msg
     | RequestLinkPreview TwitterStatusIdStr
+      --| HACK v3ではclient sideでquery parameterにアクセスしづらくなり、他ページからの遷移時のinitではquery parameterを使った初期化処理が動かない。
+      --| （ページを直接訪問したときには動作する）
+      --| 代わりにinitMsgを飛ばしてupdateで再度初期化を試みる。
+    | RuntimeInit
+    | ForceTweetId String
 
 
 type alias RouteParams =
@@ -78,12 +88,16 @@ type alias Data =
     }
 
 
-page =
-    Page.single
+type alias ActionData =
+    {}
+
+
+route =
+    RouteBuilder.single
         { head = head
         , data = data
         }
-        |> Page.buildWithSharedState
+        |> RouteBuilder.buildWithSharedState
             { init = init
             , update = update
             , subscriptions = subscriptions
@@ -91,8 +105,8 @@ page =
             }
 
 
-init : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Page.StaticPayload Data routeParams -> ( Model, Cmd Msg )
-init _ shared app =
+init : App Data ActionData routeParams -> Shared.Model -> ( Model, Effect Msg )
+init app shared =
     let
         linksInTwilogs =
             listUrlsForPreviewBulk shared.links app.data.twilogsFromOldest
@@ -101,77 +115,78 @@ init _ shared app =
       , linksInTwilogs = linksInTwilogs
       , debounce = Debounce.init
       }
-    , findTweetsInOrAfterViewport (Dict.keys linksInTwilogs) shared.initialViewport
+    , findTweetsInOrAfterViewport (Dict.keys linksInTwilogs) shared.initialViewport |> Effect.fromCmd
     )
 
 
-data : DataSource Data
+data : BackendTask FatalError Data
 data =
     getRecentDays daysToPeek
-        |> DataSource.andThen
+        |> BackendTask.andThen
             (\dateStrings ->
-                Shared.dailyTwilogsFromOldest (List.map Shared.makeTwilogsJsonPath dateStrings)
-                    |> DataSource.map Data
+                TwilogData.dailyTwilogsFromOldest (List.map TwilogData.makeTwilogsJsonPath dateStrings)
+                    |> BackendTask.map Data
             )
-        |> DataSource.andMap TwilogSearch.secrets
-        |> DataSource.andMap (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
+        |> BackendTask.andMap TwilogSearch.secrets
+        |> BackendTask.andMap (requireEnv "AMAZON_ASSOCIATE_TAG")
 
 
 daysToPeek =
     3
 
 
-getRecentDays : Int -> DataSource (List String)
+getRecentDays : Int -> BackendTask FatalError (List String)
 getRecentDays days =
-    DataSource.Glob.succeed (\year month day -> String.join "-" [ year, month, day ])
-        |> DataSource.Glob.match (DataSource.Glob.literal "data/")
-        |> DataSource.Glob.capture DataSource.Glob.wildcard
-        |> DataSource.Glob.match (DataSource.Glob.literal "/")
-        |> DataSource.Glob.capture DataSource.Glob.wildcard
-        |> DataSource.Glob.match (DataSource.Glob.literal "/")
-        |> DataSource.Glob.capture DataSource.Glob.wildcard
-        |> DataSource.Glob.match (DataSource.Glob.literal "-twilogs.json")
-        |> DataSource.Glob.toDataSource
+    BackendTask.Glob.succeed (\year month day -> String.join "-" [ year, month, day ])
+        |> BackendTask.Glob.match (BackendTask.Glob.literal "data/")
+        |> BackendTask.Glob.capture BackendTask.Glob.wildcard
+        |> BackendTask.Glob.match (BackendTask.Glob.literal "/")
+        |> BackendTask.Glob.capture BackendTask.Glob.wildcard
+        |> BackendTask.Glob.match (BackendTask.Glob.literal "/")
+        |> BackendTask.Glob.capture BackendTask.Glob.wildcard
+        |> BackendTask.Glob.match (BackendTask.Glob.literal "-twilogs.json")
+        |> BackendTask.Glob.toBackendTask
         -- Make newest first
-        |> DataSource.map (List.sort >> List.reverse >> List.take days)
+        |> BackendTask.map (List.sort >> List.reverse >> List.take days)
 
 
-head : Page.StaticPayload Data routeParams -> List Head.Tag
+head : App Data ActionData routeParams -> List Head.Tag
 head _ =
-    Seo.summaryLarge
-        { seoBase
-            | title = Shared.makeTitle "Twilog"
-            , description = "2023年4月から作り始めた自作Twilog。Twitterを日記化している"
-        }
+    { seoBase
+        | title = Helper.makeTitle "Twilog"
+        , description = "2023年4月から作り始めた自作Twilog。Twitterを日記化している"
+    }
         |> Seo.website
 
 
-update : Pages.PageUrl.PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> Page.StaticPayload Data routeParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
-update _ _ shared app msg model =
+update : App Data ActionData routeParams -> Shared.Model -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
+update app shared msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none, Nothing )
+            ( model, Effect.none, Nothing )
 
         TwilogSearchMsg twMsg ->
             let
                 ( twilogSearch_, cmd ) =
                     TwilogSearch.update twMsg model.twilogSearch
             in
-            ( { model | twilogSearch = twilogSearch_ }, Cmd.map TwilogSearchMsg cmd, Nothing )
+            ( { model | twilogSearch = twilogSearch_ }, Effect.map TwilogSearchMsg cmd, Nothing )
 
         ReceiveFromJs v ->
+            -- Portから送られてくるデータには複数パターンありうるが、今のところスクロールイベントに起因するviewport情報が送られてくる。Debounceして使う
             let
                 ( debounce_, cmd ) =
                     Debounce.push debounceConfig v model.debounce
             in
-            ( { model | debounce = debounce_ }, cmd, Nothing )
+            ( { model | debounce = debounce_ }, Effect.fromCmd cmd, Nothing )
 
         DebounceMsg dMsg ->
             let
                 ( debounce_, cmd ) =
+                    -- Debounceによって、最終的にスクロールが停止したときのviewportに対し decodeViewportAndFindTweets を実行することになる
                     Debounce.update debounceConfig (Debounce.takeLast (decodeViewportAndFindTweets (Dict.keys model.linksInTwilogs))) dMsg model.debounce
             in
-            ( { model | debounce = debounce_ }, cmd, Nothing )
+            ( { model | debounce = debounce_ }, Effect.fromCmd cmd, Nothing )
 
         RequestLinkPreview tweetId ->
             let
@@ -185,10 +200,26 @@ update _ _ shared app msg model =
             in
             case Dict.get tweetId model.linksInTwilogs |> Maybe.withDefault [] |> List.filter isNotFetched of
                 [] ->
-                    ( model, Cmd.none, Nothing )
+                    ( model, Effect.none, Nothing )
 
                 notFetchedUrls ->
-                    ( model, Cmd.none, Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag notFetchedUrls)) )
+                    ( model, Effect.none, Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag notFetchedUrls)) )
+
+        RuntimeInit ->
+            ( model
+            , case shared.fragment of
+                Just id ->
+                    -- v3で、ページ遷移後に遅延してfragmentを読み込んでスクロールするアーカイブページ専用処理。
+                    -- update関数共用のために不可避的にこちらに設置
+                    scrollToTargetTweet id
+
+                Nothing ->
+                    findTweetsInOrAfterViewport (Dict.keys model.linksInTwilogs) shared.initialViewport |> Effect.fromCmd
+            , Nothing
+            )
+
+        ForceTweetId id ->
+            ( model, Effect.none, Just <| Shared.SharedMsg <| Shared.PushFragment id )
 
 
 debounceConfig =
@@ -245,6 +276,8 @@ listUrlsForPreviewFromReplies links replies =
     listUrlsForPreviewImpl links (List.map (\(Reply twilog) -> twilog) replies)
 
 
+{-| Debouncerに登録する副作用なので、EffectでなくCmdを返させている
+-}
 decodeViewportAndFindTweets : List String -> Json.Encode.Value -> Cmd Msg
 decodeViewportAndFindTweets tweetIds v =
     case Json.Decode.decodeValue Shared.viewportDecoder v of
@@ -290,13 +323,23 @@ findTweetsInOrAfterViewport tweetIds viewport =
         |> Cmd.batch
 
 
-subscriptions : Maybe Pages.PageUrl.PageUrl -> routeParams -> Path.Path -> Model -> Shared.Model -> Sub Msg
-subscriptions _ _ _ _ _ =
+scrollToTargetTweet : String -> Effect Msg
+scrollToTargetTweet id =
+    Browser.Dom.getElement id
+        -- ヘッダー分を大雑把に差し引いてスクロール（注：yは下方向に向かって値が増える）
+        |> Task.andThen (\e -> Browser.Dom.setViewport 0 (e.element.y - 100))
+        |> Task.onError (\_ -> Task.succeed ())
+        |> Task.perform (\_ -> NoOp)
+        |> Effect.fromCmd
+
+
+subscriptions : routeParams -> UrlPath -> Shared.Model -> Model -> Sub Msg
+subscriptions _ _ _ _ =
     RuntimePorts.fromJs ReceiveFromJs
 
 
-view : Maybe Pages.PageUrl.PageUrl -> Shared.Model -> Model -> Page.StaticPayload Data routeParams -> View.View Msg
-view _ shared m app =
+view : App Data ActionData routeParams -> Shared.Model -> Model -> View.View (PagesMsg Msg)
+view app shared m =
     { title = "Twilog"
     , body =
         [ h1 [] [ text "Twilog" ]
@@ -320,6 +363,7 @@ ZapierによるTweet取得以前のデータも、Twitter公式機能で取得�
             ++ showTwilogsByDailySections shared app.data.twilogsFromOldest
             ++ [ goToLatestMonth app.sharedData.twilogArchives app.data.twilogsFromOldest, linksByMonths Nothing app.sharedData.twilogArchives ]
     }
+        |> View.map PagesMsg.fromMsg
 
 
 
@@ -347,7 +391,7 @@ twilogDailySection shared rataDie twilogs =
             String.padLeft 2 '0' (String.fromInt (Date.day date))
 
         linkWithDayFragment =
-            Path.toAbsolute (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth })) ++ "#" ++ dayId
+            UrlPath.toAbsolute (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth })) ++ "#" ++ dayId
     in
     section []
         [ h3 [ class "twilogs-day-header", id dayId ] [ a [ href linkWithDayFragment ] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
@@ -441,7 +485,7 @@ aTwilog isCanonical links twilog =
                                 twilog.entitiesTcoUrl
                             )
                         |> div [ class "body" ]
-                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
+                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Helper.formatPosix twilog.createdAt) ] ]
                     ]
 
                 Nothing ->
@@ -483,7 +527,7 @@ aTwilog isCanonical links twilog =
                         |> appendQuote twilog.quote
                         |> appendLinkPreviews links twilog.entitiesTcoUrl
                         |> div [ class "body" ]
-                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Shared.formatPosix twilog.createdAt) ] ]
+                    , a [ target "_blank", href (statusLink twilog) ] [ time [] [ text (Helper.formatPosix twilog.createdAt) ] ]
                     ]
 
 
@@ -709,7 +753,7 @@ appendMediaGrid links status htmls =
 -----------------
 
 
-goToLatestMonth : List TwilogArchiveYearMonth -> Dict RataDie (List Twilog) -> Html msg
+goToLatestMonth : List TwilogArchiveYearMonth -> Dict RataDie (List Twilog) -> Html Msg
 goToLatestMonth twilogArchives twilogsFromOldest =
     case ( twilogArchives, Dict.toList twilogsFromOldest ) of
         ( latestYearMonth :: _, ( _, oldestTwilog :: _ ) :: _ ) ->
@@ -718,10 +762,13 @@ goToLatestMonth twilogArchives twilogsFromOldest =
             -- 遷移先はoldestTwilogのidを指定することで自然な位置を保つ
             let
                 pathToLatestMonth =
-                    Path.toAbsolute (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = latestYearMonth }))
+                    UrlPath.toAbsolute (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = latestYearMonth }))
+
+                id =
+                    "tweet-" ++ oldestTwilog.idStr
             in
             nav [ class "prev-next-navigation" ]
-                [ a [ href <| pathToLatestMonth ++ "#tweet-" ++ oldestTwilog.idStr ] [ strong [] [ text "← 最新月" ] ]
+                [ a [ href <| pathToLatestMonth ++ "#" ++ id, onClick (ForceTweetId id) ] [ strong [] [ text "← 最新月" ] ]
                 ]
 
         ( _, _ ) ->
@@ -803,7 +850,7 @@ linksByMonths maybeOpenedYearMonth twilogArchives =
                                 li [ class "selected" ] [ text (year ++ "/" ++ month) ]
 
                             else
-                                li [] [ Route.link (Route.Twilogs__YearMonth_ { yearMonth = year ++ "-" ++ month }) [] [ text (year ++ "/" ++ month) ] ]
+                                li [] [ Route.Twilogs__YearMonth_ { yearMonth = year ++ "-" ++ month } |> Route.link [] [ text (year ++ "/" ++ month) ] ]
                         )
                         months
                         |> ul []
@@ -826,5 +873,5 @@ twilogData twilog =
     in
     [ input [ type_ "checkbox", id checkboxId ] []
     , label [ for checkboxId ] [ text "Twilog raw JSON" ]
-    , pre [ class "twilog-data" ] [ text (Shared.dumpTwilog twilog) ]
+    , pre [ class "twilog-data" ] [ text (TwilogData.dumpTwilog twilog) ]
     ]

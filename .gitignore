@@ -1,10 +1,13 @@
 node_modules/
 elm-stuff/
 dist/
-.elm-pages/
+.cache/
+gen/
+.elm-pages
+functions/server-render
+functions/render
 .env
 /twilogs.json
-functions/render
-functions/server-render
-.netlify/
-bin/
+
+# Local Netlify folder
+.netlify

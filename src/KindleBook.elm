@@ -1,18 +1,18 @@
-module KindleBook exposing (ASIN, KindleBook, SearchResult, Secrets, SeriesName, emptyResult, getOnDemand, kindleBooks, putOnDemand, putOnDemandTask, search, secrets)
+module KindleBook exposing (ASIN, KindleBook, SearchResult, Secrets, SeriesName, allBooksFromAlgolia, emptyResult, getOnDemand, putOnDemand, putOnDemandTask, search, secrets)
 
-import DataSource exposing (DataSource)
-import DataSource.Env
-import DataSource.Http
+import BackendTask exposing (BackendTask)
+import BackendTask.Http
 import Date exposing (Date)
 import Dict exposing (Dict)
-import Helper exposing (dataSourceWith, decodeWith, iso8601Decoder, japaneseDateDecoder, makeReq, nonEmptyString)
+import FatalError exposing (FatalError)
+import Helper exposing (dataSourceWith, decodeWith, japaneseDateDecoder, nonEmptyString, requireEnv)
 import Http
 import Iso8601
-import Json.Decode
+import Json.Decode as Decode
+import Json.Decode.Extra as Decode
 import Json.Encode
 import KindleBookTitle exposing (kindleBookTitle)
 import List.Extra
-import OptimizedDecoder
 import Regex
 import Task exposing (Task)
 import Time exposing (Posix)
@@ -49,12 +49,12 @@ type alias Secrets =
     }
 
 
-secrets : DataSource Secrets
+secrets : BackendTask FatalError Secrets
 secrets =
-    DataSource.map2 Secrets
-        (DataSource.Env.load "ALGOLIA_APP_ID")
+    BackendTask.map2 Secrets
+        (requireEnv "ALGOLIA_APP_ID")
         -- RuntimeにはReferrerと権限を制限したsearchKeyを使う
-        (DataSource.Env.load "ALGOLIA_SEARCH_KEY")
+        (requireEnv "ALGOLIA_SEARCH_KEY")
 
 
 type alias SearchResult =
@@ -96,11 +96,11 @@ searchBody term =
             ]
 
 
-searchResultDecoder : String -> Json.Decode.Decoder SearchResult
+searchResultDecoder : String -> Decode.Decoder SearchResult
 searchResultDecoder term =
-    Json.Decode.map2 (SearchResult term)
-        (Json.Decode.field "hits" (Json.Decode.list (OptimizedDecoder.decoder kindleBookDecoder)))
-        (Json.Decode.field "nbHits" Json.Decode.int)
+    Decode.map2 (SearchResult term)
+        (Decode.field "hits" (Decode.list kindleBookDecoder))
+        (Decode.field "nbHits" Decode.int)
 
 
 getOnDemand : (Result String KindleBook -> msg) -> Secrets -> ASIN -> Cmd msg
@@ -113,7 +113,7 @@ getOnDemand tagger { appId, searchKey } objectId =
             , Http.header "X-Algolia-API-Key" searchKey
             ]
         , body = Http.emptyBody
-        , expect = Http.expectJson (Result.mapError (\_ -> "") >> tagger) (OptimizedDecoder.decoder kindleBookDecoder)
+        , expect = Http.expectJson (Result.mapError (\_ -> "") >> tagger) kindleBookDecoder
         , timeout = Just 5000
         , tracker = Nothing
         }
@@ -180,12 +180,12 @@ Algolia側のデータはスクレイピングデータを格納したあと、
 正規化（人力注釈）機能で更新されている情報が増えているかもしれない。
 
 -}
-kindleBooks : DataSource (Dict ASIN KindleBook)
-kindleBooks =
+allBooksFromAlgolia : BackendTask FatalError (Dict ASIN KindleBook)
+allBooksFromAlgolia =
     let
         idsDecoder =
-            OptimizedDecoder.dict (OptimizedDecoder.succeed ())
-                |> OptimizedDecoder.map Dict.keys
+            Decode.dict (Decode.succeed ())
+                |> Decode.map Dict.keys
 
         toDict =
             List.foldl
@@ -199,8 +199,8 @@ kindleBooks =
             ids
                 |> List.Extra.greedyGroupsOf 1000
                 |> List.map get1000FromAlgolia
-                |> DataSource.combine
-                |> DataSource.map toDict
+                |> BackendTask.combine
+                |> BackendTask.map toDict
 
 
 {-| AlgoliaのGet Objects APIからデータを取得する。
@@ -211,12 +211,12 @@ DocumentDBとしてAlgoliaを使っている格好だが、検索以外にフィ
 DataSourceとして全件取得してからよしなに使うことになる。
 
 -}
-get1000FromAlgolia : List ASIN -> DataSource (List KindleBook)
+get1000FromAlgolia : List ASIN -> BackendTask FatalError (List KindleBook)
 get1000FromAlgolia ids =
     dataSourceWith secrets <|
         \{ appId } ->
             -- DataSourceではReferrer制限のないadminKeyを使う
-            dataSourceWith (DataSource.Env.load "ALGOLIA_ADMIN_KEY") <|
+            dataSourceWith (requireEnv "ALGOLIA_ADMIN_KEY") <|
                 \adminKey ->
                     let
                         request id =
@@ -225,60 +225,61 @@ get1000FromAlgolia ids =
                                 , ( "objectID", Json.Encode.string id )
                                 ]
                     in
-                    DataSource.Http.request
-                        (makeReq
-                            { method = "POST"
-                            , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
-                            , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", adminKey ) ]
-                            , body = DataSource.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
-                            }
-                        )
-                        (OptimizedDecoder.field "results" (OptimizedDecoder.list kindleBookDecoder))
+                    BackendTask.Http.request
+                        { method = "POST"
+                        , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
+                        , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", adminKey ) ]
+                        , body = BackendTask.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
+                        , retries = Nothing
+                        , timeoutInMs = Just 30000
+                        }
+                        (BackendTask.Http.expectJson (Decode.field "results" (Decode.list kindleBookDecoder)))
+                        |> BackendTask.allowFatal
 
 
-getFromGist : OptimizedDecoder.Decoder a -> DataSource a
+getFromGist : Decode.Decoder a -> BackendTask FatalError a
 getFromGist decoder =
-    dataSourceWith (DataSource.Env.load "BOOKS_JSON_URL") <|
-        \booksJsonUrl -> DataSource.Http.get (makeReq booksJsonUrl) decoder
+    dataSourceWith (requireEnv "BOOKS_JSON_URL") <|
+        \booksJsonUrl -> BackendTask.Http.getJson booksJsonUrl decoder |> BackendTask.allowFatal
 
 
-kindleBookDecoder : OptimizedDecoder.Decoder KindleBook
+kindleBookDecoder : Decode.Decoder KindleBook
 kindleBookDecoder =
-    OptimizedDecoder.oneOf [ decodeNormalizedBook, decodeRawBook ]
-        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewTitle" nonEmptyString))
-        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewMarkdown" nonEmptyString))
-        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewUpdatedAt" iso8601Decoder))
-        |> OptimizedDecoder.andMap (OptimizedDecoder.maybe (OptimizedDecoder.field "reviewPublishedAt" iso8601Decoder))
+    Decode.oneOf [ decodeNormalizedBook, decodeRawBook ]
+        |> Decode.andMap (Decode.maybe (Decode.field "reviewTitle" nonEmptyString))
+        |> Decode.andMap (Decode.maybe (Decode.field "reviewMarkdown" nonEmptyString))
+        |> Decode.andMap (Decode.maybe (Decode.field "reviewUpdatedAt" Iso8601.decoder))
+        |> Decode.andMap (Decode.maybe (Decode.field "reviewPublishedAt" Iso8601.decoder))
 
 
 decodeNormalizedBook =
     -- 人力注釈機能の仕様上、decodeRawBookで機械的に正規化された結果はある程度そのまま保存されることが多い。
     -- ここではそれを前提に、最も特徴的なseriesNameの存在を先にチェックしてfail-fast.
-    decodeWith (OptimizedDecoder.field "seriesName" nonEmptyString) <|
+    decodeWith (Decode.field "seriesName" nonEmptyString) <|
         \seriesName ->
-            OptimizedDecoder.map8 KindleBook
-                (OptimizedDecoder.field "id" nonEmptyString)
-                (OptimizedDecoder.field "rawTitle" nonEmptyString)
-                (OptimizedDecoder.maybe (OptimizedDecoder.field "label" nonEmptyString))
-                (OptimizedDecoder.field "volume" OptimizedDecoder.int)
-                (OptimizedDecoder.succeed seriesName)
-                (OptimizedDecoder.field "authors" (OptimizedDecoder.list nonEmptyString))
-                (OptimizedDecoder.field "img" nonEmptyString)
-                (OptimizedDecoder.field "acquiredDate" japaneseDateDecoder)
+            Decode.map8 KindleBook
+                (Decode.field "id" nonEmptyString)
+                (Decode.field "rawTitle" nonEmptyString)
+                (Decode.maybe (Decode.field "label" nonEmptyString))
+                (Decode.field "volume" Decode.int)
+                (Decode.succeed seriesName)
+                (Decode.field "authors" (Decode.list nonEmptyString))
+                (Decode.field "img" nonEmptyString)
+                (Decode.field "acquiredDate" japaneseDateDecoder)
 
 
 decodeRawBook =
-    decodeWith (OptimizedDecoder.field "title" kindleBookTitle) <|
+    decodeWith (Decode.field "title" kindleBookTitle) <|
         \parsed ->
-            OptimizedDecoder.map8 KindleBook
-                (OptimizedDecoder.field "id" nonEmptyString)
-                (OptimizedDecoder.succeed parsed.rawTitle)
-                (OptimizedDecoder.succeed (Maybe.map j2a parsed.label))
-                (OptimizedDecoder.succeed parsed.volume)
-                (OptimizedDecoder.succeed parsed.seriesName |> OptimizedDecoder.map j2a)
-                (OptimizedDecoder.field "authors" (OptimizedDecoder.list (OptimizedDecoder.map (j2a >> normalizeAuthor) nonEmptyString) |> OptimizedDecoder.map (List.filter notStopWords)))
-                (OptimizedDecoder.field "img" nonEmptyString)
-                (OptimizedDecoder.field "acquiredDate" japaneseDateDecoder)
+            Decode.map8 KindleBook
+                (Decode.field "id" nonEmptyString)
+                (Decode.succeed parsed.rawTitle)
+                (Decode.succeed (Maybe.map j2a parsed.label))
+                (Decode.succeed parsed.volume)
+                (Decode.succeed parsed.seriesName |> Decode.map j2a)
+                (Decode.field "authors" (Decode.list (Decode.map (j2a >> normalizeAuthor) nonEmptyString) |> Decode.map (List.filter notStopWords)))
+                (Decode.field "img" nonEmptyString)
+                (Decode.field "acquiredDate" japaneseDateDecoder)
 
 
 j2a : String -> String

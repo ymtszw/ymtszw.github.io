@@ -49,7 +49,7 @@ jobs:
   deploy:
     needs: commit-recent-twilogs
     if: needs.commit-recent-twilogs.outputs.has_new_twilogs
-    uses: ./.github/workflows/gh-pages.yml
+    uses: ./.github/workflows/build-test-deploy.yml
     secrets: inherit
     permissions:
       contents: read

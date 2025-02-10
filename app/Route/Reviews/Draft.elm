@@ -1,37 +1,36 @@
-module Page.Reviews.Draft exposing (Data, Model, Msg, page)
+module Route.Reviews.Draft exposing (ActionData, Data, Model, Msg, route)
 
-import Browser.Navigation
-import DataSource exposing (DataSource)
-import DataSource.Env
+import BackendTask exposing (BackendTask)
 import Dict exposing (Dict)
+import Effect exposing (Effect)
+import FatalError exposing (FatalError)
 import Head
-import Helper exposing (onChange)
+import Helper exposing (onChange, requireEnv)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onCheck, onClick)
-import KindleBook exposing (ASIN, KindleBook, kindleBooks)
+import KindleBook exposing (ASIN, KindleBook, allBooksFromAlgolia)
 import LinkPreview
 import Markdown
 import Maybe.Extra
-import Page exposing (PageWithState, StaticPayload)
-import Pages.PageUrl exposing (PageUrl)
-import QueryParams
+import PagesMsg exposing (PagesMsg)
+import RouteBuilder exposing (App, StatefulRoute)
 import Shared
 import Task
 import Time exposing (Posix)
 import View exposing (View)
 
 
-page : PageWithState RouteParams Data Model Msg
-page =
-    Page.single
+route : StatefulRoute RouteParams Data ActionData Model Msg
+route =
+    RouteBuilder.single
         { head = head
         , data = data
         }
-        |> Page.buildWithSharedState
+        |> RouteBuilder.buildWithSharedState
             { init = init
             , update = update
-            , subscriptions = \_ _ _ _ _ -> Sub.none
+            , subscriptions = \_ _ _ _ -> Sub.none
             , view = view
             }
 
@@ -53,17 +52,21 @@ type alias Data =
     }
 
 
-data : DataSource Data
+data : BackendTask FatalError Data
 data =
-    DataSource.map3 Data
-        kindleBooks
-        (DataSource.Env.load "AMAZON_ASSOCIATE_TAG")
+    BackendTask.map3 Data
+        allBooksFromAlgolia
+        (requireEnv "AMAZON_ASSOCIATE_TAG")
         KindleBook.secrets
 
 
-head : StaticPayload Data RouteParams -> List Head.Tag
+head : App Data ActionData RouteParams -> List Head.Tag
 head _ =
     [ Head.metaName "robots" (Head.raw "noindex,nofollow,noarchive,nocache") ]
+
+
+type alias ActionData =
+    {}
 
 
 
@@ -82,16 +85,16 @@ type alias Model =
     }
 
 
-init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Cmd Msg )
-init pageUrl _ static =
-    case getStaticBook pageUrl static.data.kindleBooks of
+init : App Data ActionData RouteParams -> Shared.Model -> ( Model, Effect Msg )
+init app shared =
+    case getStaticBook shared.queryParams app.data.kindleBooks of
         Just book ->
             ( bookToModel book
-            , KindleBook.getOnDemand Res_refreshKindleBookOnDemand static.data.secrets book.id
+            , KindleBook.getOnDemand Res_refreshKindleBookOnDemand app.data.secrets book.id |> Effect.fromCmd
             )
 
         Nothing ->
-            ( Model Nothing "タイトル" sample Nothing Nothing True, Cmd.none )
+            ( Model Nothing "タイトル" sample Nothing Nothing True, Helper.initMsg RuntimeInit )
 
 
 bookToModel : KindleBook -> Model
@@ -99,12 +102,10 @@ bookToModel book =
     Model (Just book) (Maybe.withDefault "タイトル" book.reviewTitle) (Maybe.withDefault sample book.reviewMarkdown) book.reviewUpdatedAt book.reviewPublishedAt True
 
 
-getStaticBook : Maybe PageUrl -> Dict ASIN KindleBook -> Maybe KindleBook
-getStaticBook pageUrl books =
-    pageUrl
-        |> Maybe.andThen .query
-        |> Maybe.map QueryParams.toDict
-        |> Maybe.andThen (Dict.get "id")
+getStaticBook : Dict String (List String) -> Dict ASIN KindleBook -> Maybe KindleBook
+getStaticBook queryParams books =
+    queryParams
+        |> Dict.get "id"
         |> Maybe.andThen List.head
         |> Maybe.andThen (\id -> Dict.get id books)
 
@@ -123,43 +124,46 @@ type Msg
     | SetReviewMarkdown String
     | Save
     | Publish Bool
+      --| HACK v3ではclient sideでquery parameterにアクセスしづらくなり、他ページからの遷移時のinitではquery parameterを使った初期化処理が動かない。
+      --| （ページを直接訪問したときには動作する）
+      --| 代わりにinitMsgを飛ばしてupdateで再度初期化を試みる。
+    | RuntimeInit
 
 
 update :
-    PageUrl
-    -> Maybe Browser.Navigation.Key
+    App Data ActionData RouteParams
     -> Shared.Model
-    -> StaticPayload Data RouteParams
     -> Msg
     -> Model
-    -> ( Model, Cmd Msg, Maybe Shared.Msg )
-update _ _ _ static msg m =
+    -> ( Model, Effect Msg, Maybe Shared.Msg )
+update app shared msg m =
     case msg of
         Res_refreshKindleBookOnDemand (Ok book) ->
             bookToModel book
                 |> (\updated ->
                         ( { updated | clean = True }
-                        , Cmd.none
-                        , requestLinkPreview static.data.amazonAssociateTag updated.reviewMarkdown
+                        , Effect.none
+                        , requestLinkPreview app.data.amazonAssociateTag updated.reviewMarkdown
                         )
                    )
 
         Res_refreshKindleBookOnDemand (Err _) ->
-            ( m, Cmd.none, Nothing )
+            ( m, Effect.none, Nothing )
 
         SetReviewTitle s ->
-            ( { m | reviewTitle = s, clean = False }, Cmd.none, Nothing )
+            ( { m | reviewTitle = s, clean = False }, Effect.none, Nothing )
 
         SetReviewMarkdown s ->
-            ( { m | reviewMarkdown = s, clean = False }, Cmd.none, requestLinkPreview static.data.amazonAssociateTag s )
+            ( { m | reviewMarkdown = s, clean = False }, Effect.none, requestLinkPreview app.data.amazonAssociateTag s )
 
         Save ->
             ( m
             , modelToBook m
-                |> Maybe.Extra.unwrap Cmd.none
+                |> Maybe.Extra.unwrap Effect.none
                     (\book ->
                         putWithTimestamp book
                             |> Task.attempt Res_refreshKindleBookOnDemand
+                            |> Effect.fromCmd
                     )
             , Nothing
             )
@@ -182,14 +186,27 @@ update _ _ _ static msg m =
                                     }
                                 )
                             |> Task.attempt Res_refreshKindleBookOnDemand
+                            |> Effect.fromCmd
 
                     Nothing ->
-                        Cmd.none
+                        Effect.none
 
               else
-                Cmd.none
+                Effect.none
             , Nothing
             )
+
+        RuntimeInit ->
+            case getStaticBook shared.queryParams app.data.kindleBooks of
+                Just book ->
+                    ( bookToModel book
+                    , KindleBook.getOnDemand Res_refreshKindleBookOnDemand app.data.secrets book.id |> Effect.fromCmd
+                    , Nothing
+                    )
+
+                Nothing ->
+                    -- RuntimeInitの無限ループを防ぐため、updateでもbookを解決できなかったら諦める
+                    ( Model Nothing "タイトル" sample Nothing Nothing True, Effect.none, Nothing )
 
 
 requestLinkPreview amazonAssociateTag body =
@@ -220,29 +237,29 @@ putWithTimestamp book =
     Time.now
         |> Task.andThen
             (\now ->
-                -- KindleBook.putOnDemandTask static.data.secrets
+                -- KindleBook.putOnDemandTask app.data.secrets
                 Task.succeed { book | reviewUpdatedAt = Just now }
             )
 
 
 view :
-    Maybe PageUrl
+    App Data ActionData RouteParams
     -> Shared.Model
     -> Model
-    -> StaticPayload Data RouteParams
-    -> View Msg
-view _ { links } m static =
+    -> View (PagesMsg Msg)
+view app { links } m =
     { title = "レビュー（下書き）"
     , body =
         [ case m.book of
             Just book ->
-                renderReview static.data.amazonAssociateTag links book m
+                renderReview app.data.amazonAssociateTag links book m
 
             Nothing ->
                 Html.div [] []
         , reviewEditor m
         ]
     }
+        |> View.map PagesMsg.fromMsg
 
 
 renderReview :
@@ -257,14 +274,14 @@ renderReview amazonAssociateTag links book m =
             Html.small [] <|
                 case m.reviewPublishedAt of
                     Just pa ->
-                        Html.text ("公開: " ++ Shared.formatPosix pa)
+                        Html.text ("公開: " ++ Helper.formatPosix pa)
                             :: (case m.reviewUpdatedAt of
                                     Just ua ->
                                         if ua == pa then
                                             []
 
                                         else
-                                            [ Html.text (" (更新: " ++ Shared.formatPosix ua ++ ")") ]
+                                            [ Html.text (" (更新: " ++ Helper.formatPosix ua ++ ")") ]
 
                                     Nothing ->
                                         []

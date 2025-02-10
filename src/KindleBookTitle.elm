@@ -16,8 +16,8 @@ Tests.elmに代表的なケースだけでなく現在対応している様々�
 
 -}
 
-import Helper exposing (nonEmptyString)
-import OptimizedDecoder
+import Helper exposing (decodeFromResult, nonEmptyString)
+import Json.Decode as Decode
 import Parser as P exposing ((|.), (|=), Parser)
 
 
@@ -29,9 +29,9 @@ type alias KindleBookTitle =
     }
 
 
-kindleBookTitle : OptimizedDecoder.Decoder KindleBookTitle
+kindleBookTitle : Decode.Decoder KindleBookTitle
 kindleBookTitle =
-    OptimizedDecoder.andThen (OptimizedDecoder.fromResult << parse) nonEmptyString
+    Decode.andThen (decodeFromResult << parse) nonEmptyString
 
 
 {-| パース実行する。

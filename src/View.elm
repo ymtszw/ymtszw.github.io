@@ -14,15 +14,18 @@ module View exposing
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
-import Path exposing (Path)
+import Time exposing (Month(..))
+import UrlPath exposing (UrlPath)
 
 
+{-| -}
 type alias View msg =
     { title : String
     , body : List (Html msg)
     }
 
 
+{-| -}
 map : (msg1 -> msg2) -> View msg1 -> View msg2
 map fn doc =
     { title = doc.title
@@ -62,7 +65,7 @@ type alias LightboxMedia =
     { href : String
     , src : String
     , type_ : String
-    , originReq : { path : Path, query : Maybe String, fragment : Maybe String }
+    , originReq : { path : UrlPath, query : Maybe String, fragment : Maybe String }
     }
 
 
@@ -71,7 +74,7 @@ lightboxLink opts attrs kids =
     Html.a (Html.Attributes.href ("#lightbox:src(" ++ opts.src ++ "):href(" ++ opts.href ++ "):type(" ++ opts.type_ ++ ")") :: attrs) kids
 
 
-parseLightboxFragment : { path : Path, query : Maybe String, fragment : Maybe String } -> String -> Maybe LightboxMedia
+parseLightboxFragment : { path : UrlPath, query : Maybe String, fragment : Maybe String } -> String -> Maybe LightboxMedia
 parseLightboxFragment originReq fr =
     if String.startsWith "lightbox:src(" fr then
         case String.split "):href(" (String.dropLeft 13 fr) of
