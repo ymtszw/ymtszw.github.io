@@ -380,7 +380,7 @@ siteBuiltAt =
 siteBuildStatus =
     Html.a [ Html.Attributes.href "https://github.com/ymtszw/ymtszw.github.io/actions", Html.Attributes.target "_blank", Html.Attributes.class "has-image" ]
         [ View.imgLazy
-            [ Html.Attributes.src "https://github.com/ymtszw/ymtszw.github.io/actions/workflows/gh-pages.yml/badge.svg" -- TODO: v3移行後にbuild-test-deploy.ymlにrename
+            [ Html.Attributes.src "https://github.com/ymtszw/ymtszw.github.io/actions/workflows/build-test-deploy.yml/badge.svg"
             , Html.Attributes.alt "Build status badge of the site"
             , Html.Attributes.height 20
             , Html.Attributes.width 152
