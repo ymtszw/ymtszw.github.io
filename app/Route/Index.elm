@@ -197,6 +197,7 @@ publicSizumeArticles =
 head : App Data ActionData RouteParams -> List Head.Tag
 head _ =
     Site.seoBase
+        |> Seo.summaryLarge
         |> Seo.website
 
 

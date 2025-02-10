@@ -65,6 +65,7 @@ head _ =
         | title = Helper.makeTitle "記事"
         , description = "（主に）技術記事たち。なんとなく、個人の活動に属する記事がこっちにあることが多い"
     }
+        |> Seo.summary
         |> Seo.website
 
 

@@ -134,6 +134,7 @@ head app =
         | title = Helper.makeTitle (app.routeParams.yearMonth ++ "のTwilog")
         , description = app.routeParams.yearMonth ++ "のTwilog"
     }
+        |> Seo.summaryLarge
         |> Seo.article
             { tags = []
             , section = Nothing

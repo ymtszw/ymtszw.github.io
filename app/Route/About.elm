@@ -89,8 +89,8 @@ head : App Data ActionData RouteParams -> List Head.Tag
 head _ =
     { seoBase
         | title = Helper.makeTitle "このサイトについて"
-        , description = "Gada / ymtszwの個人ページ。これまでに書いたものなどをリンクしていく予定。elm-pagesで作っている。"
     }
+        |> Seo.summaryLarge
         |> Seo.website
 
 

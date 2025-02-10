@@ -187,6 +187,7 @@ head app =
         , description = app.data.article.body.excerpt
         , image = Maybe.withDefault seoBase.image (Maybe.map CmsData.makeSeoImageFromCmsImage app.data.article.meta.image)
     }
+        |> Seo.summaryLarge
         |> Seo.article
             { tags = []
             , section = Nothing

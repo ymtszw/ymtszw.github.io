@@ -156,6 +156,7 @@ head _ =
         | title = Helper.makeTitle "Twilog"
         , description = "2023年4月から作り始めた自作Twilog。Twitterを日記化している"
     }
+        |> Seo.summary
         |> Seo.website
 
 

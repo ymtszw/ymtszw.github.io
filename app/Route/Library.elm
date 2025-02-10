@@ -481,6 +481,7 @@ head _ =
         | title = Helper.makeTitle "書架"
         , description = "Kindle蔵書リスト。基本的には自分用のページで検索にも載せないが、レビュー機能を持ち、レビューを投稿するとシリーズ単位で一般公開記事化される仕組み"
     }
+        |> Seo.summary
         |> Seo.website
         |> (++) [ Head.metaName "robots" (Head.raw "noindex,nofollow,noarchive,nocache") ]
 

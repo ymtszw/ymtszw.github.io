@@ -17,6 +17,7 @@ import Pages
 import Pages.Url
 import Site
 import Time
+import Url
 
 
 type alias CmsArticle =
@@ -189,15 +190,20 @@ makeSeoImageFromCmsImage : CmsImage -> Head.Seo.Image
 makeSeoImageFromCmsImage cmsImage =
     { url =
         if String.startsWith "http" cmsImage.url then
-            Pages.Url.external cmsImage.url
+            case Url.fromString cmsImage.url |> Maybe.andThen .query of
+                Just _ ->
+                    Pages.Url.external <| cmsImage.url ++ "&" ++ Site.cacheBuster
+
+                Nothing ->
+                    Pages.Url.external <| cmsImage.url ++ "?" ++ Site.cacheBuster
 
         else
             Pages.Url.external <|
                 if String.startsWith "/" cmsImage.url then
-                    Site.canonicalUrl ++ "/" ++ String.dropLeft 1 cmsImage.url
+                    Site.canonicalUrl ++ "/" ++ String.dropLeft 1 cmsImage.url ++ "?" ++ Site.cacheBuster
 
                 else
-                    Site.canonicalUrl ++ "/" ++ cmsImage.url
+                    Site.canonicalUrl ++ "/" ++ cmsImage.url ++ "?" ++ Site.cacheBuster
     , alt = "Article Header Image"
     , dimensions = Just { width = cmsImage.width, height = cmsImage.height }
     , mimeType = Nothing
