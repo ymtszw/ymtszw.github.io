@@ -14,7 +14,8 @@
     "test": "elm-test-rs"
   },
   "overrides": {
-    "esbuild": "0.25.0"
+    "cross-spawn": "^7.0.6",
+    "esbuild": "^0.25.0"
   },
   "devDependencies": {
     "algoliasearch": "^4.19.1",
