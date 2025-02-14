@@ -850,6 +850,7 @@ button.kindle-filterable-tag.active::after {
   display: block;
   visibility: hidden;
   opacity: 0;
+  z-index: 7;
   position: fixed;
   bottom: 0;
   left: 0;
