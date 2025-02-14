@@ -13,6 +13,9 @@
     "start": "elm-pages dev --debug",
     "test": "elm-test-rs"
   },
+  "overrides": {
+    "esbuild": "0.25.0"
+  },
   "devDependencies": {
     "algoliasearch": "^4.19.1",
     "csvtojson": "^2.0",
