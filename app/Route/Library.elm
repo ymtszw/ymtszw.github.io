@@ -620,7 +620,7 @@ kindleBookshelf m app =
                                     , style "border-top" <| "5px solid " ++ seriesColor seriesName
                                     , Html.Events.custom "click" (clickBookEvent book)
                                     ]
-                                    [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 50, alt <| book.rawTitle ++ "の書影" ] [] ]
+                                    [ View.imgLazy [ class "kindle-bookshelf-image", src book.img, width 55, alt <| book.rawTitle ++ "の書影" ] [] ]
 
                             else
                                 a

@@ -799,6 +799,7 @@ button.kindle-filterable-tag.active::after {
 }
 
 .kindle-bookshelf {
+  text-align: center;
   margin: 1em auto 30vh;
 }
 .kindle-bookshelf .has-image {
@@ -806,7 +807,7 @@ button.kindle-filterable-tag.active::after {
 }
 .kindle-bookshelf-image {
   vertical-align: top;
-  width: 50px;
+  width: 55px;
   min-height: 70px;
   margin-bottom: 30px;
   transition: transform 0.2s ease-in-out;
@@ -840,6 +841,7 @@ button.kindle-filterable-tag.active::after {
   max-width: 50px;
 }
 .kindle-bookshelf-navigation {
+  text-align: center;
   margin-bottom: 1em;
 }
 .kindle-bookshelf-navigation > :not(:first-child) {
