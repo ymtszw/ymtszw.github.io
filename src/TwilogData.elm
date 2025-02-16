@@ -166,6 +166,8 @@ twilogDecoder maybeAmazonAssociateTag =
                 [ Decode.succeed (List.map2 TcoUrl)
                     |> Decode.andMap (Decode.field "EntitiesUrlsUrls" commaSeparatedList)
                     |> Decode.andMap (Decode.field "EntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
+                    -- ツイート内に複数の同一URLが含まれうる。`List TcoUrl`には辞書的な振る舞いを期待したいので重複を除く
+                    |> Decode.map List.Extra.unique
                 , Decode.succeed []
                 ]
 
@@ -188,6 +190,8 @@ twilogDecoder maybeAmazonAssociateTag =
                 [ Decode.succeed (List.map2 TcoUrl)
                     |> Decode.andMap (Decode.field "RetweetedStatusEntitiesUrlsUrls" commaSeparatedList)
                     |> Decode.andMap (Decode.field "RetweetedStatusEntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
+                    -- ツイート内に複数の同一URLが含まれうる。`List TcoUrl`には辞書的な振る舞いを期待したいので重複を除く
+                    |> Decode.map List.Extra.unique
                 , Decode.succeed []
                 ]
 
