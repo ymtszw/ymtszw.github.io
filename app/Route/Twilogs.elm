@@ -872,7 +872,8 @@ twilogData twilog =
         checkboxId =
             "twilog-data-checkbox-" ++ twilog.idStr
     in
-    [ input [ type_ "checkbox", id checkboxId ] []
+    [ a [ class "permalink", href ("#tweet-" ++ twilog.idStr) ] []
+    , input [ type_ "checkbox", id checkboxId ] []
     , label [ for checkboxId ] [ text "Twilog raw JSON" ]
     , pre [ class "twilog-data" ] [ text (TwilogData.dumpTwilog twilog) ]
     ]

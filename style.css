@@ -320,6 +320,20 @@ Tweet-like style on top of Sakura.css
 }
 
 /* raw twilog-data viewer */
+.tweet > a[class="permalink"] {
+  position: absolute;
+  right: 2em;
+  top: 0.5em;
+  color: lightgrey;
+}
+.tweet > a[class="permalink"]:hover {
+  border: none;
+  text-decoration: none;
+}
+.tweet > a[class="permalink"]::before {
+  content: "↵";
+  font-family: "Noto Sans Symbols 2", sans-serif;
+}
 .tweet > input[type="checkbox"] {
   position: absolute;
   right: 0.5em;
