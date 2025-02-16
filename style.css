@@ -78,8 +78,9 @@ footer img {
   margin-bottom: unset;
 }
 
-figure:has(img) {
-  text-align: center;
+figure > img.article-header-image {
+  margin: auto;
+  display: block;
 }
 
 a[target="_blank"]:not(.link-preview):not(.has-image)::after {
