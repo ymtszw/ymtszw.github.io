@@ -1,4 +1,4 @@
-module Tweet exposing (isTcoUrl, render)
+module Tweet exposing (TweetParts(..), isTcoUrl, miniMarkdownParser, render)
 
 {-| Tweetのテキストを各種処理してHTMLにする。
 
@@ -15,10 +15,12 @@ TODO: ProユーザのリッチテキストTweetってどうなるんだ？
 
 -}
 
+import Dict
+import Generated.HtmlEntities as HtmlEntities
 import Helper
-import Html exposing (..)
-import Markdown.Parser
-import Markdown.Renderer exposing (defaultHtmlRenderer)
+import Html exposing (Html)
+import Html.Attributes exposing (href)
+import Parser exposing (..)
 import Regex exposing (Regex)
 
 
@@ -116,7 +118,135 @@ renderImpl : String -> List (Html msg)
 renderImpl str =
     str
         |> Helper.preprocessMarkdown
-        |> Markdown.Parser.parse
-        |> Result.mapError Helper.deadEndsToString
-        |> Result.andThen (Markdown.Renderer.render defaultHtmlRenderer)
-        |> Result.withDefault [ p [] [ text str ] ]
+        |> Parser.run miniMarkdownParser
+        |> Result.map tweetPartsToHtml
+        |> Result.withDefault [ Html.text str ]
+
+
+type TweetParts
+    = Link String String
+    | HtmlEntity String
+    | LineBreak
+    | Text String
+
+
+{-| Markdownのサブセットとして、
+
+  - `[...](...)`形式のリンク
+  - HTMLエンティティ
+  - 改行
+
+だけをサポートしたParser. ハッシュタグやメンション、URL文字列などは事前処理で`[...](...)`形式に変換されていることを前提とする。
+
+`Markdown.Parser`や`Markdown.Block`などの型はここでは使用せず、直接`List (Html msg)`に変換する。
+
+-}
+miniMarkdownParser : Parser (List TweetParts)
+miniMarkdownParser =
+    let
+        linkParser =
+            succeed Link
+                |. symbol "["
+                |= linkTextParser
+                |. symbol "]("
+                |= linkUrlParser
+                |. symbol ")"
+
+        linkTextParser =
+            getChompedString (chompWhile (\c -> c /= ']' && c /= '\n' && c /= ' '))
+
+        linkUrlParser =
+            -- 絶対URLだけをvalidとする
+            succeed (\rest -> "http" ++ rest)
+                |. token "http"
+                |= getChompedString (chompWhile (\c -> c /= ')' && c /= '\n' && c /= ' '))
+
+        htmlEntityParser =
+            succeed identity
+                |. symbol "&"
+                |= getChompedString (chompWhile (\c -> c /= ';' && c /= '\n' && c /= ' '))
+                |. symbol ";"
+                |> andThen lookupHtmlEntity
+
+        lookupHtmlEntity entity =
+            case Dict.get entity HtmlEntities.dict of
+                Just value ->
+                    succeed (HtmlEntity value)
+
+                Nothing ->
+                    problem ("Unknown HTML entity: &" ++ entity ++ ";")
+
+        lineBreakParser =
+            succeed LineBreak
+                |. oneOf [ symbol "\n", symbol "\u{000D}\n" ]
+
+        textParser =
+            succeed Text
+                |= getChompedString (chompIf (always True))
+
+        finalize acc parsed =
+            -- 例）
+            -- parsed =
+            --   [ Text "目"
+            --   , Text "行"
+            --   , Text "４"
+            --   , LineBreak
+            --   , Link "３行目" "https://example.com"
+            --   , LineBreak
+            --   , Text "目"
+            --   , Text "行"
+            --   , Text "２"
+            --   , LineBreak
+            --   , Text "目"
+            --   , Text "行"
+            --   , Text "１"
+            --   ]
+            case parsed of
+                [] ->
+                    acc
+
+                (Text text) :: rest ->
+                    case rest of
+                        (Text nextText) :: restOfRest ->
+                            -- 直後のトークンもTextだった場合、1つのTextにまとめていく
+                            finalize acc (Text (nextText ++ text) :: restOfRest)
+
+                        _ ->
+                            -- Text以外の何か、またはparsed listの終わりが見えたときにはそのまま
+                            finalize (Text text :: acc) rest
+
+                other :: rest ->
+                    finalize (other :: acc) rest
+    in
+    loop [] <|
+        \acc ->
+            oneOf
+                [ oneOf
+                    [ backtrackable linkParser
+                    , backtrackable htmlEntityParser
+                    , lineBreakParser
+                    , textParser
+                    ]
+                    |> map (\parsed -> Loop (parsed :: acc))
+                , end |> map (\() -> Done (finalize [] acc))
+                ]
+
+
+tweetPartsToHtml : List TweetParts -> List (Html msg)
+tweetPartsToHtml parts =
+    List.map
+        (\part ->
+            case part of
+                Link text url ->
+                    Html.a [ href url ] [ Html.text text ]
+
+                HtmlEntity entity ->
+                    Html.text entity
+
+                LineBreak ->
+                    Html.br [] []
+
+                Text text ->
+                    Html.text text
+        )
+        parts
