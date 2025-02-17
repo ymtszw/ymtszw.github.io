@@ -1,4 +1,4 @@
-import algoliasearch from "algoliasearch";
+import { algoliasearch } from "algoliasearch";
 import fetch from "node-fetch";
 
 const indexUid = "ymtszw-kindle";
@@ -8,49 +8,50 @@ const client = algoliasearch(
   process.env.ALGOLIA_ADMIN_KEY
 );
 
-const index = client.initIndex(indexUid);
-
 // 変更すると全体再indexが開始される
-const setResponse = await index.setSettings({
-  paginationLimitedTo: 30,
-  searchableAttributes: [
-    "title",
-    "rawTitle",
-    "authors",
-    "seriesName",
-    "volume",
-    "label",
-    "reviewTitle",
-    "reviewMarkdown",
-  ],
-  attributesToRetrieve: [
-    "id",
-    "title", // parse前
-    "rawTitle", // parse後
-    "authors",
-    "img",
-    "acquiredDate",
-    "seriesName",
-    "volume",
-    "label",
-    "reviewTitle",
-    "reviewMarkdown",
-    "reviewUpdatedAt",
-    "reviewPublishedAt",
-  ],
-  attributesToTransliterate: [
-    "title",
-    "rawTitle",
-    "authors",
-    "seriesName",
-    "volume",
-    "label",
-    "reviewTitle",
-    "reviewMarkdown",
-  ],
-  indexLanguages: ["ja", "en"],
-  queryLanguages: ["ja", "en"],
-  removeStopWords: true,
+const setResponse = await client.setSettings({
+  indexName: indexUid,
+  indexSettings: {
+    paginationLimitedTo: 30,
+    searchableAttributes: [
+      "title",
+      "rawTitle",
+      "authors",
+      "seriesName",
+      "volume",
+      "label",
+      "reviewTitle",
+      "reviewMarkdown",
+    ],
+    attributesToRetrieve: [
+      "id",
+      "title", // parse前
+      "rawTitle", // parse後
+      "authors",
+      "img",
+      "acquiredDate",
+      "seriesName",
+      "volume",
+      "label",
+      "reviewTitle",
+      "reviewMarkdown",
+      "reviewUpdatedAt",
+      "reviewPublishedAt",
+    ],
+    attributesToTransliterate: [
+      "title",
+      "rawTitle",
+      "authors",
+      "seriesName",
+      "volume",
+      "label",
+      "reviewTitle",
+      "reviewMarkdown",
+    ],
+    indexLanguages: ["ja", "en"],
+    queryLanguages: ["ja", "en"],
+    removeStopWords: true,
+  },
 });
 console.log("Index settings", setResponse);
 
@@ -65,10 +66,12 @@ console.log("books", books.length);
 const indexedIds = (
   await Promise.all(
     arrayChunks(
-      books.map((book) => book.id),
+      books.map((book) => {
+        return { objectID: book.id, indexName: indexUid };
+      }),
       1000
-    ).map(async (ids) => {
-      return (await index.getObjects(ids)).results
+    ).map(async (requests) => {
+      return (await client.getObjects({ requests: requests })).results
         .filter((r) => r)
         .map((r) => r.objectID);
     })
@@ -85,7 +88,11 @@ if (indexedIds.length === books.length) {
 // 差分があれば、Indexされていないものだけする
 // Indexingは非同期で、裏でqueue管理される
 const toIndex = books.filter((book) => !indexedIds.includes(book.id));
-await index.saveObjects(toIndex, { batchSize: 999999 });
+await client.saveObjects({
+  indexName: indexUid,
+  objects: toIndex,
+  batchSize: 999999,
+});
 console.log("Indexing requested", toIndex);
 
 // Sanity check
@@ -93,8 +100,14 @@ const candidates = ["ヒストリエ", "宝石の国", "手塚治虫"];
 testSearch(candidates[Math.floor(Math.random() * candidates.length)]);
 
 async function testSearch(term) {
-  const res = await index.search(term, { hitsPerPage: 3 });
-  console.log("Search test", term, res.hits);
+  const res = await client.search({
+    requests: [{ indexName: indexUid, query: term, hitsPerPage: 3 }],
+  });
+  console.log(
+    "Search test",
+    term,
+    res.results.flatMap((r) => r.hits)
+  );
 }
 
 function arrayChunks(array, size) {
