@@ -5,6 +5,8 @@
  * Twilogs CSV contains less information than Twitter-official archives,
  * so it tries to re-construct as much properties as possible.
  *
+ * TODO: Migrate to `elm-pages run` script and merge `build_twilog_search_index.mjs` and `push-recent-twilogs.sh` into this script.
+ *
  */
 
 import csv from "csvtojson";
