@@ -12,7 +12,6 @@ import Json.Decode as Decode
 import Json.Decode.Extra as Decode
 import Json.Encode
 import KindleBookTitle exposing (kindleBookTitle)
-import List.Extra
 import Regex
 import Task exposing (Task)
 import Time exposing (Posix)
@@ -171,10 +170,9 @@ serialize book =
         ]
 
 
-{-| KindleBookの全件DBを構成するDataSource.
+{-| KindleBookの全件DBを構成するBackendTask.
 
-スクレイピングデータの一時置き場であるGistから全IDリストを獲得し、
-その後Algoliaから1000件ずつデータを取得して、最終的にDictに変換している。
+スクレイピングデータをAlgoliaから1000件ずつデータを取得して、最終的にDictに変換している。
 
 Algolia側のデータはスクレイピングデータを格納したあと、
 正規化（人力注釈）機能で更新されている情報が増えているかもしれない。
@@ -182,65 +180,72 @@ Algolia側のデータはスクレイピングデータを格納したあと、
 -}
 allBooksFromAlgolia : BackendTask FatalError (Dict ASIN KindleBook)
 allBooksFromAlgolia =
-    let
-        idsDecoder =
-            Decode.dict (Decode.succeed ())
-                |> Decode.map Dict.keys
-
-        toDict =
-            List.foldl
-                (\books dict ->
-                    List.foldl (\book dict_ -> Dict.insert book.id book dict_) dict books
-                )
-                Dict.empty
-    in
-    dataSourceWith (getFromGist idsDecoder) <|
-        \ids ->
-            ids
-                |> List.Extra.greedyGroupsOf 1000
-                |> List.map get1000FromAlgolia
-                |> BackendTask.combine
-                |> BackendTask.map toDict
+    get1000FromAlgolia ( Dict.empty, Nothing, 0 )
+        |> BackendTask.map (\( acc, _, _ ) -> acc)
 
 
-{-| AlgoliaのGet Objects APIからデータを取得する。
+type alias Cursor =
+    String
 
-ドキュメントされていないが、1回最大1000件までしか取得できないことに注意。
+
+{-| AlgoliaのBrowse APIからpage単位でデータを取得する。
+
+ドキュメントされていないが、1page最大1000件までしか取得できないことに注意。
 
 DocumentDBとしてAlgoliaを使っている格好だが、検索以外にフィルタ機構などはないので、
-DataSourceとして全件取得してからよしなに使うことになる。
+BackendTaskとして全件取得してからよしなに使うことになる。
 
 -}
-get1000FromAlgolia : List ASIN -> BackendTask FatalError (List KindleBook)
-get1000FromAlgolia ids =
-    dataSourceWith secrets <|
-        \{ appId } ->
-            -- DataSourceではReferrer制限のないadminKeyを使う
-            dataSourceWith (requireEnv "ALGOLIA_ADMIN_KEY") <|
-                \adminKey ->
-                    let
-                        request id =
-                            Json.Encode.object
-                                [ ( "indexName", Json.Encode.string "ymtszw-kindle" )
-                                , ( "objectID", Json.Encode.string id )
+get1000FromAlgolia : ( Dict ASIN KindleBook, Maybe Cursor, Int ) -> BackendTask FatalError ( Dict ASIN KindleBook, Maybe Cursor, Int )
+get1000FromAlgolia ( acc, cursor, page ) =
+    if page > 0 && cursor == Nothing then
+        BackendTask.succeed ( acc, cursor, page )
+
+    else
+        dataSourceWith secrets <|
+            \{ appId } ->
+                -- BackendTaskではReferrer制限のないadminKeyを使う
+                dataSourceWith (requireEnv "ALGOLIA_ADMIN_KEY") <|
+                    \adminKey ->
+                        let
+                            request =
+                                Json.Encode.object <|
+                                    List.concat
+                                        [ case cursor of
+                                            Just cursor_ ->
+                                                [ ( "cursor", Json.Encode.string cursor_ ) ]
+
+                                            Nothing ->
+                                                []
+                                        , [ ( "page", Json.Encode.int page )
+                                          , ( "hitsPerPage", Json.Encode.int 1000 )
+                                          , ( "attributesToRetrieve", Json.Encode.list Json.Encode.string [ "*" ] )
+                                          ]
+                                        ]
+
+                            decoder =
+                                Decode.map2 (\hits cursor_ -> ( toDict hits, cursor_, page + 1 ))
+                                    (Decode.field "hits" (Decode.list kindleBookDecoder))
+                                    (Decode.maybe (Decode.field "cursor" Decode.string))
+
+                            toDict =
+                                List.foldl (\book dict_ -> Dict.insert book.id book dict_) acc
+                        in
+                        BackendTask.Http.request
+                            { method = "POST"
+                            , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/ymtszw-kindle/browse"
+                            , headers =
+                                [ ( "X-Algolia-Application-Id", appId )
+                                , ( "X-Algolia-API-Key", adminKey )
+                                , ( "Content-Type", "application/json" )
                                 ]
-                    in
-                    BackendTask.Http.request
-                        { method = "POST"
-                        , url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/*/objects"
-                        , headers = [ ( "X-Algolia-Application-Id", appId ), ( "X-Algolia-API-Key", adminKey ) ]
-                        , body = BackendTask.Http.jsonBody <| Json.Encode.object [ ( "requests", Json.Encode.list request ids ) ]
-                        , retries = Nothing
-                        , timeoutInMs = Just 30000
-                        }
-                        (BackendTask.Http.expectJson (Decode.field "results" (Decode.list kindleBookDecoder)))
-                        |> BackendTask.allowFatal
-
-
-getFromGist : Decode.Decoder a -> BackendTask FatalError a
-getFromGist decoder =
-    dataSourceWith (requireEnv "BOOKS_JSON_URL") <|
-        \booksJsonUrl -> BackendTask.Http.getJson booksJsonUrl decoder |> BackendTask.allowFatal
+                            , body = BackendTask.Http.jsonBody request
+                            , retries = Nothing
+                            , timeoutInMs = Just 30000
+                            }
+                            (BackendTask.Http.expectJson decoder)
+                            |> BackendTask.allowFatal
+                            |> BackendTask.andThen get1000FromAlgolia
 
 
 kindleBookDecoder : Decode.Decoder KindleBook
