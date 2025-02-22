@@ -4,7 +4,7 @@
     "build": "SECONDS=0; elm-pages build && echo \"Build took ${SECONDS}s.\"",
     "build_twilog_search_index": "node script/build_twilog_search_index.mjs",
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
-    "generate_html_entities": "elm-pages run GenerateHtmlEntities",
+    "generate_html_entities": "elm-pages run script/GenerateHtmlEntities.elm",
     "import_twilogs": "TZ=Asia/Tokyo node script/import_twilogs.mjs",
     "postinstall": "elm-tooling install && elm-pages gen",
     "start": "elm-pages dev --debug",
