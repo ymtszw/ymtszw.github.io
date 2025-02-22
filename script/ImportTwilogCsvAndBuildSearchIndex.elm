@@ -16,6 +16,7 @@ import Iso8601
 import Json.Decode as Decode
 import List.Extra
 import Pages.Script as Script exposing (Script)
+import Regex
 import TwilogData exposing (Media, Retweet, TcoUrl, Twilog)
 import Url
 
@@ -228,7 +229,7 @@ sanitizeTwilog rawTwilog =
                 |> Result.withDefault Helper.unixOrigin
 
         ( retweetDetails, entitiesTcoUrl, extendedEntitiesMedia ) =
-            extractEmbeddedProperties isRetweet rawTwilog
+            extractEmbeddedProperties { isRetweet = isRetweet, screenName = screenName, rawTwilog = rawTwilog }
     in
     { createdAt = createdAtPosix
     , touchedAt = createdAtPosix
@@ -242,29 +243,63 @@ sanitizeTwilog rawTwilog =
     , entitiesTcoUrl = entitiesTcoUrl
     , extendedEntitiesMedia = extendedEntitiesMedia
 
-    -- Unused when imported from Twilog CSVs
+    -- Unused when importing from Twilog CSVs
     , inReplyTo = Nothing
     , replies = []
     , quote = Nothing
     }
 
 
-extractEmbeddedProperties : Bool -> RawTwilogInCsv -> ( Maybe Retweet, List TcoUrl, List Media )
-extractEmbeddedProperties isRetweet rawTwilog =
+extractEmbeddedProperties : { isRetweet : Bool, screenName : String, rawTwilog : RawTwilogInCsv } -> ( Maybe Retweet, List TcoUrl, List Media )
+extractEmbeddedProperties { isRetweet, screenName, rawTwilog } =
+    let
+        urlRegex =
+            Maybe.withDefault Regex.never (Regex.fromString "https?://[\\w/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+")
+
+        foundUrls =
+            rawTwilog.text |> Regex.find urlRegex |> List.map .match
+
+        extendedEntitiesMedia =
+            foundUrls
+                |> List.filter (\url -> String.contains "://x.com" url || String.contains "://twitter.com" url)
+                |> List.filter (\url -> String.contains "/photo/" url || String.contains "/video/" url)
+                |> List.map
+                    (\url ->
+                        if String.contains "/photo/" url then
+                            { url = url
+                            , sourceUrl = "https://pbs.twimg.com/media/__NOT_LOADED__"
+                            , type_ = "photo"
+                            , expandedUrl = url
+                            }
+
+                        else
+                            { url = url
+                            , sourceUrl = "https://pbs.twimg.com/amplify_video_thumb/__NOT_LOADED__"
+                            , type_ = "video"
+                            , expandedUrl = url
+                            }
+                    )
+
+        entitiesTcoUrl =
+            foundUrls
+                |> List.filter (\url -> not (List.any (\media -> media.url == url) extendedEntitiesMedia))
+                |> List.map (\url -> TcoUrl url url)
+    in
     if isRetweet then
-        -- TODO: Implement the logic to extract retweet details
-        ( Nothing, [], [] )
+        let
+            retweet =
+                { fullText = rawTwilog.text
+                , id = TwilogData.TwitterStatusId rawTwilog.statusId
+                , userName = screenName
+                , userProfileImageUrl = placeholderAvatarUrl
+                , quote = Nothing
+                , entitiesTcoUrl = entitiesTcoUrl
+                , extendedEntitiesMedia = extendedEntitiesMedia
+                }
+        in
+        ( Just retweet, [], [] )
 
     else
-        let
-            entitiesTcoUrl =
-                -- Extract entitiesTcoUrl from rawTwilog
-                []
-
-            extendedEntitiesMedia =
-                -- Extract extendedEntitiesMedia from rawTwilog
-                []
-        in
         ( Nothing, entitiesTcoUrl, extendedEntitiesMedia )
 
 
