@@ -1,10 +1,13 @@
 module Tests exposing (..)
 
+import Ephemeral.TwilogDataCodecTestFixtures
 import Expect
+import Json.Decode
 import KindleBookTitle exposing (KindleBookTitle)
 import Parser
 import Test exposing (Test)
 import Tweet exposing (TweetParts(..))
+import TwilogData
 
 
 suite : Test
@@ -102,4 +105,26 @@ suite =
                 , Text "12行目には[複数の](https://example.com, 壊れたURL](//example.com)を含む"
                 ]
             ]
+        , Test.describe "TwilogData codec roundtrip" <|
+            let
+                t : String -> Test
+                t input =
+                    Test.test ("Test codec with: " ++ String.left 200 input) <|
+                        \_ ->
+                            case
+                                -- Note: 以前のimport_twilogs.mjsでCSVからインポートしたJSON形式とTwilogData.serializeToOnelineTwilogJsonで生成したJSON形式は本質的には同等だが、
+                                -- フィールドの順序や、対応するElmデータがempty listやNothingのときにフィールドを省略するかどうかなど、細かい部分で異なる。
+                                -- そこでoriginalJson |> decode1 |> encode |> decode2と2回decodeを試して1回目と2回目の結果（Elmでの取り込み済みデータ）が一致しているかどうかを検証する。
+                                input
+                                    |> Json.Decode.decodeString (TwilogData.twilogDecoder Nothing)
+                                    |> Result.map (\decoded1 -> ( decoded1, TwilogData.serializeToOnelineTwilogJson decoded1 ))
+                                    |> Result.andThen (\( decoded1, serialized ) -> Json.Decode.decodeString (TwilogData.twilogDecoder Nothing) serialized |> Result.map (Tuple.pair decoded1))
+                            of
+                                Ok ( decoded1, decoded2 ) ->
+                                    Expect.equal decoded1 decoded2
+
+                                Err err ->
+                                    Expect.fail (Debug.toString err)
+            in
+            List.map t Ephemeral.TwilogDataCodecTestFixtures.fixtures
         ]

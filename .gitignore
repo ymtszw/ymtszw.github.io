@@ -8,6 +8,8 @@ functions/server-render
 functions/render
 .env
 /twilogs.json
+# ビルドやテスト実行時に動的生成するファイルを置くディレクトリ。逆にGenerated/は生成したのちに静的なデータファイルとしてgitに含めるディレクトリとする。
+Ephemeral/
 
 # Local Netlify folder
 .netlify
