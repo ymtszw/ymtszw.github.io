@@ -7,6 +7,7 @@
     "generate_html_entities": "elm-pages run script/GenerateHtmlEntities.elm",
     "generate_twilog_data_codec_test_fixtures": "elm-pages run script/GenerateTwilogDataCodecTestFixtures",
     "import_twilogs": "TZ=Asia/Tokyo node script/import_twilogs.mjs",
+    "import_twilogs:v2": "elm-pages run script/ImportTwilogCsvAndBuildSearchIndex",
     "postinstall": "elm-tooling install && elm-pages gen",
     "start": "elm-pages dev --debug",
     "test": "elm-pages run script/GenerateTwilogDataCodecTestFixtures && elm-test-rs"
