@@ -404,8 +404,8 @@ commaSeparatedUrls =
             )
 
 
-dumpTwilog : Twilog -> String
-dumpTwilog =
+prettyPrintTwilog : Twilog -> String
+prettyPrintTwilog =
     let
         dumpStatusId (TwitterStatusId statusId) =
             "TwitterStatusId " ++ statusId

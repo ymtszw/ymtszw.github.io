@@ -875,5 +875,5 @@ twilogData twilog =
     [ a [ class "permalink", href ("#tweet-" ++ twilog.idStr) ] []
     , input [ type_ "checkbox", id checkboxId ] []
     , label [ for checkboxId ] [ text "Twilog raw JSON" ]
-    , pre [ class "twilog-data" ] [ text (TwilogData.dumpTwilog twilog) ]
+    , pre [ class "twilog-data" ] [ text (TwilogData.prettyPrintTwilog twilog) ]
     ]
