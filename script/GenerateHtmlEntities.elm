@@ -1,5 +1,8 @@
 module GenerateHtmlEntities exposing (run)
 
+{-| Script to generate an HTML entity conversion table for use in Tweet.miniMarkdownParser
+-}
+
 import BackendTask
 import BackendTask.Http
 import Hex
