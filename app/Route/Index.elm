@@ -215,94 +215,129 @@ view : App Data ActionData RouteParams -> Shared.Model -> Model -> View.View (Pa
 view app _ _ =
     { title = ""
     , body =
-        [ Html.h1 []
-            [ View.imgLazy [ Html.Attributes.src <| Site.ogpHeaderImageUrl ++ "?w=684&h=228", Html.Attributes.width 684, Html.Attributes.height 228, Html.Attributes.alt "Mt. Asama Header Image" ] []
-            , Html.text "ymtszw's page"
-            ]
-        , Html.h2 [] [ Html.text "しずかなインターネット", View.feedLink "https://sizu.me/ymtszw/rss" ]
-        , app.data.sizumeArticles
-            |> List.take 5
-            |> List.map
-                (\metadata ->
-                    Html.a
-                        [ Html.Attributes.href metadata.url
-                        , Html.Attributes.target "_blank"
-                        , Html.Attributes.class "link-preview"
-                        ]
-                        [ Html.blockquote [] <|
-                            [ Html.table [] <|
-                                [ Html.tr [] <|
-                                    [ Html.td [] <|
-                                        [ Html.strong [] [ Html.text metadata.title ]
-                                        , Html.p [] [ Html.text metadata.excerptHtml.excerpt ]
-                                        , Html.small [] [ Html.text (" [" ++ Helper.posixToYmd metadata.publishedAt ++ "]") ]
+        let
+            header =
+                Html.h1 []
+                    [ View.imgLazy [ Html.Attributes.src <| Site.ogpHeaderImageUrl ++ "?w=684&h=228", Html.Attributes.width 684, Html.Attributes.height 228, Html.Attributes.alt "Mt. Asama Header Image" ] []
+                    , Html.text "ymtszw's page"
+                    ]
+
+            sortedArticlesSections =
+                [ sizumeSection
+                , cmsSection
+                , zennSection
+                , qiitaSection
+                ]
+                    |> List.sortBy (Tuple.second >> Maybe.withDefault Helper.unixOrigin >> Time.posixToMillis >> negate)
+                    |> List.concatMap Tuple.first
+
+            sizumeSection =
+                ( [ Html.h2 [] [ Html.text "しずかなインターネット", View.feedLink "https://sizu.me/ymtszw/rss" ]
+                  , app.data.sizumeArticles
+                        |> List.take 5
+                        |> List.map
+                            (\metadata ->
+                                Html.a
+                                    [ Html.Attributes.href metadata.url
+                                    , Html.Attributes.target "_blank"
+                                    , Html.Attributes.class "link-preview"
+                                    ]
+                                    [ Html.blockquote [] <|
+                                        [ Html.table [] <|
+                                            [ Html.tr [] <|
+                                                [ Html.td [] <|
+                                                    [ Html.strong [] [ Html.text metadata.title ]
+                                                    , Html.p [] [ Html.text metadata.excerptHtml.excerpt ]
+                                                    , Html.small [] [ Html.text (" [" ++ Helper.posixToYmd metadata.publishedAt ++ "]") ]
+                                                    ]
+                                                ]
+                                            ]
                                         ]
                                     ]
+                            )
+                        |> Html.div []
+                        |> showless "sizume-articles"
+                  ]
+                , app.data.sizumeArticles |> List.head |> Maybe.map .publishedAt
+                )
+
+            cmsSection =
+                ( [ Html.h2 [] [ Route.Articles |> Route.link [] [ Html.text "記事" ], View.feedLink "/articles/feed.xml" ]
+                  , app.data.cmsArticles
+                        |> List.filter .published
+                        |> List.take 5
+                        |> List.map Route.Articles.cmsArticlePreview
+                        |> Html.div []
+                        |> showless "cms-articles"
+                  ]
+                , app.data.cmsArticles |> List.filter .published |> List.head |> Maybe.map .publishedAt
+                )
+
+            zennSection =
+                ( [ Html.h2 [] [ Html.text "Zenn記事", View.feedLink "https://zenn.dev/ymtszw/feed" ]
+                  , app.data.zennArticles
+                        |> List.map
+                            (\metadata ->
+                                Html.li []
+                                    [ Html.strong [] [ externalLink metadata.url metadata.title ]
+                                    , Html.br [] []
+                                    , Html.small []
+                                        [ Html.strong [] [ Html.text (String.fromInt metadata.likedCount) ]
+                                        , Html.text " 💚"
+                                        , Html.code [] [ Html.text metadata.articleType ]
+                                        , Html.text " ["
+                                        , Html.text (Helper.posixToYmd metadata.publishedAt)
+                                        , Html.text "]"
+                                        ]
+                                    ]
+                            )
+                        |> Html.ul []
+                        |> showless "zenn-articles"
+                  ]
+                , app.data.zennArticles |> List.head |> Maybe.map .publishedAt
+                )
+
+            qiitaSection =
+                ( [ Html.h2 [] [ Html.text "Qiita記事", View.feedLink "https://qiita.com/ymtszw/feed" ]
+                  , app.data.qiitaArticles
+                        |> List.map
+                            (\metadata ->
+                                Html.li []
+                                    [ Html.strong [] [ externalLink metadata.url metadata.title ]
+                                    , Html.br [] []
+                                    , Html.small []
+                                        [ Html.strong [] [ Html.text (String.fromInt metadata.likesCount) ]
+                                        , Html.text " ✅"
+                                        , Html.code [] (List.map Html.text (List.intersperse ", " metadata.tags))
+                                        , Html.text " ["
+                                        , Html.text (Helper.posixToYmd metadata.createdAt)
+                                        , Html.text "]"
+                                        ]
+                                    ]
+                            )
+                        |> Html.ul []
+                        |> showless "qiita-articles"
+                  ]
+                , app.data.qiitaArticles |> List.head |> Maybe.map .createdAt
+                )
+
+            githubSection =
+                [ Html.h2 [] [ Html.text "GitHub Public Repo" ]
+                , app.data.repos
+                    |> List.map
+                        (\publicOriginalRepo ->
+                            Html.strong []
+                                [ Html.text "["
+                                , externalLink ("https://github.com/ymtszw/" ++ publicOriginalRepo) publicOriginalRepo
+                                , Html.text "]"
                                 ]
-                            ]
-                        ]
-                )
-            |> Html.div []
-            |> showless "sizume-articles"
-        , Html.h2 [] [ Route.Articles |> Route.link [] [ Html.text "記事" ], View.feedLink "/articles/feed.xml" ]
-        , app.data.cmsArticles
-            |> List.filter .published
-            |> List.take 5
-            |> List.map Route.Articles.cmsArticlePreview
-            |> Html.div []
-            |> showless "cms-articles"
-        , Html.h2 [] [ Html.text "Zenn記事", View.feedLink "https://zenn.dev/ymtszw/feed" ]
-        , app.data.zennArticles
-            |> List.map
-                (\metadata ->
-                    Html.li []
-                        [ Html.strong [] [ externalLink metadata.url metadata.title ]
-                        , Html.br [] []
-                        , Html.small []
-                            [ Html.strong [] [ Html.text (String.fromInt metadata.likedCount) ]
-                            , Html.text " 💚"
-                            , Html.code [] [ Html.text metadata.articleType ]
-                            , Html.text " ["
-                            , Html.text (Helper.posixToYmd metadata.publishedAt)
-                            , Html.text "]"
-                            ]
-                        ]
-                )
-            |> Html.ul []
-            |> showless "zenn-articles"
-        , Html.h2 [] [ Html.text "Qiita記事", View.feedLink "https://qiita.com/ymtszw/feed" ]
-        , app.data.qiitaArticles
-            |> List.map
-                (\metadata ->
-                    Html.li []
-                        [ Html.strong [] [ externalLink metadata.url metadata.title ]
-                        , Html.br [] []
-                        , Html.small []
-                            [ Html.strong [] [ Html.text (String.fromInt metadata.likesCount) ]
-                            , Html.text " ✅"
-                            , Html.code [] (List.map Html.text (List.intersperse ", " metadata.tags))
-                            , Html.text " ["
-                            , Html.text (Helper.posixToYmd metadata.createdAt)
-                            , Html.text "]"
-                            ]
-                        ]
-                )
-            |> Html.ul []
-            |> showless "qiita-articles"
-        , Html.h2 [] [ Html.text "GitHub Public Repo" ]
-        , app.data.repos
-            |> List.map
-                (\publicOriginalRepo ->
-                    Html.strong []
-                        [ Html.text "["
-                        , externalLink ("https://github.com/ymtszw/" ++ publicOriginalRepo) publicOriginalRepo
-                        , Html.text "]"
-                        ]
-                )
-            |> List.intersperse (Html.text " ")
-            |> Html.p []
-            |> showless "repos"
-        ]
+                        )
+                    |> List.intersperse (Html.text " ")
+                    |> Html.p []
+                    |> showless "repos"
+                ]
+        in
+        header :: sortedArticlesSections ++ githubSection
     }
 
 
