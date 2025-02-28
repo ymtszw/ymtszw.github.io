@@ -253,7 +253,6 @@ view app _ _ =
             |> showless "cms-articles"
         , Html.h2 [] [ Html.text "Zenn記事", View.feedLink "https://zenn.dev/ymtszw/feed" ]
         , app.data.zennArticles
-            |> List.sortBy (.likedCount >> negate)
             |> List.map
                 (\metadata ->
                     Html.li []
@@ -273,7 +272,6 @@ view app _ _ =
             |> showless "zenn-articles"
         , Html.h2 [] [ Html.text "Qiita記事", View.feedLink "https://qiita.com/ymtszw/feed" ]
         , app.data.qiitaArticles
-            |> List.sortBy (.likesCount >> negate)
             |> List.map
                 (\metadata ->
                     Html.li []
