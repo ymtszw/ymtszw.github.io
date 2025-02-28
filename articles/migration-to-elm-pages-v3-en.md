@@ -4,7 +4,7 @@ description: |
   This article is a compilation of notes taken during the actual migration process, cleaned up and published after completing the migration of the entire codebase.
   How challenging is the migration to v3?
 image: "/3.0en.png"
-publishedAt: "2024-02-11T01:20:00+09:00"
+publishedAt: "2025-02-11T01:20:00+09:00"
 ---
 
 For details, refer to the [**official upgrade documentation**](https://github.com/dillonkearns/elm-pages/blob/master/docs/3.0-upgrade-notes.md).

@@ -4,7 +4,7 @@ description: |
   実際に作業しながらメモとして書き溜めたあと、コードベース全体の移行を完了した時点で清書して公開。
   果たしてv3移行、実際いかほどのものか？
 image: "/3.0.png"
-publishedAt: "2024-02-10T04:45:00+09:00"
+publishedAt: "2025-02-10T04:45:00+09:00"
 ---
 
 詳細は[**パッケージ本体のアップグレードドキュメント**](https://github.com/dillonkearns/elm-pages/blob/master/docs/3.0-upgrade-notes.md)を参照。
