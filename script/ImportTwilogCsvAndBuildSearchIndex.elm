@@ -186,8 +186,22 @@ collectUserInfo newTwilogsWithScreenName =
 
 fetchUserInfo : ScreenName -> BackendTask FatalError ( ScreenName, UserInfo )
 fetchUserInfo screenName =
-    LinkPreview.getMetadataOnBuild ("https://twitter.com/" ++ screenName)
-        |> BackendTask.map (\metadata -> ( screenName, { userName = LinkPreview.reconstructTwitterUserName metadata.title, userProfileImageUrl = Maybe.withDefault placeholderAvatarUrl metadata.imageUrl } ))
+    LinkPreview.getMetadataOnBuild ("https://x.com/" ++ screenName)
+        |> BackendTask.map
+            (\metadata ->
+                let
+                    reconstructed =
+                        LinkPreview.reconstructTwitterUserName metadata.title
+                in
+                if reconstructed == metadata.title then
+                    -- ユーザ名の構成に失敗しているので、おそらくプロフィール画像も正しく取得できていない。ユーザーによってはこのようなケースがある
+                    ( screenName, { userName = screenName, userProfileImageUrl = placeholderAvatarUrl } )
+
+                else
+                    ( screenName
+                    , { userName = reconstructed, userProfileImageUrl = Maybe.withDefault placeholderAvatarUrl metadata.imageUrl }
+                    )
+            )
         |> BackendTask.onError (\_ -> BackendTask.succeed ( screenName, { userName = screenName, userProfileImageUrl = placeholderAvatarUrl } ))
 
 
