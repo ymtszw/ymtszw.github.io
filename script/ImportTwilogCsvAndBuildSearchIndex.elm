@@ -163,6 +163,8 @@ mergeOrCreateNewTwilogsJsonByYearMonthDay outFilePath twilogs =
                 |> BackendTask.allowFatal
                 |> BackendTask.andThen (\existingJson -> mergeWithExistingTwilogsJson outFilePath existingJson newTwilogsWithUserInfo)
                 |> BackendTask.onError (\_ -> createNewTwilogsJson outFilePath newTwilogsWithUserInfo)
+                -- TODO: Put newTwilogsWithUserInfo into search index here
+                |> Script.doThen (Script.log (String.fromInt (List.length newTwilogsWithUserInfo) ++ " Twilogs are indexed"))
 
 
 type alias UserInfo =
