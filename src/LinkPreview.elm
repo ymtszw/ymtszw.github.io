@@ -1,4 +1,4 @@
-module LinkPreview exposing (Metadata, PseudoTweet, getMetadataOnDemand, isTweet, reconstructTwitterUserName, toPseudoTweet)
+module LinkPreview exposing (Metadata, PseudoTweet, getMetadataOnBuild, getMetadataOnDemand, isTweet, reconstructTwitterUserName, toPseudoTweet)
 
 {-| LinkPreview API module.
 
@@ -9,6 +9,9 @@ FIXME: レイアウトシフトを嫌うなら、LinkPreviewガロードされ�
 
 -}
 
+import BackendTask exposing (BackendTask)
+import BackendTask.Http
+import FatalError exposing (FatalError)
 import Helper exposing (nonEmptyString)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -37,6 +40,11 @@ type alias Metadata =
     , -- Defaults to requested URL
       canonicalUrl : String
     }
+
+
+getMetadataOnBuild : String -> BackendTask { fatal : FatalError, recoverable : BackendTask.Http.Error } Metadata
+getMetadataOnBuild url =
+    BackendTask.Http.getJson (linkPreviewApiEndpoint url) (linkPreviewDecoder url)
 
 
 fallbackOnBadStatus : String -> Int -> Metadata

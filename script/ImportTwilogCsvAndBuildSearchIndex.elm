@@ -14,6 +14,7 @@ import FatalError exposing (FatalError)
 import Helper exposing (requireEnv)
 import Iso8601
 import Json.Decode as Decode
+import LinkPreview
 import List.Extra
 import Pages.Script as Script exposing (Script)
 import Regex
@@ -101,19 +102,19 @@ type alias RawTwilogInCsv =
 
 importRecentTwilogs : String -> List RawTwilogInCsv -> BackendTask FatalError ()
 importRecentTwilogs previousIdCursor twilogs =
-    case
-        twilogs
-            |> groupedByYearMonthDay
-            |> Dict.foldl importRecentTwilogsByYearMonthDay ( [], previousIdCursor )
-    of
-        ( writeTwilogJsonFileTasks, updatedCursor ) ->
-            writeTwilogJsonFileTasks
-                |> BackendTask.combine
-                |> BackendTask.do
-                |> Script.doThen
-                    -- TODO Update cursor here after all implementations are done
-                    (Script.log ("Updated cursor to " ++ updatedCursor ++ " in " ++ cursorFilePath))
-                |> Script.doThen (Script.log ("Imported " ++ String.fromInt (List.length twilogs) ++ " Twilogs"))
+    let
+        ( writeTwilogJsonFileTasks, updatedCursor ) =
+            twilogs
+                |> groupedByYearMonthDay
+                |> Dict.foldl importRecentTwilogsByYearMonthDay ( [], previousIdCursor )
+    in
+    writeTwilogJsonFileTasks
+        |> BackendTask.combine
+        |> BackendTask.do
+        |> Script.doThen
+            -- TODO Update cursor here after all implementations are done
+            (Script.log ("Updated cursor to " ++ updatedCursor ++ " in " ++ cursorFilePath))
+        |> Script.doThen (Script.log ("Imported " ++ String.fromInt (List.length twilogs) ++ " Twilogs"))
 
 
 type alias YearMonthDay =
@@ -148,26 +149,70 @@ importRecentTwilogsByYearMonthDay ymd twilogs ( writeTwilogJsonFileTasks, previo
 
 mergeOrCreateNewTwilogsJsonByYearMonthDay : String -> List RawTwilogInCsv -> BackendTask FatalError ()
 mergeOrCreateNewTwilogsJsonByYearMonthDay outFilePath twilogs =
-    BackendTask.File.rawFile outFilePath
-        |> BackendTask.allowFatal
-        |> BackendTask.andThen (\existingJson -> mergeWithExistingTwilogsJson outFilePath existingJson twilogs)
-        |> BackendTask.onError (\_ -> createNewTwilogsJson outFilePath twilogs)
+    let
+        newTwilogsWithScreenName =
+            List.map sanitizeTwilog twilogs
+    in
+    do (collectUserInfo newTwilogsWithScreenName) <|
+        \userInfoCache ->
+            let
+                newTwilogsWithUserInfo =
+                    List.map (injectUserInfo userInfoCache) newTwilogsWithScreenName
+            in
+            BackendTask.File.rawFile outFilePath
+                |> BackendTask.allowFatal
+                |> BackendTask.andThen (\existingJson -> mergeWithExistingTwilogsJson outFilePath existingJson newTwilogsWithUserInfo)
+                |> BackendTask.onError (\_ -> createNewTwilogsJson outFilePath newTwilogsWithUserInfo)
 
 
-mergeWithExistingTwilogsJson : String -> String -> List RawTwilogInCsv -> BackendTask FatalError ()
-mergeWithExistingTwilogsJson outFilePath existingJson twilogs =
+type alias UserInfo =
+    { userName : String, userProfileImageUrl : String }
+
+
+collectUserInfo : List ( Twilog, ScreenName ) -> BackendTask FatalError (Dict ScreenName UserInfo)
+collectUserInfo newTwilogsWithScreenName =
+    let
+        screenNames =
+            newTwilogsWithScreenName
+                |> List.map Tuple.second
+                |> List.filter ((/=) "gada_twt")
+                |> List.Extra.unique
+    in
+    screenNames
+        |> List.map fetchUserInfo
+        |> BackendTask.combine
+        |> BackendTask.map Dict.fromList
+
+
+fetchUserInfo : ScreenName -> BackendTask FatalError ( ScreenName, UserInfo )
+fetchUserInfo screenName =
+    LinkPreview.getMetadataOnBuild ("https://twitter.com/" ++ screenName)
+        |> BackendTask.map (\metadata -> ( screenName, { userName = LinkPreview.reconstructTwitterUserName metadata.title, userProfileImageUrl = Maybe.withDefault placeholderAvatarUrl metadata.imageUrl } ))
+        |> BackendTask.onError (\_ -> BackendTask.succeed ( screenName, { userName = screenName, userProfileImageUrl = placeholderAvatarUrl } ))
+
+
+injectUserInfo : Dict ScreenName UserInfo -> ( Twilog, ScreenName ) -> Twilog
+injectUserInfo userInfoCache ( twilog, screenName ) =
+    case ( Dict.get screenName userInfoCache, twilog.retweet ) of
+        ( Just userInfo, Just retweet ) ->
+            -- UserInfoは基本的にRetweetにのみ適用する。Retweetでない場合screenNameはgada_twtであるはず
+            { twilog | retweet = Just { retweet | userName = userInfo.userName, userProfileImageUrl = userInfo.userProfileImageUrl } }
+
+        _ ->
+            twilog
+
+
+mergeWithExistingTwilogsJson : String -> String -> List Twilog -> BackendTask FatalError ()
+mergeWithExistingTwilogsJson outFilePath existingJson newTwilogs =
     case Decode.decodeString (Decode.list (TwilogData.twilogDecoder Nothing)) existingJson of
         Ok existingTwilogs ->
             let
-                newTwilogs =
-                    List.map sanitizeTwilog twilogs
-
                 -- Merge順序に注意。newで上書きしている
                 existingTwilogDict =
                     List.foldl (\twilog acc -> Dict.insert twilog.idStr twilog acc) Dict.empty existingTwilogs
 
                 twilogDict =
-                    List.foldl (\twilog acc -> Dict.insert twilog.idStr twilog acc) existingTwilogDict newTwilogs
+                    List.foldl smartlyMergeTwilog existingTwilogDict newTwilogs
 
                 data =
                     Dict.values twilogDict
@@ -186,12 +231,34 @@ mergeWithExistingTwilogsJson outFilePath existingJson twilogs =
             BackendTask.fail <| FatalError.fromString <| "Failed to decode existing Twilogs JSON: " ++ Debug.toString error
 
 
-createNewTwilogsJson : String -> List RawTwilogInCsv -> BackendTask FatalError ()
-createNewTwilogsJson outFilePath twilogs =
+{-| Use New entities EXCEPT profile images if they are placeholders.
+
+The link-preview service and twitter servers sometimes fail to fetch the latest information.
+
+-}
+smartlyMergeTwilog : Twilog -> Dict String Twilog -> Dict String Twilog
+smartlyMergeTwilog newTwilog existingTwilogs =
+    case Dict.get newTwilog.idStr existingTwilogs of
+        Just existingTwilog ->
+            let
+                newTwilogWithReconciledProfileImageUrls =
+                    if newTwilog.userProfileImageUrl /= existingTwilog.userProfileImageUrl && newTwilog.userProfileImageUrl == placeholderAvatarUrl then
+                        { newTwilog | userProfileImageUrl = existingTwilog.userProfileImageUrl }
+
+                    else
+                        newTwilog
+            in
+            Dict.insert newTwilog.idStr newTwilogWithReconciledProfileImageUrls existingTwilogs
+
+        Nothing ->
+            Dict.insert newTwilog.idStr newTwilog existingTwilogs
+
+
+createNewTwilogsJson : String -> List Twilog -> BackendTask FatalError ()
+createNewTwilogsJson outFilePath newTwilogs =
     let
         data =
-            twilogs
-                |> List.map sanitizeTwilog
+            newTwilogs
                 |> List.sortBy .idStr
                 |> List.map TwilogData.serializeToOnelineTwilogJson
                 |> String.join "\n,\n"
@@ -201,10 +268,14 @@ createNewTwilogsJson outFilePath twilogs =
         , body = "[\n" ++ data ++ "\n]\n"
         }
         |> BackendTask.allowFatal
-        |> Script.doThen (Script.log ("Created " ++ outFilePath ++ " (" ++ String.fromInt (List.length twilogs) ++ " Twilogs)"))
+        |> Script.doThen (Script.log ("Created " ++ outFilePath ++ " (" ++ String.fromInt (List.length newTwilogs) ++ " Twilogs)"))
 
 
-sanitizeTwilog : RawTwilogInCsv -> Twilog
+type alias ScreenName =
+    String
+
+
+sanitizeTwilog : RawTwilogInCsv -> ( Twilog, ScreenName )
 sanitizeTwilog rawTwilog =
     let
         ( screenName, statusId ) =
@@ -231,23 +302,25 @@ sanitizeTwilog rawTwilog =
         ( retweetDetails, entitiesTcoUrl, extendedEntitiesMedia ) =
             extractEmbeddedProperties { isRetweet = isRetweet, screenName = screenName, rawTwilog = rawTwilog }
     in
-    { createdAt = createdAtPosix
-    , touchedAt = createdAtPosix
-    , createdDate = Date.fromPosix Helper.jst createdAtPosix
-    , text = text
-    , id = TwilogData.TwitterStatusId statusId
-    , idStr = statusId
-    , userName = "Gada / ymtszw"
-    , userProfileImageUrl = myAvatarUrl20230405
-    , retweet = retweetDetails
-    , entitiesTcoUrl = entitiesTcoUrl
-    , extendedEntitiesMedia = extendedEntitiesMedia
+    ( { createdAt = createdAtPosix
+      , touchedAt = createdAtPosix
+      , createdDate = Date.fromPosix Helper.jst createdAtPosix
+      , text = text
+      , id = TwilogData.TwitterStatusId statusId
+      , idStr = statusId
+      , userName = "Gada / ymtszw"
+      , userProfileImageUrl = myAvatarUrl20230405
+      , retweet = retweetDetails
+      , entitiesTcoUrl = entitiesTcoUrl
+      , extendedEntitiesMedia = extendedEntitiesMedia
 
-    -- Unused when importing from Twilog CSVs
-    , inReplyTo = Nothing
-    , replies = []
-    , quote = Nothing
-    }
+      -- Unused when importing from Twilog CSVs
+      , inReplyTo = Nothing
+      , replies = []
+      , quote = Nothing
+      }
+    , screenName
+    )
 
 
 extractEmbeddedProperties : { isRetweet : Bool, screenName : String, rawTwilog : RawTwilogInCsv } -> ( Maybe Retweet, List TcoUrl, List Media )
