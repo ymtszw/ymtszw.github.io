@@ -3,6 +3,7 @@ module Tests exposing (..)
 import Ephemeral.TwilogDataCodecTestFixtures
 import Expect
 import Json.Decode
+import Json.Encode
 import KindleBookTitle exposing (KindleBookTitle)
 import Parser
 import Test exposing (Test)
@@ -117,7 +118,7 @@ suite =
                                 -- そこでoriginalJson |> decode1 |> encode |> decode2と2回decodeを試して1回目と2回目の結果（Elmでの取り込み済みデータ）が一致しているかどうかを検証する。
                                 input
                                     |> Json.Decode.decodeString (TwilogData.twilogDecoder Nothing)
-                                    |> Result.map (\decoded1 -> ( decoded1, TwilogData.serializeToOnelineTwilogJson decoded1 ))
+                                    |> Result.map (\decoded1 -> ( decoded1, TwilogData.serializeToOnelineTwilogJson False decoded1 |> Json.Encode.encode 0 ))
                                     |> Result.andThen (\( decoded1, serialized ) -> Json.Decode.decodeString (TwilogData.twilogDecoder Nothing) serialized |> Result.map (Tuple.pair decoded1))
                             of
                                 Ok ( decoded1, decoded2 ) ->

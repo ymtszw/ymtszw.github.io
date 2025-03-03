@@ -1,6 +1,8 @@
-module TwilogSearch exposing (Model, Msg, Secrets, init, searchBox, secrets, update)
+module TwilogSearch exposing (Model, Msg, Secrets, batchAddObjectsOnBuild, init, searchBox, secrets, update)
 
 import BackendTask exposing (BackendTask)
+import BackendTask.Do exposing (do)
+import BackendTask.Http
 import Browser.Navigation
 import Date
 import Debounce exposing (Debounce)
@@ -205,3 +207,37 @@ searchBox tagger renderer { searchResults, searching } =
                        )
                     |> div [ class "search-results" ]
         ]
+
+
+batchAddObjectsOnBuild : List Twilog -> BackendTask FatalError ()
+batchAddObjectsOnBuild twilogs =
+    do (BackendTask.map2 Tuple.pair (requireEnv "ALGOLIA_APP_ID") (requireEnv "ALGOLIA_ADMIN_KEY")) <|
+        \( appId, adminKey ) ->
+            let
+                headers =
+                    [ ( "X-Algolia-Application-Id", appId )
+                    , ( "X-Algolia-API-Key", adminKey )
+                    , ( "Content-Type", "application/json" )
+                    ]
+
+                body =
+                    Json.Encode.object
+                        [ ( "requests", Json.Encode.list encodeTwilog twilogs )
+                        ]
+
+                encodeTwilog twilog =
+                    Json.Encode.object
+                        [ ( "action", Json.Encode.string "addObject" )
+                        , ( "body", TwilogData.serializeToOnelineTwilogJson True twilog )
+                        ]
+            in
+            BackendTask.Http.request
+                { url = "https://" ++ appId ++ "-dsn.algolia.net/1/indexes/ymtszw-twilogs/batch"
+                , method = "POST"
+                , headers = headers
+                , body = BackendTask.Http.jsonBody body
+                , retries = Nothing
+                , timeoutInMs = Just 10000
+                }
+                (BackendTask.Http.expectWhatever ())
+                |> BackendTask.allowFatal

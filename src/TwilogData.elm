@@ -488,46 +488,50 @@ prettyPrintTwilog =
 
 {-| Serialize Twilog into oneline JSON string.
 -}
-serializeToOnelineTwilogJson : Twilog -> String
-serializeToOnelineTwilogJson twilog =
-    Json.Encode.encode 0 <|
-        Json.Encode.object <|
-            List.concat
-                [ [ ( "CreatedAt", Iso8601.encode twilog.createdAt )
-                  , ( "Text", Json.Encode.string twilog.text )
-                  , ( "StatusId", Json.Encode.string twilog.idStr )
-                  , ( "UserName", Json.Encode.string twilog.userName )
-                  , ( "UserProfileImageUrl", Json.Encode.string twilog.userProfileImageUrl )
-                  , ( "Retweet"
-                    , Json.Encode.string <|
-                        case twilog.retweet of
-                            Just _ ->
-                                "TRUE"
+serializeToOnelineTwilogJson : Bool -> Twilog -> Json.Encode.Value
+serializeToOnelineTwilogJson setAlgoliaObjectID twilog =
+    Json.Encode.object <|
+        List.concat
+            [ [ ( "CreatedAt", Iso8601.encode twilog.createdAt )
+              , ( "Text", Json.Encode.string twilog.text )
+              , ( "StatusId", Json.Encode.string twilog.idStr )
+              , ( "UserName", Json.Encode.string twilog.userName )
+              , ( "UserProfileImageUrl", Json.Encode.string twilog.userProfileImageUrl )
+              , ( "Retweet"
+                , Json.Encode.string <|
+                    case twilog.retweet of
+                        Just _ ->
+                            "TRUE"
 
-                            Nothing ->
-                                "FALSE"
-                    )
-                  , ( "EntitiesUrlsUrls", Json.Encode.string <| String.join "," <| List.map .url twilog.entitiesTcoUrl )
-                  , ( "EntitiesUrlsExpandedUrls", Json.Encode.string <| String.join "," <| List.map .expandedUrl twilog.entitiesTcoUrl )
-                  , ( "ExtendedEntitiesMediaUrls", Json.Encode.string <| String.join "," <| List.map .url twilog.extendedEntitiesMedia )
-                  , ( "ExtendedEntitiesMediaTypes", Json.Encode.string <| String.join "," <| List.map .type_ twilog.extendedEntitiesMedia )
-                  , ( "ExtendedEntitiesMediaSourceUrls", Json.Encode.string <| String.join "," <| List.map .sourceUrl twilog.extendedEntitiesMedia )
-                  , ( "ExtendedEntitiesMediaExpandedUrls", Json.Encode.string <| String.join "," <| List.map .expandedUrl twilog.extendedEntitiesMedia )
-                  ]
-                , case twilog.retweet of
-                    Nothing ->
-                        []
+                        Nothing ->
+                            "FALSE"
+                )
+              , ( "EntitiesUrlsUrls", Json.Encode.string <| String.join "," <| List.map .url twilog.entitiesTcoUrl )
+              , ( "EntitiesUrlsExpandedUrls", Json.Encode.string <| String.join "," <| List.map .expandedUrl twilog.entitiesTcoUrl )
+              , ( "ExtendedEntitiesMediaUrls", Json.Encode.string <| String.join "," <| List.map .url twilog.extendedEntitiesMedia )
+              , ( "ExtendedEntitiesMediaTypes", Json.Encode.string <| String.join "," <| List.map .type_ twilog.extendedEntitiesMedia )
+              , ( "ExtendedEntitiesMediaSourceUrls", Json.Encode.string <| String.join "," <| List.map .sourceUrl twilog.extendedEntitiesMedia )
+              , ( "ExtendedEntitiesMediaExpandedUrls", Json.Encode.string <| String.join "," <| List.map .expandedUrl twilog.extendedEntitiesMedia )
+              ]
+            , case twilog.retweet of
+                Nothing ->
+                    []
 
-                    Just retweet ->
-                        [ ( "RetweetedStatusId", Json.Encode.string <| (\(TwitterStatusId id) -> id) <| retweet.id )
-                        , ( "RetweetedStatusFullText", Json.Encode.string retweet.fullText )
-                        , ( "RetweetedStatusUserName", Json.Encode.string retweet.userName )
-                        , ( "RetweetedStatusUserProfileImageUrl", Json.Encode.string retweet.userProfileImageUrl )
-                        , ( "RetweetedStatusEntitiesUrlsUrls", Json.Encode.string <| String.join "," <| List.map .url retweet.entitiesTcoUrl )
-                        , ( "RetweetedStatusEntitiesUrlsExpandedUrls", Json.Encode.string <| String.join "," <| List.map .expandedUrl retweet.entitiesTcoUrl )
-                        , ( "RetweetedStatusExtendedEntitiesMediaUrls", Json.Encode.string <| String.join "," <| List.map .url retweet.extendedEntitiesMedia )
-                        , ( "RetweetedStatusExtendedEntitiesMediaTypes", Json.Encode.string <| String.join "," <| List.map .type_ retweet.extendedEntitiesMedia )
-                        , ( "RetweetedStatusExtendedEntitiesMediaSourceUrls", Json.Encode.string <| String.join "," <| List.map .sourceUrl retweet.extendedEntitiesMedia )
-                        , ( "RetweetedStatusExtendedEntitiesMediaExpandedUrls", Json.Encode.string <| String.join "," <| List.map .expandedUrl retweet.extendedEntitiesMedia )
-                        ]
-                ]
+                Just retweet ->
+                    [ ( "RetweetedStatusId", Json.Encode.string <| (\(TwitterStatusId id) -> id) <| retweet.id )
+                    , ( "RetweetedStatusFullText", Json.Encode.string retweet.fullText )
+                    , ( "RetweetedStatusUserName", Json.Encode.string retweet.userName )
+                    , ( "RetweetedStatusUserProfileImageUrl", Json.Encode.string retweet.userProfileImageUrl )
+                    , ( "RetweetedStatusEntitiesUrlsUrls", Json.Encode.string <| String.join "," <| List.map .url retweet.entitiesTcoUrl )
+                    , ( "RetweetedStatusEntitiesUrlsExpandedUrls", Json.Encode.string <| String.join "," <| List.map .expandedUrl retweet.entitiesTcoUrl )
+                    , ( "RetweetedStatusExtendedEntitiesMediaUrls", Json.Encode.string <| String.join "," <| List.map .url retweet.extendedEntitiesMedia )
+                    , ( "RetweetedStatusExtendedEntitiesMediaTypes", Json.Encode.string <| String.join "," <| List.map .type_ retweet.extendedEntitiesMedia )
+                    , ( "RetweetedStatusExtendedEntitiesMediaSourceUrls", Json.Encode.string <| String.join "," <| List.map .sourceUrl retweet.extendedEntitiesMedia )
+                    , ( "RetweetedStatusExtendedEntitiesMediaExpandedUrls", Json.Encode.string <| String.join "," <| List.map .expandedUrl retweet.extendedEntitiesMedia )
+                    ]
+            , if setAlgoliaObjectID then
+                [ ( "objectID", Json.Encode.string twilog.idStr ) ]
+
+              else
+                []
+            ]

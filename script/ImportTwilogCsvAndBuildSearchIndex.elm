@@ -14,11 +14,13 @@ import FatalError exposing (FatalError)
 import Helper exposing (requireEnv)
 import Iso8601
 import Json.Decode as Decode
+import Json.Encode
 import LinkPreview
 import List.Extra
 import Pages.Script as Script exposing (Script)
 import Regex
 import TwilogData exposing (Media, Retweet, TcoUrl, Twilog)
+import TwilogSearch
 import Url
 
 
@@ -108,13 +110,16 @@ importRecentTwilogs previousIdCursor twilogs =
                 |> groupedByYearMonthDay
                 |> Dict.foldl importRecentTwilogsByYearMonthDay ( [], previousIdCursor )
     in
-    writeTwilogJsonFileTasks
-        |> BackendTask.combine
-        |> BackendTask.do
-        |> Script.doThen
-            -- TODO Update cursor here after all implementations are done
-            (Script.log ("Updated cursor to " ++ updatedCursor ++ " in " ++ cursorFilePath))
-        |> Script.doThen (Script.log ("Imported " ++ String.fromInt (List.length twilogs) ++ " Twilogs"))
+    if List.isEmpty writeTwilogJsonFileTasks && updatedCursor == previousIdCursor then
+        Script.log "No new Twilogs to import"
+
+    else
+        writeTwilogJsonFileTasks
+            |> BackendTask.combine
+            |> BackendTask.do
+            |> Script.doThen (Script.log ("Imported " ++ String.fromInt (List.length twilogs) ++ " Twilogs"))
+            |> Script.doThen (Script.writeFile { path = cursorFilePath, body = updatedCursor } |> BackendTask.allowFatal)
+            |> Script.doThen (Script.log ("Updated cursor to " ++ updatedCursor ++ " in " ++ cursorFilePath))
 
 
 type alias YearMonthDay =
@@ -163,7 +168,7 @@ mergeOrCreateNewTwilogsJsonByYearMonthDay outFilePath twilogs =
                 |> BackendTask.allowFatal
                 |> BackendTask.andThen (\existingJson -> mergeWithExistingTwilogsJson outFilePath existingJson newTwilogsWithUserInfo)
                 |> BackendTask.onError (\_ -> createNewTwilogsJson outFilePath newTwilogsWithUserInfo)
-                -- TODO: Put newTwilogsWithUserInfo into search index here
+                |> Script.doThen (TwilogSearch.batchAddObjectsOnBuild newTwilogsWithUserInfo)
                 |> Script.doThen (Script.log (String.fromInt (List.length newTwilogsWithUserInfo) ++ " Twilogs are indexed"))
 
 
@@ -233,7 +238,7 @@ mergeWithExistingTwilogsJson outFilePath existingJson newTwilogs =
                 data =
                     Dict.values twilogDict
                         |> List.sortBy .idStr
-                        |> List.map TwilogData.serializeToOnelineTwilogJson
+                        |> List.map (TwilogData.serializeToOnelineTwilogJson False >> Json.Encode.encode 0)
                         |> String.join "\n,\n"
             in
             Script.writeFile
@@ -276,7 +281,7 @@ createNewTwilogsJson outFilePath newTwilogs =
         data =
             newTwilogs
                 |> List.sortBy .idStr
-                |> List.map TwilogData.serializeToOnelineTwilogJson
+                |> List.map (TwilogData.serializeToOnelineTwilogJson False >> Json.Encode.encode 0)
                 |> String.join "\n,\n"
     in
     Script.writeFile
