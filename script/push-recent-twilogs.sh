@@ -9,5 +9,4 @@ if [ -n "$(git status --porcelain data/)" ]; then
   git add data/ src/Generated/ && git commit -m "feat: imported recent twilogs ($(date))"
 fi
 
-git diff --name-only HEAD~ | grep "\-twilogs.json" | xargs npm run build_twilog_search_index
 git push origin HEAD:master
