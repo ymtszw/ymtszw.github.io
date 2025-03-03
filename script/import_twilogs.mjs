@@ -1,12 +1,5 @@
 /**
- * Must be run as: npm run import_twilogs <path-to-exported-twilogs-csv-file>
- *
- * This script imports Tweets from manually downloaded CSV file from Twilogs.
- * Twilogs CSV contains less information than Twitter-official archives,
- * so it tries to re-construct as much properties as possible.
- *
- * TODO: Migrate to `elm-pages run` script and merge `build_twilog_search_index.mjs` and `push-recent-twilogs.sh` into this script.
- *
+ * DEPRECATED: Migrated to `elm-pages run` script; TODO: Remove this file
  */
 
 import csv from "csvtojson";

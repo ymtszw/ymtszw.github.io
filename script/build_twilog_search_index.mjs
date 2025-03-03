@@ -1,3 +1,4 @@
+// DEPRECATED: Migrated to `elm-pages run` script; TODO: Remove this file
 import { algoliasearch } from "algoliasearch";
 import { readFile } from "fs/promises";
 
