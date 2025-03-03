@@ -116,10 +116,15 @@ importRecentTwilogs previousIdCursor twilogs =
     else
         writeTwilogJsonFileTasks
             |> BackendTask.combine
-            |> BackendTask.do
-            |> Script.doThen (Script.log ("Imported " ++ String.fromInt (List.length twilogs) ++ " Twilogs"))
+            |> BackendTask.map List.concat
+            |> BackendTask.andThen
+                (\newTwilogs ->
+                    Script.log ("Imported " ++ String.fromInt (List.length newTwilogs) ++ " Twilogs")
+                        |> Script.doThen (TwilogSearch.batchAddObjectsOnBuild newTwilogs)
+                        |> thenLog ("Indexed " ++ String.fromInt (List.length newTwilogs) ++ " Twilogs")
+                )
             |> Script.doThen (Script.writeFile { path = cursorFilePath, body = updatedCursor } |> BackendTask.allowFatal)
-            |> Script.doThen (Script.log ("Updated cursor to " ++ updatedCursor ++ " in " ++ cursorFilePath))
+            |> thenLog ("Updated cursor to " ++ updatedCursor ++ " in " ++ cursorFilePath)
             |> Script.doThen generateTwilogArchives
 
 
@@ -141,7 +146,7 @@ makeYearMonthDay createdAtInTwilogCsv =
         |> String.slice 0 10
 
 
-importRecentTwilogsByYearMonthDay : YearMonthDay -> List RawTwilogInCsv -> ( List (BackendTask FatalError ()), Cursor ) -> ( List (BackendTask FatalError ()), Cursor )
+importRecentTwilogsByYearMonthDay : YearMonthDay -> List RawTwilogInCsv -> ( List (BackendTask FatalError (List Twilog)), Cursor ) -> ( List (BackendTask FatalError (List Twilog)), Cursor )
 importRecentTwilogsByYearMonthDay ymd twilogs ( writeTwilogJsonFileTasks, previousIdCursor ) =
     let
         newIdCursor =
@@ -153,7 +158,7 @@ importRecentTwilogsByYearMonthDay ymd twilogs ( writeTwilogJsonFileTasks, previo
     ( mergeOrCreateNewTwilogsJsonByYearMonthDay (TwilogData.makeTwilogsJsonPath ymd) twilogs :: writeTwilogJsonFileTasks, newIdCursor )
 
 
-mergeOrCreateNewTwilogsJsonByYearMonthDay : String -> List RawTwilogInCsv -> BackendTask FatalError ()
+mergeOrCreateNewTwilogsJsonByYearMonthDay : String -> List RawTwilogInCsv -> BackendTask FatalError (List Twilog)
 mergeOrCreateNewTwilogsJsonByYearMonthDay outFilePath twilogs =
     let
         newTwilogsWithScreenName =
@@ -169,8 +174,7 @@ mergeOrCreateNewTwilogsJsonByYearMonthDay outFilePath twilogs =
                 |> BackendTask.allowFatal
                 |> BackendTask.andThen (\existingJson -> mergeWithExistingTwilogsJson outFilePath existingJson newTwilogsWithUserInfo)
                 |> BackendTask.onError (\_ -> createNewTwilogsJson outFilePath newTwilogsWithUserInfo)
-                |> Script.doThen (TwilogSearch.batchAddObjectsOnBuild newTwilogsWithUserInfo)
-                |> Script.doThen (Script.log (String.fromInt (List.length newTwilogsWithUserInfo) ++ " Twilogs are indexed"))
+                |> Script.doThen (BackendTask.succeed newTwilogsWithUserInfo)
 
 
 type alias UserInfo =
@@ -247,7 +251,7 @@ mergeWithExistingTwilogsJson outFilePath existingJson newTwilogs =
                 , body = "[\n" ++ data ++ "\n]\n"
                 }
                 |> BackendTask.allowFatal
-                |> Script.doThen (Script.log ("Merged " ++ outFilePath ++ " (" ++ String.fromInt (List.length existingTwilogs) ++ " existing Twilogs, " ++ String.fromInt (List.length newTwilogs) ++ " new Twilogs)"))
+                |> thenLog ("Merged " ++ outFilePath ++ " (" ++ String.fromInt (List.length existingTwilogs) ++ " existing Twilogs, " ++ String.fromInt (List.length newTwilogs) ++ " new Twilogs)")
 
         Err error ->
             BackendTask.fail <| FatalError.fromString <| "Failed to decode existing Twilogs JSON: " ++ Debug.toString error
@@ -290,7 +294,7 @@ createNewTwilogsJson outFilePath newTwilogs =
         , body = "[\n" ++ data ++ "\n]\n"
         }
         |> BackendTask.allowFatal
-        |> Script.doThen (Script.log ("Created " ++ outFilePath ++ " (" ++ String.fromInt (List.length newTwilogs) ++ " Twilogs)"))
+        |> thenLog ("Created " ++ outFilePath ++ " (" ++ String.fromInt (List.length newTwilogs) ++ " Twilogs)")
 
 
 type alias ScreenName =
@@ -434,3 +438,8 @@ list =
                     }
                     |> BackendTask.allowFatal
             )
+
+
+thenLog : String -> BackendTask a () -> BackendTask a ()
+thenLog message =
+    Script.doThen (Script.log message)
