@@ -3,7 +3,7 @@ module ImportTwilogCsvAndBuildSearchIndex exposing (run)
 import BackendTask exposing (BackendTask)
 import BackendTask.Do exposing (do)
 import BackendTask.File exposing (FileReadError(..))
-import BackendTask.Glob as Glob
+import BackendTask.Glob exposing (defaultOptions, digits, literal)
 import Cli.Option
 import Cli.OptionsParser as OptionsParser
 import Cli.Program
@@ -35,7 +35,7 @@ run =
                 Nothing ->
                     do (requireEnv "HOME") <|
                         \home ->
-                            do (Glob.fromString (home ++ "/Downloads/gada_twt-*.csv")) <|
+                            do (BackendTask.Glob.fromString (home ++ "/Downloads/gada_twt-*.csv")) <|
                                 \archiveFilePaths ->
                                     case List.reverse (List.sort archiveFilePaths) of
                                         [] ->
@@ -120,6 +120,7 @@ importRecentTwilogs previousIdCursor twilogs =
             |> Script.doThen (Script.log ("Imported " ++ String.fromInt (List.length twilogs) ++ " Twilogs"))
             |> Script.doThen (Script.writeFile { path = cursorFilePath, body = updatedCursor } |> BackendTask.allowFatal)
             |> Script.doThen (Script.log ("Updated cursor to " ++ updatedCursor ++ " in " ++ cursorFilePath))
+            |> Script.doThen generateTwilogArchives
 
 
 type alias YearMonthDay =
@@ -403,3 +404,33 @@ myAvatarUrl20230405 =
 
 placeholderAvatarUrl =
     "https://abs.twimg.com/sticky/default_profile_images/default_profile_200x200.png"
+
+
+generateTwilogArchives : BackendTask FatalError ()
+generateTwilogArchives =
+    BackendTask.Glob.succeed (\year month -> year ++ "-" ++ month)
+        |> BackendTask.Glob.match (literal "data/")
+        |> BackendTask.Glob.capture digits
+        |> BackendTask.Glob.match (literal "/")
+        |> BackendTask.Glob.capture digits
+        |> BackendTask.Glob.toBackendTaskWithOptions { defaultOptions | include = BackendTask.Glob.OnlyFolders }
+        |> BackendTask.map (List.sort >> List.reverse)
+        |> BackendTask.andThen
+            (\yearMonthsFromNewest ->
+                Script.writeFile
+                    { path = "src/Generated/TwilogArchives.elm"
+                    , body = """module Generated.TwilogArchives exposing (TwilogArchiveYearMonth, list)
+
+
+type alias TwilogArchiveYearMonth =
+    String
+
+
+list : List TwilogArchiveYearMonth
+list =
+    [ """ ++ (yearMonthsFromNewest |> List.map (\ym -> "\"" ++ ym ++ "\"") |> String.join "\n    , ") ++ """
+    ]
+"""
+                    }
+                    |> BackendTask.allowFatal
+            )
