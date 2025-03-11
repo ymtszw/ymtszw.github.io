@@ -142,8 +142,14 @@ labelLikeStringReversed s =
             , "新潮"
             , "文庫"
             ]
+
+        ambiguousSeriesNames =
+            -- まぎらわしいシリーズ名リスト（ベストエフォートで作成）
+            [ "あずまんが大王"
+            , "まんが道"
+            ]
     in
-    if List.any (\part -> String.contains (String.toLower part) (String.toLower reversed)) labelLikeStringParts then
+    if List.any (\part -> String.contains (String.toLower part) (String.toLower reversed)) labelLikeStringParts && not (List.any (\name -> String.startsWith name reversed) ambiguousSeriesNames) then
         P.succeed reversed
 
     else
@@ -207,6 +213,7 @@ parseVolumeReversed =
             |> P.backtrackable
         , P.succeed identity
             |= numericVolumeReversed
+            |> P.backtrackable
         , P.succeed 0
         ]
 
