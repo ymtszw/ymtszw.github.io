@@ -1,4 +1,4 @@
-import imageSizeFromFile from "image-size";
+import { imageSizeFromFile } from "image-size/fromFile";
 
 /**
  * Implementation of `BackendTask.File.Extra.getImageDimensions`
@@ -9,7 +9,9 @@ import imageSizeFromFile from "image-size";
 export async function getImageDimensions(
   fileName: string
 ): Promise<{ width: number; height: number }> {
-  const dimensions = imageSizeFromFile(`public/${fileName.replace(/^\//, "")}`);
+  const dimensions = await imageSizeFromFile(
+    `public/${fileName.replace(/^\//, "")}`
+  );
   if (dimensions.width && dimensions.height) {
     return {
       width: dimensions.width,
