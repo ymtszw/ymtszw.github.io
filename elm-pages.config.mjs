@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import atImport from "postcss-import";
 
 export default {
   vite: defineConfig({
@@ -7,13 +8,18 @@ export default {
       cssMinify: "esbuild",
       minify: "esbuild",
     },
+    css: {
+      devSourcemap: true,
+      transformer: "postcss",
+      postcss: {
+        plugins: [atImport()],
+      },
+    },
   }),
   adapter,
   headTagsTemplate(context) {
     return `
 <link rel="stylesheet" href="/style.css" />
-<link rel="preconnect" href="https://fonts.gstatic.com" />
-<link rel="preconnect" href="https://cdnjs.cloudflare.com" />
 <meta name="generator" content="elm-pages v${context.cliVersion}" />
 `;
   },
