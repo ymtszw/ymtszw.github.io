@@ -292,84 +292,88 @@ view :
     -> (Msg -> msg)
     -> View msg
     -> { body : List (Html msg), title : String }
-view _ page shared sharedTagger pageView =
+view data_ page shared sharedTagger pageView =
     { title = makeTitle pageView.title
     , body =
-        [ Html.header []
-            [ Html.nav [] <|
-                List.intersperse (Html.text " / ") <|
-                    List.map (\kid -> Html.strong [] [ kid ]) <|
-                        case Maybe.withDefault Route.Index page.route of
-                            Route.About ->
-                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
-                                , Html.text "このサイトについて"
-                                ]
+        specialRouteSwitcher data_ page shared sharedTagger pageView <|
+            [ Html.header []
+                [ Html.nav [] <|
+                    List.intersperse (Html.text " / ") <|
+                        List.map (\kid -> Html.strong [] [ kid ]) <|
+                            case Maybe.withDefault Route.Index page.route of
+                                Route.About ->
+                                    [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                    , Html.text "このサイトについて"
+                                    ]
 
-                            Route.Articles ->
-                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
-                                , Html.text "記事"
-                                ]
+                                Route.Articles ->
+                                    [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                    , Html.text "記事"
+                                    ]
 
-                            Route.Articles__ArticleId_ _ ->
-                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
-                                , Route.Articles |> Route.link [] [ Html.text "記事" ]
-                                ]
+                                Route.Articles__ArticleId_ _ ->
+                                    [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                    , Route.Articles |> Route.link [] [ Html.text "記事" ]
+                                    ]
 
-                            Route.Articles__Draft ->
-                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
-                                , Html.text "記事（下書き）"
-                                ]
+                                Route.Articles__Draft ->
+                                    [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                    , Html.text "記事（下書き）"
+                                    ]
 
-                            Route.Library ->
-                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
-                                , Html.text "書架"
-                                ]
+                                Route.Library ->
+                                    [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                    , Html.text "書架"
+                                    ]
 
-                            Route.Reviews__Draft ->
-                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
-                                , Html.text "レビュー（下書き）"
-                                ]
+                                Route.Reviews__Draft ->
+                                    [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                    , Html.text "レビュー（下書き）"
+                                    ]
 
-                            Route.Twilogs ->
-                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
-                                , Html.text "Twilog"
-                                ]
+                                Route.Twilogs ->
+                                    [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                    , Html.text "Twilog"
+                                    ]
 
-                            Route.Twilogs__YearMonth_ { yearMonth } ->
-                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
-                                , Route.Twilogs |> Route.link [] [ Html.text "Twilog" ]
-                                , Html.text yearMonth
-                                ]
+                                Route.Twilogs__YearMonth_ { yearMonth } ->
+                                    [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                    , Route.Twilogs |> Route.link [] [ Html.text "Twilog" ]
+                                    , Html.text yearMonth
+                                    ]
 
-                            Route.Index ->
-                                [ Html.text "Index"
-                                ]
-            , sitemap
-            , Html.nav [ Html.Attributes.class "meta" ]
-                [ siteBuildStatus
-                , twitterLink
+                                Route.Index ->
+                                    [ Html.text "Index"
+                                    ]
+
+                                Route.Fnz ->
+                                    []
+                , sitemap
+                , Html.nav [ Html.Attributes.class "meta" ]
+                    [ siteBuildStatus
+                    , twitterLink
+                    ]
                 ]
-            ]
-        , Html.hr [] []
-        , Html.main_ [] pageView.body
-        , Html.hr [] []
-        , Html.footer []
-            [ Html.text "© Yu Matsuzawa (ymtszw, Gada), 2022 "
-            , sitemap
-            , Html.nav [ Html.Attributes.class "meta" ]
-                [ siteBuildStatus
-                , twitterLink
-                , siteBuiltAt
+            , Html.hr [] []
+            , Html.main_ [] pageView.body
+            , Html.hr [] []
+            , Html.footer []
+                [ Html.text "© Yu Matsuzawa (ymtszw, Gada), 2022 "
+                , sitemap
+                , Html.nav [ Html.Attributes.class "meta" ]
+                    [ siteBuildStatus
+                    , twitterLink
+                    , siteBuiltAt
+                    ]
+                , Html.map (SharedMsg >> sharedTagger) scrollButtons
                 ]
-            , Html.map (SharedMsg >> sharedTagger) scrollButtons
-            ]
-        , case shared.lightbox of
-            Just lbMedia ->
-                Html.map (SharedMsg >> sharedTagger) (lightbox lbMedia)
+            , case shared.lightbox of
+                Just lbMedia ->
+                    Html.map (SharedMsg >> sharedTagger) (lightbox lbMedia)
 
-            Nothing ->
-                Html.text ""
-        ]
+                Nothing ->
+                    Html.text ""
+            ]
     }
 
 
@@ -441,3 +445,13 @@ lightbox lbMedia =
                 View.imgLazy [ Html.Attributes.src lbMedia.src ] []
             ]
         ]
+
+
+specialRouteSwitcher : Data -> { path : UrlPath, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> List (Html msg) -> List (Html msg)
+specialRouteSwitcher _ page _ _ pageView otherView =
+    case page.route of
+        Just Route.Fnz ->
+            pageView.body
+
+        _ ->
+            otherView

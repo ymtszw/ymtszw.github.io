@@ -155,6 +155,9 @@ makeSitemapEntries getStaticRoutes =
 
                 Index ->
                     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
+
+                Fnz ->
+                    Nothing
     in
     getStaticRoutes
         |> BackendTask.map (List.filterMap build)
