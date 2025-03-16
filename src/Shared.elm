@@ -364,6 +364,7 @@ view data_ page shared sharedTagger pageView =
                     [ siteBuildStatus
                     , twitterLink
                     , siteBuiltAt
+                    , Route.Fnz |> Route.link [] [ Html.text "SSR" ]
                     ]
                 , Html.map (SharedMsg >> sharedTagger) scrollButtons
                 ]

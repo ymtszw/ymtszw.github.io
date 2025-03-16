@@ -35,6 +35,9 @@ async function adapter({
   routePatterns,
   apiRoutePatterns,
 }) {
-  console.log("Running empty adapter");
+  console.log("[EA] Running Empty Adapter");
+  console.log("[EA] renderFunctionFilePath", renderFunctionFilePath);
+  console.log("[EA] routePatterns", routePatterns);
+  console.log("[EA] apiRoutePatterns", apiRoutePatterns);
   return;
 }
