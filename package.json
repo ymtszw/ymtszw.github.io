@@ -16,8 +16,6 @@
   },
   "// NOTE: devDependencies": "elm-pages depends elm-review internally, so their versions must be updated together.",
   "devDependencies": {
-    "algoliasearch": "^5.20",
-    "csvtojson": "^2.0",
     "elm-codegen": "^0.6",
     "elm-optimize-level-2": "^0.3",
     "elm-pages": "3.0.22",
