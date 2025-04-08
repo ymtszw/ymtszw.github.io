@@ -5,6 +5,7 @@ module GenerateTwilogDataCodecTestFixtures exposing (run)
 
 import BackendTask
 import BackendTask.Do exposing (do)
+import BackendTask.Env
 import BackendTask.File
 import BackendTask.Glob
 import BackendTask.Random
@@ -22,34 +23,46 @@ run =
             \twilogJsonFiles ->
                 do (BackendTask.sequence (List.repeat 30 BackendTask.Random.int32)) <|
                     \randomInts ->
-                        let
-                            numOfFiles =
-                                List.length twilogJsonFiles
-
-                            selectRandomTwilogJsonFilesUpTo30 =
-                                randomInts
-                                    |> List.map (remainderBy numOfFiles)
-                                    |> List.Extra.unique
-                                    |> List.filterMap (\randomIndex -> List.Extra.getAt randomIndex twilogJsonFiles)
-                                    |> List.sort
-                                    |> List.map (BackendTask.File.rawFile >> BackendTask.allowFatal)
-                                    |> BackendTask.sequence
-                        in
-                        do selectRandomTwilogJsonFilesUpTo30 <|
-                            \selectedTwilogJsons ->
+                        -- `INCLUDE_TWILOG=data/2025/2025-01-01-twilogs.json npm test`のように実行すれば、特定のTwilogファイルを必ず対象に含めて実行できる。コーナーケースデバッグに使う
+                        do (BackendTask.Env.get "INCLUDE_TWILOG") <|
+                            \maybeInclude ->
                                 let
-                                    fixtureFilePath =
-                                        "tests/Ephemeral/TwilogDataCodecTestFixtures.elm"
+                                    numOfFiles =
+                                        List.length twilogJsonFiles
 
-                                    rawLines =
-                                        List.concatMap stripBracketsAndCommas selectedTwilogJsons
+                                    selectRandomTwilogJsonFilesUpTo30 =
+                                        randomInts
+                                            |> List.map (remainderBy numOfFiles)
+                                            |> List.Extra.unique
+                                            |> List.filterMap (\randomIndex -> List.Extra.getAt randomIndex twilogJsonFiles)
+                                            |> List.sort
+                                            |> maybePrepend
+                                            |> List.map (BackendTask.File.rawFile >> BackendTask.allowFatal)
+                                            |> BackendTask.sequence
+
+                                    maybePrepend list =
+                                        case maybeInclude of
+                                            Just include ->
+                                                include :: list
+
+                                            Nothing ->
+                                                list
                                 in
-                                Script.writeFile
-                                    { path = fixtureFilePath
-                                    , body = makeBody rawLines
-                                    }
-                                    |> BackendTask.allowFatal
-                                    |> Script.doThen (Script.log ("Generated " ++ fixtureFilePath ++ " from " ++ String.fromInt (List.length selectedTwilogJsons) ++ " data files (" ++ String.fromInt (List.length rawLines) ++ " total lines)"))
+                                do selectRandomTwilogJsonFilesUpTo30 <|
+                                    \selectedTwilogJsons ->
+                                        let
+                                            fixtureFilePath =
+                                                "tests/Ephemeral/TwilogDataCodecTestFixtures.elm"
+
+                                            rawLines =
+                                                List.concatMap stripBracketsAndCommas selectedTwilogJsons
+                                        in
+                                        Script.writeFile
+                                            { path = fixtureFilePath
+                                            , body = makeBody rawLines
+                                            }
+                                            |> BackendTask.allowFatal
+                                            |> Script.doThen (Script.log ("Generated " ++ fixtureFilePath ++ " from " ++ String.fromInt (List.length selectedTwilogJsons) ++ " data files (" ++ String.fromInt (List.length rawLines) ++ " total lines)"))
 
 
 makeBody : List String -> String
