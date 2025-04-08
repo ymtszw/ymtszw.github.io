@@ -112,6 +112,7 @@ stripBracketsAndCommas json =
 escapeJsonReservedChars : String -> String
 escapeJsonReservedChars str =
     str
+        |> String.replace "\\\\" "\\\\\\\\"
         |> String.replace "\\n" "\\\\n"
         |> String.replace "\\\"" "\\\\\""
 
