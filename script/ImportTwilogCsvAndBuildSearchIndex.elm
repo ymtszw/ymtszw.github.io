@@ -71,6 +71,7 @@ importTwilogs archiveFilePath =
                                 Ok tweets ->
                                     tweets
                                         |> List.filter (\twilog -> twilog.statusId > previousIdCursor)
+                                        |> removeDuplicatesByStatusId
                                         |> importRecentTwilogs previousIdCursor
 
                                 Err error ->
@@ -96,6 +97,13 @@ type alias Cursor =
 lastIdFromZapierTwilogs : Cursor
 lastIdFromZapierTwilogs =
     "1701931660152041841"
+
+
+{-| HACK: 2025/06頃のTwilogのCSVエクスポート機能で、同一statusIdのtweetが複数行に重複している不具合があったので、ユーザー側で重複除去する対応。
+-}
+removeDuplicatesByStatusId : List RawTwilogInCsv -> List RawTwilogInCsv
+removeDuplicatesByStatusId twilogs =
+    List.Extra.uniqueBy .statusId twilogs
 
 
 type alias RawTwilogInCsv =
