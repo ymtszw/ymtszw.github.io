@@ -64,7 +64,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # git連携していないPagesプロジェクトのデフォルトは、branchをmainと名付けると本番環境になる
           command: pages deploy --project-name=ymtszw-github-io --branch=main ./dist
-      - uses: actions/upload-pages-artifact@v3 # すでにCloudflare Pagesのymtszw.ccをcanonicalにしてあるが、古いリンクのためにGitHub Pages deployを残している
+      - uses: actions/upload-pages-artifact@v4 # すでにCloudflare Pagesのymtszw.ccをcanonicalにしてあるが、古いリンクのためにGitHub Pages deployを残している
         if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
         with:
           path: ./dist
