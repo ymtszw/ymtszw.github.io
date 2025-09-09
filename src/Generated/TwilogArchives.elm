@@ -7,7 +7,8 @@ type alias TwilogArchiveYearMonth =
 
 list : List TwilogArchiveYearMonth
 list =
-    [ "2025-08"
+    [ "2025-09"
+    , "2025-08"
     , "2025-07"
     , "2025-06"
     , "2025-05"
