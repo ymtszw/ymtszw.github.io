@@ -27,7 +27,7 @@ jobs:
     runs-on: ${{ contains(github.event.head_commit.message, '[self-hosted]') && 'self-hosted' || 'ubuntu-22.04' }}
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: master # Explicitly checkout master, since the ref may be updated within the caller workflows
           submodules: recursive
