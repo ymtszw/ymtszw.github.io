@@ -18,8 +18,8 @@
   "devDependencies": {
     "elm-codegen": "^0.6",
     "elm-optimize-level-2": "^0.3",
-    "elm-pages": "3.0.22",
-    "elm-review": "2.13.2",
+    "elm-pages": "3.0.25",
+    "elm-review": "2.13.4",
     "elm-tooling": "^1.15",
     "highlight.js": "^11.11",
     "image-size": "^2.0",
@@ -28,7 +28,7 @@
     "normalize.css": "^8.0.1",
     "postcss-import": "^16.1.0",
     "sakura.css": "^1.5.0",
-    "vite": "^6.0",
-    "wrangler": "^3.41"
+    "vite": "^7.2",
+    "wrangler": "^4.50"
   }
 }
