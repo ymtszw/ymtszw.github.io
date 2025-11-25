@@ -12,7 +12,8 @@
   },
   "overrides": {
     "cross-spawn": "^7.0.6",
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.0",
+    "tmp": "^0.2.4"
   },
   "// NOTE: devDependencies": "elm-pages depends elm-review internally, so their versions must be updated together.",
   "devDependencies": {
