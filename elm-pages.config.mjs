@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import atImport from "postcss-import";
+import adapter from "./adapter/cloudflare.js";
 
 export default {
   vite: defineConfig({
@@ -29,12 +30,3 @@ export default {
     return !file.endsWith(".css");
   },
 };
-
-async function adapter({
-  renderFunctionFilePath,
-  routePatterns,
-  apiRoutePatterns,
-}) {
-  console.log("Running empty adapter");
-  return;
-}
