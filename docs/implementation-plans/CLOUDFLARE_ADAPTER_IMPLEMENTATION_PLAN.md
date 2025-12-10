@@ -223,7 +223,8 @@ interface ElmPagesRenderResult {
 
 - elm-pages v3 Netlify adapter実装: `node_modules/elm-pages/adapter/netlify.js`
 - [Cloudflare Pages Functions ドキュメント](https://developers.cloudflare.com/pages/functions/)
-- [Cloudflare Pages _routes.json 仕様](https://developers.cloudflare.com/pages/platform/functions/routing/#functions-invocation-routes)
+- [Cloudflare Pages Functions ルーティング](https://developers.cloudflare.com/pages/functions/routing/)
+- [Cloudflare Pages _routes.json 仕様](https://developers.cloudflare.com/pages/functions/routing/#functions-invocation-routes)
 
 ## 9. 次のステップ
 

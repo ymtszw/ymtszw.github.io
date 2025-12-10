@@ -1,3 +1,26 @@
+/**
+ * Cloudflare Pages adapter for elm-pages v3
+ *
+ * This adapter enables deploying elm-pages applications to Cloudflare Pages with full
+ * server-side rendering support using Cloudflare Pages Functions.
+ *
+ * Features:
+ * - Generates a catch-all handler (`functions/[[path]].ts`) for server-rendered routes
+ * - Creates `_routes.json` to control which routes use Functions vs static assets
+ * - Converts between Fetch API (Request/Response) and elm-pages render format
+ * - Supports server-render routes with access to request data (headers, method, URL, body)
+ *
+ * How it works:
+ * 1. Copies the elm-pages render engine to `functions/elm-pages-cli.mjs`
+ * 2. Generates a TypeScript handler that implements Cloudflare Pages Functions' `onRequest`
+ * 3. Creates `_routes.json` based on route patterns to route serverless routes to Functions
+ * 4. Static routes and assets are served directly from `dist/` without Functions overhead
+ *
+ * References:
+ * - Cloudflare Pages Functions: https://developers.cloudflare.com/pages/functions/
+ * - Functions Routing: https://developers.cloudflare.com/pages/functions/routing/
+ * - _routes.json spec: https://developers.cloudflare.com/pages/functions/routing/#functions-invocation-routes
+ */
 import * as fs from "fs";
 
 export default async function run({
