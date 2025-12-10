@@ -228,3 +228,58 @@ interface ElmPagesRenderResult {
 ## 9. 次のステップ
 
 この計画に基づいて、Phase 1から順次実装を進める。各フェーズの完了後、動作確認とコードレビューを実施し、次のフェーズに進む。
+
+## 10. 実装進捗
+
+### Phase 1: 完了（2025-12-11）
+
+**実装内容:**
+
+- ✅ Cloudflare adapter本体の実装（`adapter/cloudflare.js`）
+  - `run()`関数: ファイル生成とコピー処理のオーケストレーション
+  - `handlerCode()`: Functions handler（`functions/[[path]].ts`）の生成
+  - `generateRoutesJson()`: `_routes.json`の生成ロジック
+  - `pathPatternToString()`: routeパターンのCloudflare形式変換
+- ✅ elm-pages.config.mjsの更新（empty adapterからCloudflare adapterへ切り替え）
+- ✅ 自動生成ファイルの除外設定
+  - `.gitignore`: `functions/\[\[path\]\].ts`, `functions/elm-pages-cli.mjs`（エスケープ付き）
+  - `.ignore`: 検索対象からの除外設定
+- ✅ TypeScriptエラー抑制: 生成されるhandlerに`// @ts-nocheck`ディレクティブを追加
+- ✅ ビルド検証: `npm run build`で正常にビルド完了を確認
+
+**コミット:**
+
+- `6a28f758`: Add Cloudflare Pages adapter implementation
+- `3ad5bd51`: Add @ts-nocheck directive and update .ignore for generated files
+
+**成果物:**
+
+- `adapter/cloudflare.js`: 189行のadapter実装
+- `functions/[[path]].ts`: Fetch API標準のonRequest handler（自動生成）
+- `functions/elm-pages-cli.mjs`: renderエンジン（自動コピー）
+- `dist/_routes.json`: Cloudflare Pagesルーティング設定（自動生成）
+
+### Phase 2: 未着手
+
+**残タスク:**
+
+- server-render routeの作成とテスト
+- 実際のCloudflare Pages環境でのリクエスト/レスポンス変換の動作確認
+- multiPartFormData処理の検証
+- エラーハンドリングの確認
+
+### Phase 3: 未着手
+
+**残タスク:**
+
+- wrangler.tomlとの統合確認
+- 環境変数アクセスのテスト
+- ビルドスクリプトの最適化
+
+### Phase 4: 未着手
+
+**残タスク:**
+
+- READMEまたは別ファイルへのドキュメント作成
+- デプロイ手順の記載
+- 制約事項の明記
