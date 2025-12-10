@@ -13,5 +13,6 @@
     "npm run build": true,
     "npm run test": true,
     "npm install": true
-  }
+  },
+  "github.copilot.chat.edits.confirmMode": "accept"
 }
