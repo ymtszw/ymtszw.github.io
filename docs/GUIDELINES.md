@@ -6,6 +6,7 @@
 
 - **ブランチの事前作成**: エージェントによる実装を開始する前に、人間の開発者（リポジトリオーナー）が実装用のブランチを作成し、チェックアウトしておくこと
 - **ブランチ命名**: ブランチ名は機能や目的を明確に示すこと（例: `feat/cloudflare_adapter`, `fix/bug-123`, `refactor/component-structure`）
+- **Auto Approve設定**: エージェントが頻繁に実行するコマンド（`git commit`, `git add`, `npm run build`など）のAuto Approve設定は、人間の開発者が`.vscode/settings.json`の`chat.tools.terminal.autoApprove`に追加すること。エージェントはこの設定を変更してはならない
 
 ## エージェントが守るべき事前チェック
 

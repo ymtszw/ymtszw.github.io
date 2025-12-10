@@ -6,5 +6,12 @@
     "default": true,
     "MD031": false, // blanks-around-fences: リストの描画に影響が出る実装が多い
     "MD041": false // first-line-heading: ユーザコンテンツの外にh1相当の見出しがある状況が割合多いので、ファイル内の見出しのレベルを強制するのは厳しい
+  },
+  "chat.tools.terminal.autoApprove": {
+    "git commit": true,
+    "git add": true,
+    "npm run build": true,
+    "npm run test": true,
+    "npm install": true
   }
 }
