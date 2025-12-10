@@ -30,12 +30,11 @@ export default async function run({
 }) {
   console.log("Running Cloudflare Pages adapter");
 
-  // Ensure functions and dist directories exist
+  // Ensure functions directory exists
   ensureDirSync("functions");
-  ensureDirSync("dist");
 
-  // Copy render function to dist directory (not functions/) to avoid bundling issues
-  fs.copyFileSync(renderFunctionFilePath, "./dist/elm-pages-cli.mjs");
+  // Copy render function to functions directory
+  fs.copyFileSync(renderFunctionFilePath, "./functions/elm-pages-cli.mjs");
 
   // Generate the catch-all handler for Cloudflare Pages Functions
   fs.writeFileSync("./functions/[[path]].ts", handlerCode());
@@ -114,7 +113,7 @@ function pathPatternToString(pathPattern) {
 
 function handlerCode() {
   return `// @ts-nocheck
-import * as elmPages from "../dist/elm-pages-cli.mjs";
+import * as elmPages from "./elm-pages-cli.mjs";
 
 /**
  * Cloudflare Pages Functions handler
