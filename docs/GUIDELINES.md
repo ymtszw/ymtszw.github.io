@@ -8,6 +8,11 @@
 - **ブランチ命名**: ブランチ名は機能や目的を明確に示すこと（例: `feat/cloudflare_adapter`, `fix/bug-123`, `refactor/component-structure`）
 - **Auto Approve設定**: エージェントが頻繁に実行するコマンド（`git commit`, `git add`, `npm run build`など）のAuto Approve設定は、人間の開発者が`.vscode/settings.json`の`chat.tools.terminal.autoApprove`に追加すること。エージェントはこの設定を変更してはならない
 
+### GitHub Copilot Chat特有の制限事項
+
+- **未コミットファイルの発生**: VS Code Copilot Chatでは、エージェントによるファイル編集後のKeep/Undo確認を無効化できない仕様のため、人間の開発者がKeep操作を行うタイミングによって未コミットファイルが発生することがある
+- **対応**: エージェントは作業中に定期的に`git status`で未コミットファイルの有無を確認し、発見次第適切にコミットすること
+
 ## エージェントが守るべき事前チェック
 
 **重要**: 実装作業を開始する前に、以下を必ず確認すること：
