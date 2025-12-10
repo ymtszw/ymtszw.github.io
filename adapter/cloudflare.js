@@ -71,19 +71,41 @@ function generateRoutesJson(routePatterns, apiRoutePatterns) {
 
   const allServerRoutes = [...serverRoutes, ...apiServerRoutes];
 
+  // Exclude static assets from Functions routing
+  const staticAssetPatterns = [
+    "/assets/*",
+    "/*.html",
+    "/*.js",
+    "/*.css",
+    "/*.json",
+    "/*.txt",
+    "/*.xml",
+    "/*.ico",
+    "/*.png",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.gif",
+    "/*.svg",
+    "/*.webp",
+    "/*.woff",
+    "/*.woff2",
+    "/*.ttf",
+    "/*.eot",
+  ];
+
   // If there are no server routes, we can skip _routes.json
   if (allServerRoutes.length === 0) {
     return {
       version: 1,
       include: ["/*"],
-      exclude: [],
+      exclude: staticAssetPatterns,
     };
   }
 
   return {
     version: 1,
     include: allServerRoutes,
-    exclude: [],
+    exclude: staticAssetPatterns,
   };
 }
 
