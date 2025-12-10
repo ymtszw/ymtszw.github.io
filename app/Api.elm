@@ -153,6 +153,10 @@ makeSitemapEntries getStaticRoutes =
                 Twilogs__YearMonth_ routeParam ->
                     Just <| routeSource routeParam.yearMonth
 
+                ServerTest ->
+                    -- Server-rendered routeなのでsitemapには含めない
+                    Nothing
+
                 Index ->
                     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
     in
