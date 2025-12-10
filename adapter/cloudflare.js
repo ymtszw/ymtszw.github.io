@@ -181,6 +181,7 @@ async function reqToJson(req) {
   }
   // Mark this request as coming from Cloudflare Pages Functions
   headers["x-elm-pages-cloudflare"] = "true";
+  console.log("[Cloudflare Adapter] Inserting x-elm-pages-cloudflare header");
 
   let body = null;
   let multiPartFormData = null;

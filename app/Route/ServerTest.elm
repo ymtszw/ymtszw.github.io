@@ -69,8 +69,8 @@ data _ request =
             , headers =
                 Server.Request.headers request
                     |> Dict.toList
-                    -- 最初の10個のヘッダーのみ表示
-                    |> List.take 10
+                    -- 最初の20個のヘッダーを表示
+                    |> List.take 20
             }
     in
     BackendTask.succeed (Server.Response.render requestData)
@@ -153,7 +153,7 @@ view app _ =
             , Html.dd [] [ Html.text app.data.method ]
             , Html.dt [] [ Html.text "Path:" ]
             , Html.dd [] [ Html.text app.data.path ]
-            , Html.dt [] [ Html.text "Headers (first 10):" ]
+            , Html.dt [] [ Html.text "Headers (first 20):" ]
             , Html.dd []
                 [ Html.ul []
                     (List.map
