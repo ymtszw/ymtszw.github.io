@@ -289,13 +289,45 @@ interface ElmPagesRenderResult {
 - Request/Response変換は正常に動作していることをビルドで確認
 - multiPartFormDataの処理は今回のテストでは未検証（将来的に必要に応じてテスト追加）
 
-### Phase 3: 未着手
+### Phase 3: 進行中（2025-12-11）
+
+**実装内容:**
+
+- ✅ wrangler.toml作成
+  - `compatibility_date`, `compatibility_flags` (nodejs_compat), `pages_build_output_dir`設定
+- ✅ npm scriptの追加: `npm run start:wrangler`
+- ✅ Runtime detection機能
+  - adapter: `x-elm-pages-cloudflare`ヘッダー注入
+  - ServerTest.elm: ヘッダー検出でランタイム環境表示
+- ✅ elm-pages devサーバーでのテスト: 警告表示が正常動作
+- ⚠️ wranglerローカル実行: globby/unicorn-magic import エラー発生中
+
+**既知の問題:**
+
+elm-pages-cli.mjsが開発時の依存関係（globby, unicorn-magic等）を含んでおり、wranglerのbundle時にエラーが発生：
+
+```text
+No matching export in "../node_modules/unicorn-magic/default.js" for import "toPath"
+```
+
+**原因:**
+
+- elm-pagesのrender engine（elm-pages-cli.mjs）はビルド時機能も含む
+- Cloudflare Functionsでは実行時に`render()`関数のみ必要
+- wranglerがFunctions bundleを作成する際、不要な依存関係も解決しようとする
+
+**対応方針:**
+
+1. 短期: 実際のCloudflare Pages環境でのテスト（本番デプロイではbundle方式が異なる可能性）
+2. 中期: elm-pages側に最小限のrender-only bundleを要望するか、adapter側で必要な関数のみ抽出
+3. 回避策: wranglerローカルテストをスキップし、実デプロイで検証
 
 **残タスク:**
 
-- wrangler.tomlとの統合確認
-- 環境変数アクセスのテスト
+- 実際のCloudflare Pages環境での動作確認
+- 環境変数アクセスのテスト（実環境で）
 - ビルドスクリプトの最適化
+- wranglerローカル実行問題の解決（Phase 4に延期可能）
 
 ### Phase 4: 未着手
 

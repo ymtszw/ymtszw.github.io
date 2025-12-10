@@ -5,4 +5,3 @@
 
 # 自動生成されるファイル（エディタやlinterで開かない）
 functions/\[\[path\]\].ts
-functions/elm-pages-cli.mjs
