@@ -89,7 +89,8 @@ function pathPatternToString(pathPattern) {
 }
 
 function handlerCode() {
-  return `import * as elmPages from "./elm-pages-cli.mjs";
+  return `// @ts-nocheck
+import * as elmPages from "./elm-pages-cli.mjs";
 
 /**
  * Cloudflare Pages Functions handler
