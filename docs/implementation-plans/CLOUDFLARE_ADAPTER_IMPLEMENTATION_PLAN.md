@@ -2,6 +2,57 @@
 
 作成日: 2025年12月10日
 
+## 0. ビルドと動作確認
+
+### 基本的なビルド確認
+
+実装の各段階で、全体としてのビルド成否を確認する必要がある場合は、常に以下のコマンドを使用すること：
+
+```bash
+npm run build
+```
+
+このコマンドは`elm-pages build`を実行し、サイト全体のデプロイ用ビルドを行う。adapter関数も含めて全ての実装が正しく動作することを確認できる。
+
+### テストの実行
+
+既存のテストコードの成否を確認する場合は、以下のコマンドを使用すること：
+
+```bash
+npm run test
+```
+
+実装変更により既存機能が破壊されていないことを確認するため、適宜このコマンドを実行する。
+
+### 依存関係の管理
+
+新たなdependencyを追加した場合（`package.json`や`elm.json`の更新など）は、以下のコマンドでインストールを実行すること：
+
+```bash
+npm install
+```
+
+インストール後、`postinstall`スクリプトが自動的に実行され、`elm-tooling install`と`elm-pages gen`が行われるため、npmとElmの両方の依存関係が適切にセットアップされる。
+
+### 開発サーバーでの動作確認
+
+開発サーバーを立ち上げ、ブラウザで操作しながら動作確認を行う場合は、以下のコマンドを使用すること：
+
+```bash
+npm start
+```
+
+このコマンドは`elm-pages dev --debug`を実行し、開発サーバーが起動する。
+**注意**: エージェントがこの手続きを行うにはブラウザを利用する権限が必要。ブラウザでの手動確認が必要な場合は、人間の開発者に依頼すること。
+
+### クリーンビルド
+
+各種キャッシュとビルド成果物を削除してクリーンな状態からビルドし直す場合：
+
+```bash
+npm run clean
+```
+
 ## 1. 現状分析
 
 現在のプロジェクトでは:
@@ -133,13 +184,13 @@ interface ElmPagesRenderResult {
 
 ## 5. Netlify adapterとの主な相違点
 
-| 項目 | Netlify | Cloudflare Pages |
-|------|---------|------------------|
-| エンドポイント形式 | AWS Lambda形式 | Fetch API標準 |
-| ルーティング | `_redirects`ファイル | `_routes.json` |
-| 環境変数アクセス | `process.env` | `context.env` |
-| ビルダー機能 | `@netlify/functions` | 標準のon-demand動作 |
-| ファイル配置 | `functions/render/`, `functions/server-render/` | `functions/[[path]].ts` (catch-all) |
+| 項目               | Netlify                                         | Cloudflare Pages                    |
+| ------------------ | ----------------------------------------------- | ----------------------------------- |
+| エンドポイント形式 | AWS Lambda形式                                  | Fetch API標準                       |
+| ルーティング       | `_redirects`ファイル                            | `_routes.json`                      |
+| 環境変数アクセス   | `process.env`                                   | `context.env`                       |
+| ビルダー機能       | `@netlify/functions`                            | 標準のon-demand動作                 |
+| ファイル配置       | `functions/render/`, `functions/server-render/` | `functions/[[path]].ts` (catch-all) |
 
 ## 6. 実装の優先順位
 
