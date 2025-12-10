@@ -128,11 +128,23 @@ view :
     -> Shared.Model
     -> View (PagesMsg Msg)
 view app _ =
+    let
+        isCloudflare =
+            app.data.headers
+                |> List.any (\( key, _ ) -> String.toLower key == "x-elm-pages-cloudflare")
+
+        runtimeInfo =
+            if isCloudflare then
+                "✅ Running on Cloudflare Pages Functions (or wrangler dev)"
+
+            else
+                "⚠️ Running on elm-pages dev server (adapter not active)"
+    in
     { title = "Server Render Test"
     , body =
         [ Html.h1 [] [ Html.text "🚀 Server-Render Test" ]
         , Html.p []
-            [ Html.text "このページはCloudflare Pages Functionsでサーバーサイドレンダリングされています。" ]
+            [ Html.text runtimeInfo ]
         , Html.h2 [] [ Html.text "Request Information" ]
         , Html.dl []
             [ Html.dt [] [ Html.text "Request Time:" ]
@@ -159,7 +171,11 @@ view app _ =
         , Html.ul []
             [ Html.li [ Attr.style "color" "green" ] [ Html.text "✅ Server-side rendering is working" ]
             , Html.li [ Attr.style "color" "green" ] [ Html.text "✅ Request object is accessible" ]
-            , Html.li [ Attr.style "color" "green" ] [ Html.text "✅ Cloudflare Pages Functions adapter is operational" ]
+            , if isCloudflare then
+                Html.li [ Attr.style "color" "green" ] [ Html.text "✅ Cloudflare Pages Functions adapter is operational" ]
+
+              else
+                Html.li [ Attr.style "color" "orange" ] [ Html.text "⚠️ elm-pages dev server (no adapter)" ]
             ]
         ]
     }

@@ -179,6 +179,8 @@ async function reqToJson(req) {
   for (const [key, value] of req.headers.entries()) {
     headers[key] = value;
   }
+  // Mark this request as coming from Cloudflare Pages Functions
+  headers["x-elm-pages-cloudflare"] = "true";
 
   let body = null;
   let multiPartFormData = null;
