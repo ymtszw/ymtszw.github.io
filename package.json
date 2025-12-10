@@ -8,6 +8,7 @@
     "import_twilogs": "elm-pages run script/ImportTwilogCsvAndBuildSearchIndex",
     "postinstall": "elm-tooling install && elm-pages gen",
     "start": "elm-pages dev --debug",
+    "start:wrangler": "wrangler pages dev dist",
     "test": "elm-pages run script/GenerateTwilogDataCodecTestFixtures && elm-test-rs"
   },
   "overrides": {
