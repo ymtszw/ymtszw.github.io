@@ -1,5 +1,6 @@
 {
   "name": "ymtszw",
+  "type": "module",
   "scripts": {
     "build": "SECONDS=0; elm-pages build && echo \"Build took ${SECONDS}s.\"",
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
