@@ -69,7 +69,9 @@ data _ request =
             , headers =
                 Server.Request.headers request
                     |> Dict.toList
-                    |> List.take 10 -- 最初の10個のヘッダーのみ表示
+                    |> List.take 10
+
+            -- 最初の10個のヘッダーのみ表示
             }
     in
     BackendTask.succeed (Server.Response.render requestData)
