@@ -12,6 +12,7 @@
     "git add": true,
     "npm run build": true,
     "npm run test": true,
-    "npm install": true
+    "npm install": true,
+    "npx elm-format": true
   }
 }
