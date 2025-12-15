@@ -31,7 +31,7 @@ jobs:
         with:
           ref: master # Explicitly checkout master, since the ref may be updated within the caller workflows
           submodules: recursive
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           key: v5-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
           restore-keys: |
