@@ -36,6 +36,8 @@ npm install
 
 ### 開発サーバーでの動作確認
 
+#### elm-pages開発サーバー（adapter非経由）
+
 開発サーバーを立ち上げ、ブラウザで操作しながら動作確認を行う場合は、以下のコマンドを使用すること：
 
 ```bash
@@ -44,18 +46,27 @@ npm start
 
 このコマンドは`elm-pages dev --debug`を実行し、開発サーバーが起動する。
 
-**重要な制限事項**:
+**制限事項**:
 
 - 開発サーバーはプラットフォーム固有のadapter実装を経由せず、elm-pages自体が持つSSR機能を使用する
 - BackendTaskの実行や各route moduleの処理は動作するが、adapter関数で生成されるコードは実行されない
 - **adapter実装の動作確認には不十分**であることに注意
 
-**adapter実装の確認方法**:
+#### Cloudflare Pages環境でのローカル動作確認（adapter経由）
 
-1. `npm run build`でデプロイ用ビルドを実行
+adapter実装の動作確認を行う場合は、以下の手順を実行すること：
+
+1. `npm run build`でデプロイ用ビルドを実行（adapter関数が実行され、`functions/`配下にハンドラが生成される）
 2. `dist/`ディレクトリおよび`functions/`ディレクトリに生成されたファイルの内容を確認
-3. 最終的にはブランチのプレビューデプロイを行い、実際のCloudflare Pages環境で動作確認
-4. プレビューデプロイの実行には人間の開発者の介在が必要
+3. ローカルでCloudflare Pages環境をシミュレート：
+
+```bash
+npm run start:wrangler
+```
+
+このコマンドは`wrangler pages dev dist`を実行し、http://localhost:8788でCloudflare Pages Functions環境がローカルで動作する。静的アセットの配信とserver-render routeの動作を確認可能。
+
+4. 最終的にはブランチのプレビューデプロイを行い、実際のCloudflare Pages環境で動作確認（人間の開発者が実施）
 
 ### クリーンビルド
 
