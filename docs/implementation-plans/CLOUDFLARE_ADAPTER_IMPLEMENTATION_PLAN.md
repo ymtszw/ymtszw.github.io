@@ -64,9 +64,9 @@ adapter実装の動作確認を行う場合は、以下の手順を実行する�
 npm run start:wrangler
 ```
 
-このコマンドは`wrangler pages dev dist`を実行し、http://localhost:8788でCloudflare Pages Functions環境がローカルで動作する。静的アセットの配信とserver-render routeの動作を確認可能。
+このコマンドは`wrangler pages dev dist`を実行し、<http://localhost:8788>でCloudflare Pages Functions環境がローカルで動作する。静的アセットの配信とserver-render routeの動作を確認可能。
 
-4. 最終的にはブランチのプレビューデプロイを行い、実際のCloudflare Pages環境で動作確認（人間の開発者が実施）
+1. 最終的にはブランチのプレビューデプロイを行い、実際のCloudflare Pages環境で動作確認（人間の開発者が実施）
 
 ### クリーンビルド
 
