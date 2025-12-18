@@ -83,15 +83,21 @@ jobs:
         with:
           script: |
             const deployOutput = process.env.DEPLOY_OUTPUT || '';
-            // wranglerの出力からURLを抽出（例: "✨ Deployment complete! Take a peek over at https://..."）
+            const branchName = context.payload.pull_request.head.ref;
+            const sanitizedBranchName = branchName.replace(/\//g, '-');
+            
+            // wranglerの出力からcommit単位のURLを抽出（例: "✨ Deployment complete! Take a peek over at https://..."）
             const urlMatch = deployOutput.match(/https:\/\/[^\s]+/);
-            const previewUrl = urlMatch ? urlMatch[0] : `https://${context.payload.pull_request.head.ref.replace(/\//g, '-')}.ymtszw-github-io.pages.dev/`;
-
+            const commitUrl = urlMatch ? urlMatch[0] : `https://${sanitizedBranchName}.ymtszw-github-io.pages.dev/`;
+            
+            // branch単位のURL（Cloudflare Pagesの規則に基づく）
+            const branchUrl = `https://${sanitizedBranchName}.ymtszw-github-io.pages.dev/`;
+            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚀 Preview deployment ready!\n\n**Preview URL:** ${previewUrl}\n\n**Branch:** \`${context.payload.pull_request.head.ref}\``
+              body: `🚀 Preview deployment ready!\n\n**Branch URL:** ${branchUrl}\n**Commit URL:** ${commitUrl}\n\n**Branch:** \`${branchName}\``
             });
       - uses: actions/upload-pages-artifact@v4 # すでにCloudflare Pagesのymtszw.ccをcanonicalにしてあるが、古いリンクのためにGitHub Pages deployを残している
         if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
