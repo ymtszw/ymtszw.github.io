@@ -492,6 +492,92 @@ PRコメント投稿内容:
   - [ ] ビルド時間の確認
   - [ ] 既存機能への影響確認
 
+### Phase 4.1: CI E2E (wrangler pages dev on runner)
+
+目的: CI 上で `wrangler pages dev` を実行し、ローカル的に Cloudflare Pages Functions 環境を立ち上げて最小限の E2E smoke テストを実行する。実際の Cloudflare Preview を使わずに、CI ランナー上で SSR / `_routes.json` の動作確認を自動化する。
+
+メリット:
+
+- 外部デプロイを待たずに高速に検証できる。
+- Cloudflare アカウント / API トークンを使わずにローカル互換の動作確認が可能（権限やレート制限の懸念が少ない）。
+
+注意点:
+
+- `wrangler pages dev` は CI 環境での互換性に差が出る場合がある（特にバンドル/ネットワーク周り）。安定化のためにラッパースクリプトでリトライやタイムアウト管理を行うこと。
+- 長時間のプロセスを立ち上げるため、Actions ジョブのタイムアウトやランナーのリソースを考慮する。
+
+必要な前提:
+
+- `wrangler` CLI がインストールされていること（`npm ci` や `npm install` でインストールされることを想定）。
+- `dist/` が `npm run build` によって生成されること。
+
+最小テストケース:
+
+- `npm run build` が成功すること
+- `dist/_routes.json` が存在し、server-render route が含まれていることを確認する
+- `wrangler pages dev dist --port 8788` をバックグラウンドで起動する
+- `curl -I http://localhost:8788/server-test` が 200 を返すこと
+- `curl http://localhost:8788/server-test` のボディにランタイム検出文字列（例: "Running on Cloudflare Pages"）が含まれること
+- レスポンスヘッダーに `x-elm-pages-cloudflare: true` が含まれること
+
+ワークフロー例 (GitHub Actions):
+
+```yaml
+name: E2E — wrangler pages dev smoke
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e-wrangler-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Check _routes.json
+        run: test -f dist/_routes.json && cat dist/_routes.json
+      - name: Start wrangler pages dev
+        run: |
+          npx wrangler pages dev dist --port 8788 &
+          # background process PID
+          echo $! > /tmp/wrangler.pid
+          # wait for server up
+          for i in 1 2 3 4 5; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8788/ || true)
+            if [ "$status" = "200" ]; then
+              break
+            fi
+            sleep 2
+          done
+      - name: Smoke test server-render route
+        run: |
+          set -e
+          curl -s -I http://localhost:8788/server-test | grep -i '200' || (echo "server-test not 200" && exit 1)
+          curl -s http://localhost:8788/server-test | grep -q "Running on Cloudflare Pages" || (echo "SSR body check failed" && exit 1)
+          curl -s -I http://localhost:8788/server-test | grep -i 'x-elm-pages-cloudflare: true' || (echo "Header missing" && exit 1)
+      - name: Stop wrangler
+        if: always()
+        run: |
+          if [ -f /tmp/wrangler.pid ]; then
+            kill $(cat /tmp/wrangler.pid) || true
+          fi
+```
+
+運用上のヒント:
+
+- `npx wrangler pages dev` の標準出力/標準エラーをアクションログに残すとデバッグが楽になる（ただしログ量に注意）。
+- CI 環境で flaky になった場合は、`pages dev` の代わりに `node` で簡易なハンドラを立てて integration test を行うフェイルバックも検討する。
+
+このワークフローを `Phase 4` の手順に組み込み、CI で定期的に実行することで adapter の回帰検出を早められます。
+
 **次のステップ:**
 
 1. ドキュメント整備の実施
