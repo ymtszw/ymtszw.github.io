@@ -86,7 +86,7 @@ jobs:
             // wranglerの出力からURLを抽出（例: "✨ Deployment complete! Take a peek over at https://..."）
             const urlMatch = deployOutput.match(/https:\/\/[^\s]+/);
             const previewUrl = urlMatch ? urlMatch[0] : `https://${context.payload.pull_request.head.ref.replace(/\//g, '-')}.ymtszw-github-io.pages.dev/`;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
