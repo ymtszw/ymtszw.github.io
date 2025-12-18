@@ -30,20 +30,30 @@ export default async function run({
 }) {
   console.log("Running Cloudflare Pages adapter");
 
+  // Array to record paths of files created or copied
+  const generatedFiles = [];
+
   // Ensure functions directory exists
   ensureDirSync("functions");
 
   // Copy render function to functions directory
   fs.copyFileSync(renderFunctionFilePath, "./functions/elm-pages-cli.mjs");
+  generatedFiles.push("functions/elm-pages-cli.mjs");
 
   // Generate the catch-all handler for Cloudflare Pages Functions
   fs.writeFileSync("./functions/[[path]].ts", handlerCode());
+  generatedFiles.push("functions/[[path]].ts");
 
   // Generate _routes.json for Cloudflare Pages routing
   const routesJson = generateRoutesJson(routePatterns, apiRoutePatterns);
   fs.writeFileSync("./dist/_routes.json", JSON.stringify(routesJson, null, 2));
+  generatedFiles.push("dist/_routes.json");
 
   console.log("Cloudflare Pages adapter complete");
+  console.log(
+    "[Cloudflare Adapter] Generated files:\n" +
+      generatedFiles.map((f) => `  - ${f}`).join("\n")
+  );
 }
 
 function ensureDirSync(dirpath) {
