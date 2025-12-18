@@ -164,6 +164,8 @@ export async function onRequest(context) {
       }
     }
     responseHeaders.set("x-powered-by", "elm-pages");
+    // Mark responses so clients and CI can detect adapter runtime
+    responseHeaders.set("x-elm-pages-cloudflare", "true");
 
     if (renderResult.kind === "bytes") {
       responseHeaders.set("Content-Type", "application/octet-stream");
@@ -196,6 +198,7 @@ export async function onRequest(context) {
         headers: {
           "Content-Type": "text/html",
           "x-powered-by": "elm-pages",
+          "x-elm-pages-cloudflare": "true",
         },
       }
     );
