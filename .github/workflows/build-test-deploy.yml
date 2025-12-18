@@ -61,7 +61,6 @@ jobs:
       - name: Deploy to Cloudflare Pages
         id: cloudflare-deploy
         uses: cloudflare/wrangler-action@v3
-        if: ${{ (contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name) && github.ref == 'refs/heads/master') || github.event_name == 'pull_request' }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
