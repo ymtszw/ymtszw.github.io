@@ -1,11 +1,13 @@
 ---
-title: "elm-pages v3: Cloudflare Pages Functions Adapter実装記録"
+title: "elm-pagesでSSR: Cloudflare Pages対応"
 description: |
   elm-pages v3でCloudflare Pages Functions対応のadapterを実装した記録。
   静的サイトからserver-side renderingへの拡張、実装の詳細、CI/CD統合、トラブルシューティングまで。
-publishedAt: "2025-12-19T00:00:00+09:00"
-draft: true
 ---
+
+> **Note**: この記事は、実装作業を行った[GitHub Copilot](https://github.com/features/copilot)のコーディングエージェントが自動生成したものです。
+> 実装計画書や作業ログを元に、技術的な詳細を包括的にまとめています。
+> このサイトの他の記事とは口調や文体が異なる場合がありますが、実装の正確な記録を優先しています。
 
 このサイト（ymtszw.cc）は[elm-pages]を使って作られています。
 
@@ -23,9 +25,12 @@ elm-pages v3では、異なるホスティングプラットフォーム向け�
 
 公式で提供されているadapterは：
 
-- **Netlify adapter**: Netlify FunctionsとNetlify Edge Functions対応
-- **Vercel adapter**: Vercel Serverless Functions対応（コミュニティ実装）
-- **Empty adapter**: 静的サイト生成のみ（SSR機能なし）
+- **[Netlify adapter](https://github.com/dillonkearns/elm-pages/blob/master/adapter/netlify.js)**: Netlify FunctionsとNetlify Edge Functions対応
+
+公式adapter以外にも、コミュニティでは[Express](https://github.com/shahnhogan/elm-pages-starter-express)、[Fastify](https://github.com/shahnhogan/elm-pages-starter-fastify)、[AWS Lambda](https://gist.github.com/adamdicarlo0/221e839050a3e8cef51f1849e7af71a9)など、様々なプラットフォーム向けのadapterが開発されています（[Discussion #378](https://github.com/dillonkearns/elm-pages/discussions/378)参照）。
+静的サイト生成のみの場合は、adapter関数で何もしない[Empty adapter](https://github.com/ymtszw/ymtszw.github.io/blob/396fea5118c02289457b50af171b748fd51eb331/elm-pages.config.mjs#L19-L26)を使うこともできます（このサイトでも以前使用）。
+
+しかし、Cloudflare Pages Functions向けの実装は、議論スレッドで関心は示されていたものの、具体的な実装は存在しませんでした。
 
 ### なぜCloudflare Pages adapter？
 
@@ -37,15 +42,6 @@ elm-pages v3では、異なるホスティングプラットフォーム向け�
 - Cloudflare Workersとの統合
 
 しかし、公式のCloudflare Pages adapter は提供されていなかったため、自分で実装することにしました。
-
-### SSR機能の必要性
-
-当初、このサイトは完全な静的サイトでした。しかし、以下のような用途でSSRが欲しくなりました：
-
-- リクエストヘッダーを使った動的なコンテンツ生成
-- APIエンドポイントの実装
-- プレビュー機能の実装
-- 将来的な動的機能の拡張
 
 ## Cloudflare Pages Functionsの特徴
 
@@ -154,50 +150,41 @@ export async function onRequest(context) {
 - **include**: Functions経由でレンダリングするパス
 - **exclude**: 静的配信するパス（Functionsを経由しない）
 
-### リクエスト/レスポンス変換
+### elm-pages renderエンジンの役割
 
-#### リクエスト変換（Fetch API → elm-pages形式）
+`elm-pages-cli.mjs`はelm-pagesが提供するrenderエンジンで、以下の役割を果たします（[adapter APIドキュメント](https://github.com/dillonkearns/elm-pages/blob/master/examples/docs/content/docs/15-adapters.md)および[Discussion #378](https://github.com/dillonkearns/elm-pages/discussions/378)の実装例より）：
 
-```typescript
-async function reqToJson(req) {
-  const headers = {};
-  for (const [key, value] of req.headers.entries()) {
-    headers[key] = value;
-  }
+**入力**: プラットフォーム固有のリクエスト形式を、以下のJSON構造に変換したもの
 
-  let body = null;
-  let multiPartFormData = null;
-
-  if (req.method !== "GET" && req.method !== "HEAD") {
-    const contentType = req.headers.get("content-type") || "";
-    if (contentType.includes("multipart/form-data")) {
-      const formData = await req.formData();
-      multiPartFormData = Object.fromEntries(formData.entries());
-    } else {
-      body = await req.text();
-    }
-  }
-
-  return {
-    requestTime: Math.round(new Date().getTime()),
-    method: req.method,
-    headers,
-    rawUrl: req.url,
-    body,
-    multiPartFormData,
-  };
+```javascript
+{
+  requestTime: number,      // リクエスト受信時刻（ミリ秒）
+  method: string,           // HTTPメソッド（GET, POST等）
+  headers: Object,          // リクエストヘッダー
+  rawUrl: string,           // 完全なURL
+  body: string | null,      // リクエストボディ
+  multiPartFormData: Object // マルチパートフォームデータ
 }
 ```
 
-#### レスポンス変換（elm-pages形式 → Fetch API Response）
+**出力**: elm-pagesがElmコードを実行した結果を、以下の形式で返す
 
-elm-pagesのrenderエンジンは3種類の出力形式を返します：
+```javascript
+{
+  kind: 'html' | 'api-response' | 'bytes',  // レスポンスの種類
+  body: string | Uint8Array,                // レスポンスボディ
+  headers: Object,                          // レスポンスヘッダー
+  statusCode: number,                       // HTTPステータスコード
+  isBase64Encoded: boolean                  // Base64エンコード済みか
+}
+```
 
-1. **html**: 通常のHTMLレスポンス
-2. **api-response**: APIエンドポイントのレスポンス
-3. **bytes**: バイナリデータ
+このrenderエンジンは、`RouteBuilder.serverRender`で定義されたElmのserver-render routeに対して以下を実行します：
 
-それぞれを適切なFetch API Responseに変換します。
+1. **BackendTaskの実行**: データ取得やファイル読み込みなどの処理を実行
+2. **初期renderingの実行**: Elmコードを評価してHTMLや APIレスポンスを生成
+
+adapter側はこの標準化されたインターフェースを介して、プラットフォーム固有のリクエスト/レスポンス形式との変換のみを担当します。
 
 ## 実装の詳細
 
@@ -207,7 +194,7 @@ elm-pagesのrenderエンジンは3種類の出力形式を返します：
 
 **実装したファイル:**
 
-- `adapter/cloudflare.js`: adapter本体（189行）
+- `adapter/cloudflare-pages.js`: adapter本体（189行）
 - 自動生成ファイルの.gitignore設定
 
 **ポイント:**
@@ -217,56 +204,42 @@ elm-pagesのrenderエンジンは3種類の出力形式を返します：
 
 ### Phase 2: Server-render routeのテスト
 
-実際にSSRが動作するかテストするため、`/server-test`ページを作成しました。
+実際にSSRが動作するかテストするため、[`/server-test`](/server-test)ページを作成しました。
 
 ```elm
-route : RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg
+route : StatelessRoute RouteParams Data ActionData
 route =
     RouteBuilder.serverRender
-        { data = data
-        , action = \_ -> Request.skip
-        , head = \_ -> head
+        { head = head
+        , data = data
+        , action = \_ _ -> BackendTask.fail (FatalError.fromString "No action defined")
         }
-        |> RouteBuilder.buildWithLocalState
-            { view = view
-            , init = \_ _ _ -> ( {}, Effect.none )
-            , update = \_ _ _ _ _ -> ( {}, Effect.none )
-            , subscriptions = \_ _ _ _ -> Sub.none
-            }
+        |> RouteBuilder.buildNoState { view = view }
 
-data : RouteParams -> Request.Parser (BackendTask FatalError (Response Data ErrorPage))
-data _ =
-    Request.requestTime
-        |> Request.andThen
-            (\requestTime ->
-                Request.map2
-                    (\method path ->
-                        { requestTime = requestTime
-                        , method = method
-                        , path = path
-                        }
-                    )
-                    Request.method
-                    (Request.queryParam "path" |> Request.map (Maybe.withDefault "/"))
-            )
-        |> Request.map
-            (\requestData ->
-                BackendTask.succeed
-                    (Response.render
-                        { requestTime = requestData.requestTime
-                        , method = requestData.method
-                        , path = requestData.path
-                        }
-                    )
-            )
+data : RouteParams -> Request -> BackendTask FatalError (Server.Response.Response Data ErrorPage.ErrorPage)
+data _ request =
+    let
+        allHeaders =
+            Server.Request.headers request
+                |> Dict.toList
+
+        requestData =
+            { requestTime = Server.Request.requestTime request
+            , method = Server.Request.method request |> methodToString
+            , path = Server.Request.rawUrl request
+            , headers = allHeaders
+            }
+    in
+    BackendTask.succeed (Server.Response.render requestData)
 ```
 
 このページでは、リクエストの以下の情報を表示します：
 
-- リクエスト時刻
-- HTTPメソッド
-- パス
-- ヘッダー一覧
+- リクエスト時刻（POSIXミリ秒）
+- HTTPメソッド（GET, POST等）
+- リクエストパス（rawUrl）
+- 全HTTPヘッダー
+- Cloudflare Pages Functions検出（`x-elm-pages-cloudflare`ヘッダーの有無）
 
 ### Phase 3: ローカル開発環境の整備
 
@@ -308,58 +281,114 @@ headers["x-elm-pages-cloudflare"] = "true";
 responseHeaders.set("x-elm-pages-cloudflare", "true");
 ```
 
-Elmコード側で検出：
+Elmコード側で検出（[`app/Route/ServerTest.elm`](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/app/Route/ServerTest.elm#L127-L148)）：
 
 ```elm
-Request.headers
-    |> Request.map
-        (\headers ->
-            headers
-                |> Dict.get "x-elm-pages-cloudflare"
-                |> Maybe.map (\_ -> "✅ Running on Cloudflare Pages Functions")
-                |> Maybe.withDefault "⚠️ Running on elm-pages dev server"
-        )
+view :
+    App Data ActionData RouteParams
+    -> Shared.Model
+    -> View (PagesMsg Msg)
+view app _ =
+    let
+        cloudflareHeader =
+            app.data.headers
+                |> List.filter (\( key, _ ) -> String.toLower key == "x-elm-pages-cloudflare")
+                |> List.head
+
+        isCloudflare =
+            cloudflareHeader /= Nothing
+
+        runtimeInfo =
+            if isCloudflare then
+                "✅ Running on Cloudflare Pages Functions (or wrangler dev)"
+            else
+                "⚠️ Running on elm-pages dev server (adapter not active)"
+    in
+    -- ... view body
 ```
 
-#### トラブルシューティング（開発時）
+#### 開発時の技術的課題と解決策
 
 ##### 1. globby v14のimport問題
 
-wranglerでバンドル時に`unicorn-magic`パッケージのimportエラーが発生。
-→ globby v16にアップグレードして解決
+**問題**: wranglerでバンドル時に`unicorn-magic`パッケージのimportエラーが発生（[sindresorhus/globby#260](https://github.com/sindresorhus/globby/issues/260)）
+
+**解決**: [globby v16にアップグレード](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/package.json#L40)
+
+```json
+"dependencies": {
+  "globby": "^16.0"
+}
+```
 
 ##### 2. Node.js互換モジュールの警告
 
-path, fsなどのNode.js組み込みモジュール使用時の警告。
-→ `compatibility_flags = ["nodejs_compat"]`で解決
+**問題**: `path`, `fs`などのNode.js組み込みモジュール使用時の警告
+
+**解決**: [wrangler.toml](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/wrangler.toml#L3)で`nodejs_compat`フラグを有効化
+
+```toml
+compatibility_flags = ["nodejs_compat"]
+```
 
 ##### 3. MODULE_TYPELESS_PACKAGE_JSON警告
 
-→ package.jsonに`"type": "module"`を追加して解決
+**問題**: wranglerでのバンドル時に、`.js`ファイルがES Modules（`import`/`export`構文）として認識されず警告が発生
 
-##### 4. 静的アセットのfs.readdir エラー
+**意味**: `"type": "module"`を指定すると、Node.jsが`.js`ファイルをES Modules形式として扱う。指定しない場合はCommonJS（`require`/`module.exports`）がデフォルト
 
-Cloudflare Workers環境で`fs.readdir`が使えない。
-→ `_routes.json`の`exclude`パターンを事前定義して回避
+**このプロジェクトで採用可能な理由**:
+
+- adapter実装（`adapter/cloudflare-pages.js`）や設定ファイル（`elm-pages.config.mjs`）で既にES Modules構文を使用
+- 依存パッケージ（globby v16等）もES Modulesをサポート
+- Cloudflare Workers/Pages Functions環境はES Modulesネイティブ対応
+
+**解決**: [package.json](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/package.json#L2)に`"type": "module"`を追加
+
+```json
+{
+  "type": "module"
+}
+```
+
+##### 4. 静的アセットの除外
+
+**問題**: `_routes.json`で静的アセットを除外しないと、静的ファイルへのリクエストにもFunctionsが実行されてしまい、不要なコストとレイテンシが発生する。動的なファイルスキャン（`fs.readdir`）はCloudflare Workers環境で使えないため、実行時に判定できない
+
+**解決**: [adapter内](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/adapter/cloudflare-pages.js#L92-L108)で静的アセットパターンを事前定義し、`_routes.json`の`exclude`に追加
+
+```javascript
+const staticAssetPatterns = [
+  "/assets/*",
+  "/*.html",
+  "/*.js",
+  "/*.css",
+  "/*.json",
+  // ... 17パターン
+];
+```
 
 ### Phase 3.5: 実環境デプロイとCI/CD統合
 
 #### GitHub Actionsワークフロー
 
-`.github/workflows/build-test-deploy.yml`を更新し、以下を実現：
+Pull Request時の自動プレビューデプロイと、masterブランチマージ時の本番デプロイを実現。
 
-1. **PRプレビューデプロイ**: Pull Request作成時に自動デプロイ
-2. **本番デプロイ**: masterブランチマージ時に本番環境へデプロイ
-3. **プレビューURLコメント**: PRにデプロイURLを自動コメント
+**主要な実装**:
+
+1. **PRプレビューデプロイ**: `cloudflare/wrangler-action@v3`を使用
+2. **プレビューURLの自動コメント**: Branch URLとCommit URLの両方を投稿
+3. **本番デプロイ**: masterマージ時に`--branch=main`で本番環境へデプロイ
 
 ```yaml
 - name: Deploy to Cloudflare Pages (Preview)
   if: github.event_name == 'pull_request'
+  id: deploy-preview
   uses: cloudflare/wrangler-action@v3
   with:
     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    command: pages deploy dist --project-name=ymtszw-github-io
+    command: pages deploy dist --project-name=ymtszw-github-io --branch=${{ github.head_ref }}
 
 - name: Comment preview URL on PR
   if: github.event_name == 'pull_request'
@@ -368,7 +397,7 @@ Cloudflare Workers環境で`fs.readdir`が使えない。
     script: |
       const branchUrl = "${{ steps.deploy-preview.outputs.pages-deployment-alias-url }}";
       const commitUrl = "${{ steps.deploy-preview.outputs.deployment-url }}";
-      github.rest.issues.createComment({
+      await github.rest.issues.createComment({
         issue_number: context.issue.number,
         owner: context.repo.owner,
         repo: context.repo.repo,
@@ -376,112 +405,72 @@ Cloudflare Workers環境で`fs.readdir`が使えない。
       });
 ```
 
+**必要な権限**:
+
+```yaml
+permissions:
+  contents: read
+  pull-requests: write  # PRコメント投稿に必要
+```
+
 #### 実環境での動作確認
 
-プレビュー環境（`https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev`）で確認した項目：
+プレビュー環境で確認した項目：
 
-- ✅ トップページ（/）: 静的配信が正常動作
-- ✅ About（/about）: 静的配信が正常動作
-- ✅ ServerTest（/server-test）: SSR動作確認
-  - Runtime detection成功（`x-elm-pages-cloudflare`ヘッダー検出）
-  - Cloudflare固有ヘッダーの確認（cf-ray, cf-visitor, cf-connecting-ip等）
+- ✅ 静的ページ（/, /about, /articles等）: 正常配信
+- ✅ [SSRページ](/server-test): Runtime detection成功
+- ✅ Cloudflare固有ヘッダー（cf-ray, cf-visitor, cf-connecting-ip, cf-ipcountry等）の確認
+- ✅ 静的アセット（CSS, JS, 画像）の直接配信（Functions非経由）
 
 ### Phase 4: E2E自動テスト
 
-CI環境でadapterの動作を自動検証するため、wrangler pages devを使ったE2Eテストを追加。
+CI環境でadapterの動作を自動検証するため、実デプロイ環境でのsmoke testを実装。
 
-#### ワークフローの作成
+#### テストの仕組み
 
-`.github/workflows/e2e-wrangler-dev.yml`:
+プレビューデプロイ完了後、以下をチェック：
 
-```yaml
-name: E2E - wrangler pages dev smoke
-
-on:
-  pull_request:
-
-jobs:
-  e2e-wrangler-dev:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build site
-        run: npm run build
-        env:
-          MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
-          AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
-
-      - name: Run smoke test
-        run: bash tests/e2e/wrangler-smoke.sh
-        timeout-minutes: 5
-```
+1. 静的ページのHTTP 200レスポンス
+2. SSRページのHTTP 200レスポンスと内容確認
+3. Runtime detectionヘッダー（`x-elm-pages-cloudflare: true`）の存在
+4. 静的アセット（robots.txt）の配信
 
 #### Smoke testスクリプト
 
-`tests/e2e/wrangler-smoke.sh`:
+実装では、デプロイ完了後の実環境URLに対してテストを実行：
 
 ```bash
 #!/usr/bin/env bash
-set -euo pipefail
+DEPLOY_URL="$1"
 
-echo "Starting wrangler pages dev in background..."
-npx wrangler pages dev dist --port 8788 > wrangler.log 2>&1 &
-WRANGLER_PID=$!
-
-# Wait for wrangler to be ready
-for i in {1..30}; do
-  if curl -s http://localhost:8788/server-test > /dev/null 2>&1; then
-    echo "wrangler is ready"
-    break
-  fi
-  sleep 1
-done
-
-# Test 1: HTTP 200
-if ! curl -f -s http://localhost:8788/server-test > /dev/null; then
-  echo "ERROR: /server-test returned non-200"
-  kill $WRANGLER_PID
+# Test 1: 静的ページ
+HTTP=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/" || true)
+if [ "$HTTP" != "200" ]; then
+  echo "✗ Index page returned $HTTP"
   exit 1
 fi
 
-# Test 2: SSR body content
-BODY=$(curl -s http://localhost:8788/server-test)
-if ! echo "$BODY" | grep -q "Running on Cloudflare Pages"; then
-  echo "ERROR: Expected SSR content not found"
-  kill $WRANGLER_PID
-  exit 1
-fi
+# Test 2: SSRルート
+HTTP=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/server-test" || true)
+curl -s "$DEPLOY_URL/server-test" | grep -q "Running on Cloudflare Pages"
 
-# Test 3: Runtime detection header
-HEADER=$(curl -s -I http://localhost:8788/server-test | grep -i "x-elm-pages-cloudflare")
-if [ -z "$HEADER" ]; then
-  echo "ERROR: x-elm-pages-cloudflare header not found"
-  kill $WRANGLER_PID
-  exit 1
-fi
+# Test 3: Runtime detectionヘッダー
+curl -s -I "$DEPLOY_URL/server-test" | grep -i 'x-elm-pages-cloudflare: true'
 
-echo "All smoke tests passed!"
-kill $WRANGLER_PID
+# Test 4: 静的アセット
+HTTP=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/robots.txt" || true)
 ```
 
-#### adapter修正: レスポンスヘッダー注入
+**実行**:
 
-テスト用に、レスポンスヘッダーに`x-elm-pages-cloudflare: true`を注入：
+デプロイ後にワークフローから呼び出し：
 
-```javascript
-// functions/[[path]].tsで生成されるコード
-responseHeaders.set("x-elm-pages-cloudflare", "true");
+```yaml
+- name: Run smoke test on preview
+  run: bash tests/e2e/wrangler-smoke.sh ${{ steps.deploy-preview.outputs.pages-deployment-alias-url }}
 ```
 
-これにより、CI環境でruntime detectionが正常に動作することを検証できます。
+これにより、各PR/コミットで自動的にSSR機能とruntime detectionが検証されます。
 
 ## 使用方法
 
@@ -507,7 +496,7 @@ npm run build
 npm run start:wrangler
 ```
 
-<http://localhost:8788>でCloudflare Pages環境がローカルで動作します。
+`http://localhost:8788`でCloudflare Pages環境がローカルで動作します。
 
 ### デプロイ
 
@@ -595,68 +584,6 @@ const staticAssetPatterns = [
 Cloudflare Workersはコールドスタートが非常に速い（数ミリ秒）ため、
 AWS Lambdaのような大きな問題にはなりにくいです。
 
-## 運用時のトラブルシューティング
-
-### ビルドエラー
-
-**症状**: `npm run build`でエラー
-
-**確認事項**:
-
-1. `elm-tooling.json`で正しいバージョンのツールを指定しているか
-2. `elm.json`の依存関係が正しいか
-3. 環境変数が設定されているか（MICROCMS_API_KEY等）
-
-### wranglerでの実行エラー
-
-**症状**: `npm run start:wrangler`でエラー
-
-**確認事項**:
-
-1. `npm run build`が成功しているか
-2. `dist/`ディレクトリが存在するか
-3. `functions/[[path]].ts`と`functions/elm-pages-cli.mjs`が生成されているか
-
-### SSR routeが動作しない
-
-**症状**: `/server-test`にアクセスしても404
-
-**確認事項**:
-
-1. `dist/_routes.json`に該当パスが含まれているか
-2. `functions/[[path]].ts`が生成されているか
-3. wranglerのログを確認（`wrangler.log`）
-
-### Runtime detectionが動作しない
-
-**症状**: 常に"Running on elm-pages dev server"と表示
-
-**確認事項**:
-
-1. `npm run start:wrangler`を使っているか（`npm start`ではadapter非経由）
-2. `x-elm-pages-cloudflare`ヘッダーが注入されているか（ブラウザのDevToolsで確認）
-
-## 今後の展開
-
-### 機能拡張
-
-- [ ] Cloudflare KVとの統合
-- [ ] Cloudflare D1（SQLite）との統合
-- [ ] Cloudflare R2（オブジェクトストレージ）との統合
-- [ ] WebSocketsサポート
-
-### パフォーマンス最適化
-
-- [ ] ストリーミングレスポンス対応
-- [ ] キャッシュ戦略の最適化
-- [ ] CDNとの連携強化
-
-### 開発者体験向上
-
-- [ ] 型安全な環境変数アクセス
-- [ ] デバッグツールの充実
-- [ ] エラーメッセージの改善
-
 ## まとめ
 
 elm-pages v3のCloudflare Pages Functions adapterを実装することで、
@@ -686,3 +613,9 @@ elm-pages v3のCloudflare Pages Functions adapterを実装することで、
 - [adapter実装](https://github.com/ymtszw/ymtszw.github.io/blob/master/adapter/cloudflare.js)
 - [GitHub Actions workflow](https://github.com/ymtszw/ymtszw.github.io/blob/master/.github/workflows/build-test-deploy.yml)
 - [Cloudflare Pages Functions ドキュメント](https://developers.cloudflare.com/pages/functions/)
+
+---
+
+## 編集後記
+
+*（この欄は人間（サイト管理者）が記入します）*
