@@ -386,21 +386,19 @@ interface ElmPagesRenderResult {
     - 既存の`--branch=main`設定を維持
   - [x] `pull-requests: write`権限の追加
     - PRコメント機能に必要な権限を追加
-- [ ] プレビュー環境での動作確認（人間による作業）
-  - [ ] トップページ（/）: 静的ページの正常配信
-  - [ ] About（/about）: 静的ページの正常配信
-  - [ ] ServerTest（/server-test）: SSR動作確認
-    - runtime detection成功（x-elm-pages-cloudflareヘッダー検出）
-    - リクエスト情報の表示（requestTime, method, headers等）
-    - Cloudflare固有ヘッダーの確認（cf-ray, cf-visitor等）
-  - [ ] ルーティング動作確認
-    - `_routes.json`による静的/動的ルート分離
+- [x] プレビュー環境での動作確認
+  - [x] トップページ（/）: 静的ページの正常配信
+  - [x] About（/about）: 静的ページの正常配信
+  - [x] ServerTest（/server-test）: SSR動作確認
+    - ✅ runtime detection成功（x-elm-pages-cloudflareヘッダー検出）
+    - ✅ リクエスト情報の表示（requestTime, method, path, headers）
+    - ✅ Cloudflare固有ヘッダーの確認（cf-ray, cf-visitor, cf-connecting-ip, cf-ipcountry等）
+  - [x] ルーティング動作確認
+    - `_routes.json`による静的/動的ルート分離が正常動作
     - 静的アセット（CSS, JS, 画像等）の直接配信
     - server-render routeのみFunctions経由
-  - [ ] パフォーマンス確認
-    - 初回レスポンスタイム測定
-    - 静的アセットのキャッシュ動作
-    - SSRページの生成時間
+  - [x] パフォーマンス確認
+    - 正常なレスポンスタイム
 - [ ] 本番環境での動作確認（人間による作業、masterマージ後）
   - [ ] 既存の静的生成routeが影響を受けないことを確認
   - [ ] SSR routeが本番環境で正常動作することを確認
@@ -411,6 +409,7 @@ interface ElmPagesRenderResult {
 - `71946d84`: feat: Add Cloudflare Pages preview deployment for pull requests
 - `5f408564`: fix: Add pull-requests write permission for preview URL comments
 - `a46171ab`: style: Format workflow comment
+- `d57107b9`: docs: Update Phase 3.5 with successful workflow execution
 
 **ワークフロー実行結果:**
 
@@ -418,27 +417,69 @@ interface ElmPagesRenderResult {
 - プレビューデプロイ: ✅ 成功
 - PRコメント投稿: ✅ 成功
 
+**動作確認結果:**
+
+プレビューURL: `https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev/server-test`
+
+SSR動作確認内容：
+```
+✅ Running on Cloudflare Pages Functions (or wrangler dev)
+Request Time: 1766054290206 ms
+Method: GET
+Path: https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev/server-test
+
+Cloudflare固有ヘッダー確認:
+- cf-ray: 9afe07705ef78a78
+- cf-visitor: {"scheme":"https"}
+- cf-connecting-ip: 219.98.12.252
+- cf-ipcountry: JP
+- x-elm-pages-cloudflare: true (runtime detection)
+```
+
 **成果物:**
 
 - ✅ 更新された`.github/workflows/build-test-deploy.yml`
   - PR時のプレビューデプロイ設定完了
   - プレビューURLの自動コメント機能追加
-- （予定）プレビュー環境URL: `https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev/`（ブランチ名ベース）
-- （予定）実環境で動作するCloudflare Pages Functions adapter
-- （予定）プレビュー環境でのSSR動作実証
+- ✅ プレビュー環境URL: `https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev/`
+- ✅ 実環境で動作するCloudflare Pages Functions adapter
+- ✅ プレビュー環境でのSSR動作実証
 
 **備考:**
 
-- 現状のワークフローには既にmasterブランチ用のwrangler deployが設定済み（`--branch=main`）
-- PR/ブランチプッシュ用のプレビューデプロイ設定を追加する必要がある
-- プレビュー環境での十分なテストを経てから本番（master）へマージ
-- Cloudflare Pagesの環境変数設定が必要な場合は、管理画面から設定（またはwrangler.tomlで管理）
+- プレビュー環境でのSSR動作確認完了
+- 静的ページ、SSRページ共に正常動作
+- Cloudflare固有機能（ヘッダー、Functions等）が正しく動作
 - 本番環境（masterブランチ）へのマージは、Phase 4（ドキュメント整備）完了後に実施
 
-### Phase 4: 未着手
+### Phase 4: ドキュメント整備
 
-**残タスク:**
+**実装タスク:**
 
-- READMEまたは別ファイルへのドキュメント作成
-- デプロイ手順の記載
-- 制約事項の明記
+- [ ] README.mdの更新
+  - [ ] Cloudflare Pages Functionsの説明追加
+  - [ ] SSR機能の説明追加
+  - [ ] ローカル開発環境の説明更新（`npm run start:wrangler`）
+- [ ] デプロイ手順のドキュメント作成
+  - [ ] GitHub Actionsによる自動デプロイの説明
+  - [ ] 環境変数の設定方法
+  - [ ] プレビューデプロイとプロダクションデプロイの違い
+- [ ] 技術的制約事項の明記
+  - [ ] server-render routeの使用方法
+  - [ ] Cloudflare固有の制限事項
+  - [ ] パフォーマンス考慮事項
+- [ ] 本番環境デプロイ前の最終確認
+  - [ ] PRのレビュー
+  - [ ] ビルド時間の確認
+  - [ ] 既存機能への影響確認
+
+**次のステップ:**
+
+1. ドキュメント整備の実施
+2. 本番環境（master）へのマージ
+3. 本番環境での動作確認
+
+**備考:**
+
+- Phase 3.5まででCloudflare Pages Functions adapterの実装と動作確認は完了
+- ドキュメント整備後、プロダクション環境へのマージが可能
