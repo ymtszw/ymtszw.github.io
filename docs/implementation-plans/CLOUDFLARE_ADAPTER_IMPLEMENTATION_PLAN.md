@@ -367,7 +367,7 @@ interface ElmPagesRenderResult {
 - /server-test: SSR動作、runtime detection成功（"✅ Running on Cloudflare Pages Functions"表示）
 - 静的ページ（/, /about等）: 正常表示（Functions経由せず配信）
 
-### Phase 3.5: 実環境デプロイと動作確認（進行中）
+### Phase 3.5: 実環境デプロイと動作確認（完了 - 2025-12-18）
 
 **デプロイ方式:**
 
@@ -410,10 +410,14 @@ interface ElmPagesRenderResult {
 - `5f408564`: fix: Add pull-requests write permission for preview URL comments
 - `a46171ab`: style: Format workflow comment
 - `d57107b9`: docs: Update Phase 3.5 with successful workflow execution
+- `ff1e1822`: feat: Extract branch and commit URLs from wrangler output
+- `346fd05d`: refactor: Use wrangler-action dedicated outputs for deployment URLs
 
 **ワークフロー実行結果:**
 
-- Run ID: 20333961216 - ✅ 成功（すべてのステップ完了）
+- Run ID: 20333961216 - ✅ 成功（初回デプロイ確認）
+- Run ID: 20334269663 - ✅ 成功（Branch/Commit URL両方表示）
+- Run ID: 20334682394 - ✅ 成功（wrangler-action outputs使用版）
 - プレビューデプロイ: ✅ 成功
 - PRコメント投稿: ✅ 成功
 
@@ -436,11 +440,25 @@ Cloudflare固有ヘッダー確認:
 - x-elm-pages-cloudflare: true (runtime detection)
 ```
 
+PRコメント投稿内容:
+```text
+🚀 Preview deployment ready!
+
+**Branch URL:** https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev
+**Commit URL:** https://5786a1e0.ymtszw-github-io.pages.dev
+```
+
+**実装変遷:**
+
+1. 初回実装: 環境変数とregexでwrangler出力からURL抽出
+2. 最終版: wrangler-action@v3の専用outputs（`pages-deployment-alias-url`, `deployment-url`）を使用
+
 **成果物:**
 
 - ✅ 更新された`.github/workflows/build-test-deploy.yml`
   - PR時のプレビューデプロイ設定完了
-  - プレビューURLの自動コメント機能追加
+  - Branch URL（ブランチ単位）とCommit URL（コミット単位）の両方を自動コメント
+  - wrangler-actionの専用outputsを使用したクリーンな実装
 - ✅ プレビュー環境URL: `https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev/`
 - ✅ 実環境で動作するCloudflare Pages Functions adapter
 - ✅ プレビュー環境でのSSR動作実証
@@ -451,6 +469,7 @@ Cloudflare固有ヘッダー確認:
 - 静的ページ、SSRページ共に正常動作
 - Cloudflare固有機能（ヘッダー、Functions等）が正しく動作
 - 本番環境（masterブランチ）へのマージは、Phase 4（ドキュメント整備）完了後に実施
+- GitHub Actions workflowの`permissions`に`pull-requests: write`が必要
 
 ### Phase 4: ドキュメント整備
 
