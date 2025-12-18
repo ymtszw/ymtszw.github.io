@@ -77,10 +77,34 @@ jobs:
             // wrangler-actionの専用outputsを使用
             const branchUrl = `${{ steps.cloudflare-deploy.outputs.pages-deployment-alias-url }}`;
             const commitUrl = `${{ steps.cloudflare-deploy.outputs.deployment-url }}`;
+            const marker = '<!-- cloudflare-preview-deployment -->';
+            const body = `${marker}\n🚀 Preview deployment ready!\n\n**Branch URL:** ${branchUrl}\n**Commit URL:** ${commitUrl}`;
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            // 既存のコメントを検索
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚀 Preview deployment ready!\n\n**Branch URL:** ${branchUrl}\n**Commit URL:** ${commitUrl}`
+              issue_number: context.issue.number,
             });
+
+            const existingComment = comments.find(comment =>
+              comment.body?.includes(marker)
+            );
+
+            if (existingComment) {
+              // 既存コメントを更新
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body,
+              });
+            } else {
+              // 新規コメント作成
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
