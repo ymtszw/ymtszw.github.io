@@ -384,6 +384,8 @@ interface ElmPagesRenderResult {
     - `github.event_name == 'pull_request' && github.head_ref || 'master'`
   - [x] masterブランチマージ後の本番デプロイ設定確認
     - 既存の`--branch=main`設定を維持
+  - [x] `pull-requests: write`権限の追加
+    - PRコメント機能に必要な権限を追加
 - [ ] プレビュー環境での動作確認（人間による作業）
   - [ ] トップページ（/）: 静的ページの正常配信
   - [ ] About（/about）: 静的ページの正常配信
@@ -407,6 +409,14 @@ interface ElmPagesRenderResult {
 **コミット:**
 
 - `71946d84`: feat: Add Cloudflare Pages preview deployment for pull requests
+- `5f408564`: fix: Add pull-requests write permission for preview URL comments
+- `a46171ab`: style: Format workflow comment
+
+**ワークフロー実行結果:**
+
+- Run ID: 20333961216 - ✅ 成功（すべてのステップ完了）
+- プレビューデプロイ: ✅ 成功
+- PRコメント投稿: ✅ 成功
 
 **成果物:**
 
