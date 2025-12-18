@@ -341,6 +341,11 @@ view _ page shared sharedTagger pageView =
                                 , Html.text yearMonth
                                 ]
 
+                            Route.ServerTest ->
+                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                , Html.text "Server Test"
+                                ]
+
                             Route.Index ->
                                 [ Html.text "Index"
                                 ]

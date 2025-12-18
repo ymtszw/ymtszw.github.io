@@ -1,0 +1,5 @@
+name = "ymtszw-cc"
+compatibility_date = "2025-12-10"
+compatibility_flags = ["nodejs_compat"]
+
+pages_build_output_dir = "dist"

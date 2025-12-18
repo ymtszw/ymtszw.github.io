@@ -17,6 +17,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: write # Preview URLコメント機能に必要
 
 concurrency:
   group: gh-pages
@@ -29,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: master # Explicitly checkout master, since the ref may be updated within the caller workflows
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || 'master' }} # PR時はHEADブランチ、それ以外はmaster
           submodules: recursive
       - uses: actions/cache@v5
         with:
@@ -57,13 +58,29 @@ jobs:
           ALGOLIA_SEARCH_KEY: ${{ secrets.ALGOLIA_SEARCH_KEY }}
           AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
           LIBRARY_KEY_SEED_HASH: ${{ secrets.LIBRARY_KEY_SEED_HASH }}
-      - uses: cloudflare/wrangler-action@v3
-        if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
+      - name: Deploy to Cloudflare Pages
+        id: cloudflare-deploy
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # git連携していないPagesプロジェクトのデフォルトは、branchをmainと名付けると本番環境になる
-          command: pages deploy --project-name=ymtszw-github-io --branch=main ./dist
+          # masterブランチはmain（本番環境）、PRはブランチ名（プレビュー環境）
+          command: pages deploy --project-name=ymtszw-github-io --branch=${{ github.event_name == 'pull_request' && github.head_ref || 'main' }} ./dist
+      - name: Comment Preview URL on PR
+        uses: actions/github-script@v7
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          script: |
+            // wrangler-actionの専用outputsを使用
+            const branchUrl = `${{ steps.cloudflare-deploy.outputs.pages-deployment-alias-url }}`;
+            const commitUrl = `${{ steps.cloudflare-deploy.outputs.deployment-url }}`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Preview deployment ready!\n\n**Branch URL:** ${branchUrl}\n**Commit URL:** ${commitUrl}`
+            });
       - uses: actions/upload-pages-artifact@v4 # すでにCloudflare Pagesのymtszw.ccをcanonicalにしてあるが、古いリンクのためにGitHub Pages deployを残している
         if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
         with:

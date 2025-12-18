@@ -1,5 +1,6 @@
 {
   "name": "ymtszw",
+  "type": "module",
   "scripts": {
     "build": "SECONDS=0; elm-pages build && echo \"Build took ${SECONDS}s.\"",
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
@@ -8,6 +9,7 @@
     "import_twilogs": "elm-pages run script/ImportTwilogCsvAndBuildSearchIndex",
     "postinstall": "elm-tooling install && elm-pages gen",
     "start": "elm-pages dev --debug",
+    "start:wrangler": "wrangler pages dev dist",
     "test": "elm-pages run script/GenerateTwilogDataCodecTestFixtures && elm-test-rs"
   },
   "overrides": {
@@ -31,5 +33,8 @@
     "sakura.css": "^1.5.0",
     "vite": "^7.2",
     "wrangler": "^4.50"
+  },
+  "dependencies": {
+    "globby": "^16.0"
   }
 }

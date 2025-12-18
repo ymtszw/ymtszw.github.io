@@ -2,3 +2,7 @@
 !.elm-pages/
 .elm-pages/cache
 .elm-pages/http-response-cache
+
+# 自動生成されるファイル（エディタやlinterで開かない）
+functions/\[\[path\]\].ts
+functions/elm-pages-cli.mjs
