@@ -10,12 +10,25 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          key: v5-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
+          restore-keys: |
+            v5-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            v5-${{ runner.arch }}-${{ runner.os }}-
+          path: |
+            node_modules/
+            elm-stuff/
+            .elm-pages/
+            ~/.elm
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: ".tool-versions"
 
       - name: Install dependencies
         run: npm ci
