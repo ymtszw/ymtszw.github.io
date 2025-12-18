@@ -68,9 +68,7 @@ jobs:
           done
 
       - name: Run smoke tests
-        run: |
-          chmod +x tests/e2e/wrangler-smoke.sh
-          ./tests/e2e/wrangler-smoke.sh http://localhost:8788
+        run: ./tests/e2e/wrangler-smoke.sh http://localhost:8788
 
       - name: Upload wrangler log
         if: failure()

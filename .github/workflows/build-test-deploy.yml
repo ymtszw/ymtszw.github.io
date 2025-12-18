@@ -64,6 +64,11 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # masterブランチはmain（本番環境）、PRはブランチ名（プレビュー環境）
           command: pages deploy --project-name=ymtszw-github-io --branch=${{ github.event_name == 'pull_request' && github.head_ref || 'main' }} ./dist
+      - name: Smoke test deployed site
+        run: |
+          DEPLOY_URL="${{ github.event_name == 'pull_request' && steps.cloudflare-deploy.outputs.deployment-url || 'https://ymtszw.cc' }}"
+          echo "Testing deployment at: $DEPLOY_URL"
+          ./tests/e2e/wrangler-smoke.sh "$DEPLOY_URL"
       - name: Comment Preview URL on PR
         uses: actions/github-script@v7
         if: ${{ github.event_name == 'pull_request' }}
