@@ -247,7 +247,7 @@ interface ElmPagesRenderResult {
 
 **実装内容:**
 
-- ✅ Cloudflare adapter本体の実装（`adapter/cloudflare.js`）
+- ✅ Cloudflare adapter本体の実装（`adapter/cloudflare-pages.js`）
   - `run()`関数: ファイル生成とコピー処理のオーケストレーション
   - `handlerCode()`: Functions handler（`functions/[[path]].ts`）の生成
   - `generateRoutesJson()`: `_routes.json`の生成ロジック
@@ -266,7 +266,7 @@ interface ElmPagesRenderResult {
 
 **成果物:**
 
-- `adapter/cloudflare.js`: 189行のadapter実装
+- `adapter/cloudflare-pages.js`: 189行のadapter実装
 - `functions/[[path]].ts`: Fetch API標準のonRequest handler（自動生成）
 - `functions/elm-pages-cli.mjs`: renderエンジン（自動コピー）
 - `dist/_routes.json`: Cloudflare Pagesルーティング設定（自動生成）
@@ -344,7 +344,7 @@ interface ElmPagesRenderResult {
 
 - `wrangler.toml`: Cloudflare Pages開発環境設定
 - `package.json`: "type": "module", globby v16, start:wranglerスクリプト
-- `adapter/cloudflare.js` (216行): 静的アセット除外、ヘッダー注入機能を含む完全版
+- `adapter/cloudflare-pages.js` (216行): 静的アセット除外、ヘッダー注入機能を含む完全版
 - `app/Route/ServerTest.elm` (182行): runtime detection実装、20個のヘッダー表示
 - `dist/_routes.json`: includeとexcludeパターンを含む完全なルーティング設定
 

@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import atImport from "postcss-import";
-import adapter from "./adapter/cloudflare.js";
+import adapter from "./adapter/cloudflare-pages.js";
 
 export default {
   vite: defineConfig({
