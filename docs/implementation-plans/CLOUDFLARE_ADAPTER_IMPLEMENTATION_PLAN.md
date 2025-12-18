@@ -422,7 +422,7 @@ interface ElmPagesRenderResult {
 プレビューURL: `https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev/server-test`
 
 SSR動作確認内容：
-```
+```text
 ✅ Running on Cloudflare Pages Functions (or wrangler dev)
 Request Time: 1766054290206 ms
 Method: GET
