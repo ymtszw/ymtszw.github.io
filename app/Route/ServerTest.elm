@@ -62,15 +62,15 @@ route =
 data : RouteParams -> Request -> BackendTask FatalError (Server.Response.Response Data ErrorPage.ErrorPage)
 data _ request =
     let
+        allHeaders =
+            Server.Request.headers request
+                |> Dict.toList
+
         requestData =
             { requestTime = Server.Request.requestTime request
             , method = Server.Request.method request |> methodToString
             , path = Server.Request.rawUrl request
-            , headers =
-                Server.Request.headers request
-                    |> Dict.toList
-                    -- 最初の20個のヘッダーを表示
-                    |> List.take 20
+            , headers = allHeaders
             }
     in
     BackendTask.succeed (Server.Response.render requestData)
@@ -129,9 +129,13 @@ view :
     -> View (PagesMsg Msg)
 view app _ =
     let
-        isCloudflare =
+        cloudflareHeader =
             app.data.headers
-                |> List.any (\( key, _ ) -> String.toLower key == "x-elm-pages-cloudflare")
+                |> List.filter (\( key, _ ) -> String.toLower key == "x-elm-pages-cloudflare")
+                |> List.head
+
+        isCloudflare =
+            cloudflareHeader /= Nothing
 
         runtimeInfo =
             if isCloudflare then
@@ -139,12 +143,22 @@ view app _ =
 
             else
                 "⚠️ Running on elm-pages dev server (adapter not active)"
+
+        cloudflareHeaderDebug =
+            case cloudflareHeader of
+                Just ( key, value ) ->
+                    "Found: " ++ key ++ " = " ++ value
+
+                Nothing ->
+                    "NOT FOUND (checked " ++ String.fromInt (List.length app.data.headers) ++ " headers)"
     in
     { title = "Server Render Test"
     , body =
         [ Html.h1 [] [ Html.text "🚀 Server-Render Test" ]
         , Html.p []
             [ Html.text runtimeInfo ]
+        , Html.p [ Attr.style "font-size" "small" ]
+            [ Html.text ("Debug: x-elm-pages-cloudflare header " ++ cloudflareHeaderDebug) ]
         , Html.h2 [] [ Html.text "Request Information" ]
         , Html.dl []
             [ Html.dt [] [ Html.text "Request Time:" ]
@@ -153,7 +167,7 @@ view app _ =
             , Html.dd [] [ Html.text app.data.method ]
             , Html.dt [] [ Html.text "Path:" ]
             , Html.dd [] [ Html.text app.data.path ]
-            , Html.dt [] [ Html.text "Headers (first 20):" ]
+            , Html.dt [] [ Html.text ("All Headers (" ++ String.fromInt (List.length app.data.headers) ++ "):") ]
             , Html.dd []
                 [ Html.ul []
                     (List.map
