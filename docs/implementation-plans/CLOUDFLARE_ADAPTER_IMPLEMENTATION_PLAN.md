@@ -492,9 +492,26 @@ PRコメント投稿内容:
   - [ ] ビルド時間の確認
   - [ ] 既存機能への影響確認
 
-### Phase 4.1: CI E2E (wrangler pages dev on runner)
+### Phase 4.1: CI E2E (wrangler pages dev on runner) ✅
+
+**Status: 完了** (PR #103)
 
 目的: CI 上で `wrangler pages dev` を実行し、ローカル的に Cloudflare Pages Functions 環境を立ち上げて最小限の E2E smoke テストを実行する。実際の Cloudflare Preview を使わずに、CI ランナー上で SSR / `_routes.json` の動作確認を自動化する。
+
+実装内容:
+
+- ✅ `.github/workflows/e2e-wrangler-dev.yml` ワークフロー作成
+- ✅ `tests/e2e/wrangler-smoke.sh` smoke testスクリプト作成
+- ✅ adapter修正: response headerに `x-elm-pages-cloudflare: true` を注入
+- ✅ キャッシュ設定とアクションバージョンを本番ワークフローに統一
+- ✅ ビルドに必要な環境変数を追加
+- ✅ CI上でsmoke test成功を確認
+
+テスト内容:
+
+- HTTP 200 レスポンス確認
+- SSRボディコンテンツ確認（"Running on Cloudflare Pages"）
+- レスポンスヘッダー確認（`x-elm-pages-cloudflare: true`）
 
 メリット:
 
