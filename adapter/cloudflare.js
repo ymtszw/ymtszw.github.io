@@ -30,20 +30,30 @@ export default async function run({
 }) {
   console.log("Running Cloudflare Pages adapter");
 
+  // Array to record paths of files created or copied
+  const generatedFiles = [];
+
   // Ensure functions directory exists
   ensureDirSync("functions");
 
   // Copy render function to functions directory
   fs.copyFileSync(renderFunctionFilePath, "./functions/elm-pages-cli.mjs");
+  generatedFiles.push("functions/elm-pages-cli.mjs");
 
   // Generate the catch-all handler for Cloudflare Pages Functions
   fs.writeFileSync("./functions/[[path]].ts", handlerCode());
+  generatedFiles.push("functions/[[path]].ts");
 
   // Generate _routes.json for Cloudflare Pages routing
   const routesJson = generateRoutesJson(routePatterns, apiRoutePatterns);
   fs.writeFileSync("./dist/_routes.json", JSON.stringify(routesJson, null, 2));
+  generatedFiles.push("dist/_routes.json");
 
   console.log("Cloudflare Pages adapter complete");
+  console.log(
+    "[Cloudflare Adapter] Generated files:\n" +
+      generatedFiles.map((f) => `  - ${f}`).join("\n")
+  );
 }
 
 function ensureDirSync(dirpath) {
@@ -154,6 +164,8 @@ export async function onRequest(context) {
       }
     }
     responseHeaders.set("x-powered-by", "elm-pages");
+    // Mark responses so clients and CI can detect adapter runtime
+    responseHeaders.set("x-elm-pages-cloudflare", "true");
 
     if (renderResult.kind === "bytes") {
       responseHeaders.set("Content-Type", "application/octet-stream");
@@ -186,6 +198,7 @@ export async function onRequest(context) {
         headers: {
           "Content-Type": "text/html",
           "x-powered-by": "elm-pages",
+          "x-elm-pages-cloudflare": "true",
         },
       }
     );
