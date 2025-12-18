@@ -15,12 +15,10 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
   pull-requests: write # Preview URLコメント機能に必要
 
 concurrency:
-  group: gh-pages
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -81,17 +79,3 @@ jobs:
               repo: context.repo.repo,
               body: `🚀 Preview deployment ready!\n\n**Branch URL:** ${branchUrl}\n**Commit URL:** ${commitUrl}`
             });
-      - uses: actions/upload-pages-artifact@v4 # すでにCloudflare Pagesのymtszw.ccをcanonicalにしてあるが、古いリンクのためにGitHub Pages deployを残している
-        if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
-        with:
-          path: ./dist
-  deploy:
-    needs: test-and-build
-    if: ${{ contains(fromJSON('["push", "workflow_call", "workflow_dispatch", "repository_dispatch"]'), github.event_name)  && github.ref == 'refs/heads/master' }}
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/deploy-pages@v4
-        id: deployment
