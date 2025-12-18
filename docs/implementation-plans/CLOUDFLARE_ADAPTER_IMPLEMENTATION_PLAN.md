@@ -312,7 +312,7 @@ interface ElmPagesRenderResult {
   - ServerTest.elm: ヘッダー検出でランタイム環境表示（"✅ Running on Cloudflare Pages Functions" または "⚠️ Running on elm-pages dev server"）
   - ヘッダー表示を20個に拡張してデバッグ
 - ✅ globby v16アップグレード
-  - globby v14のunicorn-magic import問題を解決
+  - globby v14のunicorn-magic import問題を解決 ([sindresorhus/globby#260](https://github.com/sindresorhus/globby/issues/260))
   - package.jsonを`"globby": "^16.0.0"`に更新
 - ✅ nodejs_compat設定
   - wrangler.tomlに`compatibility_flags = ["nodejs_compat"]`追加
@@ -350,7 +350,7 @@ interface ElmPagesRenderResult {
 
 **解決した問題:**
 
-1. ✅ globby v14のunicorn-magic import問題 → globby v16にアップグレードして解決
+1. ✅ globby v14のunicorn-magic import問題 ([sindresorhus/globby#260](https://github.com/sindresorhus/globby/issues/260)) → globby v16にアップグレードして解決
 2. ✅ Node.js組み込みモジュール警告 → nodejs_compat flagで解決
 3. ✅ MODULE_TYPELESS_PACKAGE_JSON警告 → "type": "module"で解決
 4. ✅ runtime detection動作せず → ヘッダー表示拡張とデバッグログで確認・解決
