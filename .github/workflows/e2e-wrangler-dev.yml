@@ -1,0 +1,66 @@
+name: E2E — wrangler pages dev smoke
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e-wrangler-dev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Check _routes.json
+        run: |
+          if [ ! -f dist/_routes.json ]; then
+            echo "dist/_routes.json not found" >&2
+            exit 1
+          fi
+          cat dist/_routes.json
+
+      - name: Start wrangler pages dev
+        run: |
+          # Start dev server in background and save PID/log
+          npx wrangler pages dev dist --port 8788 > /tmp/wrangler.log 2>&1 &
+          echo $! > /tmp/wrangler.pid
+          # wait for server to respond on root
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8788/ || true)
+            echo "attempt $i: status=$status"
+            if [ "$status" = "200" ]; then
+              break
+            fi
+            sleep 3
+          done
+
+      - name: Run smoke tests
+        run: |
+          chmod +x tests/e2e/wrangler-smoke.sh
+          ./tests/e2e/wrangler-smoke.sh http://localhost:8788
+
+      - name: Upload wrangler log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wrangler-log
+          path: /tmp/wrangler.log
+
+      - name: Stop wrangler
+        if: always()
+        run: |
+          if [ -f /tmp/wrangler.pid ]; then
+            kill $(cat /tmp/wrangler.pid) || true
+          fi
