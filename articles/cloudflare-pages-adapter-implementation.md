@@ -6,8 +6,8 @@ description: |
 ---
 
 > **Note**: この記事は、実装作業を行った[GitHub Copilot](https://github.com/features/copilot)のコーディングエージェントが自動生成したものです。
-> 実装計画書や作業ログを元に、技術的な詳細を包括的にまとめています。
-> このサイトの他の記事とは口調や文体が異なる場合がありますが、実装の正確な記録を優先しています。
+> 人間の指示をもとに[実装計画書](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/docs/implementation-plans/CLOUDFLARE_ADAPTER_IMPLEMENTATION_PLAN.md)を作成し、その計画に従って実装作業を進めました。
+> この記事は、実装計画書や作業ログを元に、技術的な詳細を包括的にまとめています。
 
 このサイト（ymtszw.cc）は[elm-pages]を使って作られています。
 
@@ -18,52 +18,22 @@ elm-pages v3では、静的サイト生成（Static Site Generation, SSG）だ�
 
 ## 背景と動機
 
-### elm-pages v3のadapter機能
+このサイトをCloudflare Pagesにデプロイしていますが、elm-pagesの公式Cloudflare Pages adapterが存在しなかったため、自分で実装しました。
 
-elm-pages v3では、異なるホスティングプラットフォーム向けに「adapter」という仕組みを提供しています。
-これは、elm-pagesのビルド時に実行され、各プラットフォーム固有の形式でサーバーサイドコードを生成します。
+elm-pagesには公式の[Netlify adapter](https://github.com/dillonkearns/elm-pages/blob/master/adapter/netlify.js)がリファレンス実装として存在します。
+コミュニティでは[Express](https://github.com/shahnhogan/elm-pages-starter-express)、[Fastify](https://github.com/shahnhogan/elm-pages-starter-fastify)、[AWS Lambda](https://gist.github.com/adamdicarlo0/221e839050a3e8cef51f1849e7af71a9)などのプラットフォーム向けadapterが開発されていますが（[Discussion #378](https://github.com/dillonkearns/elm-pages/discussions/378)参照）、Cloudflare Pages Functions向けの実装は存在しませんでした。
 
-公式で提供されているadapterは：
+## Cloudflare Pages Functions
 
-- **[Netlify adapter](https://github.com/dillonkearns/elm-pages/blob/master/adapter/netlify.js)**: Netlify FunctionsとNetlify Edge Functions対応
+[Cloudflare Pages Functions](https://developers.cloudflare.com/pages/functions/)は、Cloudflare Workersベースのサーバーサイド実行環境です。
 
-公式adapter以外にも、コミュニティでは[Express](https://github.com/shahnhogan/elm-pages-starter-express)、[Fastify](https://github.com/shahnhogan/elm-pages-starter-fastify)、[AWS Lambda](https://gist.github.com/adamdicarlo0/221e839050a3e8cef51f1849e7af71a9)など、様々なプラットフォーム向けのadapterが開発されています（[Discussion #378](https://github.com/dillonkearns/elm-pages/discussions/378)参照）。
-静的サイト生成のみの場合は、adapter関数で何もしない[Empty adapter](https://github.com/ymtszw/ymtszw.github.io/blob/396fea5118c02289457b50af171b748fd51eb331/elm-pages.config.mjs#L19-L26)を使うこともできます（このサイトでも以前使用）。
+adapter実装で重要な特徴：
 
-しかし、Cloudflare Pages Functions向けの実装は、議論スレッドで関心は示されていたものの、具体的な実装は存在しませんでした。
+- **Fetch API標準**: `Request`/`Response`オブジェクトを使用（[リクエスト仕様](https://developers.cloudflare.com/workers/runtime-apis/request/)）
+- **ファイルベースルーティング**: `functions/[[path]].ts`形式のcatch-allハンドラ（[ルーティング仕様](https://developers.cloudflare.com/pages/functions/routing/)）
+- **_routes.json**: Functions実行の制御（[_routes.json仕様](https://developers.cloudflare.com/pages/functions/routing/#functions-invocation-routes)）
 
-### なぜCloudflare Pages adapter？
-
-私はこのサイトをCloudflare Pagesにデプロイしています。理由は：
-
-- 無料枠が充実している
-- グローバルなCDN
-- 高速なデプロイ
-- Cloudflare Workersとの統合
-
-しかし、公式のCloudflare Pages adapter は提供されていなかったため、自分で実装することにしました。
-
-## Cloudflare Pages Functionsの特徴
-
-Cloudflare Pages Functionsは、Cloudflare Workersベースのサーバーサイド実行環境です。
-
-### 主要な特徴
-
-- **Fetch API標準**: `Request`/`Response`オブジェクトを使用
-- **ファイルベースルーティング**: `functions/`ディレクトリの構造がエンドポイントになる
-- **_routes.json**: どのルートをFunctions経由にするか制御
-- **Edge実行**: Cloudflareのグローバルネットワークで実行
-- **環境変数**: `context.env`経由でアクセス
-
-### 他のプラットフォームとの違い
-
-| 項目               | Netlify Functions                               | Cloudflare Pages Functions       |
-| ------------------ | ----------------------------------------------- | -------------------------------- |
-| エンドポイント形式 | AWS Lambda形式                                  | Fetch API標準                    |
-| ルーティング制御   | `_redirects`ファイル                            | `_routes.json`                   |
-| 環境変数アクセス   | `process.env`                                   | `context.env`                    |
-| 実行環境           | AWS Lambda（Node.js）                           | Cloudflare Workers（V8 isolate） |
-| ファイル配置       | `functions/render/`, `functions/server-render/` | `functions/[[path]].ts`          |
+詳細は[Cloudflare Pages Functions公式ドキュメント](https://developers.cloudflare.com/pages/functions/)を参照してください。
 
 ## アーキテクチャ設計
 
@@ -72,7 +42,8 @@ Cloudflare Pages Functionsは、Cloudflare Workersベースのサーバーサイ
 ```text
 elm-pages build
   ↓
-elm-pages.config.mjs (adapter実行)
+elm-pages.config.mjs
+  ↓ adapter/cloudflare-pages.js を実行
   ↓
 ├─ dist/ (静的アセット)
 │  ├─ _routes.json (ルーティング設定)
@@ -84,9 +55,9 @@ elm-pages.config.mjs (adapter実行)
 
 ### 主要コンポーネント
 
-#### 1. Adapter関数（elm-pages.config.mjs）
+#### 1. Adapter関数（adapter/cloudflare-pages.js）
 
-elm-pagesのビルド時に実行される関数で、以下を行います：
+`elm-pages.config.mjs`から読み込まれ、elm-pagesのビルド時に実行される関数で、以下を行います：
 
 - elm-pages renderエンジンを`functions/`にコピー
 - TypeScriptハンドラファイルを生成
@@ -150,42 +121,6 @@ export async function onRequest(context) {
 - **include**: Functions経由でレンダリングするパス
 - **exclude**: 静的配信するパス（Functionsを経由しない）
 
-### elm-pages renderエンジンの役割
-
-`elm-pages-cli.mjs`はelm-pagesが提供するrenderエンジンで、以下の役割を果たします（[adapter APIドキュメント](https://github.com/dillonkearns/elm-pages/blob/master/examples/docs/content/docs/15-adapters.md)および[Discussion #378](https://github.com/dillonkearns/elm-pages/discussions/378)の実装例より）：
-
-**入力**: プラットフォーム固有のリクエスト形式を、以下のJSON構造に変換したもの
-
-```javascript
-{
-  requestTime: number,      // リクエスト受信時刻（ミリ秒）
-  method: string,           // HTTPメソッド（GET, POST等）
-  headers: Object,          // リクエストヘッダー
-  rawUrl: string,           // 完全なURL
-  body: string | null,      // リクエストボディ
-  multiPartFormData: Object // マルチパートフォームデータ
-}
-```
-
-**出力**: elm-pagesがElmコードを実行した結果を、以下の形式で返す
-
-```javascript
-{
-  kind: 'html' | 'api-response' | 'bytes',  // レスポンスの種類
-  body: string | Uint8Array,                // レスポンスボディ
-  headers: Object,                          // レスポンスヘッダー
-  statusCode: number,                       // HTTPステータスコード
-  isBase64Encoded: boolean                  // Base64エンコード済みか
-}
-```
-
-このrenderエンジンは、`RouteBuilder.serverRender`で定義されたElmのserver-render routeに対して以下を実行します：
-
-1. **BackendTaskの実行**: データ取得やファイル読み込みなどの処理を実行
-2. **初期renderingの実行**: Elmコードを評価してHTMLや APIレスポンスを生成
-
-adapter側はこの標準化されたインターフェースを介して、プラットフォーム固有のリクエスト/レスポンス形式との変換のみを担当します。
-
 ## 実装の詳細
 
 ### Phase 1: 基本的なadapter実装
@@ -194,46 +129,17 @@ adapter側はこの標準化されたインターフェースを介して、プ�
 
 **実装したファイル:**
 
-- `adapter/cloudflare-pages.js`: adapter本体（189行）
+- `adapter/cloudflare-pages.js`: adapter本体
 - 自動生成ファイルの.gitignore設定
 
 **ポイント:**
 
-- `// @ts-nocheck`ディレクティブでTypeScriptエラーを抑制
-- 静的アセットの除外パターンを追加（17パターン）
+- `// @ts-nocheck`ディレクティブでTypeScriptエラーを抑制しました
+- 静的アセットの除外パターンを追加しました
 
 ### Phase 2: Server-render routeのテスト
 
-実際にSSRが動作するかテストするため、[`/server-test`](/server-test)ページを作成しました。
-
-```elm
-route : StatelessRoute RouteParams Data ActionData
-route =
-    RouteBuilder.serverRender
-        { head = head
-        , data = data
-        , action = \_ _ -> BackendTask.fail (FatalError.fromString "No action defined")
-        }
-        |> RouteBuilder.buildNoState { view = view }
-
-data : RouteParams -> Request -> BackendTask FatalError (Server.Response.Response Data ErrorPage.ErrorPage)
-data _ request =
-    let
-        allHeaders =
-            Server.Request.headers request
-                |> Dict.toList
-
-        requestData =
-            { requestTime = Server.Request.requestTime request
-            , method = Server.Request.method request |> methodToString
-            , path = Server.Request.rawUrl request
-            , headers = allHeaders
-            }
-    in
-    BackendTask.succeed (Server.Response.render requestData)
-```
-
-このページでは、リクエストの以下の情報を表示します：
+実際にSSRが動作するかテストするため、[`/server-test`](/server-test)ページ（[実装](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/app/Route/ServerTest.elm)）を作成しました。以下の情報を表示します：
 
 - リクエスト時刻（POSIXミリ秒）
 - HTTPメソッド（GET, POST等）
@@ -254,17 +160,15 @@ pages_build_output_dir = "dist"
 - **nodejs_compat**: Node.js互換モジュール（path, fs等）を使用可能に
 - **pages_build_output_dir**: ビルド成果物のディレクトリ
 
-#### npm scriptの追加
+#### ローカル開発サーバーの起動
 
-```json
-{
-  "scripts": {
-    "start:wrangler": "wrangler pages dev dist"
-  }
-}
+ビルド後、wranglerでローカルにCloudflare Pages環境をシミュレートできます：
+
+```bash
+npx wrangler pages dev dist
 ```
 
-これで、ローカルでCloudflare Pages環境をシミュレートできます。
+これにより、`http://localhost:8788`でadapter経由のSSR動作を確認できます。
 
 #### Runtime detection機能
 
@@ -353,9 +257,9 @@ compatibility_flags = ["nodejs_compat"]
 
 ##### 4. 静的アセットの除外
 
-**問題**: `_routes.json`で静的アセットを除外しないと、静的ファイルへのリクエストにもFunctionsが実行されてしまい、不要なコストとレイテンシが発生する。動的なファイルスキャン（`fs.readdir`）はCloudflare Workers環境で使えないため、実行時に判定できない
+**問題**: `_routes.json`で静的アセットを除外しないと、静的ファイルへのリクエストにもFunctionsが実行されてしまい、不要なコストとレイテンシが発生します。動的なファイルスキャン（`fs.readdir`）はCloudflare Workers環境で使えないため、実行時に判定できません
 
-**解決**: [adapter内](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/adapter/cloudflare-pages.js#L92-L108)で静的アセットパターンを事前定義し、`_routes.json`の`exclude`に追加
+**解決**: [adapter内](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/adapter/cloudflare-pages.js#L85-L104)で静的アセットパターンを事前定義し、`_routes.json`の`exclude`に追加
 
 ```javascript
 const staticAssetPatterns = [
@@ -437,7 +341,7 @@ CI環境でadapterの動作を自動検証するため、実デプロイ環境�
 
 #### Smoke testスクリプト
 
-実装では、デプロイ完了後の実環境URLに対してテストを実行：
+実装（[tests/e2e/wrangler-smoke.sh](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/tests/e2e/wrangler-smoke.sh)）では、デプロイ完了後の実環境URLに対してテストを実行：
 
 ```bash
 #!/usr/bin/env bash
@@ -479,7 +383,7 @@ HTTP=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/robots.txt" || true)
 #### elm-pages devサーバー（adapter非経由）
 
 ```bash
-npm start
+npx elm-pages dev --debug
 ```
 
 - 開発時の高速リロード
@@ -490,10 +394,10 @@ npm start
 
 ```bash
 # ビルド
-npm run build
+npx elm-pages build
 
 # wranglerでローカル起動
-npm run start:wrangler
+npx wrangler pages dev dist
 ```
 
 `http://localhost:8788`でCloudflare Pages環境がローカルで動作します。
@@ -519,71 +423,6 @@ npx wrangler pages deploy dist --project-name=<your-project>
 npx wrangler pages deploy dist --project-name=<your-project> --branch=main
 ```
 
-## 技術的制約事項
-
-### 1. Cloudflare Workers環境の制限
-
-- **CPU時間制限**: 無料プランでは10ms、有料プランでは50ms
-- **メモリ制限**: 128MB
-- **実行時間**: 最大30秒（有料プランでは延長可能）
-
-### 2. Node.js互換性
-
-- `nodejs_compat`フラグで基本的なNode.js APIは使用可能
-- しかし、完全なNode.js環境ではないため、一部のパッケージは動作しない可能性
-
-### 3. ファイルシステムアクセス
-
-- ビルド時には通常のNode.js環境で動作
-- ランタイムではV8 isolate環境のため、ファイルシステムアクセスは制限される
-
-### 4. elm-pages renderエンジン
-
-- elm-pages-cli.mjsは自動生成されるため、直接編集不可
-- カスタマイズが必要な場合はadapter関数で対応
-
-## パフォーマンス考慮事項
-
-### 静的配信の最適化
-
-`_routes.json`で静的アセットを適切に除外することで、Functionsのコールドスタートを回避：
-
-```javascript
-const staticAssetPatterns = [
-  "/assets/*",
-  "/*.html",
-  "/*.js",
-  "/*.css",
-  "/*.json",
-  "/*.txt",
-  "/*.xml",
-  "/*.ico",
-  // 画像ファイル
-  "/*.png",
-  "/*.jpg",
-  "/*.jpeg",
-  "/*.gif",
-  "/*.svg",
-  "/*.webp",
-  // フォント
-  "/*.woff",
-  "/*.woff2",
-  "/*.ttf",
-  "/*.eot",
-];
-```
-
-### SSR routeの使用判断
-
-- **静的生成で済む場合**: `RouteBuilder.preRender`を使用（ビルド時に生成、配信は高速）
-- **リクエストデータが必要な場合**: `RouteBuilder.serverRender`を使用（SSR）
-- **APIエンドポイント**: `RouteBuilder.serverRender`でAPIレスポンスを返す
-
-### コールドスタート対策
-
-Cloudflare Workersはコールドスタートが非常に速い（数ミリ秒）ため、
-AWS Lambdaのような大きな問題にはなりにくいです。
-
 ## まとめ
 
 elm-pages v3のCloudflare Pages Functions adapterを実装することで、
@@ -606,13 +445,6 @@ elm-pages v3のCloudflare Pages Functions adapterを実装することで、
 
 この実装は、将来的にはelm-pagesのコミュニティに還元し、
 他の開発者も簡単にCloudflare Pagesでelm-pagesを使えるようにしたいと考えています。
-
-## リンク
-
-- [実装計画書](./../docs/implementation-plans/CLOUDFLARE_ADAPTER_IMPLEMENTATION_PLAN.md)
-- [adapter実装](https://github.com/ymtszw/ymtszw.github.io/blob/master/adapter/cloudflare.js)
-- [GitHub Actions workflow](https://github.com/ymtszw/ymtszw.github.io/blob/master/.github/workflows/build-test-deploy.yml)
-- [Cloudflare Pages Functions ドキュメント](https://developers.cloudflare.com/pages/functions/)
 
 ---
 
