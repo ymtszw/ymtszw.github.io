@@ -367,6 +367,61 @@ interface ElmPagesRenderResult {
 - /server-test: SSR動作、runtime detection成功（"✅ Running on Cloudflare Pages Functions"表示）
 - 静的ページ（/, /about等）: 正常表示（Functions経由せず配信）
 
+### Phase 3.5: 実環境デプロイと動作確認（進行中）
+
+**デプロイ方式:**
+
+このリポジトリでは、GitHub ActionsでビルドしてwranglerでDirect Uploadする方式を採用。Cloudflare Pages側のgit連携ビルド機能は使用しない（OSS化時にはオプションとして提示予定）。
+
+**実装タスク:**
+
+- [ ] GitHub Actionsワークフロー（`.github/workflows/build-test-deploy.yml`）の更新
+  - [ ] PR/ブランチプッシュ時のプレビューデプロイ設定追加
+    - `cloudflare/wrangler-action@v3`を使用
+    - ブランチ名をCloudflare Pagesのブランチ名に指定（例: `--branch=feat-cloudflare-adapter`）
+    - プレビューURL生成の確認
+  - [ ] masterブランチマージ後の本番デプロイ設定確認
+    - 既存の`--branch=main`設定が正常動作することを確認
+    - functionsディレクトリが正しくデプロイされることを確認
+- [ ] プレビュー環境での動作確認
+  - [ ] トップページ（/）: 静的ページの正常配信
+  - [ ] About（/about）: 静的ページの正常配信
+  - [ ] ServerTest（/server-test）: SSR動作確認
+    - runtime detection成功（x-elm-pages-cloudflareヘッダー検出）
+    - リクエスト情報の表示（requestTime, method, headers等）
+    - Cloudflare固有ヘッダーの確認（cf-ray, cf-visitor等）
+  - [ ] ルーティング動作確認
+    - `_routes.json`による静的/動的ルート分離
+    - 静的アセット（CSS, JS, 画像等）の直接配信
+    - server-render routeのみFunctions経由
+  - [ ] パフォーマンス確認
+    - 初回レスポンスタイム測定
+    - 静的アセットのキャッシュ動作
+    - SSRページの生成時間
+- [ ] 本番環境での動作確認（masterマージ後）
+  - [ ] 既存の静的生成routeが影響を受けないことを確認
+  - [ ] SSR routeが本番環境で正常動作することを確認
+  - [ ] ビルド時間が許容範囲内（GitHub ActionsとCloudflare Pagesの制限内）
+
+**コミット:**
+
+- （予定）ワークフロー更新後のコミット
+
+**成果物（予定）:**
+
+- 更新された`.github/workflows/build-test-deploy.yml`
+- プレビュー環境URL: `https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev/`（ブランチ名ベース）
+- 実環境で動作するCloudflare Pages Functions adapter
+- プレビュー環境でのSSR動作実証
+
+**備考:**
+
+- 現状のワークフローには既にmasterブランチ用のwrangler deployが設定済み（`--branch=main`）
+- PR/ブランチプッシュ用のプレビューデプロイ設定を追加する必要がある
+- プレビュー環境での十分なテストを経てから本番（master）へマージ
+- Cloudflare Pagesの環境変数設定が必要な場合は、管理画面から設定（またはwrangler.tomlで管理）
+- 本番環境（masterブランチ）へのマージは、Phase 4（ドキュメント整備）完了後に実施
+
 ### Phase 4: 未着手
 
 **残タスク:**
