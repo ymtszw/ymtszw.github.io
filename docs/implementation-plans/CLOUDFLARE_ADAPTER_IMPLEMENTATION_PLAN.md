@@ -375,15 +375,16 @@ interface ElmPagesRenderResult {
 
 **実装タスク:**
 
-- [ ] GitHub Actionsワークフロー（`.github/workflows/build-test-deploy.yml`）の更新
-  - [ ] PR/ブランチプッシュ時のプレビューデプロイ設定追加
+- [x] GitHub Actionsワークフロー（`.github/workflows/build-test-deploy.yml`）の更新
+  - [x] PR/ブランチプッシュ時のプレビューデプロイ設定追加
     - `cloudflare/wrangler-action@v3`を使用
-    - ブランチ名をCloudflare Pagesのブランチ名に指定（例: `--branch=feat-cloudflare-adapter`）
-    - プレビューURL生成の確認
-  - [ ] masterブランチマージ後の本番デプロイ設定確認
-    - 既存の`--branch=main`設定が正常動作することを確認
-    - functionsディレクトリが正しくデプロイされることを確認
-- [ ] プレビュー環境での動作確認
+    - ブランチ名をCloudflare Pagesのブランチ名に指定（`--branch=${{ github.head_ref }}`）
+    - プレビューURL自動コメント機能追加（`actions/github-script@v7`）
+  - [x] PR時の正しいブランチチェックアウト設定
+    - `github.event_name == 'pull_request' && github.head_ref || 'master'`
+  - [x] masterブランチマージ後の本番デプロイ設定確認
+    - 既存の`--branch=main`設定を維持
+- [ ] プレビュー環境での動作確認（人間による作業）
   - [ ] トップページ（/）: 静的ページの正常配信
   - [ ] About（/about）: 静的ページの正常配信
   - [ ] ServerTest（/server-test）: SSR動作確認
@@ -398,21 +399,23 @@ interface ElmPagesRenderResult {
     - 初回レスポンスタイム測定
     - 静的アセットのキャッシュ動作
     - SSRページの生成時間
-- [ ] 本番環境での動作確認（masterマージ後）
+- [ ] 本番環境での動作確認（人間による作業、masterマージ後）
   - [ ] 既存の静的生成routeが影響を受けないことを確認
   - [ ] SSR routeが本番環境で正常動作することを確認
   - [ ] ビルド時間が許容範囲内（GitHub ActionsとCloudflare Pagesの制限内）
 
 **コミット:**
 
-- （予定）ワークフロー更新後のコミット
+- `71946d84`: feat: Add Cloudflare Pages preview deployment for pull requests
 
-**成果物（予定）:**
+**成果物:**
 
-- 更新された`.github/workflows/build-test-deploy.yml`
-- プレビュー環境URL: `https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev/`（ブランチ名ベース）
-- 実環境で動作するCloudflare Pages Functions adapter
-- プレビュー環境でのSSR動作実証
+- ✅ 更新された`.github/workflows/build-test-deploy.yml`
+  - PR時のプレビューデプロイ設定完了
+  - プレビューURLの自動コメント機能追加
+- （予定）プレビュー環境URL: `https://feat-cloudflare-adapter.ymtszw-github-io.pages.dev/`（ブランチ名ベース）
+- （予定）実環境で動作するCloudflare Pages Functions adapter
+- （予定）プレビュー環境でのSSR動作実証
 
 **備考:**
 
