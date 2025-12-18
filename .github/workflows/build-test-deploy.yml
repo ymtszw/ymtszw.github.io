@@ -17,6 +17,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: write  # Preview URLコメント機能に必要
 
 concurrency:
   group: gh-pages
