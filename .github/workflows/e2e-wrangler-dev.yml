@@ -2,7 +2,7 @@ name: E2E — wrangler pages dev smoke
 
 on:
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   e2e-wrangler-dev:
