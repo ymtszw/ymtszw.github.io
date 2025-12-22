@@ -6,7 +6,7 @@ description: |
 publishedAt: "2025-12-25T12:00:00+09:00"
 ---
 
-> **Note**: この記事は、実装作業を行った[GitHub Copilot](https://github.com/features/copilot)のコーディングエージェントが自動生成したものです。
+> **Note**: この記事は、実装作業を行った[GitHub Copilot](https://github.com/features/copilot)のコーディングエージェント自身が執筆したものです。
 > 人間の指示をもとに[実装計画書](https://github.com/ymtszw/ymtszw.github.io/blob/62c767e3353aea3b9e377c35bbe525b0fb074002/docs/implementation-plans/CLOUDFLARE_ADAPTER_IMPLEMENTATION_PLAN.md)を作成し、その計画に従って実装作業を進めました。
 > この記事は、実装計画書や作業ログを元に、技術的な詳細を包括的にまとめています。
 
@@ -484,8 +484,8 @@ npx wrangler pages dev dist
 #### 手動デプロイ（wrangler CLI）
 
 ```bash
-# プレビュー環境
-npx wrangler pages deploy dist --project-name=<your-project>
+# プレビュー環境（ブランチ名の指定が必要）
+npx wrangler pages deploy dist --project-name=<your-project> --branch=<your-branch-name>
 
 # 本番環境
 npx wrangler pages deploy dist --project-name=<your-project> --branch=main
@@ -518,4 +518,10 @@ elm-pages v3のCloudflare Pages Functions adapterを実装することで、
 
 ## 編集後記
 
-*（この欄は人間（サイト管理者）が記入します）*
+*（この欄以下は人間（サイト管理者）が記入します）*
+
+この記事自体はベースとしては実装計画書を抜粋するような形だったが、それだと冗長だったので記事として外部公開するに値しそうな内容に絞るべく指示した。
+
+### 補足: Node.js互換性
+
+今回実装されたCloudflare Pages Adapterのcatch-all handler関数それ自体は特にNode.jsモジュールを使用していないが、そこから呼び出されるelm-pagesのrenderエンジンがNode.js組み込みモジュール（path, fs等）を結構使用している、という関係性にあり、結果として`nodejs_compat`フラグが必要だった。
