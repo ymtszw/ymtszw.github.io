@@ -121,6 +121,79 @@ export async function onRequest(context) {
 - **include**: Functions経由でレンダリングするパス
 - **exclude**: 静的配信するパス（Functionsを経由しない）
 
+### リクエスト処理のデータフロー
+
+実際のリクエスト処理がどのように流れるかを、以下の図で示します。
+
+```mermaid
+sequenceDiagram
+    participant Client as クライアント<br/>(ブラウザ)
+    participant CF as Cloudflare Pages
+    participant Routes as _routes.json
+    participant Handler as functions/[[path]].ts
+    participant Render as elm-pages-cli.mjs
+    participant Elm as Elmアプリケーション
+
+    Client->>CF: HTTPリクエスト<br/>(例: GET /server-test)
+
+    CF->>Routes: ルーティング判定
+
+    alt 静的ファイル (exclude)
+        Routes-->>CF: 静的配信
+        CF-->>Client: 静的ファイル返却
+    else SSRパス (include)
+        Routes->>Handler: Functions実行
+
+        Note over Handler: Request変換処理
+        Handler->>Handler: reqToJson()
+        Note right of Handler: Fetch API Request<br/>↓<br/>elm-pages形式<br/>{ method, rawUrl,<br/>  headers, body }
+
+        Handler->>Render: render(elmPagesRequest)
+
+        Note over Render: elm-pagesエンジン
+        Render->>Elm: BackendTask実行<br/>Data取得
+        Elm-->>Render: Data
+        Render->>Elm: view関数実行<br/>HTML生成
+        Elm-->>Render: HTML
+
+        Render-->>Handler: renderResult<br/>{ statusCode, body,<br/>  headers, kind }
+
+        Note over Handler: Response変換処理
+        Handler->>Handler: new Response()
+        Note right of Handler: elm-pages形式<br/>↓<br/>Fetch API Response
+
+        Handler-->>CF: Response
+        CF-->>Client: HTMLレスポンス
+    end
+```
+
+**データフローの詳細：**
+
+1. **リクエスト受信**: クライアントからCloudflare Pagesにリクエストが届く
+2. **ルーティング判定**: `_routes.json`に基づいて処理方法を決定
+   - `exclude`パターンにマッチ → 静的ファイルとして配信
+   - `include`パターンにマッチ → Functions経由でSSR
+3. **Request変換**: `reqToJson()`でFetch API RequestをElm-pages形式に変換
+   ```javascript
+   {
+     method: "GET",
+     rawUrl: "/server-test",
+     headers: [["user-agent", "..."], ...],
+     body: null
+   }
+   ```
+4. **elm-pagesレンダリング**: renderエンジンがElmアプリケーションを実行
+   - BackendTaskでデータ取得
+   - view関数でHTML生成
+5. **Response変換**: elm-pages形式の結果をFetch API Responseに変換
+   ```javascript
+   new Response(body, {
+     status: statusCode,
+     headers: headers
+   })
+   ```
+6. **レスポンス返却**: クライアントにHTMLを返す
+
 ## 実装の詳細
 
 ### Phase 1: 基本的なadapter実装
