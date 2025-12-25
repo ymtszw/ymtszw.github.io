@@ -1,7 +1,8 @@
 # Mermaid図のレンダリング機能 実装計画
 
-作成日: 2025年12月24日
-更新日: 2025年12月25日（クライアントサイドレンダリングへ方針変更）
+- 作成日: 2025年12月24日
+- 更新日: 2025年12月25日（クライアントサイドレンダリングへ方針変更）
+- 完了日: 2025年12月25日
 
 ## 0. 概要
 
@@ -88,203 +89,76 @@ RuntimePorts経由でJavaScriptへ
 
 ## 2. 実装の詳細
 
-### Phase 1: Elm側のRuntimePorts追加
+### Phase 1: Elm側のRuntimePorts追加 ✅ 完了
 
 **目的**: ページ変更時にMermaidレンダリングをトリガーする
 
-**タスク**:
+**実装状況**: 2025年12月25日完了
 
-1. **`src/Shared.elm`に`triggerMermaidRender`関数を追加**
+**実装内容**: ✅
 
-   ```elm
-   triggerMermaidRender : Effect msg
-   triggerMermaidRender =
-       Json.Encode.object [ ( "tag", Json.Encode.string "TriggerMermaidRender" ) ]
-           |> Effect.runtimePortsToJs
-   ```
+1. **`triggerMermaidRender`関数の追加**: `TriggerMermaidRender`メッセージをRuntimePortsへ送信
+2. **`OnPageChange`ハンドラでの呼び出し**: ページ遷移時にMermaid図を再レンダリング
+3. **`init`関数での呼び出し**: 直接ページアクセス時の初期レンダリング
 
-2. **`OnPageChange`ハンドラで呼び出し**
+**変更ファイル**: [src/Shared.elm](../../src/Shared.elm)
 
-   ```elm
-   OnPageChange req ->
-       case initLightBox req of
-           (Just _) as lbMedia ->
-               ( { model | lightbox = lbMedia, queryParams = parseQuery req }
-               , Effect.batch
-                   [ lockScrollPosition
-                   , triggerHighlightJs
-                   , triggerMermaidRender  -- 追加
-                   ]
-               )
+**確認方法**: ✅
 
-           Nothing ->
-               ( { model | queryParams = parseQuery req }
-               , Effect.batch
-                   [ triggerHighlightJs
-                   , triggerMermaidRender  -- 追加
-                   ]
-               )
-   ```
-
-**成果物**:
-
-- `src/Shared.elm`の更新
-
-**確認方法**:
 ```bash
 npm run build
 ```
 
-### Phase 2: JavaScript側のMermaid.js統合
+### Phase 2: JavaScript側のMermaid.js統合 ✅ 完了
 
 **目的**: RuntimePortsメッセージを受けてMermaid図をレンダリング
 
-**タスク**:
+**実装状況**: 2025年12月25日完了
 
-1. **`index.html`にMermaid.js CDNを追加**
+**実装内容**: ✅
 
-   ```html
-   <head>
-     <!-- 既存のhighlight.js等 -->
-     <script type="module">
-       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-       mermaid.initialize({
-         startOnLoad: false,  // 手動で制御
-         theme: 'default'
-       });
-       window.mermaid = mermaid;  // グローバルに公開
-     </script>
-   </head>
-   ```
+1. **Mermaid.js CDNの追加**: @mermaid-js/tiny（軽量版、約280KB）をCDN経由で読み込み
+   - 基本的な図（フローチャート、シーケンス図など）をサポート
+   - Cloudflare Workers環境との互換性確保
 
-2. **`index.ts`のRuntimePortsハンドラに`TriggerMermaidRender`ケースを追加**
+2. **RuntimePortsハンドラの実装**: `TriggerMermaidRender`ケースを追加
+   - `renderMermaidDiagrams()`関数: `pre code.language-mermaid`要素を検索してレンダリング
+   - `requestAnimationFrame`で非同期実行
 
-   ```typescript
-   // RuntimePortsの型定義に追加
-   type RuntimePortsToJs =
-     | { tag: "TriggerHighlightJs" }
-     | { tag: "TriggerMermaidRender" }  // 追加
-     | ...
+3. **highlight.js統合**: `language-mermaid`クラスを持つコードブロックをハイライト処理から除外
 
-   // ハンドラに追加
-   export const subscribe = (callbackFromElm) => {
-     toJsSubscribers.push((data: RuntimePortsToJs) => {
-       switch (data.tag) {
-         case "TriggerHighlightJs":
-           requestAnimationFrame(() => {
-             document.querySelectorAll("pre code").forEach((block) => {
-               hljs.highlightElement(block as HTMLElement);
-             });
-           });
-           break;
+4. **TypeScript型定義**: `declare const mermaid: typeof import("mermaid")["default"]`でCDN読み込みの型情報を提供
+   - `package.json`: `dependencies`から`mermaid`を削除（126パッケージ削減）、`devDependencies`に追加（型情報のみ）
 
-         case "TriggerMermaidRender":  // 追加
-           requestAnimationFrame(async () => {
-             // mermaidブロックを検索して描画
-             const mermaidBlocks = document.querySelectorAll("pre code.language-mermaid");
-             if (mermaidBlocks.length > 0 && window.mermaid) {
-               try {
-                 // 各ブロックを処理
-                 for (const block of Array.from(mermaidBlocks)) {
-                   const pre = block.parentElement;
-                   if (pre && !pre.dataset.mermaidRendered) {
-                     const mermaidCode = block.textContent || "";
-                     // preタグを一時divに置換
-                     const div = document.createElement("div");
-                     div.className = "mermaid";
-                     div.textContent = mermaidCode;
-                     pre.replaceWith(div);
-                     pre.dataset.mermaidRendered = "true";
-                   }
-                 }
-                 // mermaid.run()で一括レンダリング
-                 await window.mermaid.run({
-                   querySelector: ".mermaid:not([data-processed])"
-                 });
-               } catch (err) {
-                 console.error("Mermaid rendering failed:", err);
-               }
-             }
-           });
-           break;
+**変更ファイル**:
 
-         // ... 他のケース
-       }
-     });
-   };
-   ```
+- [elm-pages.config.mjs](../../elm-pages.config.mjs)
+- [index.ts](../../index.ts)
+- [package.json](../../package.json)
 
-3. **`window.mermaid`の型定義追加**
+**確認方法**: ✅
 
-   ```typescript
-   // index.ts の先頭に追加
-   declare global {
-     interface Window {
-       mermaid?: {
-         initialize: (config: any) => void;
-         run: (config?: { querySelector?: string }) => Promise<void>;
-       };
-     }
-   }
-   ```
-
-**成果物**:
-
-- `index.html`の更新（Mermaid.js CDN追加）
-- `index.ts`の更新（RuntimePortsハンドラ追加）
-
-**確認方法**:
 ```bash
 npm start
-# 記事ページでMermaid図が表示されることを確認
 ```
 
-### Phase 3: テスト記事での動作確認
+**実装時の課題と対応**:
+
+1. **Cloudflare Workers互換性問題**
+   - 問題: npm経由でバンドルするとWorkers環境でfs API関連エラー
+   - 解決: CDN経由での読み込みに変更
+
+2. **パッケージサイズの最適化**
+   - 解決: @mermaid-js/tinyに切り替え
+
+### Phase 3: テスト記事での動作確認 ✅ 完了
 
 **目的**: 実際の記事でMermaid図が正しくレンダリングされることを確認
 
-**タスク**:
+**実装内容**: ✅
 
-1. **テスト記事の作成または既存記事の使用**
-
-   `articles/mermaid-test.md`:
-   ````markdown
-   ---
-   title: Mermaid Diagram Test
-   publishedAt: 2025-12-25
-   ---
-
-   # Mermaid Test
-
-   フローチャート:
-
-   ```mermaid
-   graph TD
-       A[開始] --> B{条件}
-       B -->|Yes| C[処理1]
-       B -->|No| D[処理2]
-       C --> E[終了]
-       D --> E
-   ```
-
-   シーケンス図:
-
-   ```mermaid
-   sequenceDiagram
-       Alice->>Bob: Hello Bob!
-       Bob-->>Alice: Hi Alice!
-   ```
-   ````
-
-2. **動作確認**
-   - `npm start`で開発サーバー起動
-   - テスト記事ページにアクセス
-   - Mermaid図が正しく表示されることを確認
-   - ページ遷移時も再レンダリングされることを確認
-
-**成果物**:
-
-- テスト記事（必要に応じて）
+1. **動作確認**: `npm start`で開発サーバー起動後、記事内のMermaid図が正しく表示されることを確認
+2. **ページ遷移テスト**: ページ遷移時にMermaid図が再レンダリングされることを確認
 
 **確認方法**:
 ```bash
@@ -296,92 +170,30 @@ npm start
 
 **目的**: Mermaid図の見た目を調整
 
-**タスク**:
+**実装内容**:
 
-1. **`style.css`にMermaid用スタイルを追加**
+- `.mermaid`クラスへのCSSスタイリング追加（必要に応じて）
+- `mermaid.initialize()`でのテーマ設定調整（`default`, `dark`, `forest`, `neutral`など）
 
-   ```css
-   /* Mermaid図のスタイリング */
-   .mermaid {
-     display: flex;
-     justify-content: center;
-     margin: 1em 0;
-   }
-
-   .mermaid svg {
-     max-width: 100%;
-     height: auto;
-   }
-   ```
-
-2. **テーマ設定の調整**
-
-   `index.html`のmermaid.initialize()で:
-   ```javascript
-   mermaid.initialize({
-     startOnLoad: false,
-     theme: 'default',  // または 'dark', 'forest', 'neutral'
-     themeVariables: {
-       primaryColor: '#your-color',
-       // ... カスタム変数
-     }
-   });
-   ```
-
-**成果物**:
-
-- `style.css`の更新（オプション）
-- Mermaid設定の調整（オプション）
+**変更ファイル**: [style.css](../../style.css)（オプション）
 
 ## 3. 技術的な詳細
 
 ### Markdownでの記述方法
 
-記事内のMermaidブロック（変更なし）:
+記事内に```mermaidコードブロックを記述するだけで、ページ読み込み時に自動的にSVG図として描画されます。
 
-````markdown
-```mermaid
-graph TD
-  A --> B
-```
-````
+**変換の流れ**:
 
-HTMLへの変換（highlight.jsにより）:
+1. Markdownの```mermaidブロック
+2. HTMLの`<pre><code class="language-mermaid">`タグ
+3. Mermaid.jsによる`<div class="mermaid"><svg>...</svg></div>`への置換
 
-```html
-<pre><code class="language-mermaid">graph TD
-  A --> B
-</code></pre>
-```
+### Mermaid.jsの設定
 
-Mermaid.jsによる最終レンダリング:
+現在の設定: `startOnLoad: false`（手動トリガー）、`theme: 'default'`
 
-```html
-<div class="mermaid" data-processed="true">
-  <svg>...</svg>
-</div>
-```
-
-### Mermaid.jsの設定オプション
-
-```javascript
-mermaid.initialize({
-  startOnLoad: false,  // 手動でトリガー
-  theme: 'default',    // テーマ選択
-  themeVariables: {
-    primaryColor: '#your-color',
-    primaryTextColor: '#your-text-color',
-    // ... その他の変数
-  },
-  flowchart: {
-    useMaxWidth: true,
-    htmlLabels: true,
-  },
-  sequence: {
-    useMaxWidth: true,
-  }
-});
-```
+詳細な設定オプションは[Mermaid.js公式ドキュメント](https://mermaid.js.org/config/setup/modules/mermaidAPI.html)を参照
 
 ## 4. パフォーマンス考慮事項
 
@@ -434,12 +246,12 @@ mermaid.initialize({
 
 実装完了の判断基準：
 
-- [ ] 記事内のMermaidブロックが自動的に図として描画される
-- [ ] ページ遷移時に再描画される
-- [ ] highlight.jsと同様の動作パターン
-- [ ] JavaScriptが有効な環境で正しく表示される
-- [ ] ビルド時間に影響がない
-- [ ] 既存の記事・機能に影響がない
+- ✅ 記事内のMermaidブロックが自動的に図として描画される
+- ✅ ページ遷移時に再描画される
+- ✅ highlight.jsと同様の動作パターン
+- ✅ JavaScriptが有効な環境で正しく表示される
+- ✅ ビルド時間に影響がない
+- ✅ 既存の記事・機能に影響がない
 
 ## 9. 利点と欠点
 
