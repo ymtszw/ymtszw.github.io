@@ -29,8 +29,6 @@ const config: ElmPagesInit = {
     const app = (await elmLoaded) as App;
     console.log("App loaded", app);
 
-    window.addEventListener("DOMContentLoaded", highlightCodeBlocks);
-
     app.ports.toJs.subscribe((data: { tag: string; value?: string }) => {
       switch (data.tag) {
         case "TriggerHighlightJs":
@@ -82,6 +80,10 @@ const config: ElmPagesInit = {
 const highlightCodeBlocks = () => {
   requestAnimationFrame(() => {
     document.querySelectorAll("pre code").forEach((el) => {
+      // Skip Mermaid code blocks as they are rendered as diagrams
+      if (el.classList.contains("language-mermaid")) {
+        return;
+      }
       console.log("Highlighting", el);
       hljs.highlightElement(el as HTMLElement);
     });

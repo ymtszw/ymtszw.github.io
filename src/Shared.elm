@@ -82,10 +82,21 @@ init flags maybeUrl =
     in
     case Maybe.andThen (\url -> initLightBox url.path) maybeUrl of
         (Just _) as lbMedia ->
-            ( { model | lightbox = lbMedia }, lockScrollPosition )
+            ( { model | lightbox = lbMedia }
+            , Effect.batch
+                [ lockScrollPosition
+                , triggerHighlightJs
+                , triggerMermaidRender
+                ]
+            )
 
         Nothing ->
-            ( model, Effect.none )
+            ( model
+            , Effect.batch
+                [ triggerHighlightJs
+                , triggerMermaidRender
+                ]
+            )
 
 
 initLightBox : { path : UrlPath, query : Maybe String, fragment : Maybe String } -> Maybe View.LightboxMedia
