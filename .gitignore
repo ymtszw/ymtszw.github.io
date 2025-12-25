@@ -14,5 +14,11 @@ functions/elm-pages-cli.mjs
 # ビルドやテスト実行時に動的生成するファイルを置くディレクトリ。逆にGenerated/は生成したのちに静的なデータファイルとしてgitに含めるディレクトリとする。
 Ephemeral/
 
+# Mermaid生成画像
+public/images/diagrams/
+
+# 一時ファイル
+temp/
+
 # Local Netlify folder
 .netlify

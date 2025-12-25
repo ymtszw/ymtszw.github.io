@@ -2,6 +2,7 @@ module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, cmsArti
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
+import BackendTask.MermaidDiagram as MermaidDiagram
 import CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata)
 import DateOrDateTime exposing (DateOrDateTime(..))
 import Dict exposing (Dict)
@@ -15,6 +16,7 @@ import Html
 import Html.Attributes
 import Json.Decode as Decode
 import Json.Decode.Extra as Decode
+import Json.Encode
 import LinkPreview
 import List.Extra
 import Markdown
@@ -145,8 +147,40 @@ markdownArticleData meta =
                             }
                     )
     in
-    BackendTask.File.bodyWithFrontmatter cmsArticleDecoder ("articles/" ++ meta.contentId ++ ".md")
+    bodyWithFrontmatterAndMermaid cmsArticleDecoder ("articles/" ++ meta.contentId ++ ".md")
+
+
+{-| bodyWithFrontmatterのMermaid対応版
+ファイルを読み込み、Mermaid処理を適用してから、フロントマターとボディをデコード
+-}
+bodyWithFrontmatterAndMermaid : (String -> Decode.Decoder a) -> String -> BackendTask FatalError a
+bodyWithFrontmatterAndMermaid decoder filePath =
+    BackendTask.File.rawFile filePath
         |> BackendTask.allowFatal
+        |> BackendTask.andThen
+            (\rawContent ->
+                -- フロントマターとボディを分離
+                let
+                    ( frontmatter, body ) =
+                        if String.startsWith "---\n" rawContent then
+                            case String.split "\n---\n" (String.dropLeft 4 rawContent) of
+                                _ :: rest ->
+                                    ( "", String.join "\n---\n" rest )
+
+                                _ ->
+                                    ( "", rawContent )
+
+                        else
+                            ( "", rawContent )
+                in
+                MermaidDiagram.processMermaid body
+            )
+        |> BackendTask.andThen
+            (\processedMarkdown ->
+                Decode.decodeValue (decoder processedMarkdown) Json.Encode.null
+                    |> Result.mapError (Decode.errorToString >> FatalError.fromString)
+                    |> BackendTask.fromResult
+            )
 
 
 findNextAndPrevArticleMeta : CmsArticle -> List CmsArticleMetadata -> ( Maybe CmsArticleMetadata, Maybe CmsArticleMetadata )
