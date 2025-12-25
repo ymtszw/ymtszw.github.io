@@ -82,10 +82,21 @@ init flags maybeUrl =
     in
     case Maybe.andThen (\url -> initLightBox url.path) maybeUrl of
         (Just _) as lbMedia ->
-            ( { model | lightbox = lbMedia }, lockScrollPosition )
+            ( { model | lightbox = lbMedia }
+            , Effect.batch
+                [ lockScrollPosition
+                , triggerHighlightJs
+                , triggerMermaidRender
+                ]
+            )
 
         Nothing ->
-            ( model, Effect.none )
+            ( model
+            , Effect.batch
+                [ triggerHighlightJs
+                , triggerMermaidRender
+                ]
+            )
 
 
 initLightBox : { path : UrlPath, query : Maybe String, fragment : Maybe String } -> Maybe View.LightboxMedia
@@ -163,10 +174,21 @@ update msg model =
         OnPageChange req ->
             case initLightBox req of
                 (Just _) as lbMedia ->
-                    ( { model | lightbox = lbMedia, queryParams = parseQuery req }, Effect.batch [ lockScrollPosition, triggerHighlightJs ] )
+                    ( { model | lightbox = lbMedia, queryParams = parseQuery req }
+                    , Effect.batch
+                        [ lockScrollPosition
+                        , triggerHighlightJs
+                        , triggerMermaidRender
+                        ]
+                    )
 
                 Nothing ->
-                    ( { model | queryParams = parseQuery req }, triggerHighlightJs )
+                    ( { model | queryParams = parseQuery req }
+                    , Effect.batch
+                        [ triggerHighlightJs
+                        , triggerMermaidRender
+                        ]
+                    )
 
         SharedMsg (Req_LinkPreview amazonAssociateTag (url :: urls)) ->
             ( model, requestLinkPreviewSequentially amazonAssociateTag urls url )
@@ -239,6 +261,12 @@ lockScrollPosition =
 triggerHighlightJs : Effect msg
 triggerHighlightJs =
     Json.Encode.object [ ( "tag", Json.Encode.string "TriggerHighlightJs" ) ]
+        |> Effect.runtimePortsToJs
+
+
+triggerMermaidRender : Effect msg
+triggerMermaidRender =
+    Json.Encode.object [ ( "tag", Json.Encode.string "TriggerMermaidRender" ) ]
         |> Effect.runtimePortsToJs
 
 

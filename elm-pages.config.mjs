@@ -21,6 +21,7 @@ export default {
   headTagsTemplate(context) {
     return `
 <link rel="stylesheet" href="/style.css" />
+<script src="https://cdn.jsdelivr.net/npm/@mermaid-js/tiny@11/dist/mermaid.tiny.js"></script>
 <meta name="generator" content="elm-pages v${context.cliVersion}" />
 `;
   },

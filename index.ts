@@ -1,6 +1,9 @@
 import "highlight.js/styles/atom-one-light.min.css";
 import hljs from "highlight.js";
 
+// Mermaid is loaded via CDN (see elm-pages.config.mjs headTagsTemplate)
+declare const mermaid: typeof import("mermaid")["default"];
+
 type ElmPagesInit = {
   load: (elmLoaded: Promise<unknown>) => Promise<void>;
   flags: unknown;
@@ -28,12 +31,13 @@ const config: ElmPagesInit = {
     const app = (await elmLoaded) as App;
     console.log("App loaded", app);
 
-    window.addEventListener("DOMContentLoaded", highlightCodeBlocks);
-
     app.ports.toJs.subscribe((data: { tag: string; value?: string }) => {
       switch (data.tag) {
         case "TriggerHighlightJs":
           highlightCodeBlocks();
+          break;
+        case "TriggerMermaidRender":
+          renderMermaidDiagrams();
           break;
         case "StoreLibraryKey":
           data.value && localStorage.setItem("LibraryKey", data.value);
@@ -78,9 +82,61 @@ const config: ElmPagesInit = {
 const highlightCodeBlocks = () => {
   requestAnimationFrame(() => {
     document.querySelectorAll("pre code").forEach((el) => {
+      // Skip Mermaid code blocks as they are rendered as diagrams
+      if (el.classList.contains("language-mermaid")) {
+        return;
+      }
       console.log("Highlighting", el);
       hljs.highlightElement(el as HTMLElement);
     });
+  });
+};
+
+const renderMermaidDiagrams = () => {
+  requestAnimationFrame(async () => {
+    const mermaidBlocks = document.querySelectorAll(
+      "pre code.language-mermaid"
+    );
+
+    if (mermaidBlocks.length === 0) {
+      return;
+    }
+
+    console.log(`Rendering ${mermaidBlocks.length} mermaid diagram(s)`);
+
+    // Wait for mermaid to be available from CDN
+    if (typeof mermaid === "undefined") {
+      console.error("Mermaid is not loaded from CDN");
+      return;
+    }
+
+    // Initialize mermaid
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "default",
+    });
+
+    try {
+      // Replace each code block with a mermaid div
+      mermaidBlocks.forEach((block) => {
+        const pre = block.parentElement;
+        if (pre && !pre.dataset.mermaidRendered) {
+          const mermaidCode = block.textContent || "";
+          const div = document.createElement("div");
+          div.className = "mermaid";
+          div.textContent = mermaidCode;
+          pre.replaceWith(div);
+          pre.dataset.mermaidRendered = "true";
+        }
+      });
+
+      // Render all mermaid diagrams
+      await mermaid.run({
+        querySelector: ".mermaid:not([data-processed])",
+      });
+    } catch (err) {
+      console.error("Mermaid rendering failed:", err);
+    }
   });
 };
 
