@@ -36,6 +36,7 @@
     "wrangler": "^4.50"
   },
   "dependencies": {
-    "globby": "^16.0"
+    "globby": "^16.0",
+    "mermaid": "^11.12.2"
   }
 }

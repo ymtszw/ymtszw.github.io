@@ -1,5 +1,6 @@
 import "highlight.js/styles/atom-one-light.min.css";
 import hljs from "highlight.js";
+import mermaid from "mermaid";
 
 type ElmPagesInit = {
   load: (elmLoaded: Promise<unknown>) => Promise<void>;
@@ -34,6 +35,9 @@ const config: ElmPagesInit = {
       switch (data.tag) {
         case "TriggerHighlightJs":
           highlightCodeBlocks();
+          break;
+        case "TriggerMermaidRender":
+          renderMermaidDiagrams();
           break;
         case "StoreLibraryKey":
           data.value && localStorage.setItem("LibraryKey", data.value);
@@ -81,6 +85,46 @@ const highlightCodeBlocks = () => {
       console.log("Highlighting", el);
       hljs.highlightElement(el as HTMLElement);
     });
+  });
+};
+
+const renderMermaidDiagrams = () => {
+  requestAnimationFrame(async () => {
+    const mermaidBlocks = document.querySelectorAll(
+      "pre code.language-mermaid"
+    );
+
+    if (mermaidBlocks.length > 0) {
+      console.log(`Rendering ${mermaidBlocks.length} mermaid diagram(s)`);
+
+      // Initialize mermaid
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "default",
+      });
+
+      try {
+        // Replace each code block with a mermaid div
+        mermaidBlocks.forEach((block) => {
+          const pre = block.parentElement;
+          if (pre && !pre.dataset.mermaidRendered) {
+            const mermaidCode = block.textContent || "";
+            const div = document.createElement("div");
+            div.className = "mermaid";
+            div.textContent = mermaidCode;
+            pre.replaceWith(div);
+            pre.dataset.mermaidRendered = "true";
+          }
+        });
+
+        // Render all mermaid diagrams
+        await mermaid.run({
+          querySelector: ".mermaid:not([data-processed])",
+        });
+      } catch (err) {
+        console.error("Mermaid rendering failed:", err);
+      }
+    }
   });
 };
 

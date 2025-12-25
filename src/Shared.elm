@@ -163,10 +163,21 @@ update msg model =
         OnPageChange req ->
             case initLightBox req of
                 (Just _) as lbMedia ->
-                    ( { model | lightbox = lbMedia, queryParams = parseQuery req }, Effect.batch [ lockScrollPosition, triggerHighlightJs ] )
+                    ( { model | lightbox = lbMedia, queryParams = parseQuery req }
+                    , Effect.batch
+                        [ lockScrollPosition
+                        , triggerHighlightJs
+                        , triggerMermaidRender
+                        ]
+                    )
 
                 Nothing ->
-                    ( { model | queryParams = parseQuery req }, triggerHighlightJs )
+                    ( { model | queryParams = parseQuery req }
+                    , Effect.batch
+                        [ triggerHighlightJs
+                        , triggerMermaidRender
+                        ]
+                    )
 
         SharedMsg (Req_LinkPreview amazonAssociateTag (url :: urls)) ->
             ( model, requestLinkPreviewSequentially amazonAssociateTag urls url )
@@ -239,6 +250,12 @@ lockScrollPosition =
 triggerHighlightJs : Effect msg
 triggerHighlightJs =
     Json.Encode.object [ ( "tag", Json.Encode.string "TriggerHighlightJs" ) ]
+        |> Effect.runtimePortsToJs
+
+
+triggerMermaidRender : Effect msg
+triggerMermaidRender =
+    Json.Encode.object [ ( "tag", Json.Encode.string "TriggerMermaidRender" ) ]
         |> Effect.runtimePortsToJs
 
 

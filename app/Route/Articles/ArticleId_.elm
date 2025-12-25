@@ -2,7 +2,6 @@ module Route.Articles.ArticleId_ exposing (ActionData, Data, Model, Msg, cmsArti
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
-import BackendTask.MermaidDiagram as MermaidDiagram
 import CmsData exposing (CmsArticle, CmsArticleMetadata, CmsImage, CmsSource(..), ExternalView, HtmlOrMarkdown(..), allMetadata)
 import DateOrDateTime exposing (DateOrDateTime(..))
 import Dict exposing (Dict)
@@ -16,7 +15,6 @@ import Html
 import Html.Attributes
 import Json.Decode as Decode
 import Json.Decode.Extra as Decode
-import Json.Encode
 import LinkPreview
 import List.Extra
 import Markdown
@@ -147,51 +145,8 @@ markdownArticleData meta =
                             }
                     )
     in
-    bodyWithFrontmatterAndMermaid cmsArticleDecoder ("articles/" ++ meta.contentId ++ ".md")
-
-
-{-| Read a markdown file, process Mermaid diagrams, and decode the result.
-
-This variant of bodyWithFrontmatter applies Mermaid diagram processing
-before decoding the markdown content.
-
--}
-bodyWithFrontmatterAndMermaid : (String -> Decode.Decoder a) -> String -> BackendTask FatalError a
-bodyWithFrontmatterAndMermaid decoder filePath =
-    BackendTask.File.rawFile filePath
+    BackendTask.File.bodyWithFrontmatter cmsArticleDecoder ("articles/" ++ meta.contentId ++ ".md")
         |> BackendTask.allowFatal
-        |> BackendTask.andThen
-            (\rawContent ->
-                rawContent
-                    |> extractBodyAfterFrontmatter
-                    |> MermaidDiagram.processMermaid
-            )
-        |> BackendTask.andThen
-            (\processedMarkdown ->
-                Decode.decodeValue (decoder processedMarkdown) Json.Encode.null
-                    |> Result.mapError (Decode.errorToString >> FatalError.fromString)
-                    |> BackendTask.fromResult
-            )
-
-
-{-| Extract the body content after frontmatter.
-
-Expects frontmatter to be delimited by ---\\n at the start and \\n---\\n at the end.
-If no frontmatter is present, returns the content unchanged.
-
--}
-extractBodyAfterFrontmatter : String -> String
-extractBodyAfterFrontmatter content =
-    if String.startsWith "---\n" content then
-        case String.indexes "\n---\n" content of
-            firstIndex :: _ ->
-                String.dropLeft (firstIndex + 5) content
-
-            [] ->
-                content
-
-    else
-        content
 
 
 findNextAndPrevArticleMeta : CmsArticle -> List CmsArticleMetadata -> ( Maybe CmsArticleMetadata, Maybe CmsArticleMetadata )
