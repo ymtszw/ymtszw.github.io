@@ -2,7 +2,6 @@
 title: "Mermaid図レンダリングテスト"
 description: |
   Mermaid図の自動生成機能のテスト記事
-publishedAt: "2025-12-25T18:00:00.000+09:00"
 ---
 
 この記事はMermaid図の自動レンダリング機能をテストするためのものです。
