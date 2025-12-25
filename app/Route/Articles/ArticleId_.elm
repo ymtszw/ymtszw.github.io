@@ -150,8 +150,11 @@ markdownArticleData meta =
     bodyWithFrontmatterAndMermaid cmsArticleDecoder ("articles/" ++ meta.contentId ++ ".md")
 
 
-{-| bodyWithFrontmatterのMermaid対応版
-ファイルを読み込み、Mermaid処理を適用してから、フロントマターとボディをデコード
+{-| Read a markdown file, process Mermaid diagrams, and decode the result.
+
+This variant of bodyWithFrontmatter applies Mermaid diagram processing
+before decoding the markdown content.
+
 -}
 bodyWithFrontmatterAndMermaid : (String -> Decode.Decoder a) -> String -> BackendTask FatalError a
 bodyWithFrontmatterAndMermaid decoder filePath =
@@ -159,21 +162,9 @@ bodyWithFrontmatterAndMermaid decoder filePath =
         |> BackendTask.allowFatal
         |> BackendTask.andThen
             (\rawContent ->
-                -- フロントマターとボディを分離
-                let
-                    ( frontmatter, body ) =
-                        if String.startsWith "---\n" rawContent then
-                            case String.split "\n---\n" (String.dropLeft 4 rawContent) of
-                                _ :: rest ->
-                                    ( "", String.join "\n---\n" rest )
-
-                                _ ->
-                                    ( "", rawContent )
-
-                        else
-                            ( "", rawContent )
-                in
-                MermaidDiagram.processMermaid body
+                rawContent
+                    |> extractBodyAfterFrontmatter
+                    |> MermaidDiagram.processMermaid
             )
         |> BackendTask.andThen
             (\processedMarkdown ->
@@ -181,6 +172,26 @@ bodyWithFrontmatterAndMermaid decoder filePath =
                     |> Result.mapError (Decode.errorToString >> FatalError.fromString)
                     |> BackendTask.fromResult
             )
+
+
+{-| Extract the body content after frontmatter.
+
+Expects frontmatter to be delimited by ---\\n at the start and \\n---\\n at the end.
+If no frontmatter is present, returns the content unchanged.
+
+-}
+extractBodyAfterFrontmatter : String -> String
+extractBodyAfterFrontmatter content =
+    if String.startsWith "---\n" content then
+        case String.indexes "\n---\n" content of
+            firstIndex :: _ ->
+                String.dropLeft (firstIndex + 5) content
+
+            [] ->
+                content
+
+    else
+        content
 
 
 findNextAndPrevArticleMeta : CmsArticle -> List CmsArticleMetadata -> ( Maybe CmsArticleMetadata, Maybe CmsArticleMetadata )

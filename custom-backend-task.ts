@@ -49,10 +49,14 @@ export async function processMermaid(markdownSource: string): Promise<string> {
   const debugMode = process.env.DEBUG_MERMAID === "true";
   console.log(`[Mermaid] Found ${matches.length} diagram(s)`);
 
-  // Ensure output directory exists
-  const outputDir = "public/images/diagrams";
-  if (!existsSync(outputDir)) {
-    await mkdir(outputDir, { recursive: true });
+  // Output to both public/ (for dev server) and dist/ (for production build)
+  // This ensures images are available in both development and production environments
+  const outputDirs = ["public/images/diagrams", "dist/images/diagrams"];
+
+  for (const dir of outputDirs) {
+    if (!existsSync(dir)) {
+      await mkdir(dir, { recursive: true });
+    }
   }
 
   // Ensure temp directory exists
@@ -61,74 +65,88 @@ export async function processMermaid(markdownSource: string): Promise<string> {
     await mkdir(tempDir, { recursive: true });
   }
 
-  // Process all diagrams in parallel
-  const processedBlocks = await Promise.all(
-    matches.map(async (match, index) => {
-      const fullMatch = match[0];
-      const mermaidSource = match[1];
+  // Process all diagrams sequentially to avoid race conditions with temp files
+  const processedBlocks: Array<{ fullMatch: string; replacement: string }> = [];
 
-      // Generate hash-based ID from source
-      const hash = createHash("sha256")
-        .update(mermaidSource)
-        .digest("hex")
-        .substring(0, 16);
+  for (let index = 0; index < matches.length; index++) {
+    const match = matches[index];
+    const fullMatch = match[0];
+    const mermaidSource = match[1];
 
-      const inputPath = join(tempDir, `${hash}.mmd`);
-      const outputPath = join(outputDir, `${hash}.svg`);
-      const imagePath = `/images/diagrams/${hash}.svg`;
+    // Generate hash-based ID from source
+    const hash = createHash("sha256")
+      .update(mermaidSource)
+      .digest("hex")
+      .substring(0, 16);
 
-      try {
-        // Check if SVG already exists (cache hit)
-        if (existsSync(outputPath)) {
-          console.log(`[Mermaid] Cache hit for diagram ${index + 1}: ${hash}`);
-          return {
-            fullMatch,
-            replacement: `![Mermaid Diagram](${imagePath})`,
-          };
-        }
+    // Use unique temp file name to avoid conflicts (hash + timestamp + random)
+    const uniqueId = `${hash}_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(7)}`;
+    const inputPath = join(tempDir, `${uniqueId}.mmd`);
+    const imagePath = `/images/diagrams/${hash}.svg`;
 
-        // Write mermaid source to temp file
-        await writeFile(inputPath, mermaidSource);
+    try {
+      // Check if SVG already exists in any output directory (cache hit)
+      const outputPaths = outputDirs.map((dir) => join(dir, `${hash}.svg`));
+      const cacheHit = outputPaths.some(existsSync);
 
-        // Execute mermaid-cli to generate SVG
-        console.log(
-          `[Mermaid] Rendering diagram ${index + 1}/${matches.length}: ${hash}`
-        );
+      if (cacheHit) {
+        console.log(`[Mermaid] Cache hit for diagram ${index + 1}: ${hash}`);
+        processedBlocks.push({
+          fullMatch,
+          replacement: `![Mermaid Diagram](${imagePath})`,
+        });
+        continue;
+      }
 
+      // Write mermaid source to temp file
+      await writeFile(inputPath, mermaidSource);
+
+      // Execute mermaid-cli to generate SVG
+      console.log(
+        `[Mermaid] Rendering diagram ${index + 1}/${matches.length}: ${hash}`
+      );
+
+      // Generate to all output directories
+      for (const outputDir of outputDirs) {
+        const outputPath = join(outputDir, `${hash}.svg`);
         await execAsync(
           `npx mmdc -i ${inputPath} -o ${outputPath} -b transparent`
         );
-
-        // Clean up temp file
-        await unlink(inputPath);
-
-        console.log(`[Mermaid] Successfully generated: ${imagePath}`);
-
-        return {
-          fullMatch,
-          replacement: `![Mermaid Diagram](${imagePath})`,
-        };
-      } catch (error) {
-        // Clean up temp file on error
-        try {
-          await unlink(inputPath);
-        } catch {}
-
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        console.error(
-          `[Mermaid] Failed to render diagram ${index + 1}:`,
-          errorMessage
-        );
-
-        // Return original mermaid block on error (fallback)
-        return {
-          fullMatch,
-          replacement: fullMatch,
-        };
       }
-    })
-  );
+
+      // Clean up temp file immediately after successful rendering
+      await unlink(inputPath).catch(() => {
+        // Ignore cleanup errors
+      });
+
+      console.log(`[Mermaid] Successfully generated: ${imagePath}`);
+
+      processedBlocks.push({
+        fullMatch,
+        replacement: `![Mermaid Diagram](${imagePath})`,
+      });
+    } catch (error) {
+      // Clean up temp file on error
+      await unlink(inputPath).catch(() => {
+        // Ignore cleanup errors
+      });
+
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error(
+        `[Mermaid] Failed to render diagram ${index + 1}:`,
+        errorMessage
+      );
+
+      // Return original mermaid block on error (fallback)
+      processedBlocks.push({
+        fullMatch,
+        replacement: fullMatch,
+      });
+    }
+  }
 
   // Replace all mermaid blocks with image references
   let processedMarkdown = markdownSource;
