@@ -46,7 +46,6 @@ export async function processMermaid(markdownSource: string): Promise<string> {
     return markdownSource;
   }
 
-  const debugMode = process.env.DEBUG_MERMAID === "true";
   console.log(`[Mermaid] Found ${matches.length} diagram(s)`);
 
   // Output to both public/ (for dev server) and dist/ (for production build)
@@ -68,8 +67,7 @@ export async function processMermaid(markdownSource: string): Promise<string> {
   // Process all diagrams sequentially to avoid race conditions with temp files
   const processedBlocks: Array<{ fullMatch: string; replacement: string }> = [];
 
-  for (let index = 0; index < matches.length; index++) {
-    const match = matches[index];
+  for (const [index, match] of matches.entries()) {
     const fullMatch = match[0];
     const mermaidSource = match[1];
 
@@ -117,8 +115,11 @@ export async function processMermaid(markdownSource: string): Promise<string> {
       }
 
       // Clean up temp file immediately after successful rendering
-      await unlink(inputPath).catch(() => {
-        // Ignore cleanup errors
+      await unlink(inputPath).catch((cleanupError) => {
+        console.warn(
+          `[Mermaid] Failed to clean up temp file: ${inputPath}`,
+          cleanupError
+        );
       });
 
       console.log(`[Mermaid] Successfully generated: ${imagePath}`);
@@ -129,8 +130,11 @@ export async function processMermaid(markdownSource: string): Promise<string> {
       });
     } catch (error) {
       // Clean up temp file on error
-      await unlink(inputPath).catch(() => {
-        // Ignore cleanup errors
+      await unlink(inputPath).catch((cleanupError) => {
+        console.warn(
+          `[Mermaid] Failed to clean up temp file on error: ${inputPath}`,
+          cleanupError
+        );
       });
 
       const errorMessage =
