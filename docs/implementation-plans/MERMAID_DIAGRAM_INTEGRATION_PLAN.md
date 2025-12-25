@@ -1,27 +1,47 @@
-# Mermaid図の自動生成・埋め込み機能 実装計画
+# Mermaid図のレンダリング機能 実装計画
 
 作成日: 2025年12月24日
+更新日: 2025年12月25日（クライアントサイドレンダリングへ方針変更）
 
 ## 0. 概要
 
-Markdown記事内に記述されたMermaid図をelm-pagesのビルドプロセスで自動的に画像化し、記事内に埋め込む機能を実装する。
-記事執筆者はMermaidコードを記事内に直接書くだけで、ビルド時に自動的に画像生成・置換が行われる。
+Markdown記事内に記述されたMermaid図をクライアントサイド（ブラウザ）でレンダリングする機能を実装する。
+記事執筆者はMermaidコードを記事内に直接書くだけで、ページ読み込み時に自動的に図として描画される。
+
+### 実装方針の変更履歴
+
+**当初の計画（2025-12-24）**:
+
+- ビルド時にmermaid-cli（Puppeteer + Chromium）でSVG画像を生成
+- カスタムBackendTaskで画像への参照に置換
+
+**変更後の計画（2025-12-25）**:
+
+- クライアントサイドでmermaid.jsを使用してレンダリング
+- 既存のhighlight.jsと同様のruntime描画パターン
+
+**変更理由**:
+
+- ビルド時のPuppeteer依存関係による複雑性の回避
+- GitHub Actionsでのシステムライブラリ要件の削減
+- SSRルートでも動作可能な実装
+- 既存のhighlight.jsパターンとの一貫性
 
 ### 実装の目的
 
 現状の課題：
 
-- 記事内のMermaid図は一部環境（GitHub等）でしか表示されない
+- 記事内のMermaid図はGitHub等の一部環境でしか表示されない
 - 手動で画像を生成・管理する必要があり、メンテナンス性が低い
 - ソースコードと画像の同期が困難
 
 実装後の改善：
 
 - 記事内にMermaidコードを直接記述
-- ビルド時に自動的にSVG画像を生成
-- 画像への参照に自動置換
+- ページ読み込み時に自動的に図として描画
 - バージョン管理はMermaidソースのみで完結
-- GitHubでもサイトでも正しく表示
+- ビルド依存関係なし
+- SSRでも動作
 
 ## 1. アーキテクチャ設計
 
@@ -30,338 +50,294 @@ Markdown記事内に記述されたMermaid図をelm-pagesのビルドプロセ�
 ```text
 Markdown記事ファイル
   ↓
-BackendTask.File.bodyWithFrontmatter
-  ├─ フロントマターとボディを読み込み
-  ↓
-Custom BackendTask: processMermaid
-  ├─ Markdownソース（フロントマター有無両対応）を入力
-  ├─ ```mermaid ブロックを抽出
-  ├─ 各ブロックにハッシュベースのIDを付与
-  ├─ mermaid-cli (mmdc) で並列にSVG生成
-  │  └─ dist/images/diagrams/<hash>.svg
-  ├─ Markdownソース内のmermaidブロックを画像参照に置換
-  └─ 処理済みMarkdownソースを返す
-  ↓
 既存のMarkdownレンダリング処理
-  └─ HTML生成
+  ├─ ```mermaidブロックはコードブロックとして扱われる
+  ├─ highlight.jsが language-mermaid クラスを付与
+  └─ HTMLとして出力
+  ↓
+ページ読み込み (OnPageChange)
+  ├─ Shared.elm が triggerMermaidRender を発行
+  ↓
+RuntimePorts経由でJavaScriptへ
+  ├─ TriggerMermaidRender メッセージ受信
+  ├─ document.querySelectorAll('pre code.language-mermaid')
+  ├─ mermaid.js の mermaid.run() を実行
+  └─ 各mermaidブロックがSVG図に置換される
 ```
 
 ### 主要コンポーネント
 
-#### 1. CustomBackendTask module（新規作成）
+#### 1. Elm側（Shared.elm）
 
-`src/BackendTask/MermaidDiagram.elm`:
+- **`triggerMermaidRender`**: RuntimePortsにメッセージを送る関数
+  - メッセージ: `{ tag: "TriggerMermaidRender" }`
+  - 呼び出しタイミング: `OnPageChange`時（highlight.jsと同様）
 
-- **`processMermaid`**: Markdownソース全体を処理するメイン関数
-  - 入力: Markdownソース（フロントマター有無両対応）
-  - 出力: 処理済みMarkdownソース（mermaidブロックが画像参照に置換済み）
-- TypeScript側のカスタムBackendTaskと連携
-- アトミックな操作により、既存のMarkdown処理に手を加える必要なし
+#### 2. JavaScript側（index.ts）
 
-#### 2. TypeScript BackendTask実装
+- **Mermaid.js CDN読み込み**: `<script>`タグで読み込み
+- **RuntimePortsハンドラ**: `TriggerMermaidRender`を処理
+  - `code.language-mermaid`要素を検索
+  - mermaid.jsでレンダリング実行
 
-`custom-backend-task.ts`に以下の関数を追加：
+#### 3. Markdown処理
 
-- **`processMermaid`**: Markdownソース全体を処理するメイン関数
-  - Mermaidブロックの抽出
-  - 各ブロックの画像生成（並列実行）
-  - Markdownソース内の置換
-  - 処理済みMarkdownソースを返す
-
-#### 3. 呼び出し側の統合
-
-各記事を読み込むroute moduleで、`processMermaid`を挟む：
-
-- `BackendTask.File.bodyWithFrontmatter`でMarkdownソースを読み込み
-- `MermaidDiagram.processMermaid`で処理
-- 処理済みソースを既存のdecoder/rendererに渡す
-- **既存の`src/Markdown.elm`は変更不要**
+- **既存のままで動作**: `src/Markdown.elm`は変更不要
+- コードブロックとして処理される
+- highlight.jsが適切なクラスを付与
 
 ## 2. 実装の詳細
 
-### Phase 1: カスタムBackendTaskの基盤整備
+### Phase 1: Elm側のRuntimePorts追加
 
-**目的**: TypeScript側でMermaid処理を行うBackendTask関数を実装
-
-**タスク**:
-
-1. **mermaid-cliの依存関係追加**
-   ```bash
-   npm install -D @mermaid-js/mermaid-cli
-   ```
-
-2. **custom-backend-task.tsに`processMermaid`関数を追加**
-
-   `processMermaid`:
-   - 入力: Markdownソース文字列（フロントマター有無両対応）
-   - 処理:
-     1. 正規表現で```mermaidブロックを抽出
-     2. 各ブロックのソースからハッシュベースのIDを生成
-     3. 抽出した各ブロックを一時ファイル（`.mmd`）に書き出し
-     4. `Promise.all`で並列に`mmdc`コマンド実行、SVG生成
-     5. 生成したSVGを`dist/images/diagrams/<id>.svg`に配置
-     6. Markdownソース内の```mermaidブロックを`![...](<画像パス>)`に置換
-   - 出力: 処理済みMarkdownソース文字列
-
-3. **エラーハンドリング**
-   - mermaid-cliの実行失敗時の適切なエラーメッセージ
-   - 無効なMermaid構文の検出
-   - ファイルI/Oエラーの処理
-
-**成果物**:
-
-- `custom-backend-task.ts`の更新
-- `package.json`の更新（mermaid-cli追加）
-
-**確認方法**:
-```bash
-npm install
-npm run build
-```
-
-### Phase 2: Elm側BackendTask moduleの実装
-
-**目的**: TypeScriptのBackendTaskをElmから呼び出せるようにする
+**目的**: ページ変更時にMermaidレンダリングをトリガーする
 
 **タスク**:
 
-1. **`src/BackendTask/MermaidDiagram.elm`を作成**
+1. **`src/Shared.elm`に`triggerMermaidRender`関数を追加**
 
    ```elm
-   module BackendTask.MermaidDiagram exposing (processMermaid)
-
-   import BackendTask exposing (BackendTask)
-   import BackendTask.Custom
-   import Json.Decode
-   import Json.Encode
-
-   {-| Markdownソース内のMermaidブロックを画像参照に置換する
-
-   入力: Markdownソース（フロントマター有無両対応）
-   出力: 処理済みMarkdownソース
-   -}
-   processMermaid : String -> BackendTask String
-   processMermaid markdownSource =
-       BackendTask.Custom.run "processMermaid"
-           (Json.Encode.string markdownSource)
-           Json.Decode.string
+   triggerMermaidRender : Effect msg
+   triggerMermaidRender =
+       Json.Encode.object [ ( "tag", Json.Encode.string "TriggerMermaidRender" ) ]
+           |> Effect.runtimePortsToJs
    ```
 
-2. **シンプルな設計**
-   - TypeScript側で全処理を完結させる
-   - Elm側は単にカスタムBackendTaskを呼び出すだけ
-   - エラーハンドリングもTypeScript側で実施
+2. **`OnPageChange`ハンドラで呼び出し**
 
-**成果物**:
-
-- `src/BackendTask/MermaidDiagram.elm`
-
-**確認方法**:
-```bash
-elm-pages gen  # 新しいmoduleの認識
-npm run build
-```
-
-### Phase 3: 記事読み込みパイプラインへの統合
-
-**目的**: 記事を読み込む各route moduleで`processMermaid`を使用する
-
-**タスク**:
-
-1. **記事読み込み箇所の特定**
-
-   以下のファイルで記事コンテンツを読み込んでいる箇所を特定：
-   - `app/Route/Articles.elm`
-   - `app/Route/Articles/*.elm`（個別記事ルート）
-   - その他、Markdownファイルを読み込む箇所
-
-2. **`processMermaid`の呼び出しを追加**
-
-   典型的なパターン：
    ```elm
-   import BackendTask.MermaidDiagram as MermaidDiagram
+   OnPageChange req ->
+       case initLightBox req of
+           (Just _) as lbMedia ->
+               ( { model | lightbox = lbMedia, queryParams = parseQuery req }
+               , Effect.batch
+                   [ lockScrollPosition
+                   , triggerHighlightJs
+                   , triggerMermaidRender  -- 追加
+                   ]
+               )
 
-   data : BackendTask Data
-   data =
-       BackendTask.File.bodyWithFrontmatter takeBody
-           ("articles/" ++ meta.contentId ++ ".md")
-           |> BackendTask.allowFatal
-           |> BackendTask.andThen MermaidDiagram.processMermaid
-           |> BackendTask.andThen
-               (\processedBody ->
-                   processedBody
-                       |> Decode.run cmsArticleDecoder
-                       |> BackendTask.fromResult
+           Nothing ->
+               ( { model | queryParams = parseQuery req }
+               , Effect.batch
+                   [ triggerHighlightJs
+                   , triggerMermaidRender  -- 追加
+                   ]
                )
    ```
 
-3. **既存のMarkdown.elmは変更不要**
-
-   - Mermaid処理は記事読み込み時点で完了
-   - 以降は通常のMarkdownとして扱われる
-   - 既存のレンダリングロジックをそのまま使用
-
 **成果物**:
 
-- 各記事読み込みroute moduleの更新（`src/Markdown.elm`は**変更不要**）
+- `src/Shared.elm`の更新
 
 **確認方法**:
 ```bash
-npm run build  # Mermaid処理を含むフルビルド
-npm start  # 記事表示確認（Mermaid処理済みHTMLが表示される）
+npm run build
 ```
 
-**注意**: `npm start`の開発サーバーでもMermaid処理が実行されるため、記事内のMermaid図が正しく画像として表示されることを確認できます。
+### Phase 2: JavaScript側のMermaid.js統合
 
-### Phase 4: 画像生成ディレクトリの整備
-
-**目的**: 生成された画像の適切な配置と配信
+**目的**: RuntimePortsメッセージを受けてMermaid図をレンダリング
 
 **タスク**:
 
-1. **ディレクトリ構造**
+1. **`index.html`にMermaid.js CDNを追加**
 
-   ```text
-   dist/
-   └─ images/
-      └─ diagrams/
-         ├─ <hash1>.svg
-         ├─ <hash2>.svg
-         └─ ...
+   ```html
+   <head>
+     <!-- 既存のhighlight.js等 -->
+     <script type="module">
+       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+       mermaid.initialize({
+         startOnLoad: false,  // 手動で制御
+         theme: 'default'
+       });
+       window.mermaid = mermaid;  // グローバルに公開
+     </script>
+   </head>
    ```
 
-2. **`.gitignore`の更新**
+2. **`index.ts`のRuntimePortsハンドラに`TriggerMermaidRender`ケースを追加**
 
-   ```gitignore
-   # Mermaid生成画像
-   dist/images/diagrams/
+   ```typescript
+   // RuntimePortsの型定義に追加
+   type RuntimePortsToJs =
+     | { tag: "TriggerHighlightJs" }
+     | { tag: "TriggerMermaidRender" }  // 追加
+     | ...
+
+   // ハンドラに追加
+   export const subscribe = (callbackFromElm) => {
+     toJsSubscribers.push((data: RuntimePortsToJs) => {
+       switch (data.tag) {
+         case "TriggerHighlightJs":
+           requestAnimationFrame(() => {
+             document.querySelectorAll("pre code").forEach((block) => {
+               hljs.highlightElement(block as HTMLElement);
+             });
+           });
+           break;
+
+         case "TriggerMermaidRender":  // 追加
+           requestAnimationFrame(async () => {
+             // mermaidブロックを検索して描画
+             const mermaidBlocks = document.querySelectorAll("pre code.language-mermaid");
+             if (mermaidBlocks.length > 0 && window.mermaid) {
+               try {
+                 // 各ブロックを処理
+                 for (const block of Array.from(mermaidBlocks)) {
+                   const pre = block.parentElement;
+                   if (pre && !pre.dataset.mermaidRendered) {
+                     const mermaidCode = block.textContent || "";
+                     // preタグを一時divに置換
+                     const div = document.createElement("div");
+                     div.className = "mermaid";
+                     div.textContent = mermaidCode;
+                     pre.replaceWith(div);
+                     pre.dataset.mermaidRendered = "true";
+                   }
+                 }
+                 // mermaid.run()で一括レンダリング
+                 await window.mermaid.run({
+                   querySelector: ".mermaid:not([data-processed])"
+                 });
+               } catch (err) {
+                 console.error("Mermaid rendering failed:", err);
+               }
+             }
+           });
+           break;
+
+         // ... 他のケース
+       }
+     });
+   };
    ```
 
-3. **_routes.jsonの更新**（Cloudflare adapter）
-   ```json
-   {
-     "exclude": [
-       "/images/*"
-     ]
+3. **`window.mermaid`の型定義追加**
+
+   ```typescript
+   // index.ts の先頭に追加
+   declare global {
+     interface Window {
+       mermaid?: {
+         initialize: (config: any) => void;
+         run: (config?: { querySelector?: string }) => Promise<void>;
+       };
+     }
    }
    ```
 
 **成果物**:
 
-- `.gitignore`の更新
-- ディレクトリ作成（初回ビルド時に自動作成されるため、手動作成は不要）
-
-### Phase 5: エラーハンドリングとデバッグ機能
-
-**目的**: 開発体験の向上とトラブルシューティング
-
-**タスク**:
-
-1. **詳細なエラーメッセージ**
-   - Mermaid構文エラーの行番号を表示
-   - mermaid-cli実行エラーの詳細を出力
-   - 画像生成失敗時のフォールバック
-
-2. **デバッグモード**
-   - 環境変数で制御：`DEBUG_MERMAID=true`
-   - Mermaidソースと生成画像の対応をログ出力
-   - 中間ファイルを残すオプション
-
-3. **ビルド時の進捗表示**
-   - "Rendering X mermaid diagrams..."
-   - 各図の処理状況
-
-**成果物**:
-
-- エラーハンドリングコードの追加
-- デバッグ用ログの実装
+- `index.html`の更新（Mermaid.js CDN追加）
+- `index.ts`の更新（RuntimePortsハンドラ追加）
 
 **確認方法**:
 ```bash
-DEBUG_MERMAID=true npm run build
+npm start
+# 記事ページでMermaid図が表示されることを確認
 ```
 
-### Phase 6: テストとドキュメント
+### Phase 3: テスト記事での動作確認
 
-**目的**: 機能の品質保証と利用方法の明確化
+**目的**: 実際の記事でMermaid図が正しくレンダリングされることを確認
 
 **タスク**:
 
-1. **ユニットテスト**
-   - Mermaidブロック抽出の正規表現テスト
-   - ブロック置換ロジックのテスト
-   - JSON codec テスト
+1. **テスト記事の作成または既存記事の使用**
 
-2. **統合テスト**
-   - サンプルMarkdownファイルでエンドツーエンドテスト
-   - 複数のMermaid図を含む記事のテスト
-   - エラーケースのテスト
+   `articles/mermaid-test.md`:
+   ````markdown
+   ---
+   title: Mermaid Diagram Test
+   publishedAt: 2025-12-25
+   ---
 
-3. **ドキュメント作成**
-   - `docs/MERMAID_USAGE.md`: 記事執筆者向けの使い方
-   - コード内コメント: 実装の詳細説明
+   # Mermaid Test
+
+   フローチャート:
+
+   ```mermaid
+   graph TD
+       A[開始] --> B{条件}
+       B -->|Yes| C[処理1]
+       B -->|No| D[処理2]
+       C --> E[終了]
+       D --> E
+   ```
+
+   シーケンス図:
+
+   ```mermaid
+   sequenceDiagram
+       Alice->>Bob: Hello Bob!
+       Bob-->>Alice: Hi Alice!
+   ```
+   ````
+
+2. **動作確認**
+   - `npm start`で開発サーバー起動
+   - テスト記事ページにアクセス
+   - Mermaid図が正しく表示されることを確認
+   - ページ遷移時も再レンダリングされることを確認
 
 **成果物**:
 
-- テストコード
-- ドキュメント
+- テスト記事（必要に応じて）
 
 **確認方法**:
 ```bash
-npm run test
-npm run build
+npm start
+# ブラウザで記事を開いて確認
 ```
+
+### Phase 4: スタイリング調整（オプション）
+
+**目的**: Mermaid図の見た目を調整
+
+**タスク**:
+
+1. **`style.css`にMermaid用スタイルを追加**
+
+   ```css
+   /* Mermaid図のスタイリング */
+   .mermaid {
+     display: flex;
+     justify-content: center;
+     margin: 1em 0;
+   }
+
+   .mermaid svg {
+     max-width: 100%;
+     height: auto;
+   }
+   ```
+
+2. **テーマ設定の調整**
+
+   `index.html`のmermaid.initialize()で:
+   ```javascript
+   mermaid.initialize({
+     startOnLoad: false,
+     theme: 'default',  // または 'dark', 'forest', 'neutral'
+     themeVariables: {
+       primaryColor: '#your-color',
+       // ... カスタム変数
+     }
+   });
+   ```
+
+**成果物**:
+
+- `style.css`の更新（オプション）
+- Mermaid設定の調整（オプション）
 
 ## 3. 技術的な詳細
 
-### Mermaidブロックの識別方法
+### Markdownでの記述方法
 
-正規表現パターン：
-```javascript
-const mermaidBlockRegex = /```mermaid\n([\s\S]*?)\n```/g;
-```
-
-ブロックID生成：
-```javascript
-import crypto from 'crypto';
-
-function generateBlockId(source) {
-  return crypto
-    .createHash('sha256')
-    .update(source)
-    .digest('hex')
-    .substring(0, 16);
-}
-```
-
-### mermaid-cliの実行
-
-```javascript
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
-
-async function renderMermaidDiagram({ id, source }) {
-  const inputPath = `temp/${id}.mmd`;
-  const outputPath = `dist/images/diagrams/${id}.svg`;
-
-  // 一時ファイル書き出し
-  await fs.writeFile(inputPath, source);
-
-  // mermaid-cli実行
-  await execAsync(`npx mmdc -i ${inputPath} -o ${outputPath}`);
-
-  // 一時ファイル削除
-  await fs.unlink(inputPath);
-
-  return { id, imagePath: `/images/diagrams/${id}.svg` };
-}
-```
-
-### Markdownでの置換
-
-置換前：
+記事内のMermaidブロック（変更なし）:
 
 ````markdown
 ```mermaid
@@ -370,93 +346,127 @@ graph TD
 ```
 ````
 
-置換後：
+HTMLへの変換（highlight.jsにより）:
 
-```markdown
-![Mermaid Diagram](/images/diagrams/abc123.svg)
+```html
+<pre><code class="language-mermaid">graph TD
+  A --> B
+</code></pre>
 ```
 
-代替テキストはオプションで指定可能にする：
+Mermaid.jsによる最終レンダリング:
 
-````markdown
-<!-- mermaid: alt="リクエストフロー図" -->
-```mermaid
-...
+```html
+<div class="mermaid" data-processed="true">
+  <svg>...</svg>
+</div>
 ```
-````
+
+### Mermaid.jsの設定オプション
+
+```javascript
+mermaid.initialize({
+  startOnLoad: false,  // 手動でトリガー
+  theme: 'default',    // テーマ選択
+  themeVariables: {
+    primaryColor: '#your-color',
+    primaryTextColor: '#your-text-color',
+    // ... その他の変数
+  },
+  flowchart: {
+    useMaxWidth: true,
+    htmlLabels: true,
+  },
+  sequence: {
+    useMaxWidth: true,
+  }
+});
+```
 
 ## 4. パフォーマンス考慮事項
 
-### ビルド時間への影響
+### レンダリング時間
 
-- Mermaid図1つあたり約0.5〜2秒の処理時間
-- 並列処理で最適化（Promise.all使用）
-- キャッシュによる再生成スキップ
+- Mermaid図1つあたり約10〜50ms（ブラウザ依存）
+- ページ読み込み時に非同期で実行（`requestAnimationFrame`使用）
+- ユーザー体験への影響は最小限
 
-### キャッシュ戦略
+### クライアントサイド負荷
 
-1. **ソースベースのキャッシュ**
-   - Mermaidソースのハッシュをファイル名に使用
-   - 内容が変わらなければ既存の画像を再利用
+- **メリット**: ビルド時間の短縮、サーバー負荷なし
+- **デメリット**: 初回描画の遅延、JavaScript必須
 
-2. **ビルドメタデータ**
-   ```json
-   {
-     "diagrams": {
-       "abc123": {
-         "source": "graph TD...",
-         "path": "/images/diagrams/abc123.svg",
-         "lastGenerated": "2025-12-24T10:00:00Z"
-       }
-     }
-   }
-   ```
+### 最適化戦略
+
+1. **遅延ロード**: ページスクロールに応じて描画（将来的な拡張）
+2. **キャッシュ**: ブラウザキャッシュによる再訪時の高速化
+3. **CDN**: Mermaid.js自体はCDNから配信
 
 ## 5. 実装の順序
 
 推奨される実装順序：
 
-1. Phase 1: カスタムBackendTaskの基盤整備
-2. Phase 2: Elm側BackendTask moduleの実装
-3. Phase 4: 画像生成ディレクトリの整備
-4. Phase 3: 記事読み込みパイプラインへの統合
-5. Phase 5: エラーハンドリングとデバッグ機能
-6. Phase 6: テストとドキュメント
+1. Phase 1: Elm側のRuntimePorts追加
+2. Phase 2: JavaScript側のMermaid.js統合
+3. Phase 3: テスト記事での動作確認
+4. Phase 4: スタイリング調整（オプション）
 
-各フェーズ後に`npm run build`で動作確認を行う。
+各フェーズ後に動作確認を行う。
 
 ## 6. ロールバック計画
 
 実装中に問題が発生した場合：
 
-1. **Phase 1-2の段階**: 新規ファイルの削除で元に戻せる
-2. **Phase 3以降**: Markdown処理の分岐を残し、フラグで制御
-   ```elm
-   if enableMermaid then
-       MermaidDiagram.processMermaidInMarkdown markdown
-   else
-       BackendTask.succeed markdown
-   ```
+1. **Phase 1-2の段階**: 追加したコードをコメントアウト
+2. **完全なロールバック**:
+   - `src/Shared.elm`から`triggerMermaidRender`関連コードを削除
+   - `index.html`からMermaid.js CDNを削除
+   - `index.ts`から`TriggerMermaidRender`ケースを削除
 
 ## 7. セキュリティ考慮事項
 
 - Mermaidソースは信頼できる記事作成者のみが編集
-- mermaid-cliは外部入力を直接実行しないため、コマンドインジェクションのリスクは低い
-- 生成されるSVGファイルは静的アセットとして配信
+- mermaid.jsはクライアントサイドで実行されるが、サンドボックス化されている
+- XSSリスクは既存のMarkdownレンダリングと同等
+- CDNからの配信により、パッケージの整合性チェックが重要
 
 ## 8. 成功の評価基準
 
 実装完了の判断基準：
 
-- [ ] 記事内のMermaidブロックが自動的に画像化される
-- [ ] GitHubとサイトの両方で正しく表示される
-- [ ] ビルド時間が許容範囲内（記事1つあたり+5秒以内）
-- [ ] エラーが適切に報告される
+- [ ] 記事内のMermaidブロックが自動的に図として描画される
+- [ ] ページ遷移時に再描画される
+- [ ] highlight.jsと同様の動作パターン
+- [ ] JavaScriptが有効な環境で正しく表示される
+- [ ] ビルド時間に影響がない
 - [ ] 既存の記事・機能に影響がない
-- [ ] ドキュメントが整備されている
 
-## 9. 参考資料
+## 9. 利点と欠点
 
-- [mermaid-cli公式ドキュメント](https://github.com/mermaid-js/mermaid-cli)
-- [elm-pages Custom BackendTask](https://elm-pages.com/docs/custom-backend-tasks/)
+### 利点
+
+- ✅ ビルド時間の短縮（Puppeteer不要）
+- ✅ GitHub Actionsでの依存関係が不要
+- ✅ SSRルートでも動作可能
+- ✅ 既存パターン（highlight.js）との一貫性
+- ✅ 実装がシンプル
+
+### 欠点
+
+- ⚠️ 初回描画時の遅延（通常は気にならないレベル）
+- ⚠️ JavaScript無効環境では表示不可（コードブロックとして表示）
+- ⚠️ サーバーサイドレンダリング（SSR）時はコードブロックのまま
+- ⚠️ SEOへの影響（図の内容は検索エンジンにインデックスされない）
+
+### 将来の拡張案（削除済み）
+
+※ 当初計画していたサーバーサイド生成は複雑性のため見送り。
+  必要に応じて将来的に検討可能。
+
+## 10. 参考資料
+
+- [Mermaid.js公式ドキュメント](https://mermaid.js.org/)
+- [Mermaid CDN](https://www.jsdelivr.com/package/npm/mermaid)
+- [elm-pages RuntimePorts](https://elm-pages.com/docs/runtime-ports/)
 - [Mermaid構文リファレンス](https://mermaid.js.org/intro/)
+- [既存のhighlight.js実装](../src/Shared.elm) - 参考パターン

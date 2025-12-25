@@ -1,12 +1,8 @@
 import { imageSizeFromFile } from "image-size/fromFile";
-import { exec } from "child_process";
-import { promisify } from "util";
 import { createHash } from "crypto";
 import { writeFile, unlink, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
-
-const execAsync = promisify(exec);
 
 /**
  * Implementation of `BackendTask.File.Extra.getImageDimensions`
@@ -34,6 +30,9 @@ export async function getImageDimensions(
  * Process Mermaid diagrams in Markdown source
  * Extracts ```mermaid blocks, generates SVG images, and replaces them with image references
  *
+ * Build time: Generates SVGs server-side using mermaid-cli
+ * SSR time: Returns markdown as-is (mermaid blocks preserved for client-side rendering)
+ *
  * @param { string } markdownSource - Markdown source (with or without frontmatter)
  * @returns { Promise<string> } - Processed markdown source with mermaid blocks replaced
  */
@@ -45,6 +44,26 @@ export async function processMermaid(markdownSource: string): Promise<string> {
     // No mermaid blocks found, return as-is
     return markdownSource;
   }
+
+  // Check if running in Node.js environment (build time) or Cloudflare Workers (SSR time)
+  // In Workers environment, Node.js APIs like 'fs' are not available
+  const isNodeEnvironment =
+    typeof process !== "undefined" && process.versions?.node;
+
+  if (!isNodeEnvironment) {
+    // Running in Cloudflare Workers (SSR) - cannot generate SVGs server-side
+    // Return markdown as-is, mermaid blocks can be rendered client-side if needed
+    console.log(
+      `[Mermaid] SSR mode: preserving ${matches.length} mermaid block(s) for client-side rendering`
+    );
+    return markdownSource;
+  }
+
+  // Build time: Generate SVGs server-side
+  console.log(`[Mermaid] Build mode: generating ${matches.length} diagram(s)`);
+
+  // Dynamic import to avoid bundling mermaid-cli in Cloudflare Workers runtime
+  const mermaidCli = await import("@mermaid-js/mermaid-cli");
 
   console.log(`[Mermaid] Found ${matches.length} diagram(s)`);
 
@@ -109,9 +128,11 @@ export async function processMermaid(markdownSource: string): Promise<string> {
       // Generate to all output directories
       for (const outputDir of outputDirs) {
         const outputPath = join(outputDir, `${hash}.svg`);
-        await execAsync(
-          `npx mmdc -i ${inputPath} -o ${outputPath} -b transparent`
-        );
+        await mermaidCli.run(inputPath, outputPath as `${string}.svg`, {
+          parseMMDOptions: {
+            backgroundColor: "transparent",
+          },
+        });
       }
 
       // Clean up temp file immediately after successful rendering
