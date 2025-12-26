@@ -157,6 +157,10 @@ makeSitemapEntries getStaticRoutes =
                     -- Server-rendered routeなのでsitemapには含めない
                     Nothing
 
+                Api__Test ->
+                    -- API routeなのでsitemapには含めない
+                    Nothing
+
                 Index ->
                     Just <| routeSource <| Iso8601.fromTime <| Pages.builtAt
     in
