@@ -161,10 +161,10 @@ sequenceDiagram
 
         Note over Handler: Response変換処理
         Handler->>Handler: new Response()
-        Note right of Handler: elm-pages形式<br/>↓<br/>Fetch API Response
+        Note right of Handler: elm-pages形式<br/>↓<br/>Fetch API Response (HTML / JSON / bytes)
 
         Handler-->>CF: Response
-        CF-->>Client: HTMLレスポンス
+        CF-->>Client: レスポンス（HTML または API レスポンス）
     end
 ```
 
@@ -185,15 +185,9 @@ sequenceDiagram
    ```
 4. **elm-pagesレンダリング**: renderエンジンがElmアプリケーションを実行
    - BackendTaskでデータ取得
-   - view関数でHTML生成
-5. **Response変換**: elm-pages形式の結果をFetch API Responseに変換
-   ```javascript
-   new Response(body, {
-     status: statusCode,
-     headers: headers
-   })
-   ```
-6. **レスポンス返却**: クライアントにHTMLを返す
+   - （HTML routeの場合）view関数でHTML生成
+5. **Response変換**: elm-pages形式の結果をFetch API Responseに変換します。
+6. **レスポンス返却**: クライアントにレスポンスを返します（HTML、JSON API、バイナリなど）。
 
 ## 実装の詳細
 
