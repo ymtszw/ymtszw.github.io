@@ -8,6 +8,7 @@
     "MD041": false // first-line-heading: ユーザコンテンツの外にh1相当の見出しがある状況が割合多いので、ファイル内の見出しのレベルを強制するのは厳しい
   },
   "chat.tools.terminal.autoApprove": {
+    "./tests/e2e/wrangler-smoke.sh": true,
     "npm run build": true,
     "npm run test": true,
     "npm install": true,

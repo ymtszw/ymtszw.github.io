@@ -374,6 +374,11 @@ view _ page shared sharedTagger pageView =
                                 , Html.text "Server Test"
                                 ]
 
+                            Route.Api__Test ->
+                                [ Route.Index |> Route.link [] [ Html.text "Index" ]
+                                , Html.text "API Test"
+                                ]
+
                             Route.Index ->
                                 [ Html.text "Index"
                                 ]
