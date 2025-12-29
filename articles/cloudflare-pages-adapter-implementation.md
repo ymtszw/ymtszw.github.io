@@ -528,6 +528,8 @@ elm-pages v3のCloudflare Pages Functions adapterを実装することで、
 
 途中、mermaidシーケンス図でデータフローを説明させたところがあるが、これはなかなかわかりやすい図がスパっと出てきて感心した。感心したので、思わず実際にmermaidを描画する機能を搭載することにした。[そっちも当然GitHub Copilotにやらせた](https://github.com/ymtszw/ymtszw.github.io/blob/fc1990f8e75e0115c9313ae2490f95c4fa05ea28/docs/implementation-plans/MERMAID_DIAGRAM_INTEGRATION_PLAN.md#L1)。
 
+その途中で発見したこととして、mermaid.jsをbundleした場合、なぜかelm-pages buildが失敗するという現象があり、解決できなかった。何らかビルド中の非同期処理の待ち合わせが正しく実装されていないと見える。この点の深堀りは避けてmermaid.jsはCDNから読み込む形にした。
+
 ### 補足: Node.js互換性
 
 今回実装されたCloudflare Pages Adapterのcatch-all handler関数それ自体は特にNode.jsモジュールを使用していないが、そこから呼び出されるelm-pagesのrenderエンジンがNode.js組み込みモジュール（path, fs等）を結構使用している、という関係性にあり、結果として`nodejs_compat`フラグが必要だった。
