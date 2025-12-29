@@ -3,7 +3,7 @@ title: "elm-pagesでSSR: Cloudflare Pages対応"
 description: |
   elm-pages v3でCloudflare Pages Functions対応のadapterを実装した記録。
   静的サイトからserver-side renderingへの拡張、実装の詳細、CI/CD統合、トラブルシューティングまで。
-publishedAt: "2025-12-25T12:00:00+09:00"
+publishedAt: "2025-12-29T11:00:00+09:00"
 ---
 
 > **Note**: この記事は、実装作業を行った[GitHub Copilot](https://github.com/features/copilot)のコーディングエージェント自身が執筆したものです。
