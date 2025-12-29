@@ -2,11 +2,12 @@ module Shared exposing (Data, Model, Msg(..), SharedMsg(..), Viewport, template,
 
 import BackendTask exposing (BackendTask)
 import Browser.Dom
+import Browser.Events
 import Dict exposing (Dict)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
-import Helper exposing (makeTitle, nonEmptyString)
+import Helper exposing (decodeWith, makeTitle, nonEmptyString)
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
@@ -221,7 +222,7 @@ update msg model =
             )
 
         SharedMsg CloseLightbox ->
-            ( { model | lightbox = Nothing }, clearLightboxLink model )
+            ( { model | lightbox = Nothing }, Effect.batch [ clearLightboxLink model, lockScrollPosition ] )
 
         SharedMsg (PushQueryParam key value) ->
             ( { model | queryParams = Dict.insert key [ value ] model.queryParams }, Effect.none )
@@ -300,8 +301,50 @@ clearLightboxLink m =
 
 
 subscriptions : UrlPath -> Model -> Sub Msg
-subscriptions _ _ =
-    Sub.none
+subscriptions path _ =
+    lightboxSubscription path
+
+
+{-| `View.lightboxLink`でのクリックをグローバルに検知し、lightboxを開くためのSubscription
+
+elm-pages v3でclient-sideでのURL変更のハンドリングができなくなってしまったためのworkaround。
+
+-}
+lightboxSubscription : UrlPath -> Sub Msg
+lightboxSubscription path =
+    let
+        {- Bubble-upしてきたlightbox linkのclickイベントを補足し、request recordを組む。 -}
+        lightboxLinkClickDecoder =
+            decodeWith (Json.Decode.at [ "target" ] findAnchorRecursive) <|
+                \fr ->
+                    if String.startsWith "#lightbox:src(" fr then
+                        -- 厳密には、queryは保つ方が良い
+                        Json.Decode.succeed { path = path, query = Nothing, fragment = Just (String.dropLeft 1 fr) }
+
+                    else
+                        Json.Decode.fail "Not a lightbox link"
+    in
+    Browser.Events.onClick lightboxLinkClickDecoder
+        |> Sub.map OnPageChange
+
+
+findAnchorRecursive : Json.Decode.Decoder String
+findAnchorRecursive =
+    Json.Decode.oneOf
+        [ Json.Decode.at [ "tagName" ] Json.Decode.string
+            |> Json.Decode.andThen
+                (\tagName ->
+                    if tagName == "A" then
+                        Json.Decode.at [ "hash" ] Json.Decode.string
+
+                    else if tagName == "BODY" then
+                        Json.Decode.fail "No anchor found"
+
+                    else
+                        Json.Decode.at [ "parentElement" ] findAnchorRecursive
+                )
+        , Json.Decode.fail "No anchor found"
+        ]
 
 
 data : BackendTask FatalError Data
