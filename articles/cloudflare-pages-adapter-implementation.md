@@ -215,6 +215,8 @@ sequenceDiagram
 - 全HTTPヘッダー
 - Cloudflare Pages Functions検出（`x-elm-pages-cloudflare`ヘッダーの有無）
 
+補足: 後にAPI routeも実装しました。FunctionsハンドラでHTMLレスポンスとJSON APIレスポンスを切り替えて処理できるようにし、APIエンドポイントからのJSON応答を検証できるようにしています。
+
 ### Phase 3: ローカル開発環境の整備
 
 #### wrangler.tomlの作成
@@ -518,9 +520,13 @@ elm-pages v3のCloudflare Pages Functions adapterを実装することで、
 
 ## 編集後記
 
-*（この欄以下は人間（サイト管理者）が記入します）*
+*この欄は人間（ymtszw）が記述している*
 
-この記事自体はベースとしては実装計画書を抜粋するような形だったが、それだと冗長だったので記事として外部公開するに値しそうな内容に絞るべく指示した。
+## 雑感
+
+記事を最初にドラフトさせたときは、実装計画書を抜粋したようなものが出てきた。それだと冗長だったり逆に書いてほしいところを書いてなかったりしたので、記事として外部公開するに値しそうな内容を逐一指示した。この辺は人間の感覚が重要そうである。例えば、公式docを見れば書いてありそうなことや、想定読者がすでに知ってそうなことは最小限にして、今回の実装内容の独自性に関わる部分に集中させたい。
+
+途中、mermaidシーケンス図でデータフローを説明させたところがあるが、これはなかなかわかりやすい図がスパっと出てきて感心した。感心したので、思わず実際にmermaidを描画する機能を搭載することにした。[そっちも当然GitHub Copilotにやらせた](https://github.com/ymtszw/ymtszw.github.io/blob/fc1990f8e75e0115c9313ae2490f95c4fa05ea28/docs/implementation-plans/MERMAID_DIAGRAM_INTEGRATION_PLAN.md#L1)。
 
 ### 補足: Node.js互換性
 
