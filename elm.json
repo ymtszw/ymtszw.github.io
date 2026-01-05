@@ -74,8 +74,8 @@
             "ryan-haskell/date-format": "1.0.0",
             "stil4m/elm-syntax": "7.3.9",
             "stil4m/structured-writer": "1.0.3",
-            "the-sett/elm-pretty-printer": "3.1.2",
-            "wolfadex/elm-ansi": "3.0.0"
+            "the-sett/elm-pretty-printer": "3.3.0",
+            "wolfadex/elm-ansi": "3.0.1"
         }
     },
     "test-dependencies": {
