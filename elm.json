@@ -20,7 +20,7 @@
             "dillonkearns/elm-date-or-date-time": "2.0.0",
             "dillonkearns/elm-form": "3.0.1",
             "dillonkearns/elm-markdown": "7.0.1",
-            "dillonkearns/elm-pages": "10.2.2",
+            "dillonkearns/elm-pages": "10.3.0",
             "dillonkearns/elm-rss": "2.0.5",
             "dillonkearns/elm-sitemap": "1.0.2",
             "dillonkearns/elm-xml-encode": "1.0.1",
@@ -44,7 +44,7 @@
             "jinjor/elm-debounce": "3.0.0",
             "jluckyiv/elm-utc-date-strings": "1.0.0",
             "justinmimbs/date": "4.1.0",
-            "mdgriffith/elm-codegen": "5.2.0",
+            "mdgriffith/elm-codegen": "6.0.1",
             "miniBill/elm-codec": "2.3.0",
             "noahzgordon/elm-color-extra": "1.0.2",
             "robinheghan/fnv1a": "1.0.0",
@@ -80,7 +80,7 @@
     },
     "test-dependencies": {
         "direct": {
-            "elm-explorations/test": "2.2.0"
+            "elm-explorations/test": "2.2.1"
         },
         "indirect": {}
     }
