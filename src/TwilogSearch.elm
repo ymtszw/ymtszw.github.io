@@ -2,6 +2,7 @@ module TwilogSearch exposing (Model, Msg, Secrets, batchAddObjectsOnBuild, init,
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do exposing (do)
+import BackendTask.File.Extra
 import BackendTask.Http
 import Browser.Navigation
 import Date
@@ -15,6 +16,7 @@ import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as Decode
 import Json.Encode
+import Murmur3
 import Route
 import TwilogData exposing (Twilog, TwitterStatusId(..))
 import Url
@@ -240,4 +242,32 @@ batchAddObjectsOnBuild twilogs =
                 , timeoutInMs = Just 10000
                 }
                 (BackendTask.Http.expectWhatever ())
-                |> BackendTask.allowFatal
+                |> BackendTask.onError
+                    (\{ recoverable } ->
+                        case recoverable of
+                            BackendTask.Http.BadStatus meta _ ->
+                                let
+                                    dumpedJson =
+                                        Json.Encode.encode 4 body
+
+                                    hash =
+                                        Murmur3.hashString 1234 dumpedJson |> String.fromInt
+
+                                    dumpJsonFileName =
+                                        "algolia-batch-request-body-" ++ hash ++ ".json"
+                                in
+                                BackendTask.File.Extra.dumpJsonFile dumpJsonFileName body
+                                    |> BackendTask.allowFatal
+                                    |> BackendTask.andThen
+                                        (\_ ->
+                                            FatalError.build
+                                                { title = "Algolia Batch API Client Error: " ++ String.fromInt meta.statusCode
+                                                , body = "See <https://dashboard.algolia.com/apps/" ++ appId ++ "/explorer/logs/ymtszw-twilogs> for details.\nRequest body dumped to tmp/" ++ dumpJsonFileName ++ "."
+                                                }
+                                                |> BackendTask.fail
+                                        )
+
+                            _ ->
+                                FatalError.fromString "Algolia Batch API Unexpected Error"
+                                    |> BackendTask.fail
+                    )
