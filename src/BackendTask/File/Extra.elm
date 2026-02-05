@@ -1,4 +1,4 @@
-module BackendTask.File.Extra exposing (getImageDimensions)
+module BackendTask.File.Extra exposing (dumpJsonFile, getImageDimensions)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Custom
@@ -16,3 +16,17 @@ getImageDimensions fileName =
             (\width height -> { width = width, height = height })
             (Decode.field "width" Decode.int)
             (Decode.field "height" Decode.int)
+
+
+{-| Dump a JSON value to a file in `tmp/` directory for debugging purpose.
+-}
+dumpJsonFile : String -> Json.Encode.Value -> BackendTask { fatal : FatalError, recoverable : BackendTask.Custom.Error } ()
+dumpJsonFile fileName jsonValue =
+    let
+        input =
+            Json.Encode.object
+                [ ( "fileName", Json.Encode.string fileName )
+                , ( "json", jsonValue )
+                ]
+    in
+    BackendTask.Custom.run "dumpJsonFile" input <| Decode.succeed ()
