@@ -213,6 +213,12 @@ searchBox tagger renderer { searchResults, searching } =
 
 batchAddObjectsOnBuild : List Twilog -> BackendTask FatalError ()
 batchAddObjectsOnBuild twilogs =
+    let
+        denyList =
+            -- 巨大すぎてAlgoliaのBatch APIの制限に抵触した実績のあるtwilog ID
+            [ "2017415820381720620"
+            ]
+    in
     do (BackendTask.map2 Tuple.pair (requireEnv "ALGOLIA_APP_ID") (requireEnv "ALGOLIA_ADMIN_KEY")) <|
         \( appId, adminKey ) ->
             let
@@ -224,8 +230,12 @@ batchAddObjectsOnBuild twilogs =
 
                 body =
                     Json.Encode.object
-                        [ ( "requests", Json.Encode.list encodeTwilog twilogs )
+                        [ ( "requests", Json.Encode.list encodeTwilog <| List.filter denyById <| twilogs )
                         ]
+
+                denyById twilog =
+                    -- AlgoliaのBatch APIの1リクエストあたりの最大サイズが10kBらしく、それに抵触するtwilogをObjectID指定でベストエフォートで除外する
+                    not (List.member twilog.idStr denyList)
 
                 encodeTwilog twilog =
                     Json.Encode.object
