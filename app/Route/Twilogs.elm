@@ -538,7 +538,7 @@ statusLink { id } =
         (TwitterStatusId idStr) =
             id
     in
-    "https://twitter.com/_/status/" ++ idStr
+    "https://x.com/_/status/" ++ idStr
 
 
 removeQuoteUrl : Maybe Quote -> String -> String
@@ -621,7 +621,7 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
             entitiesTcoUrl
                 |> List.Extra.uniqueBy .expandedUrl
                 -- Remove rich Tweet permalink from the list
-                |> List.filter (\{ expandedUrl } -> not (String.startsWith "https://twitter.com/i/web/status/" expandedUrl))
+                |> List.Extra.filterNot (\{ expandedUrl } -> String.startsWith "https://twitter.com/i/web/status/" expandedUrl || String.startsWith "https://x.com/i/web/status/" expandedUrl)
                 |> List.filterMap (\{ expandedUrl } -> Dict.get expandedUrl links)
                 |> List.partition (\{ canonicalUrl } -> Regex.contains tweetPermalinkRegex canonicalUrl)
 
@@ -692,7 +692,8 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
 
 
 tweetPermalinkRegex =
-    Maybe.withDefault Regex.never (Regex.fromString "https?://twitter\\.com/[^/]+/status/[^/]+(?!/)")
+    -- "https://twitter.com/gada_twt/status/2016949261905383797" など。末尾にスラッシュがあってもなくても良い
+    Maybe.withDefault Regex.never (Regex.fromString "https?://(x|twitter)\\.com/[^/]+/status/[^/]+/?$")
 
 
 appendMediaGrid : Dict String LinkPreview.Metadata -> { a | id : TwitterStatusId, extendedEntitiesMedia : List Media } -> List (Html msg) -> List (Html msg)
