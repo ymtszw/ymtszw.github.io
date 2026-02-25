@@ -50,7 +50,7 @@ getMetadataOnBuild url =
 fallbackOnBadStatus : String -> Int -> Metadata
 fallbackOnBadStatus url statusCode =
     { title = String.fromInt statusCode ++ " / プレビューできません"
-    , description = Just url
+    , description = Just ("[LinkPreview unavailable] " ++ url)
     , imageUrl = Just ("https://http.cat/" ++ String.fromInt statusCode)
     , canonicalUrl = url
     }

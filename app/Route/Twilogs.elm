@@ -621,6 +621,8 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
                 -- Remove rich Tweet permalink from the list
                 |> List.Extra.filterNot (\{ expandedUrl } -> String.startsWith "https://twitter.com/i/web/status/" expandedUrl || String.startsWith "https://x.com/i/web/status/" expandedUrl)
                 |> List.filterMap (\{ expandedUrl } -> Dict.get expandedUrl links)
+                -- LinkPreviewにクライアントエラーで失敗している場合は表示しない
+                |> List.filter (\{ description } -> Maybe.map (not << String.contains "[LinkPreview unavailable]") description |> Maybe.withDefault False)
                 |> List.partition (\{ canonicalUrl } -> Regex.contains tweetPermalinkRegex canonicalUrl)
 
         htmls =
