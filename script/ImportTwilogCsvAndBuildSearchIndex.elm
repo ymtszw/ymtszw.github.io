@@ -238,7 +238,7 @@ injectUserInfo userInfoCache ( twilog, screenName ) =
 
 mergeWithExistingTwilogsJson : String -> String -> List Twilog -> BackendTask FatalError ()
 mergeWithExistingTwilogsJson outFilePath existingJson newTwilogs =
-    case Decode.decodeString (Decode.list (TwilogData.twilogDecoder Nothing)) existingJson of
+    case Decode.decodeString (Decode.list TwilogData.twilogDecoder) existingJson of
         Ok existingTwilogs ->
             let
                 -- Merge順序に注意。newで上書きしている
