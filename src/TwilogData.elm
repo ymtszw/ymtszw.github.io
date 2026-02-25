@@ -6,7 +6,7 @@ import Date
 import Dict exposing (Dict)
 import FatalError exposing (FatalError)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
-import Helper exposing (dataSourceWith, formatPosix, jst, nonEmptyString, requireEnv)
+import Helper exposing (formatPosix, jst, nonEmptyString)
 import Iso8601
 import Json.Decode as Decode
 import Json.Decode.Extra as Decode
@@ -97,8 +97,8 @@ makeTwilogsJsonPath dateString =
     "data/" ++ String.replace "-" "/" dateString ++ "-twilogs.json"
 
 
-twilogDecoder : Maybe String -> Decode.Decoder Twilog
-twilogDecoder maybeAmazonAssociateTag =
+twilogDecoder : Decode.Decoder Twilog
+twilogDecoder =
     let
         createdAtDecoder =
             Decode.oneOf
@@ -165,7 +165,7 @@ twilogDecoder maybeAmazonAssociateTag =
             Decode.oneOf
                 [ Decode.succeed (List.map2 TcoUrl)
                     |> Decode.andMap (Decode.field "EntitiesUrlsUrls" commaSeparatedList)
-                    |> Decode.andMap (Decode.field "EntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
+                    |> Decode.andMap (Decode.field "EntitiesUrlsExpandedUrls" (commaSeparatedUrls |> modifyAmazonUrl))
                     -- ツイート内に複数の同一URLが含まれうる。`List TcoUrl`には辞書的な振る舞いを期待したいので重複を除く
                     |> Decode.map List.Extra.unique
                 , Decode.succeed []
@@ -189,7 +189,7 @@ twilogDecoder maybeAmazonAssociateTag =
             Decode.oneOf
                 [ Decode.succeed (List.map2 TcoUrl)
                     |> Decode.andMap (Decode.field "RetweetedStatusEntitiesUrlsUrls" commaSeparatedList)
-                    |> Decode.andMap (Decode.field "RetweetedStatusEntitiesUrlsExpandedUrls" (commaSeparatedUrls |> maybeModifyAmazonUrl))
+                    |> Decode.andMap (Decode.field "RetweetedStatusEntitiesUrlsExpandedUrls" (commaSeparatedUrls |> modifyAmazonUrl))
                     -- ツイート内に複数の同一URLが含まれうる。`List TcoUrl`には辞書的な振る舞いを期待したいので重複を除く
                     |> Decode.map List.Extra.unique
                 , Decode.succeed []
@@ -232,13 +232,8 @@ twilogDecoder maybeAmazonAssociateTag =
                 Nothing ->
                     twilog
 
-        maybeModifyAmazonUrl =
-            case maybeAmazonAssociateTag of
-                Just amazonAssociateTag ->
-                    Decode.map (List.map (Helper.makeAmazonUrl amazonAssociateTag))
-
-                Nothing ->
-                    identity
+        modifyAmazonUrl =
+            Decode.map (List.map Helper.makeAmazonUrl)
     in
     Decode.succeed Twilog
         |> Decode.andMap (Decode.field "CreatedAt" createdAtDecoder)
@@ -291,25 +286,23 @@ dailyTwilogsFromOldest paths =
                 )
                 baseDict
     in
-    dataSourceWith (requireEnv "AMAZON_ASSOCIATE_TAG") <|
-        \amazonAssociateTag ->
-            List.foldl
-                (\path accDS ->
-                    BackendTask.andThen
-                        (\accDict ->
-                            BackendTask.File.jsonFile
-                                -- Make it Maybe, allow decode-failures to be ignored
-                                (Decode.list (Decode.maybe (twilogDecoder (Just amazonAssociateTag)))
-                                    |> Decode.map (toDailyDictFromNewest accDict)
-                                    |> Decode.map resolveRepliesWithinDayAndSortFromOldest
-                                )
-                                path
-                                |> BackendTask.allowFatal
+    List.foldl
+        (\path accDS ->
+            BackendTask.andThen
+                (\accDict ->
+                    BackendTask.File.jsonFile
+                        -- Make it Maybe, allow decode-failures to be ignored
+                        (Decode.list (Decode.maybe twilogDecoder)
+                            |> Decode.map (toDailyDictFromNewest accDict)
+                            |> Decode.map resolveRepliesWithinDayAndSortFromOldest
                         )
-                        accDS
+                        path
+                        |> BackendTask.allowFatal
                 )
-                (BackendTask.succeed Dict.empty)
-                paths
+                accDS
+        )
+        (BackendTask.succeed Dict.empty)
+        paths
 
 
 resolveRepliesWithinDayAndSortFromOldest : Dict RataDie (List Twilog) -> Dict RataDie (List Twilog)

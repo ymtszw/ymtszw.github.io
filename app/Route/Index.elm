@@ -48,7 +48,6 @@ type alias Data =
     , zennArticles : List ZennArticleMetadata
     , qiitaArticles : List QiitaArticleMetadata
     , sizumeArticles : List SizumeArticleMetadata
-    , amazonAssociateTag : String
     }
 
 
@@ -96,13 +95,12 @@ route =
 
 data : BackendTask FatalError Data
 data =
-    BackendTask.map6 Data
+    BackendTask.map5 Data
         publicOriginalRepos
         CmsData.allMetadata
         publicZennArticles
         publicQiitaArticles
         publicSizumeArticles
-        (Helper.requireEnv "AMAZON_ASSOCIATE_TAG")
 
 
 publicOriginalRepos =

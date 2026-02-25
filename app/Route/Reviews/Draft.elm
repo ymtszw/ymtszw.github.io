@@ -5,7 +5,7 @@ import Dict exposing (Dict)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Head
-import Helper exposing (onChange, requireEnv)
+import Helper exposing (onChange)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onCheck, onClick)
@@ -47,16 +47,14 @@ type alias RouteParams =
 
 type alias Data =
     { kindleBooks : Dict ASIN KindleBook
-    , amazonAssociateTag : String
     , secrets : KindleBook.Secrets
     }
 
 
 data : BackendTask FatalError Data
 data =
-    BackendTask.map3 Data
+    BackendTask.map2 Data
         allBooksFromAlgolia
-        (requireEnv "AMAZON_ASSOCIATE_TAG")
         KindleBook.secrets
 
 
@@ -143,7 +141,7 @@ update app shared msg m =
                 |> (\updated ->
                         ( { updated | clean = True }
                         , Effect.none
-                        , requestLinkPreview app.data.amazonAssociateTag updated.reviewMarkdown
+                        , requestLinkPreview updated.reviewMarkdown
                         )
                    )
 
@@ -154,7 +152,7 @@ update app shared msg m =
             ( { m | reviewTitle = s, clean = False }, Effect.none, Nothing )
 
         SetReviewMarkdown s ->
-            ( { m | reviewMarkdown = s, clean = False }, Effect.none, requestLinkPreview app.data.amazonAssociateTag s )
+            ( { m | reviewMarkdown = s, clean = False }, Effect.none, requestLinkPreview s )
 
         Save ->
             ( m
@@ -209,10 +207,10 @@ update app shared msg m =
                     ( Model Nothing "タイトル" sample Nothing Nothing True, Effect.none, Nothing )
 
 
-requestLinkPreview amazonAssociateTag body =
+requestLinkPreview body =
     body
         |> Markdown.parseAndEnumerateLinks
-        |> Shared.Req_LinkPreview amazonAssociateTag
+        |> Shared.Req_LinkPreview
         |> Shared.SharedMsg
         |> Just
 
@@ -247,12 +245,12 @@ view :
     -> Shared.Model
     -> Model
     -> View (PagesMsg Msg)
-view app { links } m =
+view _ { links } m =
     { title = "レビュー（下書き）"
     , body =
         [ case m.book of
             Just book ->
-                renderReview app.data.amazonAssociateTag links book m
+                renderReview links book m
 
             Nothing ->
                 Html.div [] []
@@ -263,12 +261,11 @@ view app { links } m =
 
 
 renderReview :
-    String
-    -> Dict String LinkPreview.Metadata
+    Dict String LinkPreview.Metadata
     -> KindleBook
     -> Model
     -> Html msg
-renderReview amazonAssociateTag links book m =
+renderReview links book m =
     let
         timestamp =
             Html.small [] <|
@@ -301,21 +298,21 @@ renderReview amazonAssociateTag links book m =
         in
         [ Html.h1 [] [ Html.text <| "レビュー：" ++ book.seriesName ++ optionalVolume ]
         , Html.div [] [ timestamp ]
-        , bookDetails amazonAssociateTag book
+        , bookDetails book
         , Html.h1 [] [ Html.text m.reviewTitle ]
         ]
             ++ Markdown.parseAndRender links m.reviewMarkdown
             ++ [ Html.div [] [ timestamp ]
-               , bookDetails amazonAssociateTag book
+               , bookDetails book
                ]
 
 
-bookDetails amazonAssociateTag book =
+bookDetails book =
     blockquote [ class "kindle-book-details" ]
-        [ a [ href (Helper.makeAmazonUrl amazonAssociateTag book.id), target "_blank", class "has-image" ]
+        [ a [ href (Helper.makeAmazonUrl book.id), target "_blank", class "has-image" ]
             [ View.imgLazy [ src book.img, width 150, alt <| book.rawTitle ++ "の書影" ] [] ]
         , div []
-            [ h5 [] [ a [ href (Helper.makeAmazonUrl amazonAssociateTag book.id), target "_blank" ] [ text book.rawTitle ] ]
+            [ h5 [] [ a [ href (Helper.makeAmazonUrl book.id), target "_blank" ] [ text book.rawTitle ] ]
             , ul [] <|
                 List.filterMap (Maybe.map (\( key, kids ) -> li [] (strong [] [ text key ] :: text " : " :: kids)))
                     [ Just ( "著者", List.map tag book.authors )

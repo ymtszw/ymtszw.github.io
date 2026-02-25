@@ -159,8 +159,8 @@ type Msg
 
 type SharedMsg
     = NoOp
-    | Req_LinkPreview String (List String)
-    | Res_LinkPreview String (List String) (Result String ( String, LinkPreview.Metadata ))
+    | Req_LinkPreview (List String)
+    | Res_LinkPreview (List String) (Result String ( String, LinkPreview.Metadata ))
     | ScrollToTop
     | ScrollToBottom
     | CloseLightbox
@@ -191,10 +191,10 @@ update msg model =
                         ]
                     )
 
-        SharedMsg (Req_LinkPreview amazonAssociateTag (url :: urls)) ->
-            ( model, requestLinkPreviewSequentially amazonAssociateTag urls url )
+        SharedMsg (Req_LinkPreview (url :: urls)) ->
+            ( model, requestLinkPreviewSequentially urls url )
 
-        SharedMsg (Res_LinkPreview amazonAssociateTag remainingUrls result) ->
+        SharedMsg (Res_LinkPreview remainingUrls result) ->
             ( case result of
                 Ok ( url, metadata ) ->
                     { model | links = Dict.insert url metadata model.links }
@@ -206,7 +206,7 @@ update msg model =
                     Effect.none
 
                 url :: urls ->
-                    requestLinkPreviewSequentially amazonAssociateTag urls url
+                    requestLinkPreviewSequentially urls url
             )
 
         SharedMsg ScrollToTop ->
@@ -277,11 +277,11 @@ triggerMermaidRender =
 ビルド時にプレビューを事前生成したい要求が強いページ以外は基本的にruntimeに寄せる。
 
 -}
-requestLinkPreviewSequentially : String -> List String -> String -> Effect Msg
-requestLinkPreviewSequentially amazonAssociateTag urls url =
+requestLinkPreviewSequentially : List String -> String -> Effect Msg
+requestLinkPreviewSequentially urls url =
     url
-        |> LinkPreview.getMetadataOnDemand amazonAssociateTag
-        |> Task.attempt (Res_LinkPreview amazonAssociateTag urls)
+        |> LinkPreview.getMetadataOnDemand
+        |> Task.attempt (Res_LinkPreview urls)
         |> Cmd.map SharedMsg
         |> Effect.fromCmd
 

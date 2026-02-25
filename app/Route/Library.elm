@@ -61,7 +61,6 @@ type alias Data =
     , numberOfBooks : Int
     , authors : Dict String Int
     , labels : Dict String Int
-    , amazonAssociateTag : String
     , libraryKeySeedHash : ( Int, Int )
     , secrets : KindleBook.Secrets
     }
@@ -82,7 +81,6 @@ data =
                         in
                         Data (groupBySeriesName booksByAsin) (Dict.size booksByAsin) authors labels
                     )
-                |> BackendTask.andMap (requireEnv "AMAZON_ASSOCIATE_TAG")
                 |> BackendTask.andMap (BackendTask.succeed lksh)
                 |> BackendTask.andMap KindleBook.secrets
 
@@ -519,7 +517,7 @@ Kindle蔵書リスト。前々から自分用に使いやすいKindleのフロ�
                 ++ List.map (filterableTag ToggleLabelFilter m.filter.labels) (Set.toList m.filter.labels)
         , kindleBookshelf m app
         , lockKindleLibrary
-        , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover app.data.amazonAssociateTag m.decryptedKindleBooks m.filter m.selectedBook m.editingBook)
+        , div [ class "kindle-popover", hidden (not m.popoverOpened) ] (kindlePopover m.decryptedKindleBooks m.filter m.selectedBook m.editingBook)
         , div [ class "kindle-popover", hidden m.unlocked ] kindleLibraryLock
         ]
     }
@@ -882,8 +880,8 @@ lockKindleLibrary =
     button [ onClick LockLibrary ] [ text "再度ロックする（テスト用）" ]
 
 
-kindlePopover : String -> Dict SeriesName (List KindleBook) -> Filter -> Maybe ( SeriesName, ASIN ) -> Maybe KindleBook -> List (Html Msg)
-kindlePopover amazonAssociateTag decryptedKindleBooks f openedBook maybeEditingBook =
+kindlePopover : Dict SeriesName (List KindleBook) -> Filter -> Maybe ( SeriesName, ASIN ) -> Maybe KindleBook -> List (Html Msg)
+kindlePopover decryptedKindleBooks f openedBook maybeEditingBook =
     [ header [ onClick (ToggleKindlePopover Nothing), attribute "role" "button" ] []
     , main_ [] <|
         case getBook decryptedKindleBooks openedBook of
@@ -932,7 +930,7 @@ kindlePopover amazonAssociateTag decryptedKindleBooks f openedBook maybeEditingB
                                 -- 執筆したいときは書架ページからの遷移を必須とすることで自分しか書けないようにしたい
                                 Url.Builder.absolute (Route.routeToPath Route.Reviews__Draft) [ Url.Builder.string "id" book.id ]
                         in
-                        [ h5 [] [ a [ href (Helper.makeAmazonUrl amazonAssociateTag book.id), target "_blank" ] [ text book.rawTitle ] ]
+                        [ h5 [] [ a [ href (Helper.makeAmazonUrl book.id), target "_blank" ] [ text book.rawTitle ] ]
                         , a [ class "cloud-reader-link", href ("https://read.amazon.co.jp/manga/" ++ book.id), target "_blank" ] [ text "Kindleビューアで読む" ]
                         ]
                             ++ editablePart

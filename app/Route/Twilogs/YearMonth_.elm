@@ -16,7 +16,7 @@ import FatalError exposing (FatalError)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
 import Head.Seo as Seo
-import Helper exposing (requireEnv)
+import Helper
 import Html exposing (Html, nav, strong, text)
 import Html.Attributes exposing (class)
 import List.Extra
@@ -46,7 +46,6 @@ type alias RouteParams =
 type alias Data =
     { twilogsFromOldest : Dict RataDie (List Twilog)
     , searchSecrets : TwilogSearch.Secrets
-    , amazonAssociateTag : String
     }
 
 
@@ -109,7 +108,6 @@ data routeParams =
                     |> BackendTask.map Data
             )
         |> BackendTask.andMap TwilogSearch.secrets
-        |> BackendTask.andMap (requireEnv "AMAZON_ASSOCIATE_TAG")
 
 
 getAvailableDays : String -> BackendTask FatalError (List String)

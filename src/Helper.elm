@@ -174,31 +174,31 @@ removeRootSlash rawUrl =
             rawUrl
 
 
-makeAmazonUrl : String -> String -> String
-makeAmazonUrl amazonAssociateTag rawUrlOrAsin =
+makeAmazonUrl : String -> String
+makeAmazonUrl rawUrlOrAsin =
     Url.fromString rawUrlOrAsin
         |> Maybe.map
             (\url ->
                 case ( url.host, String.contains "/dp/" url.path ) of
                     ( "www.amazon.co.jp", True ) ->
-                        embedTag amazonAssociateTag url
+                        embedTag url
 
                     _ ->
                         Url.toString url
             )
-        |> Maybe.withDefault (dpUrlWithTag amazonAssociateTag rawUrlOrAsin)
+        |> Maybe.withDefault (dpUrlWithTag rawUrlOrAsin)
 
 
-dpUrlWithTag amazonAssociateTag asin =
-    "https://www.amazon.co.jp/dp/" ++ asin ++ "?tag=" ++ amazonAssociateTag
+dpUrlWithTag asin =
+    "https://www.amazon.co.jp/dp/" ++ asin ++ "?tag=ymtszw-22"
 
 
-embedTag : String -> Url.Url -> String
-embedTag amazonAssociateTag url =
+embedTag : Url.Url -> String
+embedTag url =
     url.query
         |> Maybe.withDefault ""
         |> Pages.PageUrl.parseQueryParams
-        |> Dict.insert "tag" [ amazonAssociateTag ]
+        |> Dict.insert "tag" [ "ymtszw-22" ]
         |> (\qp ->
                 let
                     reducer k v acc =

@@ -125,8 +125,8 @@ resolveUrl baseUrl pathOrUrl =
         baseUrl ++ String.dropLeft 1 pathOrUrl
 
 
-getMetadataOnDemand : String -> String -> Task String ( String, Metadata )
-getMetadataOnDemand amazonAssociateTag url =
+getMetadataOnDemand : String -> Task String ( String, Metadata )
+getMetadataOnDemand url =
     Http.task
         { method = "GET"
         , url = linkPreviewApiEndpoint url
@@ -139,7 +139,7 @@ getMetadataOnDemand amazonAssociateTag url =
                     case response of
                         Http.GoodStatus_ _ body ->
                             Decode.decodeString (linkPreviewDecoder url) body
-                                |> Result.map (\meta -> { meta | canonicalUrl = Helper.makeAmazonUrl amazonAssociateTag meta.canonicalUrl })
+                                |> Result.map (\meta -> { meta | canonicalUrl = Helper.makeAmazonUrl meta.canonicalUrl })
                                 |> Result.mapError Decode.errorToString
 
                         Http.BadStatus_ { statusCode } _ ->

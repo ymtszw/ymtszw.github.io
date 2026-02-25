@@ -153,7 +153,7 @@ searchBody term =
 searchResultDecoder : String -> Decode.Decoder SearchTwilogsResult
 searchResultDecoder term =
     Decode.map2 (SearchTwilogsResult term)
-        (Decode.field "hits" (Decode.list (TwilogData.twilogDecoder Nothing)))
+        (Decode.field "hits" (Decode.list TwilogData.twilogDecoder))
         (Decode.field "nbHits" Decode.int)
 
 

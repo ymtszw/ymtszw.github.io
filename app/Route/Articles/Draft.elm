@@ -47,7 +47,6 @@ type alias RouteParams =
 
 type alias Data =
     { microCmsApiKey : String
-    , amazonAssociateTag : String
     }
 
 
@@ -70,9 +69,8 @@ route =
 
 data : BackendTask FatalError Data
 data =
-    BackendTask.map2 Data
+    BackendTask.map Data
         (requireEnv "MICROCMS_API_KEY")
-        (requireEnv "AMAZON_ASSOCIATE_TAG")
 
 
 head : App Data ActionData RouteParams -> List Head.Tag
@@ -146,7 +144,7 @@ update app shared msg m =
                     Nothing
 
                 nonEmpty ->
-                    Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag nonEmpty))
+                    Just (Shared.SharedMsg (Shared.Req_LinkPreview nonEmpty))
             )
 
         Res_Draft (Err _) ->

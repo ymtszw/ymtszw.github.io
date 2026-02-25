@@ -28,7 +28,7 @@ import FatalError exposing (FatalError)
 import Generated.TwilogArchives exposing (TwilogArchiveYearMonth)
 import Head
 import Head.Seo as Seo
-import Helper exposing (requireEnv)
+import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -84,7 +84,6 @@ type alias RouteParams =
 type alias Data =
     { twilogsFromOldest : Dict RataDie (List Twilog)
     , searchSecrets : TwilogSearch.Secrets
-    , amazonAssociateTag : String
     }
 
 
@@ -128,7 +127,6 @@ data =
                     |> BackendTask.map Data
             )
         |> BackendTask.andMap TwilogSearch.secrets
-        |> BackendTask.andMap (requireEnv "AMAZON_ASSOCIATE_TAG")
 
 
 daysToPeek =
@@ -161,7 +159,7 @@ head _ =
 
 
 update : App Data ActionData routeParams -> Shared.Model -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
-update app shared msg model =
+update _ shared msg model =
     case msg of
         NoOp ->
             ( model, Effect.none, Nothing )
@@ -204,7 +202,7 @@ update app shared msg model =
                     ( model, Effect.none, Nothing )
 
                 notFetchedUrls ->
-                    ( model, Effect.none, Just (Shared.SharedMsg (Shared.Req_LinkPreview app.data.amazonAssociateTag notFetchedUrls)) )
+                    ( model, Effect.none, Just (Shared.SharedMsg (Shared.Req_LinkPreview notFetchedUrls)) )
 
         RuntimeInit ->
             ( model
