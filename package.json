@@ -2,7 +2,7 @@
   "name": "ymtszw",
   "type": "module",
   "scripts": {
-    "build": "SECONDS=0; elm-pages build && echo \"Build took ${SECONDS}s.\"",
+    "build": "SECONDS=0; elm-pages build --strict && echo \"Build took ${SECONDS}s.\"",
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
     "generate_html_entities": "elm-pages run script/GenerateHtmlEntities.elm",
     "generate_twilog_data_codec_test_fixtures": "elm-pages run script/GenerateTwilogDataCodecTestFixtures",
@@ -15,13 +15,14 @@
   "overrides": {
     "cross-spawn": "^7.0.6",
     "esbuild": "^0.25.0",
+    "minimatch": ">=3.1.3",
     "tmp": "^0.2.4"
   },
   "// NOTE: devDependencies": "elm-pages depends elm-review internally, so their versions must be updated together.",
   "devDependencies": {
     "elm-codegen": "^0.6",
     "elm-optimize-level-2": "^0.3",
-    "elm-pages": "3.0.28",
+    "elm-pages": "3.1.5",
     "elm-review": "2.13.5",
     "elm-tooling": "^1.15",
     "lamdera": "^0.19.1-1.3.2",
