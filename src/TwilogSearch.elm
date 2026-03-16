@@ -217,6 +217,7 @@ batchAddObjectsOnBuild twilogs =
         denyList =
             -- 巨大すぎてAlgoliaのBatch APIの制限に抵触した実績のあるtwilog ID
             [ "2017415820381720620"
+            , "2031580477740708210"
             ]
     in
     do (BackendTask.map2 Tuple.pair (requireEnv "ALGOLIA_APP_ID") (requireEnv "ALGOLIA_ADMIN_KEY")) <|
@@ -256,23 +257,31 @@ batchAddObjectsOnBuild twilogs =
                     (\{ recoverable } ->
                         case recoverable of
                             BackendTask.Http.BadStatus meta _ ->
+                                -- XXX: JSON-expectedなときのBadStatusにはvalueが入ってくるはずなのだが空文字列になっている（elm-pagesのバグ？）ため、これをdecodeして動的にリトライが出来ない
+                                -- ダッシュボード側で見ると以下のようなレスポンスが返ってくることがわかっているので、objectIDを抜き取って動的に除外しながらリトライ、が本来やれるはず
+                                -- {
+                                -- "message": "Record at the position 8 objectID=2031580477740708210 is too big size=12367/10000 bytes. Please have a look at https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/in-depth/index-and-records-size-and-usage-limitations/#record-size-limits",
+                                -- "position": 8,
+                                -- "objectID": "2031580477740708210",
+                                -- "status": 400
+                                -- }
                                 let
-                                    dumpedJson =
+                                    dumpedReqJson =
                                         Json.Encode.encode 4 body
 
                                     hash =
-                                        Murmur3.hashString 1234 dumpedJson |> String.fromInt
+                                        Murmur3.hashString 1234 dumpedReqJson |> String.fromInt
 
-                                    dumpJsonFileName =
+                                    dumpReqJsonFileName =
                                         "algolia-batch-request-body-" ++ hash ++ ".json"
                                 in
-                                BackendTask.File.Extra.dumpJsonFile dumpJsonFileName body
+                                BackendTask.File.Extra.dumpJsonFile dumpReqJsonFileName body
                                     |> BackendTask.allowFatal
                                     |> BackendTask.andThen
                                         (\_ ->
                                             FatalError.build
                                                 { title = "Algolia Batch API Client Error: " ++ String.fromInt meta.statusCode
-                                                , body = "See <https://dashboard.algolia.com/apps/" ++ appId ++ "/explorer/logs/ymtszw-twilogs> for details.\nRequest body dumped to tmp/" ++ dumpJsonFileName ++ "."
+                                                , body = "See <https://dashboard.algolia.com/apps/" ++ appId ++ "/explorer/logs/ymtszw-twilogs> for details.\nRequest body dumped to tmp/" ++ dumpReqJsonFileName
                                                 }
                                                 |> BackendTask.fail
                                         )

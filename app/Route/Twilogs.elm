@@ -659,7 +659,8 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
                                     ]
                                 ]
                         )
-                        pseudoQuotes
+                        -- QT表示が多すぎると間延びするので最大1件に制限
+                        (List.take 1 pseudoQuotes)
     in
     if List.isEmpty linkPreviews then
         htmls
@@ -688,7 +689,8 @@ appendLinkPreviews links entitiesTcoUrl htmls_ =
                             ]
                         ]
                 )
-                linkPreviews
+                -- LinkPreview表示が多すぎると間延びするので最大3件に制限
+                (List.take 3 linkPreviews)
 
 
 tweetPermalinkRegex =
