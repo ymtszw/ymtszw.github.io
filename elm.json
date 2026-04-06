@@ -18,7 +18,7 @@
             "dillonkearns/elm-bcp47-language-tag": "2.0.0",
             "dillonkearns/elm-cli-options-parser": "5.0.1",
             "dillonkearns/elm-date-or-date-time": "2.0.0",
-            "dillonkearns/elm-form": "3.0.1",
+            "dillonkearns/elm-form": "3.1.0",
             "dillonkearns/elm-markdown": "7.0.1",
             "dillonkearns/elm-pages": "12.1.2",
             "dillonkearns/elm-rss": "2.0.5",
@@ -66,7 +66,6 @@
             "elm/file": "1.0.5",
             "elm/random": "1.0.0",
             "elm/svg": "1.0.1",
-            "elm-community/basics-extra": "4.1.0",
             "elm-explorations/benchmark": "1.0.2",
             "elm-explorations/test": "2.2.1",
             "elmcraft/core-extra": "2.3.0",
@@ -80,7 +79,7 @@
             "ryan-haskell/date-format": "1.0.0",
             "stil4m/elm-syntax": "7.3.9",
             "stil4m/structured-writer": "1.0.3",
-            "the-sett/elm-pretty-printer": "3.3.0",
+            "the-sett/elm-pretty-printer": "3.3.1",
             "wolfadex/elm-ansi": "3.0.1"
         }
     },
