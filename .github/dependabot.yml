@@ -5,6 +5,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 10
     groups:
       dependabot:
         patterns:
@@ -14,6 +16,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 10
     groups:
       dependabot:
         patterns:
@@ -22,6 +26,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 10
     groups:
       dependabot:
         patterns:
