@@ -39,5 +39,12 @@
     "globby": "^16.0",
     "highlight.js": "^11.11",
     "image-size": "^2.0"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "lamdera@0.19.1-1.4.0": true,
+    "fsevents@2.3.3": true,
+    "sharp@0.34.5": true,
+    "workerd@1.20260611.1": true
   }
 }
