@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Cache dependencies
-        uses: actions/cache@v5.0.5
+        uses: actions/cache@v6.1.0
         with:
           key: v5-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('elm.json') }}
           restore-keys: |
