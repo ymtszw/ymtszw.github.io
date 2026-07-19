@@ -106,43 +106,37 @@ wait_for_json_expression() {
 
 echo "=== Smoke Test for $DEPLOY_URL ==="
 
-# Wait a bit for server to be ready
-echo "[1/7] Waiting for server..."
-wait_for_http_200 "server" "/" || exit 1
-echo "✓ Server is ready"
-
-# Test 1: Index page (static route)
-echo "[2/7] Testing index page (/)..."
+# Test 1: Index page (static route) — also serves as server readiness check
+echo "[1/6] Testing index page (/)..."
 wait_for_http_200 "index page" "/" || exit 1
 echo "✓ Index page OK"
 
 # Test 2: Static content route
-echo "[3/7] Testing static route (/articles)..."
+echo "[2/6] Testing static route (/articles)..."
 wait_for_http_200 "static route /articles" "/articles" "follow" || exit 1
 echo "✓ Static route OK"
 
 # Test 3: Server-render route with SSR content
-echo "[4/7] Testing SSR route (/server-test)..."
+echo "[3/6] Testing SSR route (/server-test)..."
 wait_for_http_200 "SSR route /server-test" "/server-test" || exit 1
 wait_for_body_match "SSR route /server-test" "/server-test" "Running on Cloudflare Pages" || exit 1
 echo "✓ SSR route OK"
 
 # Test 4: Response headers (x-elm-pages-cloudflare)
-echo "[5/7] Testing Cloudflare runtime detection header..."
+echo "[4/6] Testing Cloudflare runtime detection header..."
 # Use GET and print headers instead of HEAD to avoid servers that error on HEAD
 wait_for_header_match "/server-test" "/server-test" 'x-elm-pages-cloudflare: true' || exit 1
 echo "✓ Runtime detection header OK"
 
 # Test 5: API route (/api/test) returns JSON and indicates adapter runtime
-echo "[6/7] Testing API route (/api/test)..."
-wait_for_http_200 "API route /api/test" "/api/test" || exit 1
+echo "[5/6] Testing API route (/api/test)..."
 # Check JSON contains runtime.isCloudflare using jq
 if ! command -v jq >/dev/null 2>&1; then
   echo "✗ jq is required for JSON assertions but not installed"
   exit 2
 fi
+# wait_for_json_expression outputs the JSON body on success via stdout
 API_JSON=$(wait_for_json_expression "/api/test" "/api/test" '. | ( .runtime and .runtime.isCloudflare )') || exit 1
-# Validate it's JSON and has .runtime.isCloudflare boolean
 IS_CF=$(echo "$API_JSON" | jq -r '.runtime.isCloudflare')
 echo "✓ API route JSON OK (runtime.isCloudflare = $IS_CF)"
 
@@ -151,7 +145,7 @@ wait_for_header_match "/api/test" "/api/test" 'x-elm-pages-cloudflare: true' || 
 echo "✓ API response header x-elm-pages-cloudflare OK"
 
 # Test 6: Static assets availability
-echo "[7/7] Testing static assets..."
+echo "[6/6] Testing static assets..."
 wait_for_http_200 "static asset /robots.txt" "/robots.txt" || exit 1
 # Verify robots.txt content is not empty
 ROBOTS_SIZE=$(curl -s "$DEPLOY_URL/robots.txt" | wc -c | tr -d ' ')
