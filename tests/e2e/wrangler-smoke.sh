@@ -7,91 +7,152 @@ if [ -z "$DEPLOY_URL" ]; then
   exit 2
 fi
 
+MAX_ATTEMPTS="${SMOKE_MAX_ATTEMPTS:-10}"
+RETRY_DELAY_SECONDS="${SMOKE_RETRY_DELAY_SECONDS:-2}"
+
+request_status() {
+  local path="$1"
+  local curl_args=()
+  if [ "${2:-}" = "follow" ]; then
+    curl_args+=(-L)
+  fi
+  curl -s "${curl_args[@]}" -o /dev/null -w '%{http_code}' "$DEPLOY_URL$path" || true
+}
+
+wait_for_http_200() {
+  local label="$1"
+  local path="$2"
+  local follow_redirects="${3:-}"
+  local http=""
+  local attempt
+
+  for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+    http=$(request_status "$path" "$follow_redirects")
+    if [ "$http" = "200" ]; then
+      return 0
+    fi
+    echo "  waiting for $label, attempt $attempt/$MAX_ATTEMPTS got $http" >&2
+    sleep "$RETRY_DELAY_SECONDS"
+  done
+
+  echo "✗ $label returned $http after $MAX_ATTEMPTS attempts" >&2
+  return 1
+}
+
+wait_for_body_match() {
+  local label="$1"
+  local path="$2"
+  local expected="$3"
+  local body=""
+  local attempt
+
+  for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+    body=$(curl -s "$DEPLOY_URL$path" || true)
+    if printf '%s' "$body" | grep -q "$expected"; then
+      return 0
+    fi
+    echo "  waiting for $label body, attempt $attempt/$MAX_ATTEMPTS" >&2
+    sleep "$RETRY_DELAY_SECONDS"
+  done
+
+  echo "✗ $label body did not contain expected text after $MAX_ATTEMPTS attempts" >&2
+  echo "Last response: $body" >&2
+  return 1
+}
+
+wait_for_header_match() {
+  local label="$1"
+  local path="$2"
+  local expected="$3"
+  local headers=""
+  local attempt
+
+  for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+    headers=$(curl -s -D - -o /dev/null "$DEPLOY_URL$path" || true)
+    if printf '%s' "$headers" | grep -iq "$expected"; then
+      return 0
+    fi
+    echo "  waiting for $label header, attempt $attempt/$MAX_ATTEMPTS" >&2
+    sleep "$RETRY_DELAY_SECONDS"
+  done
+
+  echo "✗ Header $expected missing on $label after $MAX_ATTEMPTS attempts" >&2
+  echo "Last headers:" >&2
+  printf '%s\n' "$headers" >&2
+  return 1
+}
+
+wait_for_json_expression() {
+  local label="$1"
+  local path="$2"
+  local jq_expression="$3"
+  local body=""
+  local attempt
+
+  for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+    body=$(curl -s "$DEPLOY_URL$path" || true)
+    if printf '%s' "$body" | jq -e "$jq_expression" >/dev/null 2>&1; then
+      printf '%s\n' "$body"
+      return 0
+    fi
+    echo "  waiting for $label JSON, attempt $attempt/$MAX_ATTEMPTS" >&2
+    sleep "$RETRY_DELAY_SECONDS"
+  done
+
+  echo "✗ $label JSON validation failed after $MAX_ATTEMPTS attempts" >&2
+  echo "Last response: $body" >&2
+  return 1
+}
+
 echo "=== Smoke Test for $DEPLOY_URL ==="
 
 # Wait a bit for server to be ready
 echo "[1/7] Waiting for server..."
-for i in 1 2 3 4 5; do
-  HTTP=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/" || true)
-  if [ "$HTTP" = "200" ]; then
-    echo "✓ Server is ready"
-    break
-  fi
-  echo "  waiting for server, attempt $i got $HTTP"
-  sleep 2
-done
+wait_for_http_200 "server" "/" || exit 1
+echo "✓ Server is ready"
 
 # Test 1: Index page (static route)
 echo "[2/7] Testing index page (/)..."
-HTTP=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/" || true)
-if [ "$HTTP" != "200" ]; then
-  echo "✗ Index page returned $HTTP"
-  exit 1
-fi
+wait_for_http_200 "index page" "/" || exit 1
 echo "✓ Index page OK"
 
 # Test 2: Static content route
 echo "[3/7] Testing static route (/articles)..."
-HTTP=$(curl -s -L -o /dev/null -w '%{http_code}' "$DEPLOY_URL/articles" || true)
-if [ "$HTTP" != "200" ]; then
-  echo "✗ Articles page returned $HTTP"
-  exit 1
-fi
+wait_for_http_200 "static route /articles" "/articles" "follow" || exit 1
 echo "✓ Static route OK"
 
 # Test 3: Server-render route with SSR content
 echo "[4/7] Testing SSR route (/server-test)..."
-HTTP=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/server-test" || true)
-if [ "$HTTP" != "200" ]; then
-  echo "✗ server-test returned $HTTP"
-  exit 1
-fi
-curl -s "$DEPLOY_URL/server-test" | grep -q "Running on Cloudflare Pages" || (echo "✗ SSR content not matched" && exit 1)
+wait_for_http_200 "SSR route /server-test" "/server-test" || exit 1
+wait_for_body_match "SSR route /server-test" "/server-test" "Running on Cloudflare Pages" || exit 1
 echo "✓ SSR route OK"
 
 # Test 4: Response headers (x-elm-pages-cloudflare)
 echo "[5/7] Testing Cloudflare runtime detection header..."
 # Use GET and print headers instead of HEAD to avoid servers that error on HEAD
-curl -s -D - -o /dev/null "$DEPLOY_URL/server-test" | grep -i 'x-elm-pages-cloudflare: true' || (echo "✗ Header x-elm-pages-cloudflare missing" && exit 1)
+wait_for_header_match "/server-test" "/server-test" 'x-elm-pages-cloudflare: true' || exit 1
 echo "✓ Runtime detection header OK"
 
 # Test 5: API route (/api/test) returns JSON and indicates adapter runtime
 echo "[6/7] Testing API route (/api/test)..."
-HTTP=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/api/test" || true)
-if [ "$HTTP" != "200" ]; then
-  echo "✗ /api/test returned $HTTP"
-  exit 1
-fi
+wait_for_http_200 "API route /api/test" "/api/test" || exit 1
 # Check JSON contains runtime.isCloudflare using jq
 if ! command -v jq >/dev/null 2>&1; then
   echo "✗ jq is required for JSON assertions but not installed"
   exit 2
 fi
-API_JSON=$(curl -s "$DEPLOY_URL/api/test")
+API_JSON=$(wait_for_json_expression "/api/test" "/api/test" '. | ( .runtime and .runtime.isCloudflare )') || exit 1
 # Validate it's JSON and has .runtime.isCloudflare boolean
-echo "$API_JSON" | jq -e '. | ( .runtime and .runtime.isCloudflare )' >/dev/null 2>&1 || (
-  echo "✗ /api/test JSON validation failed (missing or invalid .runtime.isCloudflare)"
-  echo "Response: $API_JSON"
-  exit 1
-)
 IS_CF=$(echo "$API_JSON" | jq -r '.runtime.isCloudflare')
 echo "✓ API route JSON OK (runtime.isCloudflare = $IS_CF)"
 
 # Also assert the runtime header is present on the API response
-API_HEADER_OK=$(curl -s -D - -o /dev/null "$DEPLOY_URL/api/test" | grep -i 'x-elm-pages-cloudflare: true' || true)
-if [ -z "$API_HEADER_OK" ]; then
-  echo "✗ Header x-elm-pages-cloudflare missing on /api/test response"
-  exit 1
-fi
+wait_for_header_match "/api/test" "/api/test" 'x-elm-pages-cloudflare: true' || exit 1
 echo "✓ API response header x-elm-pages-cloudflare OK"
 
 # Test 6: Static assets availability
 echo "[7/7] Testing static assets..."
-HTTP=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/robots.txt" || true)
-if [ "$HTTP" != "200" ]; then
-  echo "✗ robots.txt returned $HTTP"
-  exit 1
-fi
+wait_for_http_200 "static asset /robots.txt" "/robots.txt" || exit 1
 # Verify robots.txt content is not empty
 ROBOTS_SIZE=$(curl -s "$DEPLOY_URL/robots.txt" | wc -c | tr -d ' ')
 if [ "$ROBOTS_SIZE" -lt 10 ]; then
