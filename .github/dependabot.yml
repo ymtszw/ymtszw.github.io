@@ -22,7 +22,6 @@ updates:
       deps:
         patterns:
           - "*"
-        dependency-type: "all"
   - package-ecosystem: "elm"
     directory: "/"
     schedule:
