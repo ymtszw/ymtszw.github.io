@@ -398,17 +398,17 @@ twilogDailySection shared weatherByDay rataDie twilogs =
         weatherBadge =
             case WeatherData.weatherSummaryForDate date weatherByDay of
                 Just w ->
-                    span [ class "weather-summary" ]
-                        [ text
-                            (WeatherData.weatherCodeToEmoji w.weatherCode
-                                ++ " "
-                                ++ WeatherData.weatherCodeToLabel w.weatherCode
+                    span
+                        [ class "weather-summary"
+                        , title
+                            (WeatherData.weatherCodeToLabel w.weatherCode
                                 ++ " "
                                 ++ formatTemp w.maxTemp
                                 ++ "/"
                                 ++ formatTemp w.minTemp
                             )
                         ]
+                        [ text (WeatherData.weatherCodeToEmoji w.weatherCode) ]
 
                 Nothing ->
                     text ""
