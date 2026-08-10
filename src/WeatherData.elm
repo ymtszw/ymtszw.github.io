@@ -271,7 +271,7 @@ weatherCodeToEmoji code =
 
     else if code <= 77 then
         -- Snow fall, Snow grains
-        "❄"
+        "⛄"
 
     else if code <= 82 then
         -- Rain showers
