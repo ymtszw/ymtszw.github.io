@@ -23,7 +23,6 @@ import Cli.Program
 import Dict exposing (Dict)
 import FatalError exposing (FatalError)
 import Json.Decode as Decode
-import Json.Encode as Encode
 import List.Extra
 import Pages.Script as Script exposing (Script)
 import WeatherData exposing (ResidencePeriod, WeatherDb, WeatherSummary)
@@ -68,7 +67,7 @@ fetchWeatherForSpecificDate date =
                                             Dict.union newEntries existingDb
 
                                         encodedBody =
-                                            Encode.encode 0 (WeatherData.weatherDbEncoder mergedDb)
+                                            WeatherData.weatherDbToJsonLines mergedDb
                                     in
                                     Script.writeFile
                                         { path = WeatherData.weatherDbFilePath
@@ -105,7 +104,7 @@ fetchMissingWeatherData =
                                                                 Dict.union newEntries existingDb
 
                                                             encodedBody =
-                                                                Encode.encode 0 (WeatherData.weatherDbEncoder mergedDb)
+                                                                WeatherData.weatherDbToJsonLines mergedDb
                                                         in
                                                         Script.writeFile
                                                             { path = WeatherData.weatherDbFilePath

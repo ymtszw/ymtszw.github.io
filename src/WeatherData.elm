@@ -8,8 +8,8 @@ module WeatherData exposing
     , residencePeriodsDecoder
     , weatherCodeToEmoji
     , weatherCodeToLabel
-    , weatherDbEncoder
     , weatherDbFilePath
+    , weatherDbToJsonLines
     , weatherSummaryForDate
     )
 
@@ -72,7 +72,17 @@ weatherSummaryForDate date db =
 
 decoder : Decode.Decoder WeatherDb
 decoder =
-    Decode.dict weatherSummaryDecoder
+    Decode.list
+        (Decode.map4
+            (\date maxTemp minTemp weatherCode ->
+                ( date, WeatherSummary maxTemp minTemp weatherCode )
+            )
+            (Decode.field "date" Decode.string)
+            (Decode.field "maxTemp" Decode.float)
+            (Decode.field "minTemp" Decode.float)
+            (Decode.field "weatherCode" Decode.int)
+        )
+        |> Decode.map Dict.fromList
 
 
 weatherSummaryDecoder : Decode.Decoder WeatherSummary
@@ -83,18 +93,36 @@ weatherSummaryDecoder =
         (Decode.field "weatherCode" Decode.int)
 
 
-weatherDbEncoder : WeatherDb -> Encode.Value
-weatherDbEncoder db =
-    Encode.dict identity weatherSummaryEncoder db
+{-| WeatherDb を「1行1日付」のJSONLines形式の文字列にシリアライズする。
+日付昇順でソートされ、実行のたびに行順が一定になる。
 
+形式:
+[
+{"date":"YYYY-MM-DD","maxTemp":X.X,"minTemp":X.X,"weatherCode":N},
+...
+]
 
-weatherSummaryEncoder : WeatherSummary -> Encode.Value
-weatherSummaryEncoder ws =
-    Encode.object
-        [ ( "maxTemp", Encode.float ws.maxTemp )
-        , ( "minTemp", Encode.float ws.minTemp )
-        , ( "weatherCode", Encode.int ws.weatherCode )
-        ]
+-}
+weatherDbToJsonLines : WeatherDb -> String
+weatherDbToJsonLines db =
+    let
+        lines =
+            db
+                |> Dict.toList
+                |> List.sortBy Tuple.first
+                |> List.map
+                    (\( date, ws ) ->
+                        Encode.encode 0
+                            (Encode.object
+                                [ ( "date", Encode.string date )
+                                , ( "maxTemp", Encode.float ws.maxTemp )
+                                , ( "minTemp", Encode.float ws.minTemp )
+                                , ( "weatherCode", Encode.int ws.weatherCode )
+                                ]
+                            )
+                    )
+    in
+    "[\n" ++ String.join ",\n" lines ++ "\n]"
 
 
 residencePeriodsDecoder : Decode.Decoder (List ResidencePeriod)

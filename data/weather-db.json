@@ -1,1 +1,5 @@
-{"2026-08-07":{"maxTemp":35.7,"minTemp":28.1,"weatherCode":1},"2026-08-08":{"maxTemp":36.4,"minTemp":28.9,"weatherCode":0},"2026-08-09":{"maxTemp":33.2,"minTemp":27.4,"weatherCode":80}}
+[
+{"date":"2026-08-07","maxTemp":35.7,"minTemp":28.1,"weatherCode":1},
+{"date":"2026-08-08","maxTemp":36.4,"minTemp":28.9,"weatherCode":0},
+{"date":"2026-08-09","maxTemp":33.2,"minTemp":27.4,"weatherCode":80}
+]
