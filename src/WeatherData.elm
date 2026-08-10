@@ -38,6 +38,8 @@ type alias WeatherSummary =
     { maxTemp : Float
     , minTemp : Float
     , weatherCode : Int
+    , latitude : Float
+    , longitude : Float
     }
 
 
@@ -110,24 +112,29 @@ currentResidencePeriodForDate date periods =
 decoder : Decode.Decoder WeatherDb
 decoder =
     Decode.list
-        (Decode.map4
-            (\date maxTemp minTemp weatherCode ->
-                ( date, WeatherSummary maxTemp minTemp weatherCode )
+        (Decode.map6
+            (\date maxTemp minTemp weatherCode latitude longitude ->
+                ( date, WeatherSummary maxTemp minTemp weatherCode latitude longitude )
             )
             (Decode.field "date" Decode.string)
             (Decode.field "maxTemp" Decode.float)
             (Decode.field "minTemp" Decode.float)
             (Decode.field "weatherCode" Decode.int)
+            -- lat/long は旧フォーマットのエントリには存在しないため 0.0 にフォールバック
+            (Decode.oneOf [ Decode.field "latitude" Decode.float, Decode.succeed 0.0 ])
+            (Decode.oneOf [ Decode.field "longitude" Decode.float, Decode.succeed 0.0 ])
         )
         |> Decode.map Dict.fromList
 
 
 weatherSummaryDecoder : Decode.Decoder WeatherSummary
 weatherSummaryDecoder =
-    Decode.map3 WeatherSummary
+    Decode.map5 WeatherSummary
         (Decode.field "maxTemp" Decode.float)
         (Decode.field "minTemp" Decode.float)
         (Decode.field "weatherCode" Decode.int)
+        (Decode.oneOf [ Decode.field "latitude" Decode.float, Decode.succeed 0.0 ])
+        (Decode.oneOf [ Decode.field "longitude" Decode.float, Decode.succeed 0.0 ])
 
 
 {-| WeatherDb を「1行1日付」のJSONLines形式の文字列にシリアライズする。
@@ -155,6 +162,8 @@ weatherDbToJsonLines db =
                                 , ( "maxTemp", Encode.float ws.maxTemp )
                                 , ( "minTemp", Encode.float ws.minTemp )
                                 , ( "weatherCode", Encode.int ws.weatherCode )
+                                , ( "latitude", Encode.float ws.latitude )
+                                , ( "longitude", Encode.float ws.longitude )
                                 ]
                             )
                     )

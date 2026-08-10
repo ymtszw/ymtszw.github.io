@@ -90,6 +90,11 @@ fetchMissingWeatherData =
                                     let
                                         missingDates =
                                             List.filter (\d -> not (Dict.member d existingDb)) allDates
+
+                                        monthGroups =
+                                            missingDates
+                                                |> groupByYearMonth
+                                                |> Dict.toList
                                     in
                                     if List.isEmpty missingDates then
                                         Script.log "No missing weather data. All up to date."
@@ -97,21 +102,36 @@ fetchMissingWeatherData =
                                     else
                                         do (Script.log ("Found " ++ String.fromInt (List.length missingDates) ++ " dates with missing weather data.")) <|
                                             \() ->
-                                                do (fetchWeatherForDates residencePeriods missingDates) <|
-                                                    \newEntries ->
-                                                        let
-                                                            mergedDb =
-                                                                Dict.union newEntries existingDb
+                                                -- 月ごとに順番に取得・保存（並列だとレート制限に引っかかるため）
+                                                fetchAndSaveMonthsSequentially residencePeriods monthGroups existingDb 0
 
-                                                            encodedBody =
-                                                                WeatherData.weatherDbToJsonLines mergedDb
-                                                        in
-                                                        Script.writeFile
-                                                            { path = WeatherData.weatherDbFilePath
-                                                            , body = encodedBody
-                                                            }
-                                                            |> BackendTask.allowFatal
-                                                            |> thenLog ("Saved " ++ String.fromInt (Dict.size newEntries) ++ " new weather entries to " ++ WeatherData.weatherDbFilePath)
+
+{-| 月グループを1件ずつ順番に取得し、取得のたびに weather-db.json に保存する。
+これにより途中で失敗しても保存済み分が保持され、再実行で差分取得できる。
+-}
+fetchAndSaveMonthsSequentially : List ResidencePeriod -> List ( String, List String ) -> WeatherDb -> Int -> BackendTask FatalError ()
+fetchAndSaveMonthsSequentially residencePeriods monthGroups accDb totalSaved =
+    case monthGroups of
+        [] ->
+            Script.log ("Saved " ++ String.fromInt totalSaved ++ " new weather entries to " ++ WeatherData.weatherDbFilePath)
+
+        ( yearMonth, dates ) :: rest ->
+            let
+                period =
+                    findResidencePeriod residencePeriods (List.head dates |> Maybe.withDefault "")
+            in
+            do (fetchMonthlyWeather period yearMonth dates) <|
+                \newEntries ->
+                    let
+                        mergedDb =
+                            Dict.union newEntries accDb
+
+                        encodedBody =
+                            WeatherData.weatherDbToJsonLines mergedDb
+                    in
+                    do (Script.writeFile { path = WeatherData.weatherDbFilePath, body = encodedBody } |> BackendTask.allowFatal) <|
+                        \() ->
+                            fetchAndSaveMonthsSequentially residencePeriods rest mergedDb (totalSaved + Dict.size newEntries)
 
 
 loadResidencePeriods : BackendTask FatalError (List ResidencePeriod)
@@ -238,7 +258,7 @@ fetchMonthlyWeather period yearMonth dates =
     BackendTask.Http.getWithOptions
         { url = url
         , headers = []
-        , expect = BackendTask.Http.expectJson (openMeteoDecoder dates)
+        , expect = BackendTask.Http.expectJson (openMeteoDecoder dates period.latitude period.longitude)
         , cachePath = Nothing
         , cacheStrategy = Nothing
         , retries = Just 3
@@ -252,8 +272,8 @@ fetchMonthlyWeather period yearMonth dates =
             )
 
 
-openMeteoDecoder : List String -> Decode.Decoder WeatherDb
-openMeteoDecoder requestedDates =
+openMeteoDecoder : List String -> Float -> Float -> Decode.Decoder WeatherDb
+openMeteoDecoder requestedDates latitude longitude =
     -- NOTE: API のフィールド名は "weathercode"（小文字）だが、
     -- 内部の WeatherSummary / weather-db.json では "weatherCode"（キャメルケース）を使用する。
     Decode.field "daily"
@@ -274,7 +294,7 @@ openMeteoDecoder requestedDates =
                                         case ( maxTemp, minTemp, weatherCode ) of
                                             ( Just max, Just min, Just code ) ->
                                                 if List.member time requestedDates then
-                                                    Just ( time, WeatherSummary max min code )
+                                                    Just ( time, WeatherSummary max min code latitude longitude )
 
                                                 else
                                                     Nothing
