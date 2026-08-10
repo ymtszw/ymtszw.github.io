@@ -106,6 +106,7 @@ currentResidencePeriodForDate date periods =
             )
         |> List.head
 
+
 decoder : Decode.Decoder WeatherDb
 decoder =
     Decode.list
