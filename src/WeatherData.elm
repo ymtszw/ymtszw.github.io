@@ -7,6 +7,7 @@ module WeatherData exposing
     , emptyDb
     , loadResidencePeriods
     , loadWeatherDb
+    , pastWeatherUrlForDate
     , residencePeriodsDecoder
     , weatherCodeToEmoji
     , weatherCodeToLabel
@@ -80,6 +81,13 @@ weatherSummaryForDate date db =
 
 cityForDate : Date -> List ResidencePeriod -> String
 cityForDate date periods =
+    currentResidencePeriodForDate date periods
+        |> Maybe.map .city
+        |> Maybe.withDefault "Tokyo"
+
+
+currentResidencePeriodForDate : Date -> List ResidencePeriod -> Maybe ResidencePeriod
+currentResidencePeriodForDate date periods =
     let
         dateStr =
             Date.toIsoString date
@@ -98,8 +106,32 @@ cityForDate date periods =
                        )
             )
         |> List.head
-        |> Maybe.map .city
-        |> Maybe.withDefault "Tokyo"
+
+
+pastWeatherUrlForDate : Date -> List ResidencePeriod -> Maybe String
+pastWeatherUrlForDate date periods =
+    currentResidencePeriodForDate date periods
+        |> Maybe.andThen
+            (\period ->
+                case period.city of
+                    "Tokyo" ->
+                        Just "3/16/47662"
+
+                    _ ->
+                        Nothing
+            )
+        |> Maybe.map
+            (\tenkiLocationPath ->
+                "https://tenki.jp/past/"
+                    ++ String.fromInt (Date.year date)
+                    ++ "/"
+                    ++ String.padLeft 2 '0' (String.fromInt (Date.monthNumber date))
+                    ++ "/"
+                    ++ String.padLeft 2 '0' (String.fromInt (Date.day date))
+                    ++ "/weather/"
+                    ++ tenkiLocationPath
+                    ++ "/"
+            )
 
 
 decoder : Decode.Decoder WeatherDb
@@ -181,35 +213,35 @@ weatherCodeToEmoji : Int -> String
 weatherCodeToEmoji code =
     if code == 0 then
         -- Clear sky
-        "☀️"
+        "☀"
 
     else if code <= 3 then
         -- Mainly clear, partly cloudy, overcast
-        "⛅"
+        "☁"
 
     else if code <= 49 then
         -- Fog and depositing rime fog
-        "🌫️"
+        "〰"
 
     else if code <= 67 then
         -- Drizzle, Rain
-        "🌧️"
+        "☔"
 
     else if code <= 77 then
         -- Snow fall, Snow grains
-        "❄️"
+        "❄"
 
     else if code <= 82 then
         -- Rain showers
-        "🌦️"
+        "☂"
 
     else if code <= 86 then
         -- Snow showers
-        "🌨️"
+        "☃"
 
     else
         -- Thunderstorm
-        "⛈️"
+        "☈"
 
 
 {-| WMO Weather interpretation codes to Japanese label

@@ -410,6 +410,27 @@ Tweet-like style on top of Sakura.css
   color: #888;
   margin-left: 0.5em;
   font-weight: normal;
+  font-family: "Noto Sans Symbols 2", sans-serif;
+  line-height: 1;
+}
+
+.twilogs-day-header .weather-summary-link,
+.twilogs-day-header .weather-summary-icon {
+  font-family: "Noto Sans Symbols 2", sans-serif;
+}
+
+.twilogs-day-header .weather-summary-link {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  border-bottom: none;
+  text-decoration: none;
+}
+
+.twilogs-day-header .weather-summary-link:hover,
+.twilogs-day-header .weather-summary-link:focus {
+  color: #555;
+  border-bottom: none;
 }
 
 .tweet {
