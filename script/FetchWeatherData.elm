@@ -4,8 +4,11 @@ module FetchWeatherData exposing (fetchMissingWeatherData, run)
 
   - data/residence-periods.json を読み込み居住地マスタを取得
   - data/ ディレクトリの Twilog データファイルから全日付を列挙
-  - 未取得の日付のみ差分取得
+  - 未取得の日付のみ差分取得（--date オプション指定時は強制再取得・上書き）
   - 取得結果を data/weather-db.json にマージして保存
+
+オプション:
+--date YYYY-MM-DD 特定の日付を指定して気象データを取得（既存データも上書き）
 
 -}
 
@@ -14,6 +17,9 @@ import BackendTask.Do exposing (do)
 import BackendTask.File
 import BackendTask.Glob as Glob exposing (digits, literal)
 import BackendTask.Http
+import Cli.Option
+import Cli.OptionsParser as OptionsParser
+import Cli.Program
 import Dict exposing (Dict)
 import FatalError exposing (FatalError)
 import Json.Decode as Decode
@@ -25,8 +31,51 @@ import WeatherData exposing (ResidencePeriod, WeatherDb, WeatherSummary)
 
 run : Script
 run =
-    fetchMissingWeatherData
-        |> Script.withoutCliOptions
+    Script.withCliOptions config
+        (\maybeDate ->
+            case maybeDate of
+                Just date ->
+                    fetchWeatherForSpecificDate date
+
+                Nothing ->
+                    fetchMissingWeatherData
+        )
+
+
+config =
+    Cli.Program.config
+        |> Cli.Program.add
+            (OptionsParser.build identity
+                |> OptionsParser.with
+                    (Cli.Option.optionalKeywordArg "date"
+                        |> Cli.Option.withDocumentation "特定の日付を指定 (YYYY-MM-DD形式)。指定した場合、既存データを上書きして再取得する。"
+                    )
+            )
+
+
+fetchWeatherForSpecificDate : String -> BackendTask FatalError ()
+fetchWeatherForSpecificDate date =
+    do (Script.log ("Fetching weather data for specific date: " ++ date)) <|
+        \() ->
+            do loadResidencePeriods <|
+                \residencePeriods ->
+                    do loadExistingWeatherDb <|
+                        \existingDb ->
+                            do (fetchWeatherForDates residencePeriods [ date ]) <|
+                                \newEntries ->
+                                    let
+                                        mergedDb =
+                                            Dict.union newEntries existingDb
+
+                                        encodedBody =
+                                            Encode.encode 0 (WeatherData.weatherDbEncoder mergedDb)
+                                    in
+                                    Script.writeFile
+                                        { path = WeatherData.weatherDbFilePath
+                                        , body = encodedBody
+                                        }
+                                        |> BackendTask.allowFatal
+                                        |> thenLog ("Saved weather entry for " ++ date ++ " to " ++ WeatherData.weatherDbFilePath)
 
 
 fetchMissingWeatherData : BackendTask FatalError ()
