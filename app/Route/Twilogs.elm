@@ -404,7 +404,7 @@ twilogDailySection shared weatherByDay residencePeriods rataDie twilogs =
                         weatherSummaryTitle =
                             WeatherData.cityForDate date residencePeriods
                                 ++ "："
-                                ++ WeatherData.weatherCodeToLabel w.weatherCode
+                                ++ WeatherData.weatherCodesToLabel w.weatherCodes
                                 ++ " "
                                 ++ formatTemp w.maxTemp
                                 ++ "/"
@@ -415,7 +415,7 @@ twilogDailySection shared weatherByDay residencePeriods rataDie twilogs =
                             [ class "weather-summary-icon"
                             , attribute "aria-label" weatherSummaryTitle
                             ]
-                            [ text (WeatherData.weatherCodeToEmoji w.weatherCode) ]
+                            [ text (WeatherData.weatherCodesDisplay w.weatherCodes) ]
                         ]
 
                 Nothing ->

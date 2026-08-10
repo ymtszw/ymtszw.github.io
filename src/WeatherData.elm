@@ -10,6 +10,8 @@ module WeatherData exposing
     , residencePeriodsDecoder
     , weatherCodeToEmoji
     , weatherCodeToLabel
+    , weatherCodesDisplay
+    , weatherCodesToLabel
     , weatherDbFilePath
     , weatherDbToJsonLines
     , weatherSummaryForDate
@@ -37,7 +39,7 @@ residencePeriodsFilePath =
 type alias WeatherSummary =
     { maxTemp : Float
     , minTemp : Float
-    , weatherCode : Int
+    , weatherCodes : List Int -- [6-12時スロット, 12-18時スロット, 18-24時スロット] の最頻コード
     , latitude : Float
     , longitude : Float
     }
@@ -113,14 +115,19 @@ decoder : Decode.Decoder WeatherDb
 decoder =
     Decode.list
         (Decode.map6
-            (\date maxTemp minTemp weatherCode latitude longitude ->
-                ( date, WeatherSummary maxTemp minTemp weatherCode latitude longitude )
+            (\date maxTemp minTemp weatherCodes latitude longitude ->
+                ( date, WeatherSummary maxTemp minTemp weatherCodes latitude longitude )
             )
             (Decode.field "date" Decode.string)
             (Decode.field "maxTemp" Decode.float)
             (Decode.field "minTemp" Decode.float)
-            (Decode.field "weatherCode" Decode.int)
-            -- lat/long は旧フォーマットのエントリには存在しないため 0.0 にフォールバック
+            -- 旧フォーマット(weatherCode: Int)と新フォーマット(weatherCodes: List Int)の両方に対応
+            (Decode.oneOf
+                [ Decode.field "weatherCodes" (Decode.list Decode.int)
+                , Decode.field "weatherCode" Decode.int |> Decode.map List.singleton
+                , Decode.succeed []
+                ]
+            )
             (Decode.oneOf [ Decode.field "latitude" Decode.float, Decode.succeed 0.0 ])
             (Decode.oneOf [ Decode.field "longitude" Decode.float, Decode.succeed 0.0 ])
         )
@@ -132,7 +139,12 @@ weatherSummaryDecoder =
     Decode.map5 WeatherSummary
         (Decode.field "maxTemp" Decode.float)
         (Decode.field "minTemp" Decode.float)
-        (Decode.field "weatherCode" Decode.int)
+        (Decode.oneOf
+            [ Decode.field "weatherCodes" (Decode.list Decode.int)
+            , Decode.field "weatherCode" Decode.int |> Decode.map List.singleton
+            , Decode.succeed []
+            ]
+        )
         (Decode.oneOf [ Decode.field "latitude" Decode.float, Decode.succeed 0.0 ])
         (Decode.oneOf [ Decode.field "longitude" Decode.float, Decode.succeed 0.0 ])
 
@@ -161,7 +173,7 @@ weatherDbToJsonLines db =
                                 [ ( "date", Encode.string date )
                                 , ( "maxTemp", Encode.float ws.maxTemp )
                                 , ( "minTemp", Encode.float ws.minTemp )
-                                , ( "weatherCode", Encode.int ws.weatherCode )
+                                , ( "weatherCodes", Encode.list Encode.int ws.weatherCodes )
                                 , ( "latitude", Encode.float ws.latitude )
                                 , ( "longitude", Encode.float ws.longitude )
                                 ]
@@ -184,6 +196,47 @@ residencePeriodDecoder =
         (Decode.field "city" Decode.string)
         (Decode.field "latitude" Decode.float)
         (Decode.field "longitude" Decode.float)
+
+
+{-| 隣接する同値を除去する（スロット表示の重複マージに使用）
+-}
+deduplicateAdjacent : List a -> List a
+deduplicateAdjacent xs =
+    List.foldr
+        (\x acc ->
+            case acc of
+                [] ->
+                    [ x ]
+
+                head :: _ ->
+                    if head == x then
+                        acc
+
+                    else
+                        x :: acc
+        )
+        []
+        xs
+
+
+{-| 複数スロットの天気コードをマージしてスラッシュ区切りの絵文字で返す
+-}
+weatherCodesDisplay : List Int -> String
+weatherCodesDisplay codes =
+    codes
+        |> deduplicateAdjacent
+        |> List.map weatherCodeToEmoji
+        |> String.join "/"
+
+
+{-| 複数スロットの天気コードをマージしてスラッシュ区切りの日本語ラベルで返す
+-}
+weatherCodesToLabel : List Int -> String
+weatherCodesToLabel codes =
+    codes
+        |> deduplicateAdjacent
+        |> List.map weatherCodeToLabel
+        |> String.join "/"
 
 
 {-| WMO Weather interpretation codes to emoji

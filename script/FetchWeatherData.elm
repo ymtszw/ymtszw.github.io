@@ -250,7 +250,8 @@ fetchMonthlyWeather period yearMonth dates =
                 ++ startDate
                 ++ "&end_date="
                 ++ endDate
-                ++ "&daily=temperature_2m_max,temperature_2m_min,weathercode"
+                -- hourly weather_code から時間帯別最頻コードを算出する
+                ++ "&hourly=weather_code&daily=temperature_2m_max,temperature_2m_min"
                 -- NOTE: タイムゾーンは現状 Asia/Tokyo 固定。
                 -- 将来 data/residence-periods.json にタイムゾーン項目を追加することで対応可能。
                 ++ "&timezone=Asia%2FTokyo"
@@ -274,43 +275,143 @@ fetchMonthlyWeather period yearMonth dates =
 
 openMeteoDecoder : List String -> Float -> Float -> Decode.Decoder WeatherDb
 openMeteoDecoder requestedDates latitude longitude =
-    -- NOTE: API のフィールド名は "weathercode"（小文字）だが、
-    -- 内部の WeatherSummary / weather-db.json では "weatherCode"（キャメルケース）を使用する。
+    Decode.map2
+        (\hourlyByDate dailyTemps ->
+            requestedDates
+                |> List.filterMap
+                    (\date ->
+                        case Dict.get date dailyTemps of
+                            Nothing ->
+                                Nothing
+
+                            Just ( maxTemp, minTemp ) ->
+                                let
+                                    codes =
+                                        Dict.get date hourlyByDate
+                                            |> Maybe.withDefault []
+                                            |> computeSlotCodes
+                                in
+                                if List.isEmpty codes then
+                                    Nothing
+
+                                else
+                                    Just ( date, WeatherSummary maxTemp minTemp codes latitude longitude )
+                    )
+                |> Dict.fromList
+        )
+        hourlyWeatherByDateDecoder
+        dailyTempsDecoder
+
+
+{-| hourly.time と hourly.weather\_code を date -> [(hour, code)] の Dict に変換する
+-}
+hourlyWeatherByDateDecoder : Decode.Decoder (Dict String (List ( Int, Int )))
+hourlyWeatherByDateDecoder =
+    Decode.field "hourly"
+        (Decode.map2
+            (\times codes ->
+                List.map2
+                    (\timeStr maybeCode ->
+                        Maybe.map
+                            (\code ->
+                                let
+                                    date =
+                                        String.left 10 timeStr
+
+                                    hour =
+                                        String.slice 11 13 timeStr
+                                            |> String.toInt
+                                            |> Maybe.withDefault -1
+                                in
+                                ( date, hour, code )
+                            )
+                            maybeCode
+                    )
+                    times
+                    codes
+                    |> List.filterMap identity
+                    |> List.foldl
+                        (\( date, hour, code ) acc ->
+                            Dict.update date
+                                (\maybeList -> Just (( hour, code ) :: Maybe.withDefault [] maybeList))
+                                acc
+                        )
+                        Dict.empty
+            )
+            (Decode.field "time" (Decode.list Decode.string))
+            (Decode.field "weather_code" (Decode.list (Decode.nullable Decode.int)))
+        )
+
+
+{-| daily から date -> (maxTemp, minTemp) の Dict を作る
+-}
+dailyTempsDecoder : Decode.Decoder (Dict String ( Float, Float ))
+dailyTempsDecoder =
     Decode.field "daily"
         (Decode.map3
-            (\times maxTemps minTemps ->
-                ( times, maxTemps, minTemps )
+            (\dates maxTemps minTemps ->
+                List.map3
+                    (\date maybeMax maybeMin ->
+                        case ( maybeMax, maybeMin ) of
+                            ( Just max, Just min ) ->
+                                Just ( date, ( max, min ) )
+
+                            _ ->
+                                Nothing
+                    )
+                    dates
+                    maxTemps
+                    minTemps
+                    |> List.filterMap identity
+                    |> Dict.fromList
             )
             (Decode.field "time" (Decode.list Decode.string))
             (Decode.field "temperature_2m_max" (Decode.list (Decode.nullable Decode.float)))
             (Decode.field "temperature_2m_min" (Decode.list (Decode.nullable Decode.float)))
-            |> Decode.andThen
-                (\( times, maxTemps, minTemps ) ->
-                    Decode.field "weathercode" (Decode.list (Decode.nullable Decode.int))
-                        |> Decode.map
-                            (\weatherCodes ->
-                                List.map4
-                                    (\time maxTemp minTemp weatherCode ->
-                                        case ( maxTemp, minTemp, weatherCode ) of
-                                            ( Just max, Just min, Just code ) ->
-                                                if List.member time requestedDates then
-                                                    Just ( time, WeatherSummary max min code latitude longitude )
-
-                                                else
-                                                    Nothing
-
-                                            _ ->
-                                                Nothing
-                                    )
-                                    times
-                                    maxTemps
-                                    minTemps
-                                    weatherCodes
-                                    |> List.filterMap identity
-                                    |> Dict.fromList
-                            )
-                )
         )
+
+
+{-| 6-11時、12-17時、18-23時のスロット別最頻天気コードを返す（各スロットが空なら省略）
+-}
+computeSlotCodes : List ( Int, Int ) -> List Int
+computeSlotCodes hourAndCodePairs =
+    [ ( 6, 11 ), ( 12, 17 ), ( 18, 23 ) ]
+        |> List.filterMap
+            (\( slotStart, slotEnd ) ->
+                hourAndCodePairs
+                    |> List.filterMap
+                        (\( hour, code ) ->
+                            if hour >= slotStart && hour <= slotEnd then
+                                Just code
+
+                            else
+                                Nothing
+                        )
+                    |> computeMode
+            )
+
+
+{-| リスト中で最も出現回数が多い値を返す（同数の場合は辞書順で最小）
+-}
+computeMode : List Int -> Maybe Int
+computeMode codes =
+    case codes of
+        [] ->
+            Nothing
+
+        _ ->
+            codes
+                |> List.foldl
+                    (\code acc ->
+                        Dict.update code
+                            (\maybeCount -> Just (1 + Maybe.withDefault 0 maybeCount))
+                            acc
+                    )
+                    Dict.empty
+                |> Dict.toList
+                |> List.sortBy (\( _, count ) -> -count)
+                |> List.head
+                |> Maybe.map Tuple.first
 
 
 thenLog : String -> BackendTask a () -> BackendTask a ()
