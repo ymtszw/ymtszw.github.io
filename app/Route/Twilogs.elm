@@ -51,6 +51,7 @@ import TwilogData exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, Tw
 import TwilogSearch exposing (searchBox)
 import UrlPath exposing (UrlPath)
 import View exposing (imgLazy, lightboxLink)
+import WeatherData exposing (WeatherDb)
 
 
 type alias Model =
@@ -84,6 +85,7 @@ type alias RouteParams =
 type alias Data =
     { twilogsFromOldest : Dict RataDie (List Twilog)
     , searchSecrets : TwilogSearch.Secrets
+    , weatherByDay : WeatherDb
     }
 
 
@@ -127,6 +129,7 @@ data =
                     |> BackendTask.map Data
             )
         |> BackendTask.andMap TwilogSearch.secrets
+        |> BackendTask.andMap WeatherData.loadWeatherDb
 
 
 daysToPeek =
@@ -359,7 +362,7 @@ ZapierによるTweet取得以前のデータも、Twitter公式機能で取得�
         , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m.twilogSearch
         , h3 [ class "twilogs-day-header", id "#onward" ] [ a [ href "https://twilog.togetter.com/gada_twt", target "_blank" ] [ text "最新" ] ]
         ]
-            ++ showTwilogsByDailySections shared app.data.twilogsFromOldest
+            ++ showTwilogsByDailySections shared app.data.weatherByDay app.data.twilogsFromOldest
             ++ [ goToLatestMonth app.sharedData.twilogArchives app.data.twilogsFromOldest, linksByMonths Nothing app.sharedData.twilogArchives ]
     }
         |> View.map PagesMsg.fromMsg
@@ -371,14 +374,14 @@ ZapierによるTweet取得以前のデータも、Twitter公式機能で取得�
 -----------------
 
 
-showTwilogsByDailySections : Shared.Model -> Dict RataDie (List Twilog) -> List (Html msg)
-showTwilogsByDailySections shared twilogsFromOldest =
+showTwilogsByDailySections : Shared.Model -> WeatherDb -> Dict RataDie (List Twilog) -> List (Html msg)
+showTwilogsByDailySections shared weatherByDay twilogsFromOldest =
     -- foldl to traverse from the oldest
-    Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared rataDie twilogs :: acc) [] twilogsFromOldest
+    Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared weatherByDay rataDie twilogs :: acc) [] twilogsFromOldest
 
 
-twilogDailySection : Shared.Model -> RataDie -> List Twilog -> Html msg
-twilogDailySection shared rataDie twilogs =
+twilogDailySection : Shared.Model -> WeatherDb -> RataDie -> List Twilog -> Html msg
+twilogDailySection shared weatherByDay rataDie twilogs =
     let
         date =
             Date.fromRataDie rataDie
@@ -391,11 +394,44 @@ twilogDailySection shared rataDie twilogs =
 
         linkWithDayFragment =
             UrlPath.toAbsolute (Route.toPath (Route.Twilogs__YearMonth_ { yearMonth = yearMonth })) ++ "#" ++ dayId
+
+        weatherBadge =
+            case WeatherData.weatherSummaryForDate date weatherByDay of
+                Just w ->
+                    span [ class "weather-summary" ]
+                        [ text
+                            (WeatherData.weatherCodeToEmoji w.weatherCode
+                                ++ " "
+                                ++ WeatherData.weatherCodeToLabel w.weatherCode
+                                ++ " "
+                                ++ formatTemp w.maxTemp
+                                ++ "/"
+                                ++ formatTemp w.minTemp
+                            )
+                        ]
+
+                Nothing ->
+                    text ""
     in
     section []
-        [ h3 [ class "twilogs-day-header", id dayId ] [ a [ href linkWithDayFragment ] [ text (Date.format "yyyy/MM/dd (E)" date) ] ]
+        [ h3 [ class "twilogs-day-header", id dayId ]
+            [ a [ href linkWithDayFragment ] [ text (Date.format "yyyy/MM/dd (E)" date) ]
+            , weatherBadge
+            ]
         , twilogsOfTheDay shared twilogs
         ]
+
+
+formatTemp : Float -> String
+formatTemp temp =
+    let
+        rounded =
+            round temp
+
+        str =
+            String.fromInt rounded
+    in
+    str ++ "℃"
 
 
 twilogsOfTheDay : Shared.Model -> List Twilog -> Html msg

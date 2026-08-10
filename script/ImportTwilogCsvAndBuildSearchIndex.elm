@@ -11,6 +11,7 @@ import Csv.Decode as Csv
 import Date
 import Dict exposing (Dict)
 import FatalError exposing (FatalError)
+import FetchWeatherData
 import Helper exposing (requireEnv)
 import Iso8601
 import Json.Decode as Decode
@@ -134,6 +135,7 @@ importRecentTwilogs previousIdCursor twilogs =
             |> Script.doThen (Script.writeFile { path = cursorFilePath, body = updatedCursor } |> BackendTask.allowFatal)
             |> thenLog ("Updated cursor to " ++ updatedCursor ++ " in " ++ cursorFilePath)
             |> Script.doThen generateTwilogArchives
+            |> Script.doThen FetchWeatherData.fetchMissingWeatherData
 
 
 type alias YearMonthDay =

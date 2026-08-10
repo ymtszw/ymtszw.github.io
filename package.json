@@ -6,6 +6,7 @@
     "clean": "rm -rf node_modules/ .elm-pages/ elm-stuff/ dist/ ~/.lamdera",
     "generate_html_entities": "elm-pages run script/GenerateHtmlEntities.elm",
     "generate_twilog_data_codec_test_fixtures": "elm-pages run script/GenerateTwilogDataCodecTestFixtures",
+    "fetch_weather": "elm-pages run script/FetchWeatherData",
     "import_twilogs": "elm-pages run script/ImportTwilogCsvAndBuildSearchIndex",
     "postinstall": "elm-tooling install && elm-pages gen",
     "start": "elm-pages dev --debug",

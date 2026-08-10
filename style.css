@@ -405,6 +405,13 @@ Tweet-like style on top of Sakura.css
   background: #f9f9f9;
 }
 
+.twilogs-day-header .weather-summary {
+  font-size: 0.75em;
+  color: #888;
+  margin-left: 0.5em;
+  font-weight: normal;
+}
+
 .tweet {
   position: relative;
   font-size: 0.75em;
