@@ -12,9 +12,8 @@ module FetchWeatherData exposing (fetchMissingWeatherData, run)
 import BackendTask exposing (BackendTask)
 import BackendTask.Do exposing (do)
 import BackendTask.File
-import BackendTask.Glob as Glob exposing (defaultOptions, digits, literal)
+import BackendTask.Glob as Glob exposing (digits, literal)
 import BackendTask.Http
-import Date
 import Dict exposing (Dict)
 import FatalError exposing (FatalError)
 import Json.Decode as Decode
@@ -184,6 +183,8 @@ fetchMonthlyWeather period yearMonth dates =
                 ++ "&end_date="
                 ++ endDate
                 ++ "&daily=temperature_2m_max,temperature_2m_min,weathercode"
+                -- NOTE: タイムゾーンは現状 Asia/Tokyo 固定。
+                -- 将来 data/residence-periods.json にタイムゾーン項目を追加することで対応可能。
                 ++ "&timezone=Asia%2FTokyo"
     in
     BackendTask.Http.getWithOptions
@@ -205,6 +206,8 @@ fetchMonthlyWeather period yearMonth dates =
 
 openMeteoDecoder : List String -> Decode.Decoder WeatherDb
 openMeteoDecoder requestedDates =
+    -- NOTE: API のフィールド名は "weathercode"（小文字）だが、
+    -- 内部の WeatherSummary / weather-db.json では "weatherCode"（キャメルケース）を使用する。
     Decode.field "daily"
         (Decode.map3
             (\times maxTemps minTemps ->
