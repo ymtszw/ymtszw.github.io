@@ -250,16 +250,24 @@ weatherCodeToEmoji code =
         -- Clear sky
         "☀"
 
+    else if code == 1 then
+        -- Mainly clear
+        "☀"
+
     else if code <= 3 then
-        -- Mainly clear, partly cloudy, overcast
+        -- Partly cloudy, overcast
         "☁"
 
     else if code <= 49 then
         -- Fog and depositing rime fog
         "〰"
 
+    else if code <= 57 then
+        -- Drizzle (霧雨は曇り扱い)
+        "☁"
+
     else if code <= 67 then
-        -- Drizzle, Rain
+        -- Rain
         "☔"
 
     else if code <= 77 then
