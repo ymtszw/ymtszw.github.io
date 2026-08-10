@@ -409,28 +409,14 @@ twilogDailySection shared weatherByDay residencePeriods rataDie twilogs =
                                 ++ formatTemp w.maxTemp
                                 ++ "/"
                                 ++ formatTemp w.minTemp
-
-                        weatherBadgeContent =
-                            case WeatherData.pastWeatherUrlForDate date residencePeriods of
-                                Just url ->
-                                    a
-                                        [ class "weather-summary-link"
-                                        , href url
-                                        , target "_blank"
-                                        , rel "noopener noreferrer"
-                                        , title (weatherSummaryTitle ++ "（クリックで過去天気）")
-                                        , attribute "aria-label" (weatherSummaryTitle ++ "。クリックで過去天気を開く")
-                                        ]
-                                        [ text (WeatherData.weatherCodeToEmoji w.weatherCode) ]
-
-                                Nothing ->
-                                    span
-                                        [ class "weather-summary-icon"
-                                        , attribute "aria-label" weatherSummaryTitle
-                                        ]
-                                        [ text (WeatherData.weatherCodeToEmoji w.weatherCode) ]
                     in
-                    span [ class "weather-summary", title weatherSummaryTitle ] [ weatherBadgeContent ]
+                    span [ class "weather-summary", title weatherSummaryTitle ]
+                        [ span
+                            [ class "weather-summary-icon"
+                            , attribute "aria-label" weatherSummaryTitle
+                            ]
+                            [ text (WeatherData.weatherCodeToEmoji w.weatherCode) ]
+                        ]
 
                 Nothing ->
                     text ""

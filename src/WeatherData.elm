@@ -7,7 +7,6 @@ module WeatherData exposing
     , emptyDb
     , loadResidencePeriods
     , loadWeatherDb
-    , pastWeatherUrlForDate
     , residencePeriodsDecoder
     , weatherCodeToEmoji
     , weatherCodeToLabel
@@ -106,33 +105,6 @@ currentResidencePeriodForDate date periods =
                        )
             )
         |> List.head
-
-
-pastWeatherUrlForDate : Date -> List ResidencePeriod -> Maybe String
-pastWeatherUrlForDate date periods =
-    currentResidencePeriodForDate date periods
-        |> Maybe.andThen
-            (\period ->
-                case period.city of
-                    "Tokyo" ->
-                        Just "3/16/47662"
-
-                    _ ->
-                        Nothing
-            )
-        |> Maybe.map
-            (\tenkiLocationPath ->
-                "https://tenki.jp/past/"
-                    ++ String.fromInt (Date.year date)
-                    ++ "/"
-                    ++ String.padLeft 2 '0' (String.fromInt (Date.monthNumber date))
-                    ++ "/"
-                    ++ String.padLeft 2 '0' (String.fromInt (Date.day date))
-                    ++ "/weather/"
-                    ++ tenkiLocationPath
-                    ++ "/"
-            )
-
 
 decoder : Decode.Decoder WeatherDb
 decoder =
