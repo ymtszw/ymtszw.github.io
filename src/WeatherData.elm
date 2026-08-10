@@ -134,21 +134,6 @@ decoder =
         |> Decode.map Dict.fromList
 
 
-weatherSummaryDecoder : Decode.Decoder WeatherSummary
-weatherSummaryDecoder =
-    Decode.map5 WeatherSummary
-        (Decode.field "maxTemp" Decode.float)
-        (Decode.field "minTemp" Decode.float)
-        (Decode.oneOf
-            [ Decode.field "weatherCodes" (Decode.list Decode.int)
-            , Decode.field "weatherCode" Decode.int |> Decode.map List.singleton
-            , Decode.succeed []
-            ]
-        )
-        (Decode.oneOf [ Decode.field "latitude" Decode.float, Decode.succeed 0.0 ])
-        (Decode.oneOf [ Decode.field "longitude" Decode.float, Decode.succeed 0.0 ])
-
-
 {-| WeatherDb を「1行1日付」のJSONLines形式の文字列にシリアライズする。
 日付昇順でソートされ、実行のたびに行順が一定になる。
 
