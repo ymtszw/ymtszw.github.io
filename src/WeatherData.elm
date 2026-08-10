@@ -2,8 +2,10 @@ module WeatherData exposing
     ( ResidencePeriod
     , WeatherDb
     , WeatherSummary
+    , cityForDate
     , decoder
     , emptyDb
+    , loadResidencePeriods
     , loadWeatherDb
     , residencePeriodsDecoder
     , weatherCodeToEmoji
@@ -65,9 +67,39 @@ loadWeatherDb =
         |> BackendTask.onError (\_ -> BackendTask.succeed emptyDb)
 
 
+loadResidencePeriods : BackendTask FatalError (List ResidencePeriod)
+loadResidencePeriods =
+    BackendTask.File.jsonFile residencePeriodsDecoder residencePeriodsFilePath
+        |> BackendTask.allowFatal
+
+
 weatherSummaryForDate : Date -> WeatherDb -> Maybe WeatherSummary
 weatherSummaryForDate date db =
     Dict.get (Date.toIsoString date) db
+
+
+cityForDate : Date -> List ResidencePeriod -> String
+cityForDate date periods =
+    let
+        dateStr =
+            Date.toIsoString date
+    in
+    periods
+        |> List.filter
+            (\period ->
+                period.from
+                    <= dateStr
+                    && (case period.to of
+                            Nothing ->
+                                True
+
+                            Just toDate ->
+                                dateStr <= toDate
+                       )
+            )
+        |> List.head
+        |> Maybe.map .city
+        |> Maybe.withDefault "Tokyo"
 
 
 decoder : Decode.Decoder WeatherDb

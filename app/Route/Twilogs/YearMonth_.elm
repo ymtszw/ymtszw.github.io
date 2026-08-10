@@ -29,7 +29,7 @@ import Site exposing (seoBase)
 import TwilogData exposing (RataDie, Twilog)
 import TwilogSearch
 import View
-import WeatherData exposing (WeatherDb)
+import WeatherData exposing (ResidencePeriod, WeatherDb)
 
 
 type alias Model =
@@ -48,6 +48,7 @@ type alias Data =
     { twilogsFromOldest : Dict RataDie (List Twilog)
     , searchSecrets : TwilogSearch.Secrets
     , weatherByDay : WeatherDb
+    , residencePeriods : List ResidencePeriod
     }
 
 
@@ -111,6 +112,7 @@ data routeParams =
             )
         |> BackendTask.andMap TwilogSearch.secrets
         |> BackendTask.andMap WeatherData.loadWeatherDb
+        |> BackendTask.andMap WeatherData.loadResidencePeriods
 
 
 getAvailableDays : String -> BackendTask FatalError (List String)
@@ -152,7 +154,7 @@ view app shared m =
         -- show navigation links to previous and next days
         prevNextNavigation app.routeParams app.sharedData.twilogArchives
             :: TwilogSearch.searchBox Route.Twilogs.TwilogSearchMsg (Route.Twilogs.aTwilog False Dict.empty) m.twilogSearch
-            :: Route.Twilogs.showTwilogsByDailySections shared app.data.weatherByDay app.data.twilogsFromOldest
+            :: Route.Twilogs.showTwilogsByDailySections shared app.data.weatherByDay app.data.residencePeriods app.data.twilogsFromOldest
             ++ [ prevNextNavigation app.routeParams app.sharedData.twilogArchives
                , Route.Twilogs.linksByMonths (Just app.routeParams.yearMonth) app.sharedData.twilogArchives
                ]

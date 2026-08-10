@@ -51,7 +51,7 @@ import TwilogData exposing (Media, Quote, RataDie, Reply(..), TcoUrl, Twilog, Tw
 import TwilogSearch exposing (searchBox)
 import UrlPath exposing (UrlPath)
 import View exposing (imgLazy, lightboxLink)
-import WeatherData exposing (WeatherDb)
+import WeatherData exposing (ResidencePeriod, WeatherDb)
 
 
 type alias Model =
@@ -86,6 +86,7 @@ type alias Data =
     { twilogsFromOldest : Dict RataDie (List Twilog)
     , searchSecrets : TwilogSearch.Secrets
     , weatherByDay : WeatherDb
+    , residencePeriods : List ResidencePeriod
     }
 
 
@@ -130,6 +131,7 @@ data =
             )
         |> BackendTask.andMap TwilogSearch.secrets
         |> BackendTask.andMap WeatherData.loadWeatherDb
+        |> BackendTask.andMap WeatherData.loadResidencePeriods
 
 
 daysToPeek =
@@ -362,7 +364,7 @@ ZapierによるTweet取得以前のデータも、Twitter公式機能で取得�
         , searchBox TwilogSearchMsg (aTwilog False Dict.empty) m.twilogSearch
         , h3 [ class "twilogs-day-header", id "#onward" ] [ a [ href "https://twilog.togetter.com/gada_twt", target "_blank" ] [ text "最新" ] ]
         ]
-            ++ showTwilogsByDailySections shared app.data.weatherByDay app.data.twilogsFromOldest
+            ++ showTwilogsByDailySections shared app.data.weatherByDay app.data.residencePeriods app.data.twilogsFromOldest
             ++ [ goToLatestMonth app.sharedData.twilogArchives app.data.twilogsFromOldest, linksByMonths Nothing app.sharedData.twilogArchives ]
     }
         |> View.map PagesMsg.fromMsg
@@ -374,14 +376,14 @@ ZapierによるTweet取得以前のデータも、Twitter公式機能で取得�
 -----------------
 
 
-showTwilogsByDailySections : Shared.Model -> WeatherDb -> Dict RataDie (List Twilog) -> List (Html msg)
-showTwilogsByDailySections shared weatherByDay twilogsFromOldest =
+showTwilogsByDailySections : Shared.Model -> WeatherDb -> List ResidencePeriod -> Dict RataDie (List Twilog) -> List (Html msg)
+showTwilogsByDailySections shared weatherByDay residencePeriods twilogsFromOldest =
     -- foldl to traverse from the oldest
-    Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared weatherByDay rataDie twilogs :: acc) [] twilogsFromOldest
+    Dict.foldl (\rataDie twilogs acc -> twilogDailySection shared weatherByDay residencePeriods rataDie twilogs :: acc) [] twilogsFromOldest
 
 
-twilogDailySection : Shared.Model -> WeatherDb -> RataDie -> List Twilog -> Html msg
-twilogDailySection shared weatherByDay rataDie twilogs =
+twilogDailySection : Shared.Model -> WeatherDb -> List ResidencePeriod -> RataDie -> List Twilog -> Html msg
+twilogDailySection shared weatherByDay residencePeriods rataDie twilogs =
     let
         date =
             Date.fromRataDie rataDie
@@ -401,7 +403,9 @@ twilogDailySection shared weatherByDay rataDie twilogs =
                     span
                         [ class "weather-summary"
                         , title
-                            (WeatherData.weatherCodeToLabel w.weatherCode
+                            (WeatherData.cityForDate date residencePeriods
+                                ++ "："
+                                ++ WeatherData.weatherCodeToLabel w.weatherCode
                                 ++ " "
                                 ++ formatTemp w.maxTemp
                                 ++ "/"
