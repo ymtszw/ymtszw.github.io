@@ -47,7 +47,7 @@ config =
             (OptionsParser.build identity
                 |> OptionsParser.with
                     (Cli.Option.optionalKeywordArg "date"
-                        |> Cli.Option.withDocumentation "特定の日付を指定 (YYYY-MM-DD形式)。指定した場合、既存データを上書きして再取得する。"
+                        |> Cli.Option.withDescription "特定の日付を指定 (YYYY-MM-DD形式)。指定した場合、既存データを上書きして再取得する。"
                     )
             )
 
@@ -247,8 +247,8 @@ fetchMonthlyWeather period yearMonth dates =
         |> BackendTask.allowFatal
         |> BackendTask.andThen
             (\db ->
-                thenLog ("Fetched " ++ String.fromInt (Dict.size db) ++ " days for " ++ yearMonth ++ " (" ++ period.city ++ ")")
-                    (BackendTask.succeed db)
+                Script.log ("Fetched " ++ String.fromInt (Dict.size db) ++ " days for " ++ yearMonth ++ " (" ++ period.city ++ ")")
+                    |> BackendTask.andThen (\() -> BackendTask.succeed db)
             )
 
 
