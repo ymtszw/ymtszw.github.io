@@ -1,3 +1,6 @@
 [
-    { "from": "2011-01-01", "to": null, "city": "Tokyo", "latitude": 35.6895, "longitude": 139.6917 }
+    { "from": "2010-01-01", "to": "2015-03-14", "city": "東京都荒川区", "latitude": 35.7501, "longitude": 139.7709 },
+    { "from": "2015-03-15", "to": "2016-01-27", "city": "千葉県千葉市", "latitude": 35.6701, "longitude": 140.0357 },
+    { "from": "2016-01-28", "to": "2023-01-14", "city": "東京都荒川区", "latitude": 35.7292, "longitude": 139.7858 },
+    { "from": "2023-01-15", "to": null, "city": "東京都江東区", "latitude": 35.6743, "longitude": 139.7925 }
 ]
