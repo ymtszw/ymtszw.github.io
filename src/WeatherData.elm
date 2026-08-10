@@ -224,8 +224,8 @@ deduplicateAdjacent xs =
 weatherCodesDisplay : List Int -> String
 weatherCodesDisplay codes =
     codes
-        |> deduplicateAdjacent
         |> List.map weatherCodeToEmoji
+        |> deduplicateAdjacent
         |> String.join "/"
 
 
@@ -234,7 +234,6 @@ weatherCodesDisplay codes =
 weatherCodesToLabel : List Int -> String
 weatherCodesToLabel codes =
     codes
-        |> deduplicateAdjacent
         |> List.map weatherCodeToLabel
         |> String.join "/"
 
