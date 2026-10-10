@@ -15,11 +15,11 @@
 
 ## 必須の事前チェック
 
-1. **ブランチチェック**:
-   - 作業開始前に現在のブランチがデフォルトブランチ（`master`）でないことを確認してください。
-   - `master` ブランチがチェックアウトされている場合は直接作業を行わず、開発者に警告して作業用ブランチ（例: `feat/<name>`, `fix/<name>`）の作成とチェックアウトを促してください。
-2. **コミュニケーション言語**:
+1. **コミュニケーション言語**:
    - 開発者とのやり取りは原則として**日本語**で行ってください。
+2. **作業規模に応じたブランチ運用**:
+   - 日常的な軽微な修正やドキュメント整備等は `master` ブランチで直接作業可能です。
+   - 複数フェーズにわたる大規模な新機能開発やリファクタリングを行う場合は、`implementation-planning` スキルに従い作業用ブランチ（例: `feat/<name>`, `fix/<name>`）を作成・チェックアウトして進めてください。
 
 ---
 
@@ -98,8 +98,6 @@ npm run start:wrangler
   - **重要**: `elm-format` は行末コメント（`-- ...`）を次行の先頭に移動させる特性があります。コメントの意図が崩れていないか確認してください。
 - **型安全性の重視**:
   - Elm および TypeScript の型システムを最大限に活用し、コンパイルエラーや未ハンドルのケースを残さないようにしてください。
-- **Elm 検証スキル**:
-  - Elmコード編集後の一連の検証フロー（フォーマット、コメント確認、テスト、ビルド）は [.agents/skills/elm-workflow/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/elm-workflow/SKILL.md) にも定義されています。
-- **詳細ガイドラインの参照**:
-  - 詳細な開発原則、進捗管理の方法については [docs/GUIDELINES.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/docs/GUIDELINES.md) を参照してください。
-  - 個別の実装計画書は `docs/implementation-plans/` 配下に作成・配置してください。
+- **ワークフロー・スキル**:
+  - **Elm コード品質検証**: [.agents/skills/elm-workflow/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/elm-workflow/SKILL.md)（フォーマット、行末コメント確認、テスト、ビルド）
+  - **大規模開発・計画策定**: [.agents/skills/implementation-planning/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/implementation-planning/SKILL.md)（Phase 分割、進捗記録フォーマット、計画書 `docs/implementation-plans/` の作成・管理）
