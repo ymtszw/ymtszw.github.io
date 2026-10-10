@@ -9,7 +9,7 @@
 - **`README.md` を勝手に更新・編集・リライトしてはなりません。**
 - **理由**: 本リポジトリの `README.md` は、一般的なリポジトリ説明にとどまらず、Webサイトの公開ページである `/about` ページの本文コンテンツとして直接読み込まれて表示されています（参照: `app/Route/About.elm` 内の `BackendTask.File.bodyWithoutFrontmatter "README.md"`）。
 - エージェントがリポジトリの概要更新や作業履歴の記載などの目的で `README.md` を編集すると、**公開サイトの表示内容が意図せず書き換わってしまいます**。
-- プロジェクトや仕様の説明、実装計画、エージェント向け指示などは、本ファイル（`Agents.md`）や `docs/` ディレクトリ配下（`docs/GUIDELINES.md`、`docs/implementation-plans/` など）に記載してください。
+- プロジェクトや仕様の説明、実装計画、エージェント向け指示などは、本ファイル（`Agents.md`）や `docs/implementation-plans/`、`.agents/skills/` 配下などに記載してください。
 
 ---
 
@@ -125,4 +125,5 @@ npm install
   - **Elm コード品質検証**: [.agents/skills/elm-workflow/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/elm-workflow/SKILL.md)（フォーマット、行末コメント確認、テスト、ビルド）
   - **大規模開発・計画策定**: [.agents/skills/implementation-planning/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/implementation-planning/SKILL.md)（Phase 分割、進捗記録フォーマット、計画書 `docs/implementation-plans/` の作成・管理）
   - **Twilog データ取り込み**: [.agents/skills/import-twilogs/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/import-twilogs/SKILL.md)（Twilog CSV 取り込み、検証、コミット＆プッシュの共同作業フロー）
+  - **Dependabot PR マージ**: [.agents/skills/merge-dependabot-prs/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/merge-dependabot-prs/SKILL.md)（Dependabot PR の手元マージ、検証、プッシュと自動クローズ確認の定型フロー）
 
