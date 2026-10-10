@@ -61,9 +61,16 @@ npm run import_twilogs
    - テストフィクスチャの再生成とテストがすべて通ることを確認します。
 
 2. **本番ビルド検証（推奨）**:
-   - リポジトリに `.env` がある環境の場合：
-     - macOS / Linux: `env $(grep -v '^#' .env | xargs) npm run build`
-     - Windows (PowerShell): `$env:MICROCMS_API_KEY="..." ; npm run build` （direnv / 環境変数が適用されている場合は `npm run build` 単体で可）
+   - direnv / mise が有効な環境では通常通り実行します：
+     ```bash
+     npm run build
+     ```
+   - direnv が自動適用されていないシェルの場合：
+     ```bash
+     direnv exec . npm run build
+     # または
+     mise exec -- npm run build
+     ```
 
 ### Step 4: 変更確認とコミット＆プッシュ
 
@@ -101,6 +108,8 @@ Agent はユーザーに以下を報告して終了します：
 - **実行スクリプト**:
   - コミット＆プッシュ処理は elm-pages script（`script/PushRecentTwilogs.elm`）および最小限の Custom BackendTask（`custom-backend-task.ts` の `execCommand`）として実装されています。
   - `npm run push_recent_twilogs` を通じて macOS (zsh/bash) でも Windows (PowerShell/cmd) でも Elm ベースの同一ロジックで動作します。
+- **ランタイムと環境変数 (direnv & mise)**:
+  - macOS および Windows の双方で direnv および mise が利用可能です。`.envrc` により Node.js 24、`NODE_OPTIONS`、および `.env`（`MICROCMS_API_KEY` 等）が自動的にロードされます。シェルに自動フックされていない場合は `direnv exec . <command>` または `mise exec -- <command>` を前置して実行可能です。
 
 ---
 

@@ -25,46 +25,69 @@
 
 ## 開発開始のためのセットアップの流れ
 
-### 1. 前提ツール・バージョン管理
-- **Node.js**: v24系（リポジトリ直下の `.tool-versions` に指定あり。`mise` または `asdf` 等で自動切り替え可能）
-- **direnv**（利用環境の場合）: `.envrc` により環境変数および `mise` 経由のツールパスが読み込まれます。
+### 1. 前提ツール（mise & direnv によるバージョン・環境管理）
+本リポジトリでは、開発環境の一貫性と再現性を確保するため、**macOS および Windows の双方で `mise` と `direnv` の利用を標準**としています。
 
-### 2. 依存関係インストール & 初期化
-リポジトリルートで以下のコマンドを実行します：
+- **mise** (バージョンマネージャー):
+  - `.tool-versions`（`nodejs 24`）に基づき、必要なランタイムを管理します。
+  - Windows では `winget install jdxcode.mise` や `scoop install mise` 等で導入可能です。
+- **direnv** (ディレクトリ別環境変数ローダー):
+  - リポジトリ直下の `.envrc` により以下が自動的に適用されます：
+    1. `NODE_OPTIONS="--disable-warning=DEP0040"`（punycode 警告抑制）
+    2. `.env` の環境変数（`dotenv` 経由）
+    3. `mise` 経由のツールパス（`direnv_load mise direnv exec`）
+  - Windows でも PowerShell や Git Bash で利用可能です（`winget install direnv` や `scoop install direnv` 等）。
+
+### 2. 環境構築と初期化
+リポジトリルートで以下を実行します：
 
 ```bash
+# 1. mise でランタイム（Node.js 24）をインストール
+mise install
+
+# 2. direnv を許可して .envrc の環境変数とツールパスを有効化
+direnv allow
+
+# 3. 依存関係のインストール & elm-pages 初期化
 npm install
 ```
 
-> **Note**: `package.json` の `postinstall` スクリプトにより、以下の処理が自動的に実行されます：
+> **Note**: `npm install` の `postinstall` スクリプトにより、以下の処理が自動的に実行されます：
 > 1. `elm-tooling install`: `elm-tooling.json` で定義されたツール群（`elm`, `elm-format`, `elm-json`, `elm-test-rs`）の検証とインストール
 > 2. `elm-pages gen`: elm-pages のコード生成（ページルートやメタデータの生成）
 
-### 3. テスト実行による動作確認
-インストール完了後、テストが通ることを確認します：
+### 3. コマンド実行の運用方針
+- **direnv 有効環境**:
+  - シェルが direnv にフックされている場合は、通常通り `npm test`, `npm run build`, `npm start` などを直接実行するだけで、`.env` の環境変数や Node.js 24 が自動適用されます。
+- **direnv が自動ロードされないシェル・一時実行環境**:
+  - `direnv exec . <command>` または `mise exec -- <command>` を前置して実行してください：
+    ```bash
+    direnv exec . npm run build
+    # または
+    mise exec -- npm run build
+    ```
 
-```bash
-npm test
-```
-（`script/GenerateTwilogDataCodecTestFixtures` によるフィクスチャ生成と `elm-test-rs` によるテストが実行されます）
-
-### 4. 開発サーバー起動
-```bash
-npm start
-```
-- `elm-pages dev --debug` が起動します（通常は `http://localhost:1234` でアクセス可能）。
-
-### 5. 本番ビルド検証
-```bash
-npm run build
-```
-- `elm-pages build --strict` による静的ビルドが行われます。
-
-### 6. Cloudflare Pages プレビュー（必要に応じて）
-```bash
-npm run start:wrangler
-```
-- 本番ビルド成果物（`dist`）を Wrangler ローカル環境で確認できます。
+### 4. 動作確認 & ビルド検証
+- **テスト実行**:
+  ```bash
+  npm test
+  ```
+  （`script/GenerateTwilogDataCodecTestFixtures` によるフィクスチャ生成と `elm-test-rs` によるテストが実行されます）
+- **開発サーバー起動**:
+  ```bash
+  npm start
+  ```
+  （`elm-pages dev --debug` が起動します。通常は `http://localhost:1234` でアクセス可能）
+- **本番ビルド検証**:
+  ```bash
+  npm run build
+  ```
+  （`elm-pages build --strict` による静的ビルドが行われます）
+- **Cloudflare Pages プレビュー（必要に応じて）**:
+  ```bash
+  npm run start:wrangler
+  ```
+  （本番ビルド成果物 `dist` を Wrangler ローカル環境で確認できます）
 
 ---
 

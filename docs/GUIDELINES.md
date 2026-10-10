@@ -16,5 +16,9 @@
    - [.agents/skills/elm-workflow/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/elm-workflow/SKILL.md)
    - `elm-format` 実行、行末コメントずれ確認、コード生成、テスト、ビルド検証の手順を定義したスキルです。
 
-4. **過去の実装計画書**:
+4. **Twilog データ取り込みワークフロー**:
+   - [.agents/skills/import-twilogs/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/import-twilogs/SKILL.md)
+   - Twilog CSV の取り込みからビルド検証、コミット＆プッシュまでの共同作業フローを定義したスキルです。
+
+5. **過去の実装計画書**:
    - `docs/implementation-plans/` 配下を参照してください。
