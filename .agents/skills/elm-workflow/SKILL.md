@@ -70,7 +70,7 @@ elm-pages による静的サイト生成が成功するか検証します：
 npm run build
 ```
 - `--strict` モードでビルドが実行されます。コンパイルエラーや未ハンドルの警告がないことを確認してください。
-- **Note**: 本番ビルドには `.env` の環境変数（`MICROCMS_API_KEY` 等）が必要です。シェルに direnv が自動適用されていない場合は `direnv exec . npm run build`（または `mise exec -- npm run build`）を実行してください。
+- **Note**: 本番ビルドには `.env` の環境変数（`MICROCMS_API_KEY` 等）が必要です。シェルに direnv が自動適用されていない場合は `direnv exec . npm run build`（または `mise exec -- npm run build`）を実行してください。また、Windows 環境では `.npmrc` の `script-shell=bash` により Git for Windows 等の bash 経由で実行されます。
 
 ### 6. Git 状態確認
 

@@ -37,6 +37,9 @@
     2. `.env` の環境変数（`dotenv` 経由）
     3. `mise` 経由のツールパス（`direnv_load mise direnv exec`）
   - Windows でも PowerShell や Git Bash で利用可能です（`winget install direnv` や `scoop install direnv` 等）。
+- **bash (Git for Windows 等)**:
+  - `package.json` のスクリプト（例: `npm run build` 内の `SECONDS=0; ...`）は bash 構文を前提としています。
+  - Windows 環境でも PowerShell や CMD から直接 `npm run build` を実行できるよう、プロジェクトの `.npmrc` に `script-shell=bash` が設定されています。PATH 上に `bash`（Git for Windows 等）が存在することを確認してください。
 
 ### 2. 環境構築と初期化
 リポジトリルートで以下を実行します：
