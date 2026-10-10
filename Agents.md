@@ -101,3 +101,5 @@ npm run start:wrangler
 - **ワークフロー・スキル**:
   - **Elm コード品質検証**: [.agents/skills/elm-workflow/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/elm-workflow/SKILL.md)（フォーマット、行末コメント確認、テスト、ビルド）
   - **大規模開発・計画策定**: [.agents/skills/implementation-planning/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/implementation-planning/SKILL.md)（Phase 分割、進捗記録フォーマット、計画書 `docs/implementation-plans/` の作成・管理）
+  - **Twilog データ取り込み**: [.agents/skills/import-twilogs/SKILL.md](file:///Users/yumatsuzawa/workspace/ymtszw.cc/.agents/skills/import-twilogs/SKILL.md)（Twilog CSV 取り込み、検証、コミット＆プッシュの共同作業フロー）
+

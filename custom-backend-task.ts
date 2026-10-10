@@ -39,3 +39,20 @@ export async function dumpJsonFile({
   await fs.mkdir("tmp", { recursive: true });
   await fs.writeFile(`tmp/${fileName}`, JSON.stringify(json, null, 4), "utf-8");
 }
+
+/**
+ * Run a shell command and return stdout.
+ *
+ * @param { string } command
+ * @returns { Promise<string> }
+ */
+export async function execCommand(command: string): Promise<string> {
+  const { execSync } = await import("node:child_process");
+  try {
+    return execSync(command, { encoding: "utf-8" }).trim();
+  } catch (error: any) {
+    const message = error.stderr?.toString() || error.message || String(error);
+    throw new Error(`Command failed: ${command}\n${message}`);
+  }
+}
+

@@ -2,6 +2,7 @@ module ImportTwilogCsvAndBuildSearchIndex exposing (run)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do exposing (do)
+import BackendTask.Env
 import BackendTask.File exposing (FileReadError(..))
 import BackendTask.Glob exposing (defaultOptions, digits, literal)
 import Cli.Option
@@ -12,7 +13,7 @@ import Date
 import Dict exposing (Dict)
 import FatalError exposing (FatalError)
 import FetchWeatherData
-import Helper exposing (requireEnv)
+import Helper
 import Iso8601
 import Json.Decode as Decode
 import Json.Encode
@@ -34,7 +35,7 @@ run =
                     importTwilogs archiveFilePath
 
                 Nothing ->
-                    do (requireEnv "HOME") <|
+                    do getHomeDir <|
                         \home ->
                             do (BackendTask.Glob.fromString (home ++ "/Downloads/gada_twt-*.csv")) <|
                                 \archiveFilePaths ->
@@ -45,6 +46,43 @@ run =
                                         latestArchiveFilePath :: _ ->
                                             importTwilogs latestArchiveFilePath
         )
+
+
+getHomeDir : BackendTask FatalError String
+getHomeDir =
+    BackendTask.Env.get "HOME"
+        |> BackendTask.andThen
+            (\maybeHome ->
+                case maybeHome of
+                    Just home ->
+                        BackendTask.succeed (normalizePath home)
+
+                    Nothing ->
+                        BackendTask.Env.get "USERPROFILE"
+                            |> BackendTask.andThen
+                                (\maybeUserProfile ->
+                                    case maybeUserProfile of
+                                        Just userProfile ->
+                                            BackendTask.succeed (normalizePath userProfile)
+
+                                        Nothing ->
+                                            BackendTask.fail <|
+                                                FatalError.fromString "Neither HOME nor USERPROFILE environment variable is found."
+                                )
+            )
+
+
+normalizePath : String -> String
+normalizePath path =
+    let
+        slashed =
+            String.replace "\\" "/" path
+    in
+    if String.endsWith "/" slashed then
+        String.dropRight 1 slashed
+
+    else
+        slashed
 
 
 config =
