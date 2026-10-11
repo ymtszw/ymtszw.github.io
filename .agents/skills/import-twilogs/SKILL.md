@@ -17,20 +17,20 @@ macOS および Windows の両環境に対応しています。
 | 担当 | 内容 |
 | :--- | :--- |
 | **ユーザー** | 1. ブラウザで [Twilog](https://twilog.togetter.com/) にログイン<br>2. 最新ログの CSV をエクスポート・ダウンロード（`gada_twt-*.csv`）<br>3. ダウンロード完了を Agent に伝える（またはダウンロード済み状態で automation を実行） |
-| **Agent** | 1. ダウンロードフォルダ内の最新 CSV ファイルの確認<br>2. `npm run import_twilogs` の実行<br>3. テスト・ビルド等の検証（`npm test` など）<br>4. `npm run push_recent_twilogs` によるコミット＆プッシュ<br>5. 完了報告 |
+| **Agent** | 1. リポジトリの最新化（`git pull` 等）<br>2. `npm run import_twilogs` の実行（※最新 CSV の検出はスクリプトが自動処理）<br>3. テスト・ビルド等の検証（`npm test` など）<br>4. `npm run push_recent_twilogs` によるコミット＆プッシュ<br>5. 完了報告 |
 
 ---
 
 ## ワークフロー手順
 
-### Step 1: ダウンロード済み CSV の確認
+### Step 1: コードの最新化
 
-Agent は、ユーザーのダウンロードフォルダ（macOS: `~/Downloads/`, Windows: `%USERPROFILE%\Downloads\`）に最新の `gada_twt-*.csv` が存在するか確認します。
+作業開始前にリモートの最新状態を取り込みます：
 
-- **ファイルが見つかった場合**:
-  - ファイルの更新日時やファイル名の日付サフィックスを確認し、最新のダウンロードであることを確認して Step 2 へ進みます。
-- **ファイルが見つからない、または明らかに古い場合**:
-  - ユーザーに Twilog からの最新 CSV エクスポート・ダウンロードを依頼し、ダウンロード完了の合図を待ちます。
+```bash
+git checkout master
+git pull origin master
+```
 
 ### Step 2: インポート実行 (`npm run import_twilogs`)
 
@@ -40,7 +40,7 @@ Agent は、ユーザーのダウンロードフォルダ（macOS: `~/Downloads/
 npm run import_twilogs
 ```
 
-- スクリプト内部（`script/ImportTwilogCsvAndBuildSearchIndex.elm`）で自動的にホームディレクトリ（`HOME` または `USERPROFILE`）配下の `Downloads/gada_twt-*.csv` から最新のファイルを取得し、取り込み処理を行います。
+- スクリプト内部（`script/ImportTwilogCsvAndBuildSearchIndex.elm`）で自動的にホームディレクトリ（`HOME` または `USERPROFILE`）配下の `Downloads/gada_twt-*.csv` から最新のファイルを取得し、取り込み処理を行います。**Agent による事前の CSV 存在確認は不要です**。
 - パスを直接指定して実行することも可能です：
   ```bash
   npm run import_twilogs -- /path/to/gada_twt-YYMMDD.csv
@@ -49,6 +49,7 @@ npm run import_twilogs
 **実行結果の判定**:
 - `Imported N Twilogs`: 新規ツイートが正常に取り込まれ、検索インデックス・アーカイブ一覧が更新された状態。→ Step 3 へ。
 - `No new Twilogs to import`: すでに最新データまで取り込み済み。追加作業は不要のため、ユーザーにその旨を報告して終了します。
+- `No Twilog CSV files found in ...`: CSV ファイルが見つからない場合のエラー。ユーザーに Twilog からの最新 CSV エクスポート・ダウンロードを促すメッセージを出力して終了します。
 
 ### Step 3: 品質・ビルド検証
 
@@ -118,8 +119,7 @@ Agent はユーザーに以下を報告して終了します：
 手動実行の Automation を定義する場合のプロンプト例：
 
 ```markdown
-Twilog データの取り込みを実行してください。
-Downloads フォルダにある最新の Twilog CSV (gada_twt-*.csv) を確認し、
-import-twilogs スキルの手順に従ってインポート、テスト検証、コミット＆プッシュまで完了してください。
-もし最新の CSV が見つからない場合は、ダウンロードを促してください。
+import-twilogs スキルを実行してください。
+事前に最新のコードを取得（git checkout master && git pull origin master）した上で、インポート（npm run import_twilogs）、テスト実行（npm test）、ビルド検証（npm run build）、プッシュ（npm run push_recent_twilogs）まで完了してください。
+（Twilog CSV の存在確認はインポートスクリプトが自動で行うため事前確認は不要です。CSV が見つからないエラーとなった場合は、ダウンロードを促すメッセージを出力して終了してください。）
 ```
