@@ -22,6 +22,9 @@ export default {
     return `
 <link rel="stylesheet" href="/style.css" />
 <script src="https://cdn.jsdelivr.net/npm/@mermaid-js/tiny@11/dist/mermaid.tiny.js"></script>
+<!-- Cloudflare Web Analytics -->
+<script defer src="/api/telemetry/script" data-cf-beacon='{"token": "3b9ae30775224b5ba2235efa3df98d4c", "send": {"to": "/api/telemetry"}}'></script>
+<!-- End Cloudflare Web Analytics -->
 <meta name="generator" content="elm-pages v${context.cliVersion}" />
 `;
   },

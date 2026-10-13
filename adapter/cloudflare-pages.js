@@ -38,6 +38,12 @@ export default async function run({
 
   // Copy render function to functions directory
   fs.copyFileSync(renderFunctionFilePath, "./functions/elm-pages-cli.mjs");
+  // Normalize Windows absolute paths in imports
+  let cliContent = fs.readFileSync("./functions/elm-pages-cli.mjs", "utf8");
+  cliContent = cliContent
+    .replace(/from\s*"[^"]*elm\.cjs"/g, 'from "../elm-stuff/elm-pages/elm.cjs"')
+    .replace(/from\s*"[^"]*custom-backend-task\.mjs"/g, 'from "../.elm-pages/compiled-ports/custom-backend-task.mjs"');
+  fs.writeFileSync("./functions/elm-pages-cli.mjs", cliContent);
   generatedFiles.push("functions/elm-pages-cli.mjs");
 
   // Generate the catch-all handler for Cloudflare Pages Functions
@@ -79,7 +85,12 @@ function generateRoutesJson(routePatterns, apiRoutePatterns) {
     .filter(isServerSide)
     .map((route) => pathPatternToString(route.pathPattern));
 
-  const allServerRoutes = [...serverRoutes, ...apiServerRoutes];
+  const customFunctionRoutes = ["/api/telemetry*"];
+  const allServerRoutes = [
+    ...serverRoutes,
+    ...apiServerRoutes,
+    ...customFunctionRoutes,
+  ];
 
   // Exclude static assets from Functions routing
   const staticAssetPatterns = [
@@ -153,6 +164,88 @@ import * as elmPages from "./elm-pages-cli.mjs";
  * @param {EventContext} context
  */
 export async function onRequest(context) {
+  const { request } = context;
+  const url = new URL(request.url);
+
+  // Cloudflare Web Analytics First-Party Proxy
+  if (url.pathname === "/api/telemetry/script" || url.pathname === "/api/telemetry/beacon.js") {
+    if (request.method === "GET" || request.method === "HEAD") {
+      const beaconUrl = "https://static.cloudflareinsights.com/beacon.min.js";
+      try {
+        const res = await fetch(beaconUrl, {
+          headers: {
+            "User-Agent": request.headers.get("User-Agent") || "",
+          },
+        });
+        return new Response(request.method === "HEAD" ? null : res.body, {
+          status: res.status,
+          headers: {
+            "Content-Type": "application/javascript; charset=utf-8",
+            "Cache-Control": "public, max-age=86400, s-maxage=604800",
+          },
+        });
+      } catch (err) {
+        console.error("Beacon proxy error:", err);
+        return new Response("console.warn('Beacon proxy failed');", {
+          status: 502,
+          headers: {
+            "Content-Type": "application/javascript; charset=utf-8",
+          },
+        });
+      }
+    }
+    return new Response("Method Not Allowed", { status: 405 });
+  }
+
+  if (url.pathname === "/api/telemetry") {
+    if (request.method === "POST") {
+      const targetUrl = "https://cloudflareinsights.com/cdn-cgi/rum";
+      const headers = new Headers();
+      headers.set("Content-Type", request.headers.get("Content-Type") || "application/json");
+      headers.set("User-Agent", request.headers.get("User-Agent") || "");
+      if (request.headers.has("Origin")) {
+        headers.set("Origin", request.headers.get("Origin"));
+      }
+      if (request.headers.has("Referer")) {
+        headers.set("Referer", request.headers.get("Referer"));
+      }
+      const clientIp = request.headers.get("CF-Connecting-IP");
+      if (clientIp) {
+        headers.set("CF-Connecting-IP", clientIp);
+        headers.set("X-Forwarded-For", clientIp);
+      }
+      try {
+        const upstreamResponse = await fetch(targetUrl, {
+          method: "POST",
+          headers,
+          body: request.body,
+        });
+        return new Response(upstreamResponse.body, {
+          status: upstreamResponse.status,
+          headers: {
+            "Content-Type": upstreamResponse.headers.get("Content-Type") || "text/plain",
+          },
+        });
+      } catch (err) {
+        console.error("Telemetry proxy error:", err);
+        return new Response(JSON.stringify({ error: "Telemetry proxy failed", message: String(err) }), {
+          status: 502,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    } else if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      });
+    }
+    return new Response("Method Not Allowed", { status: 405 });
+  }
+
   try {
     const renderResult = await elmPages.render(await reqToJson(context.request));
     const { headers, statusCode } = renderResult;
