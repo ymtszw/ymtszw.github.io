@@ -199,6 +199,24 @@ export async function onRequest(context) {
 
   if (url.pathname === "/api/telemetry") {
     if (request.method === "POST") {
+      const isLocalDev =
+        url.hostname === "localhost" ||
+        url.hostname === "127.0.0.1" ||
+        url.hostname.endsWith(".local") ||
+        url.hostname === "[::1]";
+
+      if (isLocalDev) {
+        try {
+          await request.text();
+        } catch (_) {}
+        return new Response(null, {
+          status: 204,
+          headers: {
+            "x-telemetry-mock": "true",
+          },
+        });
+      }
+
       const targetUrl = "https://cloudflareinsights.com/cdn-cgi/rum";
       const headers = new Headers();
       headers.set("Content-Type", request.headers.get("Content-Type") || "application/json");
