@@ -9,6 +9,15 @@ fi
 
 MAX_ATTEMPTS="${SMOKE_MAX_ATTEMPTS:-10}"
 RETRY_DELAY_SECONDS="${SMOKE_RETRY_DELAY_SECONDS:-2}"
+USER_AGENT="${SMOKE_USER_AGENT:-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36}"
+
+smoke_curl() {
+  local extra_args=()
+  if [ -n "${SMOKE_CUSTOM_HEADER:-}" ]; then
+    extra_args+=(-H "$SMOKE_CUSTOM_HEADER")
+  fi
+  curl -s -H "User-Agent: $USER_AGENT" "${extra_args[@]}" "$@"
+}
 
 request_status() {
   local path="$1"
@@ -16,7 +25,7 @@ request_status() {
   if [ "${2:-}" = "follow" ]; then
     curl_args+=(-L)
   fi
-  curl -s "${curl_args[@]}" -o /dev/null -w '%{http_code}' "$DEPLOY_URL$path" || true
+  smoke_curl "${curl_args[@]}" -o /dev/null -w '%{http_code}' "$DEPLOY_URL$path" || true
 }
 
 wait_for_http_200() {
@@ -25,6 +34,10 @@ wait_for_http_200() {
   local follow_redirects="${3:-}"
   local http=""
   local attempt
+  local follow_args=()
+  if [ "$follow_redirects" = "follow" ]; then
+    follow_args+=(-L)
+  fi
 
   for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     http=$(request_status "$path" "$follow_redirects")
@@ -36,6 +49,11 @@ wait_for_http_200() {
   done
 
   echo "✗ $label returned $http after $MAX_ATTEMPTS attempts" >&2
+  echo "--- Last response headers for $path ---" >&2
+  smoke_curl -I "${follow_args[@]}" "$DEPLOY_URL$path" 2>&1 | head -n 30 >&2 || true
+  echo "--- Last response body snippet for $path ---" >&2
+  smoke_curl "${follow_args[@]}" "$DEPLOY_URL$path" 2>&1 | head -n 30 >&2 || true
+  echo "----------------------------------------" >&2
   return 1
 }
 
@@ -47,7 +65,7 @@ wait_for_body_match() {
   local attempt
 
   for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
-    body=$(curl -s "$DEPLOY_URL$path" || true)
+    body=$(smoke_curl "$DEPLOY_URL$path" || true)
     if printf '%s' "$body" | grep -q "$expected"; then
       return 0
     fi
@@ -56,7 +74,11 @@ wait_for_body_match() {
   done
 
   echo "✗ $label body did not contain expected text after $MAX_ATTEMPTS attempts" >&2
-  echo "Last response: $body" >&2
+  echo "--- Last response headers for $path ---" >&2
+  smoke_curl -I "$DEPLOY_URL$path" 2>&1 | head -n 30 >&2 || true
+  echo "--- Last response body snippet for $path ---" >&2
+  printf '%s\n' "$body" | head -n 30 >&2
+  echo "----------------------------------------" >&2
   return 1
 }
 
@@ -68,7 +90,7 @@ wait_for_header_match() {
   local attempt
 
   for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
-    headers=$(curl -s -D - -o /dev/null "$DEPLOY_URL$path" || true)
+    headers=$(smoke_curl -s -D - -o /dev/null "$DEPLOY_URL$path" || true)
     if printf '%s' "$headers" | grep -iq "$expected"; then
       return 0
     fi
@@ -90,7 +112,7 @@ wait_for_json_expression() {
   local attempt
 
   for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
-    body=$(curl -s "$DEPLOY_URL$path" || true)
+    body=$(smoke_curl "$DEPLOY_URL$path" || true)
     if printf '%s' "$body" | jq -e "$jq_expression" >/dev/null 2>&1; then
       printf '%s\n' "$body"
       return 0
@@ -148,7 +170,7 @@ echo "✓ API response header x-elm-pages-cloudflare OK"
 echo "[6/6] Testing static assets..."
 wait_for_http_200 "static asset /robots.txt" "/robots.txt" || exit 1
 # Verify robots.txt content is not empty
-ROBOTS_SIZE=$(curl -s "$DEPLOY_URL/robots.txt" | wc -c | tr -d ' ')
+ROBOTS_SIZE=$(smoke_curl "$DEPLOY_URL/robots.txt" | wc -c | tr -d ' ')
 if [ "$ROBOTS_SIZE" -lt 10 ]; then
   echo "✗ robots.txt is too small ($ROBOTS_SIZE bytes)"
   exit 1
