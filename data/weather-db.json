@@ -4641,5 +4641,10 @@
 {"date":"2026-10-08","maxTemp":23.7,"minTemp":14.9,"weatherCodes":[0,0,0],"latitude":35.6743,"longitude":139.7925},
 {"date":"2026-10-09","maxTemp":24.9,"minTemp":15.3,"weatherCodes":[0,0,0],"latitude":35.6743,"longitude":139.7925},
 {"date":"2026-10-10","maxTemp":25.2,"minTemp":16.1,"weatherCodes":[0,0,0],"latitude":35.6743,"longitude":139.7925},
-{"date":"2026-10-11","maxTemp":26.4,"minTemp":16.4,"weatherCodes":[0,0,0],"latitude":35.6743,"longitude":139.7925}
+{"date":"2026-10-11","maxTemp":26.4,"minTemp":16.4,"weatherCodes":[0,0,0],"latitude":35.6743,"longitude":139.7925},
+{"date":"2026-10-12","maxTemp":25.3,"minTemp":16.9,"weatherCodes":[0,1,0],"latitude":35.6743,"longitude":139.7925},
+{"date":"2026-10-13","maxTemp":25.4,"minTemp":17,"weatherCodes":[3,3,0],"latitude":35.6743,"longitude":139.7925},
+{"date":"2026-10-14","maxTemp":26.4,"minTemp":19.4,"weatherCodes":[2,0,0],"latitude":35.6743,"longitude":139.7925},
+{"date":"2026-10-15","maxTemp":22.8,"minTemp":16.8,"weatherCodes":[1,3,3],"latitude":35.6743,"longitude":139.7925},
+{"date":"2026-10-16","maxTemp":26.3,"minTemp":16.7,"weatherCodes":[0,3,3],"latitude":35.6743,"longitude":139.7925}
 ]
