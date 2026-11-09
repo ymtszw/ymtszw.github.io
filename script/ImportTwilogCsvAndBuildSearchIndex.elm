@@ -110,7 +110,7 @@ importTwilogs archiveFilePath =
                                 Ok tweets ->
                                     tweets
                                         |> List.filter (\twilog -> twilog.statusId > previousIdCursor)
-                                        |> List.filter isNotLike
+                                        |> List.filter isPostOrRepost
                                         |> removeDuplicatesByStatusId
                                         |> importRecentTwilogs previousIdCursor
 
@@ -140,11 +140,11 @@ lastIdFromZapierTwilogs =
     "1701931660152041841"
 
 
-isNotLike : RawTwilogInCsv -> Bool
-isNotLike twilog =
+isPostOrRepost : RawTwilogInCsv -> Bool
+isPostOrRepost twilog =
     -- Twilog CSV logType: "1" = Post/Repost, "2" = Like, "3" = Bookmark
-    -- いいね（"2"）以外の投稿（通常ポスト・リポスト、またはlogType欠損時の互換性）を取り込む
-    twilog.logType /= Just "2"
+    -- 将来的なブックマーク等の追加に備え、ポスト/リポスト（"1"、またはlogType欠損時の互換性）のみを受け入れる
+    twilog.logType == Just "1" || twilog.logType == Nothing
 
 
 {-| HACK: 2025/06頃のTwilogのCSVエクスポート機能で、同一statusIdのtweetが複数行に重複している不具合があったので、ユーザー側で重複除去する対応。
