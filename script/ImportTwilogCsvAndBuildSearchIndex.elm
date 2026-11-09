@@ -103,13 +103,14 @@ importTwilogs archiveFilePath =
                         \csvContent ->
                             case
                                 Csv.decodeCustom { fieldSeparator = ',' }
-                                    (Csv.CustomFieldNames [ "statusId", "url", "createdAt", "text" ])
+                                    (Csv.CustomFieldNames [ "statusId", "url", "createdAt", "text", "logType" ])
                                     twilogDecoder
                                     csvContent
                             of
                                 Ok tweets ->
                                     tweets
                                         |> List.filter (\twilog -> twilog.statusId > previousIdCursor)
+                                        |> List.filter isNotLike
                                         |> removeDuplicatesByStatusId
                                         |> importRecentTwilogs previousIdCursor
 
@@ -118,11 +119,12 @@ importTwilogs archiveFilePath =
 
 
 twilogDecoder =
-    Csv.succeed (\statusId url createdAt text -> { statusId = statusId, url = url, createdAt = createdAt, text = text })
+    Csv.succeed (\statusId url createdAt text logType -> { statusId = statusId, url = url, createdAt = createdAt, text = text, logType = logType })
         |> Csv.pipeline (Csv.field "statusId" Csv.string)
         |> Csv.pipeline (Csv.field "url" Csv.string)
         |> Csv.pipeline (Csv.field "createdAt" Csv.string)
         |> Csv.pipeline (Csv.field "text" (Csv.string |> Csv.map (String.replace "\u{000D}\n" "\n")))
+        |> Csv.pipeline (Csv.optionalColumn 4 Csv.string)
 
 
 cursorFilePath =
@@ -138,6 +140,13 @@ lastIdFromZapierTwilogs =
     "1701931660152041841"
 
 
+isNotLike : RawTwilogInCsv -> Bool
+isNotLike twilog =
+    -- Twilog CSV logType: "1" = Post/Repost, "2" = Like, "3" = Bookmark
+    -- いいね（"2"）以外の投稿（通常ポスト・リポスト、またはlogType欠損時の互換性）を取り込む
+    twilog.logType /= Just "2"
+
+
 {-| HACK: 2025/06頃のTwilogのCSVエクスポート機能で、同一statusIdのtweetが複数行に重複している不具合があったので、ユーザー側で重複除去する対応。
 -}
 removeDuplicatesByStatusId : List RawTwilogInCsv -> List RawTwilogInCsv
@@ -146,7 +155,7 @@ removeDuplicatesByStatusId twilogs =
 
 
 type alias RawTwilogInCsv =
-    { statusId : String, url : String, createdAt : String, text : String }
+    { statusId : String, url : String, createdAt : String, text : String, logType : Maybe String }
 
 
 importRecentTwilogs : String -> List RawTwilogInCsv -> BackendTask FatalError ()
