@@ -242,11 +242,13 @@ view app _ _ =
                                     ]
                                     [ Html.blockquote [] <|
                                         [ Html.table [] <|
-                                            [ Html.tr [] <|
-                                                [ Html.td [] <|
-                                                    [ Html.strong [] [ Html.text metadata.title ]
-                                                    , Html.p [] [ Html.text metadata.excerptHtml.excerpt ]
-                                                    , Html.small [] [ Html.text (" [" ++ Helper.posixToYmd metadata.publishedAt ++ "]") ]
+                                            [ Html.tbody [] <|
+                                                [ Html.tr [] <|
+                                                    [ Html.td [] <|
+                                                        [ Html.strong [] [ Html.text metadata.title ]
+                                                        , Html.p [] [ Html.text metadata.excerptHtml.excerpt ]
+                                                        , Html.small [] [ Html.text (" [" ++ Helper.posixToYmd metadata.publishedAt ++ "]") ]
+                                                        ]
                                                     ]
                                                 ]
                                             ]

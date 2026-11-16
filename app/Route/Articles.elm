@@ -94,17 +94,19 @@ cmsArticlePreview meta =
         |> Route.link [ Html.Attributes.class "link-preview" ]
             [ Html.blockquote [] <|
                 [ Html.table [] <|
-                    [ Html.tr [] <|
-                        [ Html.td [] <|
-                            [ Html.strong [] [ Html.text meta.title ]
-                            , Html.small [] [ Html.text ("[" ++ posixToYmd meta.publishedAt ++ "]") ]
-                            ]
-                        , case meta.image of
-                            Just cmsImage ->
-                                Html.td [] [ View.imgLazy [ Html.Attributes.src (cmsImage.url ++ "?h=150"), Html.Attributes.alt "Article Header Image", Html.Attributes.height 150 ] [] ]
+                    [ Html.tbody [] <|
+                        [ Html.tr [] <|
+                            [ Html.td [] <|
+                                [ Html.strong [] [ Html.text meta.title ]
+                                , Html.small [] [ Html.text ("[" ++ posixToYmd meta.publishedAt ++ "]") ]
+                                ]
+                            , case meta.image of
+                                Just cmsImage ->
+                                    Html.td [] [ View.imgLazy [ Html.Attributes.src (cmsImage.url ++ "?h=150"), Html.Attributes.alt "Article Header Image", Html.Attributes.height 150 ] [] ]
 
-                            Nothing ->
-                                Html.text ""
+                                Nothing ->
+                                    Html.text ""
+                            ]
                         ]
                     ]
                 ]
