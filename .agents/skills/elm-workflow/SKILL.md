@@ -7,74 +7,43 @@ description: >-
 
 # Elm Workflow & Code Quality
 
-ymtszw.cc リポジトリにおける Elm コード変更時の標準的な検証手順と注意事項です。
-Elm ファイル（`app/`、`src/`、`script/` など）を変更した際、コミット前にこの手順に従って検証を行ってください。
+Standard verification steps for Elm changes (`app/`, `src/`, `script/`, etc.) in `ymtszw.cc` before committing.
 
-## ワークフロー手順
+## Steps
 
-### 1. コードフォーマット (`elm-format`)
+1. **Format (`elm-format`)**
+   ```bash
+   npx elm-format --yes <edited-files>
+   # Or by directory:
+   npx elm-format --yes app/ src/ script/
+   ```
 
-変更した Elm ファイルに対して必ずフォーマッタを実行します：
+2. **Check Trailing Comment Relocation (Important)**
+   `elm-format` moves trailing `-- ...` comments (e.g., on pipeline lines) to the start of the next line.
+   Run `git diff <edited-files>` and move any misplaced comments back to an appropriate line (e.g., before the pipeline or function header).
 
-```bash
-npx elm-format --yes <編集したファイル>
-```
+3. **Code Generation (`elm-pages gen`)**
+   Run when adding routes (`app/Route/...`) or changing metadata/routing definitions:
+   ```bash
+   npx elm-pages gen
+   ```
 
-複数ファイルやディレクトリ単位で実行する場合：
-```bash
-npx elm-format --yes app/ src/ script/
-```
+4. **Tests (`npm test`)**
+   ```bash
+   npm test
+   ```
+   Generates test fixtures via `script/GenerateTwilogDataCodecTestFixtures` and runs `elm-test-rs`. Confirm `TEST RUN PASSED`.
 
-### 2. ⚠️ 重要: 行末コメント移動の確認と是正
+5. **Production Build (`npm run build`)**
+   ```bash
+   npm run build
+   ```
+   Runs `elm-pages build --strict`. Requires `.env` vars (`MICROCMS_API_KEY`, etc.).
+   If `direnv` is not active, prefix with `direnv exec .` or `mise exec --`.
+   On Windows, `.npmrc` sets `script-shell=bash`; if `bash` is unavailable, load `.env` and run `node_modules\.bin\elm-pages.cmd build --strict`.
 
-`elm-format` には、パイプライン行末などのコメント（`-- ...`）を次行の先頭に移動させる特性があります。
-
-**例:**
-```elm
--- フォーマット前
-    |> List.take 10 -- 先頭10件を取得
-
--- フォーマット後（意図とずれる場合がある）
-    |> List.take 10
-    -- 先頭10件を取得
-    |> List.map .title
-```
-
-**確認手順:**
-- `git diff <編集したファイル>` を実行し、コメントの位置が不自然に移動していないか確認する。
-- パイプラインなどの文脈が壊れている場合は、パイプライン処理の前の行や関数ヘッダ等、適切な位置に手動で移動・修正する。
-
-### 3. コード生成の確認 (`elm-pages gen`)
-
-新しいページルートの追加（`app/Route/...`）や、メタデータ定義・ルーティングに変更を加えた場合は、コード生成を実行します：
-
-```bash
-npx elm-pages gen
-```
-
-### 4. テスト実行 (`npm test`)
-
-型整合性と既存機能への影響を確認するため、テストを実行します：
-
-```bash
-npm test
-```
-- `script/GenerateTwilogDataCodecTestFixtures` によるテストフィクスチャ生成と `elm-test-rs` が実行されます。
-- すべてのテストがパス（`TEST RUN PASSED`）することを確認してください。
-
-### 5. 静的ビルド検証 (`npm run build`)
-
-elm-pages による静的サイト生成が成功するか検証します：
-
-```bash
-npm run build
-```
-- `--strict` モードでビルドが実行されます。コンパイルエラーや未ハンドルの警告がないことを確認してください。
-- **Note**: 本番ビルドには `.env` の環境変数（`MICROCMS_API_KEY` 等）が必要です。シェルに direnv が自動適用されていない場合は `direnv exec . npm run build`（または `mise exec -- npm run build`）を実行してください。また、Windows 環境では `.npmrc` の `script-shell=bash` により Git for Windows 等の bash 経由で実行されます。
-
-### 6. Git 状態確認
-
-```bash
-git status
-```
-- 想定外の差分や生成ファイルの漏れがないことを確認します。
+6. **Git Status**
+   ```bash
+   git status
+   ```
+   Confirm no unintended diffs or missing generated files.
