@@ -16,8 +16,8 @@ macOS および Windows の両環境に対応しています。
 
 | 担当 | 内容 |
 | :--- | :--- |
-| **ユーザー** | 1. ブラウザで [Twilog](https://twilog.togetter.com/) にログイン<br>2. 最新ログの CSV をエクスポート・ダウンロード（`gada_twt-*.csv`）<br>3. ダウンロード完了を Agent に伝える（またはダウンロード済み状態で automation を実行） |
-| **Agent** | 1. リポジトリの最新化（`git pull` 等）<br>2. `npm run import_twilogs` の実行（※最新 CSV の検出はスクリプトが自動処理）<br>3. テスト・ビルド等の検証（`npm test` など）<br>4. `npm run push_recent_twilogs` によるコミット＆プッシュ<br>5. 完了報告 |
+| **ユーザー** | 初回またはセッション切れ時のみ、専用Chromeプロファイル（`~/.chrome-profiles/twilog-sync`）で [Twilog](https://twilog.togetter.com/) にログインし、ウィンドウを閉じておく |
+| **Agent** | 1. リポジトリの最新化（`git pull` 等）<br>2. `npm run download_twilogs` による最新 CSV（UTF-8）の自動ダウンロード<br>3. `npm run import_twilogs` の実行（※最新 CSV の検出はスクリプトが自動処理）<br>4. テスト・ビルド等の検証（`npm test`, `npm run build`）<br>5. `npm run push_recent_twilogs` によるコミット＆プッシュ<br>6. 完了報告 |
 
 ---
 
@@ -32,7 +32,21 @@ git checkout master
 git pull origin master
 ```
 
-### Step 2: インポート実行 (`npm run import_twilogs`)
+### Step 2: 最新 CSV の自動ダウンロード (`npm run download_twilogs`)
+
+専用Chromeプロファイル（`~/.chrome-profiles/twilog-sync`、環境変数 `TWILOG_CHROME_PROFILE_DIR` で上書き可）のログイン済みセッションを使い、ヘッドレスで Twilog 設定画面から UTF-8 版 CSV を `~/Downloads` へ自動ダウンロードします：
+
+```bash
+npm run download_twilogs
+# Windows 環境で .npmrc の script-shell=bash が見つからない場合:
+node script/download-twilog-csv.mjs
+```
+
+- `Downloaded: ... (N bytes)`: ダウンロード成功 → Step 3 へ。
+- `AUTH_REQUIRED`（終了コード `2`）またはタイムアウト: セッション切れまたは未ログイン状態です。ユーザーに専用Chromeプロファイルでの手動ログイン（起動後にブラウザを閉じる）を促して終了します。
+- ※ 同一プロファイルを開いたままにするとロック競合で失敗するため、手動ログイン後は必ず専用ウィンドウを閉じてください。
+
+### Step 3: インポート実行 (`npm run import_twilogs`)
 
 リポジトリルートでインポートスクリプトを実行します：
 
@@ -120,6 +134,6 @@ Agent はユーザーに以下を報告して終了します：
 
 ```markdown
 import-twilogs スキルを実行してください。
-事前に最新のコードを取得（git checkout master && git pull origin master）した上で、インポート（npm run import_twilogs）、テスト実行（npm test）、ビルド検証（npm run build）、プッシュ（npm run push_recent_twilogs）まで完了してください。
-（Twilog CSV の存在確認はインポートスクリプトが自動で行うため事前確認は不要です。CSV が見つからないエラーとなった場合は、ダウンロードを促すメッセージを出力して終了してください。）
+事前に最新のコードを取得（git checkout master && git pull origin master）した上で、CSVダウンロード（npm run download_twilogs）、インポート（npm run import_twilogs）、テスト実行（npm test）、ビルド検証（npm run build）、プッシュ（npm run push_recent_twilogs）まで完了してください。
+（認証切れ等で download_twilogs が失敗した場合は、専用Chromeプロファイルでの再ログインを促すメッセージを出力して終了してください。）
 ```
