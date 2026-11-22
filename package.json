@@ -48,6 +48,6 @@
     "lamdera@0.19.3-1.5.0": true,
     "fsevents@2.3.3": true,
     "sharp@0.34.5": true,
-    "workerd@1.20261103.1": true
+    "workerd@1.20261110.1": true
   }
 }
