@@ -4680,5 +4680,6 @@
 {"date":"2026-11-18","maxTemp":18.7,"minTemp":10.4,"weatherCodes":[0,1,0],"latitude":35.6743,"longitude":139.7925},
 {"date":"2026-11-19","maxTemp":17.8,"minTemp":9.7,"weatherCodes":[0,0,0],"latitude":35.6743,"longitude":139.7925},
 {"date":"2026-11-22","maxTemp":13.6,"minTemp":4.3,"weatherCodes":[0,0,0],"latitude":35.6743,"longitude":139.7925},
-{"date":"2026-11-24","maxTemp":17.9,"minTemp":6.5,"weatherCodes":[3,3,0],"latitude":35.6743,"longitude":139.7925}
+{"date":"2026-11-24","maxTemp":17.9,"minTemp":6.5,"weatherCodes":[3,3,0],"latitude":35.6743,"longitude":139.7925},
+{"date":"2026-11-25","maxTemp":13.9,"minTemp":6.3,"weatherCodes":[0,0,0],"latitude":35.6743,"longitude":139.7925}
 ]
